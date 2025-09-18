@@ -66,6 +66,7 @@ export default function Home() {
             onAdd={addRemito}
             onUpdate={updateRemito}
             onDelete={deleteRemito}
+            onAddCliente={addCliente}
           />
         );
       default:
@@ -76,8 +77,10 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gray-50">
       <Navigation activeTab={activeTab} onTabChange={setActiveTab} />
-      <main className="container mx-auto px-4 py-8">
-        {renderActiveSection()}
+      <main className="max-w-7xl mx-auto px-4 py-8">
+        <div className="bg-white rounded-lg shadow-md p-8">
+          {renderActiveSection()}
+        </div>
       </main>
     </div>
   );

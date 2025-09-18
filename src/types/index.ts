@@ -24,6 +24,8 @@ export interface Producto {
   categoriaId: string;
   categoria?: Categoria;
   stock?: number;
+  medida?: string; // Ej: "1L", "500ml", "2kg", "500g"
+  capacidad?: string; // Ej: "Botella", "Lata", "Caja", "Bolsa"
   createdAt: Date;
   updatedAt: Date;
 }

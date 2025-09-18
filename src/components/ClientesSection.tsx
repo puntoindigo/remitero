@@ -17,6 +17,7 @@ interface ClientesSectionProps {
 export function ClientesSection({ clientes, onAdd, onUpdate, onDelete }: ClientesSectionProps) {
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [quickAdd, setQuickAdd] = useState(false);
   const [formData, setFormData] = useState({
     nombre: '',
     email: '',
@@ -34,6 +35,16 @@ export function ClientesSection({ clientes, onAdd, onUpdate, onDelete }: Cliente
     }
     setFormData({ nombre: '', email: '', telefono: '', direccion: '' });
     setShowForm(false);
+    setQuickAdd(false);
+  };
+
+  const handleQuickAdd = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (formData.nombre.trim()) {
+      onAdd({ nombre: formData.nombre.trim(), email: '', telefono: '', direccion: '' });
+      setFormData({ nombre: '', email: '', telefono: '', direccion: '' });
+      setQuickAdd(false);
+    }
   };
 
   const handleEdit = (cliente: Cliente) => {
@@ -51,17 +62,59 @@ export function ClientesSection({ clientes, onAdd, onUpdate, onDelete }: Cliente
     setFormData({ nombre: '', email: '', telefono: '', direccion: '' });
     setEditingId(null);
     setShowForm(false);
+    setQuickAdd(false);
   };
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold text-gray-900">Gestión de Clientes</h2>
-        <Button onClick={() => setShowForm(true)} className="flex items-center space-x-2">
-          <Plus className="h-4 w-4" />
-          <span>Nuevo Cliente</span>
-        </Button>
+        <div className="flex space-x-2">
+          <Button 
+            onClick={() => setQuickAdd(true)} 
+            variant="outline" 
+            className="flex items-center space-x-2"
+          >
+            <Plus className="h-4 w-4" />
+            <span>Carga Rápida</span>
+          </Button>
+          <Button onClick={() => setShowForm(true)} className="flex items-center space-x-2">
+            <Plus className="h-4 w-4" />
+            <span>Nuevo Cliente</span>
+          </Button>
+        </div>
       </div>
+
+      {quickAdd && (
+        <div className="bg-blue-50 p-6 rounded-lg shadow-md border border-blue-200">
+          <h3 className="text-lg font-semibold mb-4 text-blue-900">Carga Rápida de Cliente</h3>
+          <form onSubmit={handleQuickAdd} className="space-y-4">
+            <div>
+              <Label htmlFor="nombre-quick">Nombre del Cliente *</Label>
+              <Input
+                id="nombre-quick"
+                value={formData.nombre}
+                onChange={(e) => setFormData(prev => ({ ...prev, nombre: e.target.value }))}
+                placeholder="Solo el nombre del cliente"
+                required
+                autoFocus
+              />
+              <p className="text-sm text-blue-600 mt-1">
+                Los demás datos se pueden completar editando el cliente después
+              </p>
+            </div>
+            <div className="flex space-x-2">
+              <Button type="submit">
+                Guardar Cliente
+              </Button>
+              <Button type="button" variant="outline" onClick={handleCancel}>
+                <X className="h-4 w-4 mr-2" />
+                Cancelar
+              </Button>
+            </div>
+          </form>
+        </div>
+      )}
 
       {showForm && (
         <div className="bg-white p-6 rounded-lg shadow-md border">

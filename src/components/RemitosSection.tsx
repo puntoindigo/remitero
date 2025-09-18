@@ -17,6 +17,7 @@ interface RemitosSectionProps {
   onAdd: (remito: Omit<Remito, 'id' | 'createdAt' | 'updatedAt'>) => void;
   onUpdate: (id: string, updates: Partial<Remito>) => void;
   onDelete: (id: string) => void;
+  onAddCliente: (cliente: Omit<Cliente, 'id' | 'createdAt' | 'updatedAt'>) => Cliente;
 }
 
 export function RemitosSection({ 
@@ -26,7 +27,8 @@ export function RemitosSection({
   contadorRemitos, 
   onAdd, 
   onUpdate, 
-  onDelete 
+  onDelete,
+  onAddCliente
 }: RemitosSectionProps) {
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -37,6 +39,8 @@ export function RemitosSection({
     fecha: new Date().toISOString().split('T')[0],
     observaciones: ''
   });
+  const [showQuickClient, setShowQuickClient] = useState(false);
+  const [quickClientName, setQuickClientName] = useState('');
   const [remitoItems, setRemitoItems] = useState<RemitoItem[]>([]);
   const [newItem, setNewItem] = useState({
     productoId: '',
@@ -140,6 +144,20 @@ export function RemitosSection({
     setRemitoItems(prev => prev.filter(item => item.productoId !== productoId));
   };
 
+  const handleQuickClientAdd = () => {
+    if (quickClientName.trim()) {
+      const newCliente = onAddCliente({
+        nombre: quickClientName.trim(),
+        email: '',
+        telefono: '',
+        direccion: ''
+      });
+      setFormData(prev => ({ ...prev, clienteId: newCliente.id }));
+      setShowQuickClient(false);
+      setQuickClientName('');
+    }
+  };
+
   const handlePrint = (remito: Remito) => {
     setPrintRemito(remito);
     setShowPrintModal(true);
@@ -159,19 +177,24 @@ export function RemitosSection({
       <head>
         <title>Remito ${printRemito.numero}</title>
         <style>
-          body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
-          .remito-impresion { width: 100%; max-width: 800px; margin: 0 auto; }
-          .remito-header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 20px; margin-bottom: 20px; }
-          .remito-header h1 { font-size: 24px; margin-bottom: 10px; }
-          .remito-info { display: flex; justify-content: space-between; margin-bottom: 20px; font-size: 14px; }
-          .remito-cliente { margin-bottom: 20px; font-size: 16px; font-weight: bold; }
-          .remito-productos { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-          .remito-productos th, .remito-productos td { border: 1px solid #000; padding: 8px; text-align: left; }
-          .remito-productos th { background-color: #f0f0f0; font-weight: bold; }
-          .remito-total { text-align: right; font-size: 18px; font-weight: bold; margin-top: 20px; padding: 10px; border-top: 2px solid #000; }
-          .remito-footer { margin-top: 30px; text-align: center; font-size: 12px; border-top: 1px solid #000; padding-top: 10px; }
-          .cut-line { border-top: 2px dashed #000; margin: 40px 0; text-align: center; color: #666; }
-          @media print { body { margin: 0; padding: 10px; } }
+          body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
+          .remito-impresion-horizontal { width: 100%; height: 100vh; display: flex; }
+          .remito-mitad { width: 50%; height: 100vh; padding: 20px; box-sizing: border-box; border-right: 2px dashed #000; }
+          .remito-mitad.derecha { border-right: none; border-left: 2px dashed #000; }
+          .remito-header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 15px; margin-bottom: 15px; }
+          .remito-header h1 { font-size: 20px; margin-bottom: 8px; }
+          .remito-header p { font-size: 14px; margin: 0; }
+          .remito-info { margin-bottom: 15px; font-size: 12px; }
+          .remito-info div { margin-bottom: 5px; }
+          .remito-productos { width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 11px; }
+          .remito-productos th, .remito-productos td { border: 1px solid #000; padding: 4px; text-align: left; }
+          .remito-productos th { background-color: #f0f0f0; font-weight: bold; font-size: 10px; }
+          .remito-productos td { font-size: 10px; }
+          .remito-total { text-align: right; font-size: 14px; font-weight: bold; margin-top: 15px; padding: 8px; border-top: 2px solid #000; }
+          .remito-footer { margin-top: 20px; font-size: 10px; border-top: 1px solid #000; padding-top: 8px; }
+          .remito-footer p { margin: 5px 0; }
+          .observaciones { font-style: italic; margin-top: 10px; }
+          @media print { body { margin: 0; padding: 0; } }
         </style>
       </head>
       <body>
@@ -190,9 +213,15 @@ export function RemitosSection({
     
     let productosHTML = '';
     remito.items.forEach(item => {
+      const medidaInfo = item.producto.medida && item.producto.capacidad 
+        ? ` (${item.producto.medida} - ${item.producto.capacidad})`
+        : item.producto.medida || item.producto.capacidad 
+        ? ` (${item.producto.medida || item.producto.capacidad})`
+        : '';
+      
       productosHTML += `
         <tr>
-          <td>${item.producto.nombre}</td>
+          <td>${item.producto.nombre}${medidaInfo}</td>
           <td>${item.cantidad}</td>
           <td>$${item.precioUnitario.toFixed(2)}</td>
           <td>$${item.subtotal.toFixed(2)}</td>
@@ -201,86 +230,79 @@ export function RemitosSection({
     });
     
     return `
-      <div class="remito-impresion">
-        <!-- Primera copia -->
-        <div class="remito-header">
-          <h1>REMITO</h1>
-          <p>Número: ${remito.numero}</p>
+      <div class="remito-impresion-horizontal">
+        <!-- Mitad izquierda - Para archivo -->
+        <div class="remito-mitad izquierda">
+          <div class="remito-header">
+            <h1>REMITO</h1>
+            <p>Número: ${remito.numero}</p>
+          </div>
+          
+          <div class="remito-info">
+            <div><strong>Fecha:</strong> ${fecha}</div>
+            <div><strong>Cliente:</strong> ${remito.cliente.nombre}</div>
+          </div>
+          
+          <table class="remito-productos">
+            <thead>
+              <tr>
+                <th>Producto</th>
+                <th>Cant.</th>
+                <th>Precio</th>
+                <th>Subtotal</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${productosHTML}
+            </tbody>
+          </table>
+          
+          <div class="remito-total">
+            <strong>TOTAL: $${remito.total.toFixed(2)}</strong>
+          </div>
+          
+          <div class="remito-footer">
+            <p>Firma del Cliente: _________________________</p>
+            <p>Fecha de Entrega: _________________________</p>
+            <p class="observaciones">${remito.observaciones || ''}</p>
+          </div>
         </div>
         
-        <div class="remito-info">
-          <div>Fecha: ${fecha}</div>
-          <div>Cliente: ${remito.cliente.nombre}</div>
-        </div>
-        
-        <div class="remito-cliente">
-          Cliente: ${remito.cliente.nombre}
-        </div>
-        
-        <table class="remito-productos">
-          <thead>
-            <tr>
-              <th>Producto</th>
-              <th>Cantidad</th>
-              <th>Precio Unit.</th>
-              <th>Subtotal</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${productosHTML}
-          </tbody>
-        </table>
-        
-        <div class="remito-total">
-          Total: $${remito.total.toFixed(2)}
-        </div>
-        
-        <div class="remito-footer">
-          <p>Firma del Cliente: _________________________</p>
-          <p>Fecha de Entrega: _________________________</p>
-        </div>
-        
-        <!-- Línea divisoria para cortar -->
-        <div class="cut-line">
-          CORTAR AQUÍ
-        </div>
-        
-        <!-- Segunda copia (duplicado) -->
-        <div class="remito-header">
-          <h1>REMITO (DUPLICADO)</h1>
-          <p>Número: ${remito.numero}</p>
-        </div>
-        
-        <div class="remito-info">
-          <div>Fecha: ${fecha}</div>
-          <div>Cliente: ${remito.cliente.nombre}</div>
-        </div>
-        
-        <div class="remito-cliente">
-          Cliente: ${remito.cliente.nombre}
-        </div>
-        
-        <table class="remito-productos">
-          <thead>
-            <tr>
-              <th>Producto</th>
-              <th>Cantidad</th>
-              <th>Precio Unit.</th>
-              <th>Subtotal</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${productosHTML}
-          </tbody>
-        </table>
-        
-        <div class="remito-total">
-          Total: $${remito.total.toFixed(2)}
-        </div>
-        
-        <div class="remito-footer">
-          <p>Firma del Cliente: _________________________</p>
-          <p>Fecha de Entrega: _________________________</p>
+        <!-- Mitad derecha - Para cliente -->
+        <div class="remito-mitad derecha">
+          <div class="remito-header">
+            <h1>REMITO</h1>
+            <p>Número: ${remito.numero}</p>
+          </div>
+          
+          <div class="remito-info">
+            <div><strong>Fecha:</strong> ${fecha}</div>
+            <div><strong>Cliente:</strong> ${remito.cliente.nombre}</div>
+          </div>
+          
+          <table class="remito-productos">
+            <thead>
+              <tr>
+                <th>Producto</th>
+                <th>Cant.</th>
+                <th>Precio</th>
+                <th>Subtotal</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${productosHTML}
+            </tbody>
+          </table>
+          
+          <div class="remito-total">
+            <strong>TOTAL: $${remito.total.toFixed(2)}</strong>
+          </div>
+          
+          <div class="remito-footer">
+            <p>Firma del Cliente: _________________________</p>
+            <p>Fecha de Entrega: _________________________</p>
+            <p class="observaciones">${remito.observaciones || ''}</p>
+          </div>
         </div>
       </div>
     `;
@@ -324,7 +346,19 @@ export function RemitosSection({
                 />
               </div>
               <div className="md:col-span-2">
-                <Label htmlFor="clienteId">Cliente *</Label>
+                <div className="flex items-center justify-between mb-2">
+                  <Label htmlFor="clienteId">Cliente *</Label>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowQuickClient(true)}
+                    className="text-xs"
+                  >
+                    <Plus className="h-3 w-3 mr-1" />
+                    Cliente Nuevo
+                  </Button>
+                </div>
                 <Select
                   id="clienteId"
                   value={formData.clienteId}
@@ -526,6 +560,40 @@ export function RemitosSection({
           </table>
         </div>
       </div>
+
+      {/* Modal para cliente rápido */}
+      {showQuickClient && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold">Cliente Nuevo</h3>
+              <Button variant="outline" size="sm" onClick={() => setShowQuickClient(false)}>
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="quick-client-name">Nombre del Cliente *</Label>
+                <Input
+                  id="quick-client-name"
+                  value={quickClientName}
+                  onChange={(e) => setQuickClientName(e.target.value)}
+                  placeholder="Nombre del cliente"
+                  autoFocus
+                />
+              </div>
+              <div className="flex justify-end space-x-2">
+                <Button onClick={handleQuickClientAdd}>
+                  Agregar Cliente
+                </Button>
+                <Button variant="outline" onClick={() => setShowQuickClient(false)}>
+                  Cancelar
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Modal de impresión */}
       {showPrintModal && printRemito && (

@@ -25,7 +25,9 @@ export function ProductosSection({ productos, categorias, onAdd, onUpdate, onDel
     descripcion: '',
     precio: '',
     categoriaId: '',
-    stock: ''
+    stock: '',
+    medida: '',
+    capacidad: ''
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -44,7 +46,7 @@ export function ProductosSection({ productos, categorias, onAdd, onUpdate, onDel
         stock: formData.stock ? parseInt(formData.stock) : undefined
       });
     }
-    setFormData({ nombre: '', descripcion: '', precio: '', categoriaId: '', stock: '' });
+    setFormData({ nombre: '', descripcion: '', precio: '', categoriaId: '', stock: '', medida: '', capacidad: '' });
     setShowForm(false);
   };
 
@@ -54,14 +56,16 @@ export function ProductosSection({ productos, categorias, onAdd, onUpdate, onDel
       descripcion: producto.descripcion || '',
       precio: producto.precio.toString(),
       categoriaId: producto.categoriaId,
-      stock: producto.stock?.toString() || ''
+      stock: producto.stock?.toString() || '',
+      medida: producto.medida || '',
+      capacidad: producto.capacidad || ''
     });
     setEditingId(producto.id);
     setShowForm(true);
   };
 
   const handleCancel = () => {
-    setFormData({ nombre: '', descripcion: '', precio: '', categoriaId: '', stock: '' });
+    setFormData({ nombre: '', descripcion: '', precio: '', categoriaId: '', stock: '', medida: '', capacidad: '' });
     setEditingId(null);
     setShowForm(false);
   };
@@ -138,6 +142,24 @@ export function ProductosSection({ productos, categorias, onAdd, onUpdate, onDel
                   placeholder="Cantidad en stock"
                 />
               </div>
+              <div>
+                <Label htmlFor="medida">Medida (opcional)</Label>
+                <Input
+                  id="medida"
+                  value={formData.medida}
+                  onChange={(e) => setFormData(prev => ({ ...prev, medida: e.target.value }))}
+                  placeholder="Ej: 1L, 500ml, 2kg"
+                />
+              </div>
+              <div>
+                <Label htmlFor="capacidad">Capacidad (opcional)</Label>
+                <Input
+                  id="capacidad"
+                  value={formData.capacidad}
+                  onChange={(e) => setFormData(prev => ({ ...prev, capacidad: e.target.value }))}
+                  placeholder="Ej: Botella, Lata, Caja"
+                />
+              </div>
             </div>
             <div>
               <Label htmlFor="descripcion">Descripción (opcional)</Label>
@@ -177,6 +199,9 @@ export function ProductosSection({ productos, categorias, onAdd, onUpdate, onDel
                   Precio
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Medida/Capacidad
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Stock
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -190,7 +215,7 @@ export function ProductosSection({ productos, categorias, onAdd, onUpdate, onDel
             <tbody className="bg-white divide-y divide-gray-200">
               {productos.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-4 text-center text-gray-500">
+                  <td colSpan={7} className="px-6 py-4 text-center text-gray-500">
                     No hay productos registrados
                   </td>
                 </tr>
@@ -205,6 +230,12 @@ export function ProductosSection({ productos, categorias, onAdd, onUpdate, onDel
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       ${producto.precio.toFixed(2)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {producto.medida && producto.capacidad 
+                        ? `${producto.medida} - ${producto.capacidad}`
+                        : producto.medida || producto.capacidad || '-'
+                      }
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {producto.stock !== undefined ? producto.stock : '-'}
