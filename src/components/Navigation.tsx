@@ -25,19 +25,19 @@ const tabs = [
 
 export function Navigation({ activeTab, onTabChange }: NavigationProps) {
   return (
-    <header className="bg-white border-b border-gray-200">
-      <div className="max-w-7xl mx-auto px-6 py-6">
+    <header className="bg-gray-900 text-white">
+      <div className="max-w-7xl mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <div className="p-2 bg-black rounded-lg">
+            <div className="p-2 bg-blue-600 rounded-lg">
               <Box className="h-6 w-6 text-white" />
             </div>
             <div>
-              <h1 className="text-title">Sistema de Gestión</h1>
-              <p className="text-subtitle">Productos y Remitos</p>
+              <h1 className="text-xl font-bold">Sistema de Gestión</h1>
+              <p className="text-sm text-gray-300">Productos y Remitos</p>
             </div>
           </div>
-          <nav className="flex space-x-1 bg-gray-100 rounded-lg p-1">
+          <nav className="flex space-x-1">
             {tabs.map((tab) => {
               const Icon = tab.icon;
               return (
@@ -45,10 +45,10 @@ export function Navigation({ activeTab, onTabChange }: NavigationProps) {
                   key={tab.id}
                   onClick={() => onTabChange(tab.id)}
                   className={cn(
-                    'px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 flex items-center space-x-2',
+                    'px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center space-x-2',
                     activeTab === tab.id 
-                      ? 'bg-white text-gray-900 shadow-sm border border-gray-200' 
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-white/50'
+                      ? 'bg-white/10 text-white' 
+                      : 'text-gray-300 hover:text-white hover:bg-white/5'
                   )}
                 >
                   <Icon className="h-4 w-4" />
@@ -57,6 +57,11 @@ export function Navigation({ activeTab, onTabChange }: NavigationProps) {
               );
             })}
           </nav>
+          <div className="flex items-center space-x-4">
+            <span className="px-2 py-1 bg-gray-700 text-xs font-medium rounded text-gray-300">
+              BETA
+            </span>
+          </div>
         </div>
       </div>
     </header>

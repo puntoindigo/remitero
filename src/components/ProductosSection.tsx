@@ -87,9 +87,21 @@ export function ProductosSection({ productos, categorias, onAdd, onUpdate, onDel
 
       {showForm && (
         <div className="modern-card p-6 max-w-5xl">
-          <h3 className="text-lg font-semibold mb-4 text-gray-900">
-            {editingId ? 'Editar Producto' : 'Nuevo Producto'}
-          </h3>
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center space-x-3">
+              <div className="p-2 bg-blue-100 rounded-lg">
+                <Package className="h-5 w-5 text-blue-600" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900">
+                  {editingId ? 'Editar Producto' : 'Nuevo Producto'}
+                </h3>
+                <p className="text-sm text-gray-500">
+                  Agrega y gestiona tu inventario de productos.
+                </p>
+              </div>
+            </div>
+          </div>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>

@@ -65,13 +65,20 @@ export function CategoriasSection({ categorias, onAdd, onUpdate, onDelete }: Cat
 
       {showForm && (
         <div className="modern-card p-6 max-w-4xl">
-          <div className="flex items-center space-x-3 mb-6">
-            <div className="p-2 bg-gray-100 rounded-lg">
-              <Tag className="h-5 w-5 text-gray-600" />
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center space-x-3">
+              <div className="p-2 bg-blue-100 rounded-lg">
+                <Tag className="h-5 w-5 text-blue-600" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900">
+                  {editingId ? 'Editar Categoría' : 'Nueva Categoría'}
+                </h3>
+                <p className="text-sm text-gray-500">
+                  Organiza tus productos por categorías.
+                </p>
+              </div>
             </div>
-            <h3 className="text-lg font-semibold text-gray-900">
-              {editingId ? 'Editar Categoría' : 'Nueva Categoría'}
-            </h3>
           </div>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

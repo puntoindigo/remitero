@@ -5,9 +5,9 @@ import { Remito, Cliente, Producto, RemitoItem } from '@/types';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Label } from '@/components/ui/Label';
-import { Select } from '@/components/ui/Select';
 import { Textarea } from '@/components/ui/Textarea';
-import { Plus, Edit, Trash2, X, Printer } from 'lucide-react';
+import { Combobox } from '@/components/ui/Combobox';
+import { Plus, Edit, Trash2, X, Printer, FileText, Package, Users, Tag, Calendar, DollarSign } from 'lucide-react';
 
 interface RemitosSectionProps {
   remitos: Remito[];
@@ -142,6 +142,16 @@ export function RemitosSection({
 
   const removeItem = (productoId: string) => {
     setRemitoItems(prev => prev.filter(item => item.productoId !== productoId));
+  };
+
+  const updateCantidad = (productoId: string, nuevaCantidad: number) => {
+    if (nuevaCantidad <= 0 || Number.isNaN(nuevaCantidad)) return;
+    setRemitoItems(prev =>
+      prev.map(item => item.productoId === productoId
+        ? { ...item, cantidad: nuevaCantidad, subtotal: nuevaCantidad * item.precioUnitario }
+        : item
+      )
+    );
   };
 
   const handleQuickClientAdd = () => {
@@ -310,6 +320,21 @@ export function RemitosSection({
 
   const total = remitoItems.reduce((sum, item) => sum + item.subtotal, 0);
 
+  // Preparar opciones para los combobox
+  const clienteOptions = clientes.map(cliente => ({
+    value: cliente.id,
+    label: cliente.nombre,
+    description: cliente.email ? cliente.email : cliente.telefono || ''
+  }));
+
+  const productoOptions = productos
+    .filter(p => !remitoItems.some(item => item.productoId === p.id))
+    .map(producto => ({
+      value: producto.id,
+      label: producto.nombre,
+      description: `$${producto.precio.toFixed(2)}`
+    }));
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -322,79 +347,78 @@ export function RemitosSection({
 
       {showForm && (
         <div className="modern-card p-6 max-w-6xl">
-          <h3 className="text-lg font-semibold mb-4 text-gray-900">
-            {editingId ? 'Editar Remito' : 'Nuevo Remito'}
-          </h3>
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="numero">Número de Remito</Label>
-                <Input
-                  id="numero"
-                  value={editingId ? remitos.find(r => r.id === editingId)?.numero : `REM-${contadorRemitos.toString().padStart(4, '0')}`}
-                  disabled
-                />
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center space-x-3">
+              <div className="p-2 bg-blue-100 rounded-lg">
+                <FileText className="h-5 w-5 text-blue-600" />
               </div>
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900">
+                  {editingId ? 'Editar Remito' : 'Nuevo Remito'}
+                </h3>
+                <p className="text-sm text-gray-500">
+                  Completa los datos y agrega productos al remito.
+                </p>
+              </div>
+            </div>
+            <div className="text-right">
+              <p className="text-sm text-gray-500">Número</p>
+              <p className="text-lg font-semibold text-gray-900">
+                {editingId ? remitos.find(r => r.id === editingId)?.numero : `REM-${contadorRemitos.toString().padStart(4, '0')}`}
+              </p>
+            </div>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <Label htmlFor="fecha">Fecha</Label>
-                <Input
-                  id="fecha"
-                  type="date"
-                  value={formData.fecha}
-                  onChange={(e) => setFormData(prev => ({ ...prev, fecha: e.target.value }))}
-                  className="w-[200px]"
-                  required
-                />
-              </div>
-              <div className="md:col-span-2">
-                <div className="flex items-center justify-between mb-2">
-                  <Label htmlFor="clienteId">Cliente *</Label>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setShowQuickClient(true)}
-                    className="text-xs"
-                  >
-                    <Plus className="h-3 w-3 mr-1" />
-                    Cliente Nuevo
-                  </Button>
+                <div className="relative">
+                  <Input
+                    id="fecha"
+                    type="date"
+                    value={formData.fecha}
+                    onChange={(e) => setFormData(prev => ({ ...prev, fecha: e.target.value }))}
+                    className="w-[200px]"
+                    required
+                  />
+                  <Calendar className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
                 </div>
-                <Select
-                  id="clienteId"
+              </div>
+              <div>
+                <Label htmlFor="clienteId">Cliente *</Label>
+                <Combobox
+                  options={clienteOptions}
                   value={formData.clienteId}
-                  onChange={(e) => setFormData(prev => ({ ...prev, clienteId: e.target.value }))}
+                  onValueChange={(value) => setFormData(prev => ({ ...prev, clienteId: value }))}
+                  placeholder="Seleccionar cliente..."
+                  searchPlaceholder="Buscar cliente..."
                   className="w-[340px]"
-                  required
-                >
-                  <option value="">Seleccionar cliente...</option>
-                  {clientes.map((cliente) => (
-                    <option key={cliente.id} value={cliente.id}>
-                      {cliente.nombre}
-                    </option>
-                  ))}
-                </Select>
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  ¿No aparece? Podrás crear uno nuevo en la pantalla de Clientes.
+                </p>
               </div>
             </div>
 
-            {/* Agregar productos */}
-            <div className="border-t pt-4">
-              <h4 className="text-md font-semibold mb-4">Productos</h4>
+            {/* Sección de productos */}
+            <div className="border-t pt-6">
+              <div className="flex items-center space-x-2 mb-4">
+                <Package className="h-5 w-5 text-gray-600" />
+                <h4 className="text-md font-semibold text-gray-900">Productos</h4>
+              </div>
+              
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                 <div>
                   <Label htmlFor="producto">Producto</Label>
-                  <Select
+                  <Combobox
+                    options={productoOptions}
                     value={newItem.productoId}
-                    onChange={(e) => setNewItem(prev => ({ ...prev, productoId: e.target.value }))}
-                    className="w-[360px]"
-                  >
-                    <option value="">Seleccionar producto...</option>
-                    {productos.map((producto) => (
-                      <option key={producto.id} value={producto.id}>
-                        {producto.nombre} - ${producto.precio.toFixed(2)}
-                      </option>
-                    ))}
-                  </Select>
+                    onValueChange={(value) => setNewItem(prev => ({ ...prev, productoId: value }))}
+                    placeholder="Seleccionar producto..."
+                    searchPlaceholder="Buscar producto..."
+                    className="w-full"
+                  />
                 </div>
                 <div>
                   <Label htmlFor="cantidad">Cantidad</Label>
@@ -407,7 +431,12 @@ export function RemitosSection({
                   />
                 </div>
                 <div className="flex items-end">
-                  <Button type="button" onClick={addItem} className="w-full">
+                  <Button 
+                    type="button" 
+                    onClick={addItem} 
+                    disabled={!newItem.productoId}
+                    className="w-full"
+                  >
                     <Plus className="h-4 w-4 mr-2" />
                     Agregar
                   </Button>
@@ -419,10 +448,10 @@ export function RemitosSection({
                 <div className="bg-gray-50 rounded-lg p-4">
                   <table className="w-full">
                     <thead>
-                      <tr className="text-left text-sm font-medium text-gray-500">
+                      <tr className="text-left text-sm font-medium text-gray-500 border-b">
                         <th className="pb-2">Producto</th>
-                        <th className="pb-2">Cantidad</th>
-                        <th className="pb-2">Precio Unit.</th>
+                        <th className="pb-2">Precio</th>
+                        <th className="pb-2">Cant.</th>
                         <th className="pb-2">Subtotal</th>
                         <th className="pb-2"></th>
                       </tr>
@@ -430,11 +459,26 @@ export function RemitosSection({
                     <tbody>
                       {remitoItems.map((item) => (
                         <tr key={item.productoId} className="border-b">
-                          <td className="py-2">{item.producto.nombre}</td>
-                          <td className="py-2">{item.cantidad}</td>
-                          <td className="py-2">${item.precioUnitario.toFixed(2)}</td>
-                          <td className="py-2">${item.subtotal.toFixed(2)}</td>
-                          <td className="py-2">
+                          <td className="py-3">
+                            <div>
+                              <p className="font-medium text-gray-900">{item.producto.nombre}</p>
+                              {item.producto.medida && (
+                                <p className="text-sm text-gray-500">{item.producto.medida}</p>
+                              )}
+                            </div>
+                          </td>
+                          <td className="py-3 text-gray-600">${item.precioUnitario.toFixed(2)}</td>
+                          <td className="py-3">
+                            <Input
+                              className="h-8 w-20 text-right"
+                              type="number"
+                              min={1}
+                              value={item.cantidad}
+                              onChange={(e) => updateCantidad(item.productoId, parseInt(e.target.value || "1", 10))}
+                            />
+                          </td>
+                          <td className="py-3 font-medium text-gray-900">${item.subtotal.toFixed(2)}</td>
+                          <td className="py-3">
                             <Button
                               type="button"
                               variant="destructive"
@@ -448,9 +492,9 @@ export function RemitosSection({
                       ))}
                     </tbody>
                     <tfoot>
-                      <tr className="font-bold text-lg">
-                        <td colSpan={3} className="pt-2">Total:</td>
-                        <td className="pt-2">${total.toFixed(2)}</td>
+                      <tr className="font-bold text-lg border-t">
+                        <td colSpan={3} className="pt-3">Total:</td>
+                        <td className="pt-3">${total.toFixed(2)}</td>
                         <td></td>
                       </tr>
                     </tfoot>
@@ -465,20 +509,28 @@ export function RemitosSection({
                 id="observaciones"
                 value={formData.observaciones}
                 onChange={(e) => setFormData(prev => ({ ...prev, observaciones: e.target.value }))}
-                placeholder="Observaciones adicionales..."
+                placeholder="Notas adicionales para este remito..."
                 className="max-w-2xl"
                 rows={3}
               />
             </div>
 
-            <div className="flex space-x-2">
-              <Button type="submit">
-                {editingId ? 'Actualizar' : 'Guardar Remito'}
-              </Button>
-              <Button type="button" variant="outline" onClick={handleCancel}>
-                <X className="h-4 w-4 mr-2" />
-                Cancelar
-              </Button>
+            <div className="flex justify-between items-center pt-4 border-t">
+              <div className="flex items-center space-x-2">
+                <DollarSign className="h-5 w-5 text-gray-600" />
+                <span className="text-sm text-gray-600">Total estimado:</span>
+                <span className="text-xl font-bold text-gray-900">${total.toFixed(2)}</span>
+              </div>
+              <div className="flex space-x-3">
+                <Button type="button" variant="outline" onClick={handleCancel}>
+                  <X className="h-4 w-4 mr-2" />
+                  Cancelar
+                </Button>
+                <Button type="submit">
+                  <FileText className="h-4 w-4 mr-2" />
+                  {editingId ? 'Actualizar Remito' : 'Guardar Remito'}
+                </Button>
+              </div>
             </div>
           </form>
         </div>
@@ -510,8 +562,14 @@ export function RemitosSection({
             <tbody className="bg-white divide-y divide-gray-200">
               {remitos.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-4 text-center text-gray-500">
-                    No hay remitos registrados
+                  <td colSpan={5} className="px-6 py-12 text-center">
+                    <div className="flex flex-col items-center space-y-3">
+                      <div className="p-4 bg-gray-100 rounded-full">
+                        <FileText className="h-8 w-8 text-gray-400" />
+                      </div>
+                      <p className="text-body font-medium">No hay remitos registrados</p>
+                      <p className="text-caption">Comienza creando tu primer remito</p>
+                    </div>
                   </td>
                 </tr>
               ) : (
@@ -526,7 +584,7 @@ export function RemitosSection({
                     <td className="px-6 py-4 text-sm text-gray-500">
                       {remito.cliente.nombre}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                       ${remito.total.toFixed(2)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -566,58 +624,21 @@ export function RemitosSection({
         </div>
       </div>
 
-      {/* Modal para cliente rápido */}
-      {showQuickClient && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold">Cliente Nuevo</h3>
-              <Button variant="outline" size="sm" onClick={() => setShowQuickClient(false)}>
-                <X className="h-4 w-4" />
-              </Button>
-            </div>
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="quick-client-name">Nombre del Cliente *</Label>
-                <Input
-                  id="quick-client-name"
-                  value={quickClientName}
-                  onChange={(e) => setQuickClientName(e.target.value)}
-                  placeholder="Nombre del cliente"
-                  autoFocus
-                />
-              </div>
-              <div className="flex justify-end space-x-2">
-                <Button onClick={handleQuickClientAdd}>
-                  Agregar Cliente
-                </Button>
-                <Button variant="outline" onClick={() => setShowQuickClient(false)}>
-                  Cancelar
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Modal de impresión */}
       {showPrintModal && printRemito && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-4xl max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold">Vista Previa del Remito</h3>
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <h3 className="text-lg font-semibold mb-4">Imprimir Remito</h3>
+            <p className="text-gray-600 mb-6">
+              ¿Deseas imprimir el remito {printRemito.numero}?
+            </p>
+            <div className="flex justify-end space-x-3">
               <Button variant="outline" onClick={() => setShowPrintModal(false)}>
-                <X className="h-4 w-4" />
+                Cancelar
               </Button>
-            </div>
-            <div dangerouslySetInnerHTML={{ __html: generatePrintContent(printRemito) }} />
-            <div className="flex justify-end space-x-2 mt-4">
               <Button onClick={printDocument}>
                 <Printer className="h-4 w-4 mr-2" />
                 Imprimir
-              </Button>
-              <Button variant="outline" onClick={() => setShowPrintModal(false)}>
-                Cancelar
               </Button>
             </div>
           </div>
