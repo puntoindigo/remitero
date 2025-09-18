@@ -313,7 +313,7 @@ export function RemitosSection({
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-900">Gestión de Remitos</h2>
+        <h2 className="text-title">Gestión de Remitos</h2>
         <Button onClick={() => setShowForm(true)} className="flex items-center space-x-2">
           <Plus className="h-4 w-4" />
           <span>Nuevo Remito</span>
@@ -321,8 +321,8 @@ export function RemitosSection({
       </div>
 
       {showForm && (
-        <div className="glass-effect p-8 rounded-2xl shadow-xl border border-white/20 max-w-6xl">
-          <h3 className="text-lg font-semibold mb-4">
+        <div className="modern-card p-6 max-w-6xl">
+          <h3 className="text-lg font-semibold mb-4 text-gray-900">
             {editingId ? 'Editar Remito' : 'Nuevo Remito'}
           </h3>
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -485,10 +485,10 @@ export function RemitosSection({
       )}
 
       {/* Lista de remitos */}
-      <div className="bg-white rounded-lg shadow-md overflow-hidden">
+      <div className="modern-table">
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-gray-50">
+            <thead className="table-header">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Número
@@ -516,7 +516,7 @@ export function RemitosSection({
                 </tr>
               ) : (
                 remitos.map((remito) => (
-                  <tr key={remito.id} className="hover:bg-gray-50">
+                  <tr key={remito.id} className="table-row">
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                       {remito.numero}
                     </td>

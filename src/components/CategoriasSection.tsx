@@ -51,25 +51,25 @@ export function CategoriasSection({ categorias, onAdd, onUpdate, onDelete }: Cat
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-3xl font-bold gradient-text">Gestión de Categorías</h2>
-          <p className="text-gray-600 mt-1">Organiza tus productos por categorías</p>
+          <h2 className="text-title">Gestión de Categorías</h2>
+          <p className="text-subtitle">Organiza tus productos por categorías</p>
         </div>
         <Button onClick={() => setShowForm(true)} className="flex items-center space-x-2">
-          <Plus className="h-5 w-5" />
+          <Plus className="h-4 w-4" />
           <span>Nueva Categoría</span>
         </Button>
       </div>
 
       {showForm && (
-        <div className="glass-effect p-8 rounded-2xl shadow-xl border border-white/20 max-w-4xl">
+        <div className="modern-card p-6 max-w-4xl">
           <div className="flex items-center space-x-3 mb-6">
-            <div className="p-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg">
-              <Tag className="h-5 w-5 text-white" />
+            <div className="p-2 bg-gray-100 rounded-lg">
+              <Tag className="h-5 w-5 text-gray-600" />
             </div>
-            <h3 className="text-xl font-bold text-gray-800">
+            <h3 className="text-lg font-semibold text-gray-900">
               {editingId ? 'Editar Categoría' : 'Nueva Categoría'}
             </h3>
           </div>
@@ -111,26 +111,26 @@ export function CategoriasSection({ categorias, onAdd, onUpdate, onDelete }: Cat
         </div>
       )}
 
-      <div className="glass-effect rounded-2xl shadow-xl overflow-hidden border border-white/20">
+      <div className="modern-table">
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-gradient-to-r from-blue-500/10 to-purple-500/10">
+            <thead className="table-header">
               <tr>
-                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Nombre
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Descripción
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Fecha Creación
                 </th>
-                <th className="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">
+                <th className="px-6 py-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Acciones
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white/50 divide-y divide-gray-200/50">
+            <tbody className="bg-white divide-y divide-gray-200">
               {categorias.length === 0 ? (
                 <tr>
                   <td colSpan={4} className="px-6 py-12 text-center">
@@ -138,8 +138,8 @@ export function CategoriasSection({ categorias, onAdd, onUpdate, onDelete }: Cat
                       <div className="p-4 bg-gray-100 rounded-full">
                         <Tag className="h-8 w-8 text-gray-400" />
                       </div>
-                      <p className="text-gray-500 font-medium">No hay categorías registradas</p>
-                      <p className="text-sm text-gray-400">Comienza creando tu primera categoría</p>
+                      <p className="text-body font-medium">No hay categorías registradas</p>
+                      <p className="text-caption">Comienza creando tu primera categoría</p>
                     </div>
                   </td>
                 </tr>
@@ -148,18 +148,18 @@ export function CategoriasSection({ categorias, onAdd, onUpdate, onDelete }: Cat
                   <tr key={categoria.id} className="table-row">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center space-x-3">
-                        <div className="p-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg">
-                          <Tag className="h-4 w-4 text-white" />
+                        <div className="p-2 bg-gray-100 rounded-lg">
+                          <Tag className="h-4 w-4 text-gray-600" />
                         </div>
-                        <span className="text-sm font-semibold text-gray-900">
+                        <span className="text-body font-medium text-gray-900">
                           {categoria.nombre}
                         </span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-600">
+                    <td className="px-6 py-4 text-body text-gray-600">
                       {categoria.descripcion || '-'}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-6 py-4 whitespace-nowrap text-caption text-gray-500">
                       {new Date(categoria.createdAt).toLocaleDateString('es-ES')}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -168,7 +168,6 @@ export function CategoriasSection({ categorias, onAdd, onUpdate, onDelete }: Cat
                           variant="outline"
                           size="sm"
                           onClick={() => handleEdit(categoria)}
-                          className="hover:bg-blue-50 hover:border-blue-300"
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
