@@ -1,36 +1,201 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Sistema de Gestión de Productos y Remitos - Next.js
 
-## Getting Started
+Un sistema web moderno y completo para la gestión de productos, clientes, categorías y remitos con impresión en formato A4 duplicado, desarrollado con Next.js, TypeScript y Tailwind CSS.
 
-First, run the development server:
+## 🚀 Características
 
+### 📦 Gestión Completa
+- **ABM de Categorías** - Organiza tus productos por categorías
+- **ABM de Clientes** - Gestiona información completa de clientes
+- **ABM de Productos** - Productos con categorías, precios y stock
+- **ABM de Remitos** - Remitos con numeración automática y cálculos
+
+### 🖨️ Sistema de Impresión Avanzado
+- **Formato A4 duplicado** para impresión profesional
+- **Línea de corte** claramente marcada
+- **Vista previa** antes de imprimir
+- **Diseño optimizado** para impresoras estándar
+
+### 💻 Tecnología Moderna
+- **Next.js 14** con App Router
+- **TypeScript** para type safety
+- **Tailwind CSS** para diseño responsive
+- **LocalStorage** para persistencia de datos
+- **Componentes reutilizables** y modulares
+
+## 🛠️ Instalación y Desarrollo
+
+### Prerrequisitos
+- Node.js 18+ 
+- npm o yarn
+
+### Instalación Local
 ```bash
+# Clonar el repositorio
+git clone https://github.com/puntoindigo/remitero.git
+cd remitero
+
+# Instalar dependencias
+npm install
+
+# Ejecutar en modo desarrollo
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+
+# Abrir en el navegador
+open http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Scripts Disponibles
+```bash
+npm run dev      # Servidor de desarrollo
+npm run build    # Build para producción
+npm run start    # Servidor de producción
+npm run lint     # Linter de código
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 📋 Funcionalidades Detalladas
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Categorías de Productos
+- ✅ Crear, editar y eliminar categorías
+- ✅ Descripción opcional para cada categoría
+- ✅ Fecha de creación automática
+- ✅ Validación de datos
 
-## Learn More
+### Gestión de Clientes
+- ✅ Información completa: nombre, email, teléfono, dirección
+- ✅ Campos opcionales para flexibilidad
+- ✅ Validación de email
+- ✅ Búsqueda y filtrado visual
 
-To learn more about Next.js, take a look at the following resources:
+### Productos
+- ✅ Asociación con categorías
+- ✅ Precios con decimales
+- ✅ Control de stock opcional
+- ✅ Descripción detallada
+- ✅ Cálculos automáticos
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Remitos
+- ✅ **Numeración automática** (REM-0001, REM-0002...)
+- ✅ Selección de cliente desde lista
+- ✅ Múltiples productos con cantidades
+- ✅ **Cálculos automáticos** de subtotales y total
+- ✅ Fecha personalizable
+- ✅ Observaciones opcionales
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Sistema de Impresión
+- ✅ **Formato A4 duplicado** profesional
+- ✅ **Línea de corte** para dividir la hoja
+- ✅ **Copia para cliente** y **copia para archivo**
+- ✅ Información completa en ambas copias
+- ✅ Espacios para firmas y fecha de entrega
+- ✅ Vista previa antes de imprimir
 
-## Deploy on Vercel
+## 🎨 Diseño y UX
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Interfaz Moderna
+- **Diseño responsive** - Funciona en móviles, tablets y escritorio
+- **Navegación por pestañas** - Acceso rápido a cada sección
+- **Formularios intuitivos** - Validación en tiempo real
+- **Tablas organizadas** - Información clara y accesible
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Experiencia de Usuario
+- **Mensajes de confirmación** - Feedback visual para todas las acciones
+- **Validaciones inteligentes** - Previene errores comunes
+- **Cálculos automáticos** - Sin errores de cálculo manual
+- **Persistencia de datos** - Los datos se guardan automáticamente
+
+## 🚀 Deploy en Vercel
+
+### Deploy Automático
+1. **Conectar con GitHub** - El repositorio se conecta automáticamente
+2. **Deploy automático** - Cada push a main genera un nuevo deploy
+3. **URL personalizada** - Acceso directo desde cualquier dispositivo
+4. **HTTPS automático** - Seguridad garantizada
+
+### Variables de Entorno
+No se requieren variables de entorno para el funcionamiento básico.
+
+## 📱 Compatibilidad
+
+### Navegadores Soportados
+- ✅ Chrome 90+
+- ✅ Firefox 88+
+- ✅ Safari 14+
+- ✅ Edge 90+
+
+### Dispositivos
+- ✅ **Escritorio** - Experiencia completa
+- ✅ **Tablet** - Interfaz adaptada
+- ✅ **Móvil** - Navegación táctil optimizada
+
+## 🔧 Personalización
+
+### Estilos
+- Modifica `src/app/globals.css` para cambios globales
+- Usa las clases de Tailwind para personalización rápida
+- Componentes modulares para fácil mantenimiento
+
+### Funcionalidad
+- Extiende los hooks en `src/hooks/` para nuevas características
+- Agrega nuevos tipos en `src/types/index.ts`
+- Componentes reutilizables en `src/components/ui/`
+
+## 📊 Estructura del Proyecto
+
+```
+src/
+├── app/                    # App Router de Next.js
+│   ├── globals.css        # Estilos globales
+│   ├── layout.tsx         # Layout principal
+│   └── page.tsx           # Página principal
+├── components/            # Componentes React
+│   ├── ui/               # Componentes base reutilizables
+│   ├── Navigation.tsx    # Navegación principal
+│   ├── CategoriasSection.tsx
+│   ├── ClientesSection.tsx
+│   ├── ProductosSection.tsx
+│   └── RemitosSection.tsx
+├── hooks/                # Hooks personalizados
+│   └── useLocalStorage.ts
+├── lib/                  # Utilidades y configuración
+│   ├── storage.ts        # Gestión de LocalStorage
+│   └── utils.ts          # Utilidades generales
+└── types/                # Definiciones de TypeScript
+    └── index.ts
+```
+
+## 🚀 Próximas Mejoras
+
+- [ ] **Exportación a PDF** - Generar PDFs directamente
+- [ ] **Búsqueda avanzada** - Filtros y búsqueda en tiempo real
+- [ ] **Reportes de ventas** - Estadísticas y análisis
+- [ ] **Backup y sincronización** - Respaldo en la nube
+- [ ] **Múltiples usuarios** - Sistema de autenticación
+- [ ] **API REST** - Integración con sistemas externos
+- [ ] **Notificaciones** - Alertas y recordatorios
+
+## 📄 Licencia
+
+Este proyecto está bajo la Licencia MIT. Ver el archivo `LICENSE` para más detalles.
+
+## 🤝 Contribuciones
+
+Las contribuciones son bienvenidas. Por favor:
+
+1. Fork el proyecto
+2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
+3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
+4. Push a la rama (`git push origin feature/AmazingFeature`)
+5. Abre un Pull Request
+
+## 📞 Soporte
+
+Para soporte o consultas:
+- Abre un issue en GitHub
+- Contacta a través del repositorio
+
+---
+
+**Desarrollado con ❤️ usando Next.js, TypeScript y Tailwind CSS**
+
+*Sistema profesional para la gestión eficiente de productos y remitos*
