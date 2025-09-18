@@ -126,14 +126,15 @@
   .input-field {
     background: #ffffff;
     border: 1px solid #d1d5db;
-    border-radius: 8px;
+    border-radius: 6px;
     transition: all 0.2s ease;
     font-size: 14px;
+    padding: 8px 12px;
   }
 
   .input-field:focus {
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    border-color: #6b7280;
+    box-shadow: 0 0 0 1px rgba(107, 114, 128, 0.1);
     outline: none;
   }
 

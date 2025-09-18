@@ -346,23 +346,21 @@ export function RemitosSection({
       </div>
 
       {showForm && (
-        <div className="modern-card p-6 max-w-6xl">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 max-w-4xl">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center space-x-3">
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <FileText className="h-5 w-5 text-blue-600" />
-              </div>
+              <FileText className="h-6 w-6 text-gray-600" />
               <div>
-                <h3 className="text-lg font-semibold text-gray-900">
+                <h3 className="text-xl font-semibold text-gray-900">
                   {editingId ? 'Editar Remito' : 'Nuevo Remito'}
                 </h3>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-gray-600">
                   Completa los datos y agrega productos al remito.
                 </p>
               </div>
             </div>
             <div className="text-right">
-              <p className="text-sm text-gray-500">Número</p>
+              <p className="text-sm text-gray-500">Numero</p>
               <p className="text-lg font-semibold text-gray-900">
                 {editingId ? remitos.find(r => r.id === editingId)?.numero : `REM-${contadorRemitos.toString().padStart(4, '0')}`}
               </p>
@@ -370,34 +368,36 @@ export function RemitosSection({
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="flex items-end space-x-6">
               <div>
-                <Label htmlFor="fecha">Fecha</Label>
-                <div className="relative">
+                <Label htmlFor="fecha" className="text-sm font-medium text-gray-700">Fecha</Label>
+                <div className="relative mt-1">
                   <Input
                     id="fecha"
                     type="date"
                     value={formData.fecha}
                     onChange={(e) => setFormData(prev => ({ ...prev, fecha: e.target.value }))}
-                    className="w-[200px]"
+                    className="w-40 h-9 text-sm"
                     required
                   />
-                  <Calendar className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+                  <Calendar className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
                 </div>
               </div>
-              <div>
-                <Label htmlFor="clienteId">Cliente *</Label>
-                <Combobox
-                  options={clienteOptions}
-                  value={formData.clienteId}
-                  onValueChange={(value) => setFormData(prev => ({ ...prev, clienteId: value }))}
-                  placeholder="Seleccionar cliente..."
-                  searchPlaceholder="Buscar cliente..."
-                  className="w-[340px]"
-                />
-                <p className="text-xs text-gray-500 mt-1">
-                  ¿No aparece? Podrás crear uno nuevo en la pantalla de Clientes.
-                </p>
+              <div className="flex-1">
+                <Label htmlFor="clienteId" className="text-sm font-medium text-gray-700">Cliente *</Label>
+                <div className="mt-1">
+                  <Combobox
+                    options={clienteOptions}
+                    value={formData.clienteId}
+                    onValueChange={(value) => setFormData(prev => ({ ...prev, clienteId: value }))}
+                    placeholder="Seleccionar cliente..."
+                    searchPlaceholder="Buscar cliente..."
+                    className="w-full h-9"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    ¿No aparece? Podrás crear uno nuevo en la pantalla de Clientes.
+                  </p>
+                </div>
               </div>
             </div>
 
@@ -408,36 +408,40 @@ export function RemitosSection({
                 <h4 className="text-md font-semibold text-gray-900">Productos</h4>
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                <div>
-                  <Label htmlFor="producto">Producto</Label>
-                  <Combobox
-                    options={productoOptions}
-                    value={newItem.productoId}
-                    onValueChange={(value) => setNewItem(prev => ({ ...prev, productoId: value }))}
-                    placeholder="Seleccionar producto..."
-                    searchPlaceholder="Buscar producto..."
-                    className="w-full"
-                  />
+              <div className="flex items-end space-x-4 mb-4">
+                <div className="flex-1">
+                  <Label htmlFor="producto" className="text-sm font-medium text-gray-700">Producto</Label>
+                  <div className="mt-1">
+                    <Combobox
+                      options={productoOptions}
+                      value={newItem.productoId}
+                      onValueChange={(value) => setNewItem(prev => ({ ...prev, productoId: value }))}
+                      placeholder="Seleccionar producto..."
+                      searchPlaceholder="Buscar producto..."
+                      className="w-full h-9"
+                    />
+                  </div>
                 </div>
                 <div>
-                  <Label htmlFor="cantidad">Cantidad</Label>
-                  <Input
-                    type="number"
-                    min="1"
-                    value={newItem.cantidad}
-                    onChange={(e) => setNewItem(prev => ({ ...prev, cantidad: parseInt(e.target.value) || 1 }))}
-                    className="w-[120px]"
-                  />
+                  <Label htmlFor="cantidad" className="text-sm font-medium text-gray-700">Cantidad</Label>
+                  <div className="mt-1">
+                    <Input
+                      type="number"
+                      min="1"
+                      value={newItem.cantidad}
+                      onChange={(e) => setNewItem(prev => ({ ...prev, cantidad: parseInt(e.target.value) || 1 }))}
+                      className="w-20 h-9 text-sm"
+                    />
+                  </div>
                 </div>
-                <div className="flex items-end">
+                <div>
                   <Button 
                     type="button" 
                     onClick={addItem} 
                     disabled={!newItem.productoId}
-                    className="w-full"
+                    className="h-9 px-4 bg-gray-600 hover:bg-gray-700 text-white"
                   >
-                    <Plus className="h-4 w-4 mr-2" />
+                    <Plus className="h-4 w-4 mr-1" />
                     Agregar
                   </Button>
                 </div>
@@ -445,10 +449,10 @@ export function RemitosSection({
 
               {/* Lista de productos agregados */}
               {remitoItems.length > 0 && (
-                <div className="bg-gray-50 rounded-lg p-4">
+                <div className="bg-gray-50 rounded p-3">
                   <table className="w-full">
                     <thead>
-                      <tr className="text-left text-sm font-medium text-gray-500 border-b">
+                      <tr className="text-left text-xs font-medium text-gray-500">
                         <th className="pb-2">Producto</th>
                         <th className="pb-2">Precio</th>
                         <th className="pb-2">Cant.</th>
@@ -458,76 +462,64 @@ export function RemitosSection({
                     </thead>
                     <tbody>
                       {remitoItems.map((item) => (
-                        <tr key={item.productoId} className="border-b">
-                          <td className="py-3">
-                            <div>
-                              <p className="font-medium text-gray-900">{item.producto.nombre}</p>
-                              {item.producto.medida && (
-                                <p className="text-sm text-gray-500">{item.producto.medida}</p>
-                              )}
-                            </div>
+                        <tr key={item.productoId} className="border-b border-gray-200">
+                          <td className="py-2">
+                            <p className="text-sm font-medium text-gray-900">{item.producto.nombre}</p>
                           </td>
-                          <td className="py-3 text-gray-600">${item.precioUnitario.toFixed(2)}</td>
-                          <td className="py-3">
+                          <td className="py-2 text-sm text-gray-600">$ {item.precioUnitario.toFixed(2)}</td>
+                          <td className="py-2">
                             <Input
-                              className="h-8 w-20 text-right"
+                              className="h-7 w-16 text-center text-sm"
                               type="number"
                               min={1}
                               value={item.cantidad}
                               onChange={(e) => updateCantidad(item.productoId, parseInt(e.target.value || "1", 10))}
                             />
                           </td>
-                          <td className="py-3 font-medium text-gray-900">${item.subtotal.toFixed(2)}</td>
-                          <td className="py-3">
-                            <Button
+                          <td className="py-2 text-sm font-medium text-gray-900">$ {item.subtotal.toFixed(2)}</td>
+                          <td className="py-2">
+                            <button
                               type="button"
-                              variant="destructive"
-                              size="sm"
                               onClick={() => removeItem(item.productoId)}
+                              className="text-gray-400 hover:text-red-600"
                             >
                               <Trash2 className="h-4 w-4" />
-                            </Button>
+                            </button>
                           </td>
                         </tr>
                       ))}
                     </tbody>
-                    <tfoot>
-                      <tr className="font-bold text-lg border-t">
-                        <td colSpan={3} className="pt-3">Total:</td>
-                        <td className="pt-3">${total.toFixed(2)}</td>
-                        <td></td>
-                      </tr>
-                    </tfoot>
                   </table>
                 </div>
               )}
             </div>
 
             <div>
-              <Label htmlFor="observaciones">Observaciones (opcional)</Label>
-              <Textarea
-                id="observaciones"
-                value={formData.observaciones}
-                onChange={(e) => setFormData(prev => ({ ...prev, observaciones: e.target.value }))}
-                placeholder="Notas adicionales para este remito..."
-                className="max-w-2xl"
-                rows={3}
-              />
+              <Label htmlFor="observaciones" className="text-sm font-medium text-gray-700">Observaciones (opcional)</Label>
+              <div className="mt-1">
+                <Textarea
+                  id="observaciones"
+                  value={formData.observaciones}
+                  onChange={(e) => setFormData(prev => ({ ...prev, observaciones: e.target.value }))}
+                  placeholder="Notas adicionales para este remito..."
+                  className="w-full h-20 text-sm"
+                  rows={3}
+                />
+              </div>
             </div>
 
             <div className="flex justify-between items-center pt-4 border-t">
               <div className="flex items-center space-x-2">
-                <DollarSign className="h-5 w-5 text-gray-600" />
-                <span className="text-sm text-gray-600">Total estimado:</span>
-                <span className="text-xl font-bold text-gray-900">${total.toFixed(2)}</span>
+                <span className="text-sm text-gray-600">Total estimado</span>
+                <span className="text-lg font-bold text-gray-900">$ {total.toFixed(2)}</span>
               </div>
               <div className="flex space-x-3">
-                <Button type="button" variant="outline" onClick={handleCancel}>
-                  <X className="h-4 w-4 mr-2" />
+                <Button type="button" variant="outline" onClick={handleCancel} className="h-9 px-4">
+                  <X className="h-4 w-4 mr-1" />
                   Cancelar
                 </Button>
-                <Button type="submit">
-                  <FileText className="h-4 w-4 mr-2" />
+                <Button type="submit" className="h-9 px-4 bg-gray-600 hover:bg-gray-700 text-white">
+                  <FileText className="h-4 w-4 mr-1" />
                   {editingId ? 'Actualizar Remito' : 'Guardar Remito'}
                 </Button>
               </div>
