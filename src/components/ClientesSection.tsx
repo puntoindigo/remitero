@@ -96,6 +96,7 @@ export function ClientesSection({ clientes, onAdd, onUpdate, onDelete }: Cliente
                 value={formData.nombre}
                 onChange={(e) => setFormData(prev => ({ ...prev, nombre: e.target.value }))}
                 placeholder="Solo el nombre del cliente"
+                className="max-w-md"
                 required
                 autoFocus
               />
@@ -117,7 +118,7 @@ export function ClientesSection({ clientes, onAdd, onUpdate, onDelete }: Cliente
       )}
 
       {showForm && (
-        <div className="bg-white p-6 rounded-lg shadow-md border">
+        <div className="glass-effect p-8 rounded-2xl shadow-xl border border-white/20 max-w-4xl">
           <h3 className="text-lg font-semibold mb-4">
             {editingId ? 'Editar Cliente' : 'Nuevo Cliente'}
           </h3>
@@ -130,6 +131,7 @@ export function ClientesSection({ clientes, onAdd, onUpdate, onDelete }: Cliente
                   value={formData.nombre}
                   onChange={(e) => setFormData(prev => ({ ...prev, nombre: e.target.value }))}
                   placeholder="Nombre completo del cliente"
+                  className="max-w-md"
                   required
                 />
               </div>
@@ -141,6 +143,7 @@ export function ClientesSection({ clientes, onAdd, onUpdate, onDelete }: Cliente
                   value={formData.email}
                   onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
                   placeholder="cliente@email.com"
+                  className="max-w-md"
                 />
               </div>
               <div>
@@ -150,6 +153,7 @@ export function ClientesSection({ clientes, onAdd, onUpdate, onDelete }: Cliente
                   value={formData.telefono}
                   onChange={(e) => setFormData(prev => ({ ...prev, telefono: e.target.value }))}
                   placeholder="+54 9 11 1234-5678"
+                  className="max-w-md"
                 />
               </div>
               <div>
@@ -159,6 +163,7 @@ export function ClientesSection({ clientes, onAdd, onUpdate, onDelete }: Cliente
                   value={formData.direccion}
                   onChange={(e) => setFormData(prev => ({ ...prev, direccion: e.target.value }))}
                   placeholder="Dirección completa"
+                  className="max-w-md"
                 />
               </div>
             </div>

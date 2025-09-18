@@ -86,7 +86,7 @@ export function ProductosSection({ productos, categorias, onAdd, onUpdate, onDel
       </div>
 
       {showForm && (
-        <div className="bg-white p-6 rounded-lg shadow-md border">
+        <div className="glass-effect p-8 rounded-2xl shadow-xl border border-white/20 max-w-5xl">
           <h3 className="text-lg font-semibold mb-4">
             {editingId ? 'Editar Producto' : 'Nuevo Producto'}
           </h3>
@@ -99,6 +99,7 @@ export function ProductosSection({ productos, categorias, onAdd, onUpdate, onDel
                   value={formData.nombre}
                   onChange={(e) => setFormData(prev => ({ ...prev, nombre: e.target.value }))}
                   placeholder="Nombre del producto"
+                  className="max-w-md"
                   required
                 />
               </div>
@@ -108,6 +109,7 @@ export function ProductosSection({ productos, categorias, onAdd, onUpdate, onDel
                   id="categoriaId"
                   value={formData.categoriaId}
                   onChange={(e) => setFormData(prev => ({ ...prev, categoriaId: e.target.value }))}
+                  className="max-w-md"
                   required
                 >
                   <option value="">Seleccionar categoría...</option>
@@ -128,6 +130,7 @@ export function ProductosSection({ productos, categorias, onAdd, onUpdate, onDel
                   value={formData.precio}
                   onChange={(e) => setFormData(prev => ({ ...prev, precio: e.target.value }))}
                   placeholder="0.00"
+                  className="w-[180px]"
                   required
                 />
               </div>
@@ -140,6 +143,7 @@ export function ProductosSection({ productos, categorias, onAdd, onUpdate, onDel
                   value={formData.stock}
                   onChange={(e) => setFormData(prev => ({ ...prev, stock: e.target.value }))}
                   placeholder="Cantidad en stock"
+                  className="w-[140px]"
                 />
               </div>
               <div>
@@ -149,6 +153,7 @@ export function ProductosSection({ productos, categorias, onAdd, onUpdate, onDel
                   value={formData.medida}
                   onChange={(e) => setFormData(prev => ({ ...prev, medida: e.target.value }))}
                   placeholder="Ej: 1L, 500ml, 2kg"
+                  className="w-[180px]"
                 />
               </div>
               <div>
@@ -158,6 +163,7 @@ export function ProductosSection({ productos, categorias, onAdd, onUpdate, onDel
                   value={formData.capacidad}
                   onChange={(e) => setFormData(prev => ({ ...prev, capacidad: e.target.value }))}
                   placeholder="Ej: Botella, Lata, Caja"
+                  className="w-[200px]"
                 />
               </div>
             </div>
@@ -168,6 +174,7 @@ export function ProductosSection({ productos, categorias, onAdd, onUpdate, onDel
                 value={formData.descripcion}
                 onChange={(e) => setFormData(prev => ({ ...prev, descripcion: e.target.value }))}
                 placeholder="Descripción del producto..."
+                className="max-w-3xl"
                 rows={3}
               />
             </div>

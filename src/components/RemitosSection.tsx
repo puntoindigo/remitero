@@ -321,7 +321,7 @@ export function RemitosSection({
       </div>
 
       {showForm && (
-        <div className="bg-white p-6 rounded-lg shadow-md border">
+        <div className="glass-effect p-8 rounded-2xl shadow-xl border border-white/20 max-w-6xl">
           <h3 className="text-lg font-semibold mb-4">
             {editingId ? 'Editar Remito' : 'Nuevo Remito'}
           </h3>
@@ -342,6 +342,7 @@ export function RemitosSection({
                   type="date"
                   value={formData.fecha}
                   onChange={(e) => setFormData(prev => ({ ...prev, fecha: e.target.value }))}
+                  className="w-[200px]"
                   required
                 />
               </div>
@@ -363,6 +364,7 @@ export function RemitosSection({
                   id="clienteId"
                   value={formData.clienteId}
                   onChange={(e) => setFormData(prev => ({ ...prev, clienteId: e.target.value }))}
+                  className="w-[340px]"
                   required
                 >
                   <option value="">Seleccionar cliente...</option>
@@ -384,6 +386,7 @@ export function RemitosSection({
                   <Select
                     value={newItem.productoId}
                     onChange={(e) => setNewItem(prev => ({ ...prev, productoId: e.target.value }))}
+                    className="w-[360px]"
                   >
                     <option value="">Seleccionar producto...</option>
                     {productos.map((producto) => (
@@ -400,6 +403,7 @@ export function RemitosSection({
                     min="1"
                     value={newItem.cantidad}
                     onChange={(e) => setNewItem(prev => ({ ...prev, cantidad: parseInt(e.target.value) || 1 }))}
+                    className="w-[120px]"
                   />
                 </div>
                 <div className="flex items-end">
@@ -462,6 +466,7 @@ export function RemitosSection({
                 value={formData.observaciones}
                 onChange={(e) => setFormData(prev => ({ ...prev, observaciones: e.target.value }))}
                 placeholder="Observaciones adicionales..."
+                className="max-w-2xl"
                 rows={3}
               />
             </div>

@@ -64,7 +64,7 @@ export function CategoriasSection({ categorias, onAdd, onUpdate, onDelete }: Cat
       </div>
 
       {showForm && (
-        <div className="glass-effect p-8 rounded-2xl shadow-xl border border-white/20">
+        <div className="glass-effect p-8 rounded-2xl shadow-xl border border-white/20 max-w-4xl">
           <div className="flex items-center space-x-3 mb-6">
             <div className="p-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg">
               <Tag className="h-5 w-5 text-white" />
@@ -82,6 +82,7 @@ export function CategoriasSection({ categorias, onAdd, onUpdate, onDelete }: Cat
                   value={formData.nombre}
                   onChange={(e) => setFormData(prev => ({ ...prev, nombre: e.target.value }))}
                   placeholder="Ej: Electrónicos, Ropa, Hogar..."
+                  className="max-w-md"
                   required
                 />
               </div>
@@ -92,6 +93,7 @@ export function CategoriasSection({ categorias, onAdd, onUpdate, onDelete }: Cat
                   value={formData.descripcion}
                   onChange={(e) => setFormData(prev => ({ ...prev, descripcion: e.target.value }))}
                   placeholder="Descripción de la categoría..."
+                  className="max-w-2xl"
                   rows={3}
                 />
               </div>
