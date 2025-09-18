@@ -29,7 +29,9 @@ const Popover = ({ children }: PopoverProps) => {
   
   return (
     <PopoverContext.Provider value={{ open, setOpen }}>
-      {children}
+      <div className="relative">
+        {children}
+      </div>
     </PopoverContext.Provider>
   )
 }
@@ -37,17 +39,33 @@ const Popover = ({ children }: PopoverProps) => {
 const PopoverTrigger = React.forwardRef<HTMLButtonElement, PopoverTriggerProps>(
   ({ className, asChild = false, ...props }, ref) => {
     const { open, setOpen } = React.useContext(PopoverContext)
+    const internalRef = React.useRef<HTMLElement>(null)
+    
+    React.useEffect(() => {
+      if (internalRef.current) {
+        // Store reference for positioning
+        (internalRef.current as any).__popoverTrigger = true
+      }
+    }, [])
     
     if (asChild) {
       return React.cloneElement(props.children as React.ReactElement, {
         onClick: () => setOpen(!open),
-        ref,
+        ref: (el: HTMLElement) => {
+          internalRef.current = el
+          if (typeof ref === 'function') ref(el)
+          else if (ref) ref.current = el
+        },
       })
     }
     
     return (
       <button
-        ref={ref}
+        ref={(el: HTMLButtonElement) => {
+          internalRef.current = el
+          if (typeof ref === 'function') ref(el)
+          else if (ref) ref.current = el
+        }}
         className={cn("", className)}
         onClick={() => setOpen(!open)}
         {...props}
@@ -67,17 +85,10 @@ const PopoverContent = React.forwardRef<HTMLDivElement, PopoverContentProps>(
       <div
         ref={ref}
         className={cn(
-          "z-50 w-72 rounded-md border bg-white p-4 text-gray-900 shadow-md outline-none animate-in fade-in-0 zoom-in-95",
+          "absolute z-50 w-72 rounded-md border bg-white p-4 text-gray-900 shadow-lg outline-none",
+          "top-full left-0 mt-1",
           className
         )}
-        style={{
-          position: "absolute",
-          top: "100%",
-          left: align === "start" ? "0" : align === "end" ? "auto" : "50%",
-          right: align === "end" ? "0" : "auto",
-          transform: align === "center" ? "translateX(-50%)" : "none",
-          marginTop: `${sideOffset}px`,
-        }}
         {...props}
       />
     )
