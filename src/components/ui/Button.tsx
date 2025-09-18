@@ -11,13 +11,13 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <button
         className={cn(
-          'inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
+          'inline-flex items-center justify-center rounded-xl text-sm font-semibold transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 shadow-lg hover:shadow-xl',
           {
-            'bg-blue-600 text-white hover:bg-blue-700': variant === 'default',
-            'bg-red-600 text-white hover:bg-red-700': variant === 'destructive',
-            'border border-gray-300 bg-white hover:bg-gray-50 hover:text-gray-900': variant === 'outline',
-            'bg-gray-100 text-gray-900 hover:bg-gray-200': variant === 'secondary',
-            'hover:bg-gray-100 hover:text-gray-900': variant === 'ghost',
+            'btn-primary': variant === 'default',
+            'btn-secondary': variant === 'destructive',
+            'border-2 border-blue-200 bg-white/90 hover:bg-white hover:border-blue-400 hover:text-blue-600': variant === 'outline',
+            'bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 hover:from-gray-200 hover:to-gray-300': variant === 'secondary',
+            'hover:bg-white/20 hover:text-gray-900': variant === 'ghost',
             'text-blue-600 underline-offset-4 hover:underline': variant === 'link',
           },
           {

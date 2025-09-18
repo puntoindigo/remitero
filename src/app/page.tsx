@@ -75,10 +75,10 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       <Navigation activeTab={activeTab} onTabChange={setActiveTab} />
-      <main className="max-w-7xl mx-auto px-4 py-8">
-        <div className="bg-white rounded-lg shadow-md p-8">
+      <main className="max-w-7xl mx-auto px-6 py-8">
+        <div className="glass-effect rounded-3xl shadow-2xl p-8 card-hover">
           {renderActiveSection()}
         </div>
       </main>
