@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { RemitoService } from "@/lib/services/remitoService";
-import { statusChangeSchema } from "@/lib/validations";
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
 
 export async function GET(
   request: NextRequest,
@@ -15,7 +16,18 @@ export async function GET(
       return NextResponse.json({ error: "No autorizado" }, { status: 401 });
     }
 
-    const remito = await RemitoService.getRemitoById(params.id, session.user.companyId);
+    const remito = await prisma.remito.findUnique({
+      where: { id: params.id, companyId: session.user.companyId },
+      include: {
+        client: { select: { id: true, name: true } },
+        items: true,
+        createdBy: { select: { name: true } },
+        history: {
+          orderBy: { at: "asc" },
+          include: { byUser: { select: { name: true } } }
+        }
+      }
+    });
     
     if (!remito) {
       return NextResponse.json({ error: "Remito no encontrado" }, { status: 404 });
@@ -39,7 +51,9 @@ export async function DELETE(
       return NextResponse.json({ error: "No autorizado" }, { status: 401 });
     }
 
-    await RemitoService.deleteRemito(params.id, session.user.companyId);
+    await prisma.remito.delete({
+      where: { id: params.id, companyId: session.user.companyId },
+    });
     
     return NextResponse.json({ message: "Remito eliminado correctamente" });
   } catch (error: any) {

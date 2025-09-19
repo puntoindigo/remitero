@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { RemitoService } from "@/lib/services/remitoService";
+import { PrismaClient } from "@prisma/client";
 import { statusChangeSchema } from "@/lib/validations";
+
+const prisma = new PrismaClient();
 
 export async function PUT(
   request: NextRequest,
@@ -18,14 +20,26 @@ export async function PUT(
     const body = await request.json();
     const validatedData = statusChangeSchema.parse(body);
 
-    const remito = await RemitoService.updateRemitoStatus(
-      params.id,
-      validatedData.status,
-      session.user.companyId,
-      session.user.id
-    );
+    const updatedRemito = await prisma.$transaction(async (tx) => {
+      const remito = await tx.remito.update({
+        where: { id: params.id, companyId: session.user.companyId },
+        data: {
+          status: validatedData.status,
+        },
+      });
 
-    return NextResponse.json(remito);
+      await tx.statusHistory.create({
+        data: {
+          remitoId: remito.id,
+          status: validatedData.status,
+          at: new Date(),
+          byUserId: session.user.id,
+        },
+      });
+      return remito;
+    });
+
+    return NextResponse.json(updatedRemito);
   } catch (error: any) {
     console.error("Error updating remito status:", error);
     
