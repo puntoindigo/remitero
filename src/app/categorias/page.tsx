@@ -177,45 +177,41 @@ export default function CategoriasPage() {
 
         {/* Formulario */}
         {showForm && (
-          <div className="bg-white shadow rounded-lg mb-8">
-            <div className="px-4 py-5 sm:p-6">
-              <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
-                {editingCategory ? "Editar Categoría" : "Nueva Categoría"}
-              </h3>
-              
-              <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-                    Nombre de la categoría
-                  </label>
+          <div className="form-section">
+            <h3>{editingCategory ? "Editar Categoría" : "Nueva Categoría"}</h3>
+            
+            <form onSubmit={handleSubmit(onSubmit)}>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Nombre de la categoría</label>
                   <input
                     {...register("name")}
                     type="text"
-                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                     placeholder="Ingresa el nombre de la categoría"
                   />
                   {errors.name && (
-                    <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>
+                    <p className="error-message">{errors.name.message}</p>
                   )}
                 </div>
+              </div>
 
-                <div className="flex justify-end space-x-3">
-                  <button
-                    type="button"
-                    onClick={handleCancel}
-                    className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
-                  >
-                    Cancelar
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    {isSubmitting ? "Guardando..." : editingCategory ? "Actualizar" : "Crear"}
-                  </button>
-                </div>
+              <div className="form-actions">
+                <button
+                  type="button"
+                  onClick={handleCancel}
+                  className="secondary"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="primary"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  {isSubmitting ? "Guardando..." : editingCategory ? "Actualizar" : "Crear"}
+                </button>
+              </div>
               </form>
             </div>
           </div>

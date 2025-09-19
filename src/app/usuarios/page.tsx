@@ -341,11 +341,9 @@ function UsuariosContent() {
             )}
 
             <div className="form-actions">
-              {editingUser && (
-                <button type="button" onClick={handleCancel} className="secondary">
-                  Cancelar
-                </button>
-              )}
+              <button type="button" onClick={handleCancel} className="secondary">
+                Cancelar
+              </button>
               <button type="submit" disabled={isSubmitting} className="primary">
                 {isSubmitting ? "Guardando..." : editingUser ? "Actualizar" : "Crear"}
               </button>
