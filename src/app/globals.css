@@ -433,41 +433,62 @@ nav a[href*="remitos"] {
 svg {
   max-width: 100%;
   height: auto;
+  display: inline-block;
 }
 
 /* Asegurar que los iconos de Lucide tengan el tamaño correcto */
 .lucide {
-  width: 1em;
-  height: 1em;
+  width: 1em !important;
+  height: 1em !important;
+  display: inline-block;
 }
 
 /* Fix específico para iconos en botones y elementos pequeños */
 button svg,
 .btn svg {
-  width: 1rem;
-  height: 1rem;
+  width: 1rem !important;
+  height: 1rem !important;
   flex-shrink: 0;
+  display: inline-block;
 }
 
 /* Fix para iconos en headers */
 h1 svg,
 h2 svg,
 h3 svg {
-  width: 1.5rem;
-  height: 1.5rem;
+  width: 1.5rem !important;
+  height: 1.5rem !important;
   flex-shrink: 0;
+  display: inline-block;
 }
 
 /* Fix para iconos en formularios */
 form svg {
-  width: 1rem;
-  height: 1rem;
+  width: 1rem !important;
+  height: 1rem !important;
   flex-shrink: 0;
+  display: inline-block;
 }
 
 /* Fix para iconos en tablas */
 table svg {
-  width: 1rem;
-  height: 1rem;
+  width: 1rem !important;
+  height: 1rem !important;
   flex-shrink: 0;
+  display: inline-block;
+}
+
+/* Fix específico para iconos de error */
+.text-red-600 svg {
+  width: 1rem !important;
+  height: 1rem !important;
+  flex-shrink: 0;
+  display: inline-block;
+}
+
+/* Fix para iconos en botones de loading */
+.animate-spin {
+  width: 1.25rem !important;
+  height: 1.25rem !important;
+  display: inline-block;
 }
