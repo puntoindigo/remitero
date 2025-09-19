@@ -16,23 +16,24 @@ export default function ProductosPage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-6 py-4">
+      <header className="bg-black text-white">
+        <div className="max-w-7xl mx-auto px-6 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <Package className="h-5 w-5 text-blue-600" />
+              <div className="p-1.5 bg-white rounded">
+                <Package className="h-5 w-5 text-black" />
               </div>
-              <h1 className="text-xl font-bold text-gray-900">Sistema de Gestión</h1>
+              <h1 className="text-lg font-semibold">Sistema de Gestión</h1>
             </div>
-            <nav className="flex space-x-1">
-              <a href="/categorias" className="px-4 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100">Categorías</a>
-              <a href="/clientes" className="px-4 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100">Clientes</a>
-              <a href="/productos" className="px-4 py-2 rounded-md text-sm font-medium bg-white text-gray-900 shadow-sm border border-gray-200">Productos</a>
-              <a href="/remitos" className="px-4 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100">Remitos</a>
+            <nav className="flex space-x-6">
+              <a href="/categorias" className="px-3 py-1.5 rounded text-sm font-medium text-gray-400 hover:text-white">Categorías</a>
+              <a href="/clientes" className="px-3 py-1.5 rounded text-sm font-medium text-gray-400 hover:text-white">Clientes</a>
+              <a href="/productos" className="px-3 py-1.5 rounded text-sm font-medium bg-gray-800 text-white">Productos</a>
+              <a href="/remitos" className="px-3 py-1.5 rounded text-sm font-medium text-gray-400 hover:text-white">Remitos</a>
             </nav>
             <div className="flex items-center space-x-3">
-              <span className="px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full">BETA</span>
+              <span className="px-2 py-1 bg-gray-800 text-xs font-medium rounded text-gray-300">BETA</span>
+              <div className="w-8 h-8 bg-gray-700 rounded-full"></div>
             </div>
           </div>
         </div>
@@ -43,36 +44,36 @@ export default function ProductosPage() {
         
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Nuevo Producto</h3>
-          <div className="grid gap-4 md:grid-cols-4 items-end">
-            <div className="space-y-1 md:col-span-2">
+          <div className="flex flex-wrap gap-4 items-end">
+            <div className="flex-1 min-w-[200px]">
               <Label className="text-sm font-medium text-gray-700">Nombre *</Label>
-              <Input value={nombre} onChange={(e) => setNombre(e.target.value)} className="h-9" />
+              <Input value={nombre} onChange={(e) => setNombre(e.target.value)} className="h-9 mt-1" />
             </div>
-            <div className="space-y-1">
+            <div className="w-32">
               <Label className="text-sm font-medium text-gray-700">Precio *</Label>
               <Input 
                 type="number" 
                 min={0} 
                 value={precio} 
                 onChange={(e) => setPrecio(parseFloat(e.target.value || "0"))}
-                className="h-9"
+                className="h-9 mt-1"
               />
             </div>
-            <div className="space-y-1">
+            <div className="w-48">
               <Label className="text-sm font-medium text-gray-700">Categoría</Label>
-              <Select value={categoriaId} onChange={(e) => setCategoriaId(e.target.value)} className="h-9">
+              <Select value={categoriaId} onChange={(e) => setCategoriaId(e.target.value)} className="h-9 mt-1">
                 <option value="">Sin categoría</option>
                 {db.categorias.map(c => <option key={c.id} value={c.id}>{c.nombre}</option>)}
               </Select>
             </div>
-            <div className="md:col-span-4">
+            <div>
               <Button
                 onClick={() => {
                   if (!nombre || precio <= 0) return;
                   addProducto({ nombre, precio, categoriaId: categoriaId || undefined });
                   setNombre(""); setPrecio(0); setCategoriaId("");
                 }}
-                className="h-9 px-4"
+                className="h-9 px-6 bg-gray-600 hover:bg-gray-700 text-white"
               >Guardar</Button>
             </div>
           </div>
@@ -86,10 +87,10 @@ export default function ProductosPage() {
             <table className="w-full">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Categoría</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Precio</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">NOMBRE</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">CATEGORÍA</th>
+                  <th className="px-6 py-4 text-right text-sm font-semibold text-gray-900 uppercase tracking-wider">PRECIO</th>
+                  <th className="px-6 py-4 text-right text-sm font-semibold text-gray-900 uppercase tracking-wider">ACCIONES</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
