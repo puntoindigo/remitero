@@ -1,113 +1,104 @@
-"use client"
+"use client";
 
-import { useSession, signOut } from "next-auth/react"
-import { useRouter } from "next/navigation"
-import { useState } from "react"
-import { User, LogOut, Building2, Users } from "lucide-react"
+import { usePathname } from "next/navigation";
+import { signOut } from "next-auth/react";
+import Link from "next/link";
+import { Session } from "next-auth";
+import { 
+  LayoutDashboard, 
+  ReceiptText, 
+  Package, 
+  ShoppingBag, 
+  Tag, 
+  Users, 
+  Building2,
+  LogOut
+} from "lucide-react";
 
-export default function Header() {
-  const { data: session } = useSession()
-  const router = useRouter()
-  const [showUserMenu, setShowUserMenu] = useState(false)
+interface HeaderProps {
+  session: Session | null;
+}
 
-  const handleLogout = async () => {
-    await signOut({ callbackUrl: "/auth/login" })
+export default function Header({ session }: HeaderProps) {
+  const pathname = usePathname();
+
+  if (!session) {
+    return null;
   }
 
-  const isSuperAdmin = session?.user?.role === "SUPERADMIN"
-  const isAdmin = session?.user?.role === "ADMIN" || isSuperAdmin
+  const handleLogout = async () => {
+    await signOut({ callbackUrl: "/auth/login" });
+  };
+
+  const NavLink = ({ href, children, roles }: { 
+    href: string; 
+    children: React.ReactNode; 
+    roles?: string[] 
+  }) => {
+    const isActive = pathname === href;
+    const isAllowed = !roles || roles.includes(session.user.role);
+    
+    if (!isAllowed) return null;
+
+    return (
+      <Link 
+        href={href} 
+        className={`nav-link ${isActive ? 'active' : ''}`}
+      >
+        {children}
+      </Link>
+    );
+  };
 
   return (
-    <header className="bg-blue-600 text-white shadow-lg">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          <div className="flex items-center">
-            <h1 className="text-xl font-bold">Sistema de Remitos</h1>
-            {session?.user?.companyName && (
-              <div className="ml-4 flex items-center text-sm">
-                <Building2 className="h-4 w-4 mr-1" />
-                <span>Empresa: {session.user.companyName}</span>
-              </div>
-            )}
-          </div>
-
-          <nav className="hidden md:flex space-x-8">
-            <a
-              href="/dashboard"
-              className="text-white hover:text-blue-200 px-3 py-2 rounded-md text-sm font-medium"
-            >
-              Dashboard
-            </a>
-            <a
-              href="/remitos"
-              className="text-white hover:text-blue-200 px-3 py-2 rounded-md text-sm font-medium"
-            >
-              Remitos
-            </a>
-            <a
-              href="/productos"
-              className="text-white hover:text-blue-200 px-3 py-2 rounded-md text-sm font-medium"
-            >
-              Productos
-            </a>
-            <a
-              href="/clientes"
-              className="text-white hover:text-blue-200 px-3 py-2 rounded-md text-sm font-medium"
-            >
-              Clientes
-            </a>
-            <a
-              href="/categorias"
-              className="text-white hover:text-blue-200 px-3 py-2 rounded-md text-sm font-medium"
-            >
-              Categorías
-            </a>
-            {isAdmin && (
-              <a
-                href="/usuarios"
-                className="text-white hover:text-blue-200 px-3 py-2 rounded-md text-sm font-medium"
-              >
-                Usuarios
-              </a>
-            )}
-            {isSuperAdmin && (
-              <a
-                href="/empresas"
-                className="text-white hover:text-blue-200 px-3 py-2 rounded-md text-sm font-medium"
-              >
-                Empresas
-              </a>
-            )}
-          </nav>
-
-          <div className="relative">
-            <button
-              onClick={() => setShowUserMenu(!showUserMenu)}
-              className="flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-blue-600 focus:ring-white"
-            >
-              <User className="h-6 w-6" />
-              <span className="ml-2">{session?.user?.name}</span>
-            </button>
-
-            {showUserMenu && (
-              <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
-                <div className="px-4 py-2 text-sm text-gray-700 border-b">
-                  <div className="font-medium">{session?.user?.name}</div>
-                  <div className="text-gray-500">{session?.user?.email}</div>
-                  <div className="text-gray-500 capitalize">{session?.user?.role?.toLowerCase()}</div>
-                </div>
-                <button
-                  onClick={handleLogout}
-                  className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                >
-                  <LogOut className="h-4 w-4 mr-2" />
-                  Cerrar sesión
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
+    <header className="header">
+      <div className="header-left">
+        <h1>Sistema de Remitos</h1>
+        {session.user.companyName && (
+          <span className="company-name">Empresa: {session.user.companyName}</span>
+        )}
+      </div>
+      
+      <nav className="main-nav">
+        <NavLink href="/dashboard" roles={['ADMIN', 'USER']}>
+          <LayoutDashboard className="h-4 w-4" />
+          Dashboard
+        </NavLink>
+        <NavLink href="/remitos">
+          <ReceiptText className="h-4 w-4" />
+          Remitos
+        </NavLink>
+        <NavLink href="/productos">
+          <Package className="h-4 w-4" />
+          Productos
+        </NavLink>
+        <NavLink href="/clientes">
+          <ShoppingBag className="h-4 w-4" />
+          Clientes
+        </NavLink>
+        <NavLink href="/categorias">
+          <Tag className="h-4 w-4" />
+          Categorías
+        </NavLink>
+        <NavLink href="/usuarios" roles={['SUPERADMIN', 'ADMIN']}>
+          <Users className="h-4 w-4" />
+          Usuarios
+        </NavLink>
+        <NavLink href="/empresas" roles={['SUPERADMIN']}>
+          <Building2 className="h-4 w-4" />
+          Empresas
+        </NavLink>
+      </nav>
+      
+      <div className="header-right">
+        <span className="user-info">
+          {session.user.name} ({session.user.role})
+        </span>
+        <button onClick={handleLogout} className="logout-button">
+          <LogOut className="h-4 w-4" />
+          Salir
+        </button>
       </div>
     </header>
-  )
+  );
 }

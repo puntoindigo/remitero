@@ -1,8 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { ClientService } from "@/lib/services/clientService";
-import { clientSchema } from "@/lib/validations";
+import { PrismaClient } from "@prisma/client";
+import { z } from "zod";
+
+const prisma = new PrismaClient();
+
+const clientSchema = z.object({
+  name: z.string().min(1, "El nombre es requerido"),
+  address: z.string().optional(),
+  phone: z.string().optional(),
+  email: z.string().email().optional(),
+});
 
 export async function GET(request: NextRequest) {
   try {
@@ -12,7 +21,11 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "No autorizado" }, { status: 401 });
     }
 
-    const clients = await ClientService.getClients(session.user.companyId);
+    const clients = await prisma.client.findMany({
+      where: { companyId: session.user.companyId },
+      orderBy: { name: "asc" }
+    });
+
     return NextResponse.json(clients);
   } catch (error) {
     console.error("Error fetching clients:", error);
@@ -31,9 +44,11 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const validatedData = clientSchema.parse(body);
 
-    const client = await ClientService.createClient({
-      ...validatedData,
-      companyId: session.user.companyId
+    const client = await prisma.client.create({
+      data: {
+        ...validatedData,
+        companyId: session.user.companyId
+      }
     });
 
     return NextResponse.json(client, { status: 201 });

@@ -1,8 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { ProductService } from "@/lib/services/productService";
-import { productSchema } from "@/lib/validations";
+import { PrismaClient } from "@prisma/client";
+import { z } from "zod";
+
+const prisma = new PrismaClient();
+
+const productSchema = z.object({
+  name: z.string().min(1, "El nombre es requerido"),
+  description: z.string().optional(),
+  price: z.number().min(0, "El precio debe ser mayor o igual a 0"),
+  categoryId: z.string().optional(),
+});
 
 export async function GET(request: NextRequest) {
   try {
@@ -12,7 +21,12 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "No autorizado" }, { status: 401 });
     }
 
-    const products = await ProductService.getProducts(session.user.companyId);
+    const products = await prisma.product.findMany({
+      where: { companyId: session.user.companyId },
+      include: { category: true },
+      orderBy: { name: "asc" }
+    });
+
     return NextResponse.json(products);
   } catch (error) {
     console.error("Error fetching products:", error);
@@ -31,9 +45,12 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const validatedData = productSchema.parse(body);
 
-    const product = await ProductService.createProduct({
-      ...validatedData,
-      companyId: session.user.companyId
+    const product = await prisma.product.create({
+      data: {
+        ...validatedData,
+        companyId: session.user.companyId
+      },
+      include: { category: true }
     });
 
     return NextResponse.json(product, { status: 201 });

@@ -1,8 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { CategoryService } from "@/lib/services/categoryService";
-import { categorySchema } from "@/lib/validations";
+import { PrismaClient } from "@prisma/client";
+import { z } from "zod";
+
+const prisma = new PrismaClient();
+
+const categorySchema = z.object({
+  name: z.string().min(1, "El nombre es requerido"),
+});
 
 export async function GET(request: NextRequest) {
   try {
@@ -12,7 +18,11 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "No autorizado" }, { status: 401 });
     }
 
-    const categories = await CategoryService.getCategories(session.user.companyId);
+    const categories = await prisma.category.findMany({
+      where: { companyId: session.user.companyId },
+      orderBy: { name: "asc" }
+    });
+
     return NextResponse.json(categories);
   } catch (error) {
     console.error("Error fetching categories:", error);
@@ -31,9 +41,11 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const validatedData = categorySchema.parse(body);
 
-    const category = await CategoryService.createCategory({
-      ...validatedData,
-      companyId: session.user.companyId
+    const category = await prisma.category.create({
+      data: {
+        ...validatedData,
+        companyId: session.user.companyId
+      }
     });
 
     return NextResponse.json(category, { status: 201 });
