@@ -298,7 +298,7 @@ export default function ProductosPage() {
                           )}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          ${product.price.toFixed(2)}
+                          ${typeof product.price === 'number' ? product.price.toFixed(2) : '0.00'}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {new Date(product.createdAt).toLocaleDateString()}

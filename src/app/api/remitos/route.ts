@@ -29,9 +29,10 @@ export async function GET(request: NextRequest) {
       orderBy: { number: "desc" }
     });
 
-    // Map history to get the latest statusAt
+    // Map history to get the latest statusAt and calculate total
     const formattedRemitos = remitos.map(remito => ({
       ...remito,
+      total: remito.items.reduce((sum, item) => sum + Number(item.lineTotal), 0),
       statusAt: remito.history[0]?.at.toISOString() || remito.createdAt.toISOString(),
       status: remito.history[0]?.status || remito.status, // Ensure status is from history if available
     }));
@@ -71,7 +72,6 @@ export async function POST(request: NextRequest) {
           createdById: session.user.id,
           notes: validatedData.notes,
           status: "PENDIENTE", // Initial status
-          total: validatedData.items.reduce((sum, item) => sum + item.lineTotal, 0),
           items: {
             create: validatedData.items.map(item => ({
               productId: item.productId,
