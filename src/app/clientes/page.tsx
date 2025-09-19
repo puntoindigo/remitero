@@ -353,6 +353,6 @@ export default function ClientesPage() {
           </div>
         )}
       </div>
-    </Layout>
+    </main>
   );
 }
