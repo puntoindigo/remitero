@@ -350,7 +350,7 @@ export default function ClientesPage() {
                         )}
                       </div>
                     </td>
-                    <td>{client.remitos.length} remitos</td>
+                    <td>{client.remitos?.length || 0} remitos</td>
                     <td>{formatDate(client.createdAt)}</td>
                     <td>
                       <div className="action-buttons">

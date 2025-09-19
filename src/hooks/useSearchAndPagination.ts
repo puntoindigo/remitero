@@ -18,6 +18,7 @@ export function useSearchAndPagination<T>({
 
   // Filtrar datos basado en el término de búsqueda
   const filteredData = useMemo(() => {
+    if (!Array.isArray(data) || data.length === 0) return [];
     if (!searchTerm.trim()) return data;
 
     const term = searchTerm.toLowerCase();
