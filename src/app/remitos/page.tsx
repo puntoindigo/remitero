@@ -19,6 +19,7 @@ import {
   Truck
 } from "lucide-react";
 import { formatDate } from "@/lib/utils/formatters";
+import FilterableSelect from "@/components/common/FilterableSelect";
 
 interface RemitoItem {
   productId?: string;
@@ -319,14 +320,13 @@ export default function RemitosPage() {
               <div className="form-row">
                 <div className="form-group">
                   <label>Cliente *</label>
-                  <select {...register("clientId")}>
-                    <option value="">Seleccionar cliente</option>
-                    {clients.map((client) => (
-                      <option key={client.id} value={client.id}>
-                        {client.name}
-                      </option>
-                    ))}
-                  </select>
+                  <FilterableSelect
+                    options={clients.map(client => ({ id: client.id, name: client.name }))}
+                    value={watch("clientId") || ""}
+                    onChange={(value) => setValue("clientId", value)}
+                    placeholder="Seleccionar cliente"
+                    searchFields={["name"]}
+                  />
                   {errors.clientId && (
                     <p className="error-message">{errors.clientId.message}</p>
                   )}
@@ -334,10 +334,11 @@ export default function RemitosPage() {
 
                 <div className="form-group">
                   <label>Observaciones</label>
-                  <input
+                  <textarea
                     {...register("notes")}
-                    type="text"
-                    placeholder="Notas adicionales"
+                    rows={3}
+                    placeholder="Notas adicionales (opcional)"
+                    className="resize-none"
                   />
                 </div>
               </div>
@@ -349,19 +350,18 @@ export default function RemitosPage() {
                 <div className="form-row">
                   <div className="form-group">
                     <label>Producto</label>
-                    <select
-                      value={selectedProduct}
-                      onChange={(e) => setSelectedProduct(e.target.value)}
-                    >
-                      <option value="">Seleccionar producto</option>
-                      {products
+                    <FilterableSelect
+                      options={products
                         .filter(p => !items.some(item => item.productId === p.id))
-                        .map((product) => (
-                          <option key={product.id} value={product.id}>
-                            {product.name} - ${Number(product.price).toFixed(2)}
-                          </option>
-                        ))}
-                    </select>
+                        .map(product => ({ 
+                          id: product.id, 
+                          name: `${product.name} - $${Number(product.price).toFixed(2)}` 
+                        }))}
+                      value={selectedProduct}
+                      onChange={setSelectedProduct}
+                      placeholder="Seleccionar producto"
+                      searchFields={["name"]}
+                    />
                   </div>
 
                   <div className="form-group">
@@ -418,7 +418,7 @@ export default function RemitosPage() {
                               className="w-20"
                             />
                           </td>
-                          <td>${item.unitPrice.toFixed(2)}</td>
+                          <td>${Number(item.unitPrice).toFixed(2)}</td>
                           <td>${item.lineTotal.toFixed(2)}</td>
                           <td>
                             <button

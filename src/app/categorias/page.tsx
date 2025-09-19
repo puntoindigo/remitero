@@ -255,7 +255,14 @@ export default function CategoriasPage() {
                 {Array.isArray(paginatedData) && paginatedData.map((category) => (
                   <tr key={category.id}>
                     <td className="font-medium">{category.name}</td>
-                    <td>{category.products?.length || 0} productos</td>
+                    <td>
+                      <button
+                        onClick={() => window.open(`/productos?category=${category.id}`, '_blank')}
+                        className="text-blue-600 hover:text-blue-800 underline"
+                      >
+                        {category.products?.length || 0} productos
+                      </button>
+                    </td>
                     <td>{formatDate(category.createdAt)}</td>
                     <td>
                       <div className="action-buttons">

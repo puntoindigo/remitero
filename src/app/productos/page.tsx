@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
+import { useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ProductForm, productSchema } from "@/lib/validations";
@@ -9,6 +10,7 @@ import { Plus, Edit, Trash2, Package, Tag, DollarSign } from "lucide-react";
 import { formatDate } from "@/lib/utils/formatters";
 import SearchAndPagination from "@/components/common/SearchAndPagination";
 import { useSearchAndPagination } from "@/hooks/useSearchAndPagination";
+import FilterableSelect from "@/components/common/FilterableSelect";
 
 interface Product {
   id: string;
@@ -29,12 +31,19 @@ interface Category {
 
 export default function ProductosPage() {
   const { data: session } = useSession();
+  const searchParams = useSearchParams();
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState("");
+
+  // Filtrar productos por categoría
+  const filteredProducts = products.filter(product => 
+    !selectedCategory || product.category?.id === selectedCategory
+  );
 
   // Hook para búsqueda y paginación
   const {
@@ -47,7 +56,7 @@ export default function ProductosPage() {
     handleSearchChange,
     handlePageChange
   } = useSearchAndPagination({
-    data: products,
+    data: filteredProducts,
     searchFields: ['name', 'description'],
     itemsPerPage: 10
   });
@@ -93,6 +102,14 @@ export default function ProductosPage() {
   useEffect(() => {
     loadData();
   }, [session?.user?.companyId]);
+
+  // Leer parámetro de categoría de la URL
+  useEffect(() => {
+    const categoryParam = searchParams?.get('category');
+    if (categoryParam) {
+      setSelectedCategory(categoryParam);
+    }
+  }, [searchParams]);
 
   const onSubmit = async (data: ProductForm) => {
     if (!session?.user?.companyId) return;
@@ -316,6 +333,20 @@ export default function ProductosPage() {
             itemsPerPage={itemsPerPage}
             placeholder="Buscar productos..."
           />
+          
+          <div className="mb-4">
+            <FilterableSelect
+              options={[
+                { id: "", name: "Todas las categorías" },
+                ...categories.map(cat => ({ id: cat.id, name: cat.name }))
+              ]}
+              value={selectedCategory}
+              onChange={setSelectedCategory}
+              placeholder="Filtrar por categoría"
+              searchFields={["name"]}
+              className="max-w-xs"
+            />
+          </div>
           
           {!Array.isArray(products) || products.length === 0 ? (
             <div className="empty-state">
