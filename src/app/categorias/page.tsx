@@ -15,7 +15,7 @@ export default function CategoriasPage() {
       <header>
         <h1>Sistema de Gestión</h1>
         <nav>
-          <a href="/categorias">Categorías</a>
+          <a href="/categorias" className="active">Categorías</a>
           <a href="/clientes">Clientes</a>
           <a href="/productos">Productos</a>
           <a href="/remitos">Remitos</a>
@@ -25,30 +25,38 @@ export default function CategoriasPage() {
       <main>
         <h2>Gestión de Categorías</h2>
         
-        <div>
+        <div className="form-section">
           <h3>Nueva Categoría</h3>
-          <div>
-            <label>Nombre:</label>
-            <input
-              value={nombre}
-              onChange={(e) => setNombre(e.target.value)}
-            />
+          <div className="form-row">
+            <div className="form-group">
+              <label>Nombre:</label>
+              <input
+                value={nombre}
+                onChange={(e) => setNombre(e.target.value)}
+                placeholder="Ingresa el nombre de la categoría"
+              />
+            </div>
+            <div className="form-group">
+              <label>&nbsp;</label>
+              <button
+                onClick={() => {
+                  if (!nombre) return;
+                  addCategoria(nombre);
+                  setNombre("");
+                }}
+              >
+                Guardar
+              </button>
+            </div>
           </div>
-          <button
-            onClick={() => {
-              if (!nombre) return;
-              addCategoria(nombre);
-              setNombre("");
-            }}
-          >
-            Guardar
-          </button>
         </div>
 
-        <div>
+        <div className="form-section">
           <h3>Lista de Categorías</h3>
           {db.categorias.length === 0 ? (
-            <p>No hay categorías registradas</p>
+            <div className="empty-state">
+              <p>No hay categorías registradas</p>
+            </div>
           ) : (
             <table>
               <thead>
@@ -62,9 +70,11 @@ export default function CategoriasPage() {
                   <tr key={cat.id}>
                     <td>{cat.nombre}</td>
                     <td>
-                      <button onClick={() => deleteCategoria(cat.id)}>
-                        Eliminar
-                      </button>
+                      <div className="actions">
+                        <button className="small danger" onClick={() => deleteCategoria(cat.id)}>
+                          Eliminar
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}

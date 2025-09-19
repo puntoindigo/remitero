@@ -20,7 +20,7 @@ export default function ProductosPage() {
         <nav>
           <a href="/categorias">Categorías</a>
           <a href="/clientes">Clientes</a>
-          <a href="/productos">Productos</a>
+          <a href="/productos" className="active">Productos</a>
           <a href="/remitos">Remitos</a>
         </nav>
       </header>
@@ -28,51 +28,61 @@ export default function ProductosPage() {
       <main>
         <h2>Gestión de Productos</h2>
         
-        <div>
+        <div className="form-section">
           <h3>Nuevo Producto</h3>
-          <div>
-            <label>Nombre:</label>
-            <input
-              value={nombre}
-              onChange={(e) => setNombre(e.target.value)}
-            />
+          <div className="form-row">
+            <div className="form-group">
+              <label>Nombre:</label>
+              <input
+                value={nombre}
+                onChange={(e) => setNombre(e.target.value)}
+                placeholder="Ingresa el nombre del producto"
+              />
+            </div>
+            <div className="form-group">
+              <label>Precio:</label>
+              <input
+                type="number"
+                min={0}
+                step="0.01"
+                value={precio}
+                onChange={(e) => setPrecio(parseFloat(e.target.value || "0"))}
+                placeholder="0.00"
+              />
+            </div>
+            <div className="form-group">
+              <label>Categoría:</label>
+              <select
+                value={categoriaId}
+                onChange={(e) => setCategoriaId(e.target.value)}
+              >
+                <option value="">Sin categoría</option>
+                {db.categorias.map(c => (
+                  <option key={c.id} value={c.id}>{c.nombre}</option>
+                ))}
+              </select>
+            </div>
+            <div className="form-group">
+              <label>&nbsp;</label>
+              <button
+                onClick={() => {
+                  if (!nombre || precio <= 0) return;
+                  addProducto({ nombre, precio, categoriaId: categoriaId || undefined });
+                  setNombre(""); setPrecio(0); setCategoriaId("");
+                }}
+              >
+                Guardar
+              </button>
+            </div>
           </div>
-          <div>
-            <label>Precio:</label>
-            <input
-              type="number"
-              min={0}
-              value={precio}
-              onChange={(e) => setPrecio(parseFloat(e.target.value || "0"))}
-            />
-          </div>
-          <div>
-            <label>Categoría:</label>
-            <select
-              value={categoriaId}
-              onChange={(e) => setCategoriaId(e.target.value)}
-            >
-              <option value="">Sin categoría</option>
-              {db.categorias.map(c => (
-                <option key={c.id} value={c.id}>{c.nombre}</option>
-              ))}
-            </select>
-          </div>
-          <button
-            onClick={() => {
-              if (!nombre || precio <= 0) return;
-              addProducto({ nombre, precio, categoriaId: categoriaId || undefined });
-              setNombre(""); setPrecio(0); setCategoriaId("");
-            }}
-          >
-            Guardar
-          </button>
         </div>
 
-        <div>
+        <div className="form-section">
           <h3>Lista de Productos</h3>
           {db.productos.length === 0 ? (
-            <p>No hay productos registrados</p>
+            <div className="empty-state">
+              <p>No hay productos registrados</p>
+            </div>
           ) : (
             <table>
               <thead>
@@ -90,9 +100,11 @@ export default function ProductosPage() {
                     <td>{db.categorias.find(c => c.id === p.categoriaId)?.nombre ?? "—"}</td>
                     <td>${p.precio.toFixed(2)}</td>
                     <td>
-                      <button onClick={() => deleteProducto(p.id)}>
-                        Eliminar
-                      </button>
+                      <div className="actions">
+                        <button className="small danger" onClick={() => deleteProducto(p.id)}>
+                          Eliminar
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}

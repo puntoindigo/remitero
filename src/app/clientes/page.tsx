@@ -16,7 +16,7 @@ export default function ClientesPage() {
         <h1>Sistema de Gestión</h1>
         <nav>
           <a href="/categorias">Categorías</a>
-          <a href="/clientes">Clientes</a>
+          <a href="/clientes" className="active">Clientes</a>
           <a href="/productos">Productos</a>
           <a href="/remitos">Remitos</a>
         </nav>
@@ -25,30 +25,38 @@ export default function ClientesPage() {
       <main>
         <h2>Gestión de Clientes</h2>
         
-        <div>
+        <div className="form-section">
           <h3>Nuevo Cliente</h3>
-          <div>
-            <label>Nombre:</label>
-            <input
-              value={nombre}
-              onChange={(e) => setNombre(e.target.value)}
-            />
+          <div className="form-row">
+            <div className="form-group">
+              <label>Nombre:</label>
+              <input
+                value={nombre}
+                onChange={(e) => setNombre(e.target.value)}
+                placeholder="Ingresa el nombre del cliente"
+              />
+            </div>
+            <div className="form-group">
+              <label>&nbsp;</label>
+              <button
+                onClick={() => {
+                  if (!nombre) return;
+                  addCliente(nombre);
+                  setNombre("");
+                }}
+              >
+                Guardar
+              </button>
+            </div>
           </div>
-          <button
-            onClick={() => {
-              if (!nombre) return;
-              addCliente(nombre);
-              setNombre("");
-            }}
-          >
-            Guardar
-          </button>
         </div>
 
-        <div>
+        <div className="form-section">
           <h3>Lista de Clientes</h3>
           {db.clientes.length === 0 ? (
-            <p>No hay clientes registrados</p>
+            <div className="empty-state">
+              <p>No hay clientes registrados</p>
+            </div>
           ) : (
             <table>
               <thead>
@@ -62,9 +70,11 @@ export default function ClientesPage() {
                   <tr key={c.id}>
                     <td>{c.nombre}</td>
                     <td>
-                      <button onClick={() => deleteCliente(c.id)}>
-                        Eliminar
-                      </button>
+                      <div className="actions">
+                        <button className="small danger" onClick={() => deleteCliente(c.id)}>
+                          Eliminar
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}

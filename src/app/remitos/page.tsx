@@ -170,7 +170,7 @@ export default function RemitosPage() {
           <a href="/categorias">Categorías</a>
           <a href="/clientes">Clientes</a>
           <a href="/productos">Productos</a>
-          <a href="/remitos">Remitos</a>
+          <a href="/remitos" className="active">Remitos</a>
         </nav>
       </header>
 
@@ -179,58 +179,69 @@ export default function RemitosPage() {
         <button onClick={() => setShowForm(true)}>Nuevo Remito</button>
 
         {showForm && (
-          <div>
+          <div className="form-section">
             <h3>Nuevo Remito - {numero}</h3>
             
-            <div>
-              <label>Fecha:</label>
-              <input
-                type="date"
-                value={fecha}
-                onChange={(e) => setFecha(e.target.value)}
-              />
-            </div>
+            <div className="form-row">
+              <div className="form-group">
+                <label>Fecha:</label>
+                <input
+                  type="date"
+                  value={fecha}
+                  onChange={(e) => setFecha(e.target.value)}
+                />
+              </div>
 
-            <div>
-              <label>Cliente:</label>
-              <select
-                value={clienteId}
-                onChange={(e) => setClienteId(e.target.value)}
-              >
-                <option value="">Seleccionar cliente</option>
-                {clientes.map(cliente => (
-                  <option key={cliente.id} value={cliente.id}>
-                    {cliente.nombre}
-                  </option>
-                ))}
-              </select>
+              <div className="form-group">
+                <label>Cliente:</label>
+                <select
+                  value={clienteId}
+                  onChange={(e) => setClienteId(e.target.value)}
+                >
+                  <option value="">Seleccionar cliente</option>
+                  {clientes.map(cliente => (
+                    <option key={cliente.id} value={cliente.id}>
+                      {cliente.nombre}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
 
             <div>
               <h4>Productos</h4>
-              <div>
-                <select
-                  value={productoId}
-                  onChange={(e) => setProductoId(e.target.value)}
-                >
-                  <option value="">Seleccionar producto</option>
-                  {productoOptions.map(option => (
-                    <option key={option.value} value={option.value}>
-                      {option.label} - {option.description}
-                    </option>
-                  ))}
-                </select>
-                <input
-                  type="number"
-                  min="1"
-                  value={cantidad}
-                  onChange={(e) => setCantidad(parseInt(e.target.value || "1"))}
-                />
-                <button onClick={addLinea}>Agregar</button>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Producto:</label>
+                  <select
+                    value={productoId}
+                    onChange={(e) => setProductoId(e.target.value)}
+                  >
+                    <option value="">Seleccionar producto</option>
+                    {productoOptions.map(option => (
+                      <option key={option.value} value={option.value}>
+                        {option.label} - {option.description}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label>Cantidad:</label>
+                  <input
+                    type="number"
+                    min="1"
+                    value={cantidad}
+                    onChange={(e) => setCantidad(parseInt(e.target.value || "1"))}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>&nbsp;</label>
+                  <button onClick={addLinea}>Agregar</button>
+                </div>
               </div>
 
               {lineas.length > 0 && (
-                <table>
+                <table className="product-table">
                   <thead>
                     <tr>
                       <th>Producto</th>
@@ -251,11 +262,12 @@ export default function RemitosPage() {
                             min={1}
                             value={linea.cantidad}
                             onChange={(e) => updateCantidad(linea.productoId, parseInt(e.target.value || "1", 10))}
+                            style={{width: '60px'}}
                           />
                         </td>
                         <td>$ {linea.subtotal.toFixed(2)}</td>
                         <td>
-                          <button onClick={() => removeLinea(linea.productoId)}>
+                          <button className="small danger" onClick={() => removeLinea(linea.productoId)}>
                             Eliminar
                           </button>
                         </td>
@@ -266,30 +278,33 @@ export default function RemitosPage() {
               )}
             </div>
 
-            <div>
+            <div className="form-group">
               <label>Observaciones:</label>
               <textarea
                 value={observaciones}
                 onChange={(e) => setObservaciones(e.target.value)}
                 rows={3}
+                placeholder="Notas adicionales para este remito..."
               />
             </div>
 
-            <div>
+            <div className="total-display">
               <strong>Total: $ {total.toFixed(2)}</strong>
             </div>
 
-            <div>
-              <button onClick={() => setShowForm(false)}>Cancelar</button>
+            <div className="form-actions">
+              <button className="secondary" onClick={() => setShowForm(false)}>Cancelar</button>
               <button onClick={handleGuardarRemito}>Guardar Remito</button>
             </div>
           </div>
         )}
 
-        <div>
+        <div className="form-section">
           <h3>Lista de Remitos</h3>
           {remitos.length === 0 ? (
-            <p>No hay remitos registrados</p>
+            <div className="empty-state">
+              <p>No hay remitos registrados</p>
+            </div>
           ) : (
             <table>
               <thead>
@@ -309,9 +324,11 @@ export default function RemitosPage() {
                     <td>{remito.clienteNombre}</td>
                     <td>${remito.total.toFixed(2)}</td>
                     <td>
-                      <button onClick={() => handlePrint(remito)}>
-                        Imprimir
-                      </button>
+                      <div className="actions">
+                        <button className="small" onClick={() => handlePrint(remito)}>
+                          Imprimir
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
