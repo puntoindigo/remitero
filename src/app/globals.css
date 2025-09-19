@@ -108,6 +108,37 @@ form, .form-section {
   min-height: 60px;
 }
 
+.price-input {
+  display: flex;
+  align-items: center;
+  border: 1px solid #d1d5db;
+  border-radius: 3px;
+  background: white;
+}
+
+.price-symbol {
+  padding: 6px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #333;
+  background: #f8f9fa;
+  border-right: 1px solid #d1d5db;
+}
+
+.price-input input {
+  border: none;
+  outline: none;
+  padding: 6px 8px;
+  font-size: 11px;
+  font-family: inherit;
+  background: transparent;
+  flex: 1;
+}
+
+.price-input input:focus {
+  box-shadow: none;
+}
+
 /* Button styling */
 button {
   background: #0078d4;

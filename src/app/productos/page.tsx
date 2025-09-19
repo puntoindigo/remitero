@@ -217,99 +217,84 @@ export default function ProductosPage() {
 
         {/* Formulario */}
         {showForm && (
-          <div className="bg-white shadow rounded-lg mb-8">
-          <div className="px-4 py-5 sm:p-6">
-            <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
-              {editingProduct ? "Editar Producto" : "Nuevo Producto"}
-            </h3>
+          <div className="form-section">
+            <h3>{editingProduct ? "Editar Producto" : "Nuevo Producto"}</h3>
             
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-                    Nombre del producto
-                  </label>
+            <form onSubmit={handleSubmit(onSubmit)}>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Nombre del producto</label>
                   <input
                     {...register("name")}
                     type="text"
-                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                     placeholder="Ingresa el nombre del producto"
                   />
                   {errors.name && (
-                    <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>
+                    <p className="error-message">{errors.name.message}</p>
                   )}
                 </div>
 
-                <div>
-                  <label htmlFor="price" className="block text-sm font-medium text-gray-700">
-                    Precio
-                  </label>
-                  <div className="mt-1 relative rounded-md shadow-sm">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <DollarSign className="h-4 w-4 text-gray-400" />
-                    </div>
+                <div className="form-group">
+                  <label>Precio</label>
+                  <div className="price-input">
+                    <span className="price-symbol">$</span>
                     <input
                       {...register("price", { valueAsNumber: true })}
                       type="number"
                       step="0.01"
                       min="0"
-                      className="pl-10 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                       placeholder="0.00"
                     />
                   </div>
                   {errors.price && (
-                    <p className="mt-1 text-sm text-red-600">{errors.price.message}</p>
+                    <p className="error-message">{errors.price.message}</p>
                   )}
                 </div>
               </div>
 
-              <div>
-                <label htmlFor="categoryId" className="block text-sm font-medium text-gray-700">
-                  Categoría
-                </label>
-                <select
-                  {...register("categoryId")}
-                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                >
-                  <option value="">Sin categoría</option>
-                  {Array.isArray(categories) && categories.map((category) => (
-                    <option key={category.id} value={category.id}>
-                      {category.name}
-                    </option>
-                  ))}
-                </select>
-                {errors.categoryId && (
-                  <p className="mt-1 text-sm text-red-600">{errors.categoryId.message}</p>
-                )}
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Categoría</label>
+                  <FilterableSelect
+                    options={[
+                      { id: "", name: "Sin categoría" },
+                      ...categories.map(cat => ({ id: cat.id, name: cat.name }))
+                    ]}
+                    value={watch("categoryId") || ""}
+                    onChange={(value) => setValue("categoryId", value)}
+                    placeholder="Seleccionar categoría"
+                    searchFields={["name"]}
+                  />
+                  {errors.categoryId && (
+                    <p className="error-message">{errors.categoryId.message}</p>
+                  )}
+                </div>
+
+                <div className="form-group">
+                  <label>Descripción</label>
+                  <textarea
+                    {...register("description")}
+                    rows={3}
+                    placeholder="Descripción del producto (opcional)"
+                  />
+                  {errors.description && (
+                    <p className="error-message">{errors.description.message}</p>
+                  )}
+                </div>
               </div>
 
-              <div>
-                <label htmlFor="description" className="block text-sm font-medium text-gray-700">
-                  Descripción
-                </label>
-                <textarea
-                  {...register("description")}
-                  rows={3}
-                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  placeholder="Descripción del producto (opcional)"
-                />
-                {errors.description && (
-                  <p className="mt-1 text-sm text-red-600">{errors.description.message}</p>
-                )}
-              </div>
-
-              <div className="flex justify-end space-x-3">
+              <div className="form-actions">
                 <button
                   type="button"
                   onClick={handleCancel}
-                  className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+                  className="secondary"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+                  className="primary"
                 >
                   <Plus className="h-4 w-4 mr-2" />
                   {isSubmitting ? "Guardando..." : editingProduct ? "Actualizar" : "Crear"}
