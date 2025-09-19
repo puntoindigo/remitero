@@ -457,43 +457,91 @@ svg {
   height: auto;
 }
 
-/* Tamaños específicos para iconos */
-.h-4 svg {
+/* Tamaños específicos para iconos - control más estricto */
+.h-4 svg,
+svg.h-4,
+.h-4 {
   width: 16px !important;
   height: 16px !important;
+  max-width: 16px !important;
+  max-height: 16px !important;
 }
 
-.h-5 svg {
+.h-5 svg,
+svg.h-5,
+.h-5 {
   width: 20px !important;
   height: 20px !important;
+  max-width: 20px !important;
+  max-height: 20px !important;
 }
 
-.h-8 svg {
+.h-8 svg,
+svg.h-8,
+.h-8 {
   width: 32px !important;
   height: 32px !important;
+  max-width: 32px !important;
+  max-height: 32px !important;
 }
 
-.h-12 svg {
+.h-12 svg,
+svg.h-12,
+.h-12 {
   width: 48px !important;
   height: 48px !important;
+  max-width: 48px !important;
+  max-height: 48px !important;
 }
 
 /* Fix para iconos en botones */
-button svg {
+button svg,
+.btn-link svg {
   width: 16px !important;
   height: 16px !important;
+  max-width: 16px !important;
+  max-height: 16px !important;
 }
 
 /* Fix para iconos de error */
 .text-red-600 svg {
   width: 16px !important;
   height: 16px !important;
+  max-width: 16px !important;
+  max-height: 16px !important;
 }
 
 /* Fix para iconos de loading */
 .animate-spin {
   width: 20px !important;
   height: 20px !important;
+  max-width: 20px !important;
+  max-height: 20px !important;
+}
+
+/* Fix para iconos en el header */
+.header svg,
+.nav-link svg {
+  width: 16px !important;
+  height: 16px !important;
+  max-width: 16px !important;
+  max-height: 16px !important;
+}
+
+/* Fix para iconos en tablas */
+table svg {
+  width: 16px !important;
+  height: 16px !important;
+  max-width: 16px !important;
+  max-height: 16px !important;
+}
+
+/* Fix para iconos en formularios */
+form svg {
+  width: 16px !important;
+  height: 16px !important;
+  max-width: 16px !important;
+  max-height: 16px !important;
 }
 
 /* Header mejorado */

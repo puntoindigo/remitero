@@ -2,10 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
-import Layout from "@/components/layout/Layout";
-import { RemitoService } from "@/lib/services/remitoService";
-import { ClientService } from "@/lib/services/clientService";
-import { ProductService } from "@/lib/services/productService";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { RemitoForm, remitoSchema } from "@/lib/validations";
@@ -22,6 +18,7 @@ import {
   CheckCircle,
   Truck
 } from "lucide-react";
+import { formatDate } from "@/lib/utils/formatters";
 
 interface RemitoItem {
   productId?: string;
@@ -97,11 +94,22 @@ export default function RemitosPage() {
     if (!session?.user?.companyId) return;
     
     try {
-      const [remitosData, clientsData, productsData] = await Promise.all([
-        RemitoService.getRemitos(session.user.companyId),
-        ClientService.getClients(session.user.companyId),
-        ProductService.getProducts(session.user.companyId)
+      const [remitosResponse, clientsResponse, productsResponse] = await Promise.all([
+        fetch('/api/remitos'),
+        fetch('/api/clients'),
+        fetch('/api/products')
       ]);
+
+      if (!remitosResponse.ok || !clientsResponse.ok || !productsResponse.ok) {
+        throw new Error('Error al cargar los datos');
+      }
+
+      const [remitosData, clientsData, productsData] = await Promise.all([
+        remitosResponse.json(),
+        clientsResponse.json(),
+        productsResponse.json()
+      ]);
+
       setRemitos(remitosData);
       setClients(clientsData);
       setProducts(productsData);
@@ -120,17 +128,23 @@ export default function RemitosPage() {
     if (!session?.user?.companyId || !session?.user?.id) return;
 
     try {
-      if (editingRemito) {
-        // TODO: Implementar actualización de remito
-        console.log("Actualizar remito:", editingRemito.id, data);
-      } else {
-        await RemitoService.createRemito({
-          ...data,
-          companyId: session.user.companyId,
-          createdById: session.user.id
-        });
+      const remitoData = {
+        ...data,
+        items: items
+      };
+
+      const response = await fetch('/api/remitos', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(remitoData),
+      });
+
+      if (!response.ok) {
+        throw new Error('Error al guardar el remito');
       }
-      
+
       reset();
       setEditingRemito(null);
       setShowForm(false);
@@ -138,6 +152,7 @@ export default function RemitosPage() {
       await loadData();
     } catch (error) {
       console.error("Error saving remito:", error);
+      alert('Error al guardar el remito');
     }
   };
 
@@ -199,7 +214,14 @@ export default function RemitosPage() {
     if (!session?.user?.companyId) return;
 
     try {
-      await RemitoService.deleteRemito(id, session.user.companyId);
+      const response = await fetch(`/api/remitos/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error('Error al eliminar el remito');
+      }
+
       await loadData();
       setShowDeleteConfirm(null);
     } catch (error: any) {
@@ -211,7 +233,18 @@ export default function RemitosPage() {
     if (!session?.user?.companyId || !session?.user?.id) return;
 
     try {
-      await RemitoService.updateRemitoStatus(id, status, session.user.companyId, session.user.id);
+      const response = await fetch(`/api/remitos/${id}/status`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Error al actualizar el estado');
+      }
+
       await loadData();
     } catch (error: any) {
       alert(error.message || "Error al actualizar el estado");
@@ -251,32 +284,27 @@ export default function RemitosPage() {
 
   if (isLoading) {
     return (
-      <Layout>
+      <main className="main-content">
         <div className="flex justify-center items-center h-64">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
         </div>
-      </Layout>
+      </main>
     );
   }
 
   return (
-    <Layout>
-      <div className="px-4 py-6 sm:px-0">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Gestión de Remitos</h1>
-          <p className="mt-2 text-gray-600">
-            Administra los remitos de entrega
-          </p>
-        </div>
-
+    <main className="main-content">
+      <section className="form-section">
+        <h2>Gestión de Remitos</h2>
+        
         {/* Botón para nuevo remito */}
         {!showForm && (
-          <div className="mb-8">
+          <div className="form-actions">
             <button
               onClick={() => setShowForm(true)}
-              className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
+              className="primary"
             >
-              <Plus className="h-4 w-4 mr-2" />
+              <Plus className="h-4 w-4" />
               Nuevo Remito
             </button>
           </div>
@@ -284,316 +312,253 @@ export default function RemitosPage() {
 
         {/* Formulario de remito */}
         {showForm && (
-          <div className="bg-white shadow rounded-lg mb-8">
-            <div className="px-4 py-5 sm:p-6">
-              <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
-                {editingRemito ? `Editar Remito #${editingRemito.number}` : "Nuevo Remito"}
-              </h3>
-              
-              <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  <div>
-                    <label htmlFor="clientId" className="block text-sm font-medium text-gray-700">
-                      Cliente *
-                    </label>
+          <div className="form-section">
+            <h3>{editingRemito ? `Editar Remito #${editingRemito.number}` : "Nuevo Remito"}</h3>
+            
+            <form onSubmit={handleSubmit(onSubmit)}>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Cliente *</label>
+                  <select {...register("clientId")}>
+                    <option value="">Seleccionar cliente</option>
+                    {clients.map((client) => (
+                      <option key={client.id} value={client.id}>
+                        {client.name}
+                      </option>
+                    ))}
+                  </select>
+                  {errors.clientId && (
+                    <p className="error-message">{errors.clientId.message}</p>
+                  )}
+                </div>
+
+                <div className="form-group">
+                  <label>Observaciones</label>
+                  <input
+                    {...register("notes")}
+                    type="text"
+                    placeholder="Notas adicionales"
+                  />
+                </div>
+              </div>
+
+              {/* Agregar productos */}
+              <div className="form-section">
+                <h4>Productos</h4>
+                
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>Producto</label>
                     <select
-                      {...register("clientId")}
-                      className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                      value={selectedProduct}
+                      onChange={(e) => setSelectedProduct(e.target.value)}
                     >
-                      <option value="">Seleccionar cliente</option>
-                      {clients.map((client) => (
-                        <option key={client.id} value={client.id}>
-                          {client.name}
-                        </option>
-                      ))}
+                      <option value="">Seleccionar producto</option>
+                      {products
+                        .filter(p => !items.some(item => item.productId === p.id))
+                        .map((product) => (
+                          <option key={product.id} value={product.id}>
+                            {product.name} - ${product.price.toFixed(2)}
+                          </option>
+                        ))}
                     </select>
-                    {errors.clientId && (
-                      <p className="mt-1 text-sm text-red-600">{errors.clientId.message}</p>
-                    )}
                   </div>
 
-                  <div>
-                    <label htmlFor="notes" className="block text-sm font-medium text-gray-700">
-                      Observaciones
-                    </label>
+                  <div className="form-group">
+                    <label>Cantidad</label>
                     <input
-                      {...register("notes")}
-                      type="text"
-                      className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                      placeholder="Notas adicionales"
+                      type="number"
+                      min="1"
+                      value={quantity}
+                      onChange={(e) => setQuantity(parseInt(e.target.value) || 1)}
                     />
                   </div>
-                </div>
 
-                {/* Agregar productos */}
-                <div className="border-t pt-6">
-                  <h4 className="text-md font-medium text-gray-900 mb-4">Productos</h4>
-                  
-                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 mb-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">
-                        Producto
-                      </label>
-                      <select
-                        value={selectedProduct}
-                        onChange={(e) => setSelectedProduct(e.target.value)}
-                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                      >
-                        <option value="">Seleccionar producto</option>
-                        {products
-                          .filter(p => !items.some(item => item.productId === p.id))
-                          .map((product) => (
-                            <option key={product.id} value={product.id}>
-                              {product.name} - ${product.price.toFixed(2)}
-                            </option>
-                          ))}
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">
-                        Cantidad
-                      </label>
-                      <input
-                        type="number"
-                        min="1"
-                        value={quantity}
-                        onChange={(e) => setQuantity(parseInt(e.target.value) || 1)}
-                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                      />
-                    </div>
-
-                    <div className="flex items-end">
-                      <button
-                        type="button"
-                        onClick={handleAddItem}
-                        className="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700"
-                      >
-                        <Plus className="h-4 w-4 mr-2" />
-                        Agregar
-                      </button>
-                    </div>
+                  <div className="form-group">
+                    <button
+                      type="button"
+                      onClick={handleAddItem}
+                      className="primary"
+                    >
+                      <Plus className="h-4 w-4" />
+                      Agregar
+                    </button>
                   </div>
-
-                  {/* Lista de productos agregados */}
-                  {items.length > 0 && (
-                    <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
-                      <table className="min-w-full divide-y divide-gray-300">
-                        <thead className="bg-gray-50">
-                          <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                              Producto
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                              Cantidad
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                              Precio Unit.
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                              Total
-                            </th>
-                            <th className="relative px-6 py-3">
-                              <span className="sr-only">Acciones</span>
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody className="bg-white divide-y divide-gray-200">
-                          {items.map((item, index) => (
-                            <tr key={index}>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                {item.productName}
-                                {item.productDesc && (
-                                  <div className="text-sm text-gray-500">{item.productDesc}</div>
-                                )}
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap">
-                                <input
-                                  type="number"
-                                  min="1"
-                                  value={item.quantity}
-                                  onChange={(e) => handleUpdateQuantity(index, parseInt(e.target.value) || 1)}
-                                  className="w-20 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                                />
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                ${item.unitPrice.toFixed(2)}
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                ${item.lineTotal.toFixed(2)}
-                              </td>
-                              <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <button
-                                  type="button"
-                                  onClick={() => handleRemoveItem(index)}
-                                  className="text-red-600 hover:text-red-900"
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </button>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
-
-                  {/* Total */}
-                  {items.length > 0 && (
-                    <div className="mt-4 flex justify-end">
-                      <div className="text-lg font-medium text-gray-900">
-                        Total: ${total.toFixed(2)}
-                      </div>
-                    </div>
-                  )}
                 </div>
 
-                <div className="flex justify-end space-x-3 pt-6 border-t">
-                  <button
-                    type="button"
-                    onClick={handleCancel}
-                    className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
-                  >
-                    Cancelar
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={isSubmitting || items.length === 0}
-                    className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
-                  >
-                    <FileText className="h-4 w-4 mr-2" />
-                    {isSubmitting ? "Guardando..." : editingRemito ? "Actualizar" : "Crear"} Remito
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
-
-        {/* Lista de remitos */}
-        {!showForm && (
-          <div className="bg-white shadow rounded-lg">
-            <div className="px-4 py-5 sm:p-6">
-              <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
-                Lista de Remitos
-              </h3>
-              
-              {remitos.length === 0 ? (
-                <div className="text-center py-12">
-                  <FileText className="mx-auto h-12 w-12 text-gray-400" />
-                  <h3 className="mt-2 text-sm font-medium text-gray-900">No hay remitos</h3>
-                  <p className="mt-1 text-sm text-gray-500">
-                    Comienza creando un nuevo remito.
-                  </p>
-                </div>
-              ) : (
-                <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
-                  <table className="min-w-full divide-y divide-gray-300">
-                    <thead className="bg-gray-50">
+                {/* Lista de productos agregados */}
+                {items.length > 0 && (
+                  <table>
+                    <thead>
                       <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Número
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Cliente
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Estado
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Total
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Fecha
-                        </th>
-                        <th className="relative px-6 py-3">
-                          <span className="sr-only">Acciones</span>
-                        </th>
+                        <th>Producto</th>
+                        <th>Cantidad</th>
+                        <th>Precio Unit.</th>
+                        <th>Total</th>
+                        <th>Acciones</th>
                       </tr>
                     </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {remitos.map((remito) => (
-                        <tr key={remito.id}>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                            #{remito.number}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {remito.client.name}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(remito.status)}`}>
-                              {getStatusIcon(remito.status)}
-                              <span className="ml-1">{remito.status}</span>
-                            </span>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            ${remito.total.toFixed(2)}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {new Date(remito.createdAt).toLocaleDateString()}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <div className="flex justify-end space-x-2">
-                              <select
-                                value={remito.status}
-                                onChange={(e) => handleStatusChange(remito.id, e.target.value as any)}
-                                className="text-xs border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                              >
-                                <option value="PENDIENTE">Pendiente</option>
-                                <option value="PREPARADO">Preparado</option>
-                                <option value="ENTREGADO">Entregado</option>
-                              </select>
-                              <button
-                                onClick={() => handlePrint(remito)}
-                                className="text-blue-600 hover:text-blue-900"
-                              >
-                                <Printer className="h-4 w-4" />
-                              </button>
-                              <button
-                                onClick={() => handleEdit(remito)}
-                                className="text-green-600 hover:text-green-900"
-                              >
-                                <Edit className="h-4 w-4" />
-                              </button>
-                              <button
-                                onClick={() => setShowDeleteConfirm(remito.id)}
-                                className="text-red-600 hover:text-red-900"
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </button>
+                    <tbody>
+                      {items.map((item, index) => (
+                        <tr key={index}>
+                          <td>
+                            <div>
+                              <div className="font-medium">{item.productName}</div>
+                              {item.productDesc && (
+                                <div className="text-sm text-gray-500">{item.productDesc}</div>
+                              )}
                             </div>
+                          </td>
+                          <td>
+                            <input
+                              type="number"
+                              min="1"
+                              value={item.quantity}
+                              onChange={(e) => handleUpdateQuantity(index, parseInt(e.target.value) || 1)}
+                              className="w-20"
+                            />
+                          </td>
+                          <td>${item.unitPrice.toFixed(2)}</td>
+                          <td>${item.lineTotal.toFixed(2)}</td>
+                          <td>
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveItem(index)}
+                              className="small danger"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
                           </td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
-                </div>
-              )}
-            </div>
+                )}
+
+                {/* Total */}
+                {items.length > 0 && (
+                  <div className="total-display">
+                    <strong>Total: ${total.toFixed(2)}</strong>
+                  </div>
+                )}
+              </div>
+
+              <div className="form-actions">
+                <button
+                  type="button"
+                  onClick={handleCancel}
+                  className="secondary"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmitting || items.length === 0}
+                  className="primary"
+                >
+                  <FileText className="h-4 w-4" />
+                  {isSubmitting ? "Guardando..." : editingRemito ? "Actualizar" : "Crear"} Remito
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
+
+        {/* Lista de remitos */}
+        {!showForm && (
+          <div className="form-section">
+            <h3>Lista de Remitos</h3>
+            
+            {remitos.length === 0 ? (
+              <div className="empty-state">
+                <FileText className="h-12 w-12 text-gray-400" />
+                <h3>No hay remitos</h3>
+                <p>Comienza creando un nuevo remito.</p>
+              </div>
+            ) : (
+              <table>
+                <thead>
+                  <tr>
+                    <th>Número</th>
+                    <th>Cliente</th>
+                    <th>Estado</th>
+                    <th>Total</th>
+                    <th>Fecha</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {remitos.map((remito) => (
+                    <tr key={remito.id}>
+                      <td className="font-medium">#{remito.number}</td>
+                      <td>{remito.client.name}</td>
+                      <td>
+                        <span className={`badge ${getStatusColor(remito.status)}`}>
+                          {getStatusIcon(remito.status)}
+                          <span className="ml-1">{remito.status}</span>
+                        </span>
+                      </td>
+                      <td>${remito.total.toFixed(2)}</td>
+                      <td>{formatDate(new Date(remito.createdAt))}</td>
+                      <td>
+                        <div className="action-buttons">
+                          <select
+                            value={remito.status}
+                            onChange={(e) => handleStatusChange(remito.id, e.target.value as any)}
+                            className="small"
+                          >
+                            <option value="PENDIENTE">Pendiente</option>
+                            <option value="PREPARADO">Preparado</option>
+                            <option value="ENTREGADO">Entregado</option>
+                          </select>
+                          <button
+                            onClick={() => handlePrint(remito)}
+                            className="small"
+                            title="Imprimir"
+                          >
+                            <Printer className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={() => handleEdit(remito)}
+                            className="small"
+                            title="Editar"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={() => setShowDeleteConfirm(remito.id)}
+                            className="small danger"
+                            title="Eliminar"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
           </div>
         )}
 
         {/* Modal de confirmación de eliminación */}
         {showDeleteConfirm && (
-          <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-            <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-              <div className="mt-3 text-center">
-                <h3 className="text-lg font-medium text-gray-900">Confirmar eliminación</h3>
-                <div className="mt-2 px-7 py-3">
-                  <p className="text-sm text-gray-500">
-                    ¿Estás seguro de que quieres eliminar este remito? Esta acción no se puede deshacer.
-                  </p>
-                </div>
-                <div className="flex justify-center space-x-4 mt-4">
+          <div className="modal-overlay">
+            <div className="modal">
+              <div className="modal-content">
+                <h3>Confirmar eliminación</h3>
+                <p>¿Estás seguro de que quieres eliminar este remito? Esta acción no se puede deshacer.</p>
+                <div className="modal-actions">
                   <button
                     onClick={() => setShowDeleteConfirm(null)}
-                    className="px-4 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400"
+                    className="secondary"
                   >
                     Cancelar
                   </button>
                   <button
                     onClick={() => handleDelete(showDeleteConfirm)}
-                    className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+                    className="danger"
                   >
                     Eliminar
                   </button>
@@ -602,7 +567,7 @@ export default function RemitosPage() {
             </div>
           </div>
         )}
-      </div>
-    </Layout>
+      </section>
+    </main>
   );
 }
