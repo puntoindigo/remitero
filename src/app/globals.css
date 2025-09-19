@@ -20,7 +20,7 @@ body {
   max-width: 1200px;
   margin: 0 auto;
   background: #fff;
-  min-height: 100vh;
+  min-height: calc(100vh - 60px);
   box-shadow: 0 0 10px rgba(0,0,0,0.1);
 }
 
@@ -184,6 +184,26 @@ button.danger:hover {
 button.small {
   padding: 4px 8px;
   font-size: 10px;
+}
+
+/* Link button styling */
+.btn-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background: #0078d4;
+  color: white;
+  text-decoration: none;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: 600;
+  transition: background-color 0.2s;
+}
+
+.btn-link:hover {
+  background: #106ebe;
+  color: white;
 }
 
 /* Table styling */
@@ -488,6 +508,8 @@ button svg {
   position: sticky;
   top: 0;
   z-index: 1000;
+  width: 100%;
+  min-height: 60px;
 }
 
 .header-left {

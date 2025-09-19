@@ -23,7 +23,19 @@ export default function Header({ session }: HeaderProps) {
   const pathname = usePathname();
 
   if (!session) {
-    return null;
+    return (
+      <header className="header">
+        <div className="header-left">
+          <h1>Sistema de Remitos</h1>
+        </div>
+        <div className="header-right">
+          <Link href="/auth/login" className="logout-button">
+            <LogOut className="h-4 w-4" />
+            Iniciar Sesión
+          </Link>
+        </div>
+      </header>
+    );
   }
 
   const handleLogout = async () => {

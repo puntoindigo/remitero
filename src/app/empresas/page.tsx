@@ -54,7 +54,8 @@ export default async function EmpresasPage() {
                   <td>
                     <button className="small">Editar</button>
                     <button className="small danger">Eliminar</button>
-                    <Link href={`/usuarios?companyId=${company.id}`} className="small">
+                    <Link href={`/usuarios?companyId=${company.id}`} className="btn-link">
+                      <Users className="h-4 w-4" />
                       Ver Usuarios
                     </Link>
                   </td>
