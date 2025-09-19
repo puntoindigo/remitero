@@ -233,7 +233,7 @@ export default function ClientesPage() {
               Lista de Clientes
             </h3>
             
-            {clients.length === 0 ? (
+            {!Array.isArray(clients) || clients.length === 0 ? (
               <div className="text-center py-12">
                 <Users className="mx-auto h-12 w-12 text-gray-400" />
                 <h3 className="mt-2 text-sm font-medium text-gray-900">No hay clientes</h3>
@@ -264,7 +264,7 @@ export default function ClientesPage() {
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {clients.map((client) => (
+                    {Array.isArray(clients) && clients.map((client) => (
                       <tr key={client.id}>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm font-medium text-gray-900">

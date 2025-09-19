@@ -183,7 +183,7 @@ export default function EmpresasPage() {
         <div className="form-section">
           <h3>Lista de Empresas</h3>
           
-          {companies.length === 0 ? (
+          {!Array.isArray(companies) || companies.length === 0 ? (
             <div className="empty-state">
               <Building2 className="h-12 w-12 text-gray-400" />
               <h3>No hay empresas</h3>
@@ -199,7 +199,7 @@ export default function EmpresasPage() {
                 </tr>
               </thead>
               <tbody>
-                {companies.map((company) => (
+                {Array.isArray(companies) && companies.map((company) => (
                   <tr key={company.id}>
                     <td className="font-medium">{company.name}</td>
                     <td>{formatDate(company.createdAt)}</td>

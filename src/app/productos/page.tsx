@@ -186,7 +186,7 @@ export default function ProductosPage() {
                   className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                 >
                   <option value="">Sin categoría</option>
-                  {categories.map((category) => (
+                  {Array.isArray(categories) && categories.map((category) => (
                     <option key={category.id} value={category.id}>
                       {category.name}
                     </option>
@@ -242,7 +242,7 @@ export default function ProductosPage() {
               Lista de Productos
             </h3>
             
-            {products.length === 0 ? (
+            {!Array.isArray(products) || products.length === 0 ? (
               <div className="text-center py-12">
                 <Package className="mx-auto h-12 w-12 text-gray-400" />
                 <h3 className="mt-2 text-sm font-medium text-gray-900">No hay productos</h3>
@@ -273,7 +273,7 @@ export default function ProductosPage() {
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {products.map((product) => (
+                    {Array.isArray(products) && products.map((product) => (
                       <tr key={product.id}>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div>

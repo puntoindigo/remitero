@@ -284,7 +284,7 @@ function UsuariosContent() {
                   <label>Empresa</label>
                   <select {...register("companyId")} defaultValue={companyId || ""}>
                     <option value="">Seleccionar Empresa</option>
-                    {companies.map((company) => (
+                    {Array.isArray(companies) && companies.map((company) => (
                       <option key={company.id} value={company.id}>
                         {company.name}
                       </option>
@@ -313,7 +313,7 @@ function UsuariosContent() {
         <div className="form-section">
           <h3>Lista de Usuarios</h3>
           
-          {users.length === 0 ? (
+          {!Array.isArray(users) || users.length === 0 ? (
             <div className="empty-state">
               <Users className="h-12 w-12 text-gray-400" />
               <h3>No hay usuarios</h3>
@@ -332,7 +332,7 @@ function UsuariosContent() {
                 </tr>
               </thead>
               <tbody>
-                {users.map((user) => (
+                {Array.isArray(users) && users.map((user) => (
                   <tr key={user.id}>
                     <td className="font-medium">{user.name}</td>
                     <td>{user.email}</td>

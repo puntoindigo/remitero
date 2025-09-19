@@ -163,7 +163,7 @@ export default function CategoriasPage() {
               Lista de Categorías
             </h3>
             
-            {categories.length === 0 ? (
+            {!Array.isArray(categories) || categories.length === 0 ? (
               <div className="text-center py-12">
                 <Package className="mx-auto h-12 w-12 text-gray-400" />
                 <h3 className="mt-2 text-sm font-medium text-gray-900">No hay categorías</h3>
@@ -191,7 +191,7 @@ export default function CategoriasPage() {
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {categories.map((category) => (
+                    {Array.isArray(categories) && categories.map((category) => (
                       <tr key={category.id}>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                           {category.name}
