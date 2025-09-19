@@ -1,9 +1,8 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { signOut } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
-import { Session } from "next-auth";
 import { 
   LayoutDashboard, 
   ReceiptText, 
@@ -15,11 +14,8 @@ import {
   LogOut
 } from "lucide-react";
 
-interface HeaderProps {
-  session: Session | null;
-}
-
-export default function Header({ session }: HeaderProps) {
+export default function Header() {
+  const { data: session } = useSession();
   const pathname = usePathname();
 
   if (!session) {

@@ -11,14 +11,12 @@ export const metadata: Metadata = {
   description: "Sistema de gestión de remitos con multi-empresa",
 };
 
-export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const session = await getServerSession(authOptions);
-
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es">
       <body>
         <AuthSessionProvider>
-          <Header session={session} />
+          <Header />
           <div className="container">
             <Providers>{children}</Providers>
           </div>
