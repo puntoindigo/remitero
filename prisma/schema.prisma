@@ -1,0 +1,133 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role { 
+  SUPERADMIN 
+  ADMIN 
+  USER 
+}
+
+enum DeliveryStatus { 
+  PENDIENTE 
+  PREPARADO 
+  ENTREGADO 
+}
+
+model Company {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  users       User[]
+  categories  Category[]
+  products    Product[]
+  clients     Client[]
+  remitos     Remito[]
+}
+
+model User {
+  id          String   @id @default(cuid())
+  companyId   String?
+  company     Company? @relation(fields: [companyId], references: [id])
+  email       String   @unique
+  password    String   // hash bcrypt
+  name        String
+  role        Role     @default(USER)
+  address     String?
+  phone       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  // impersonation support
+  impersonatingUserId String?
+  createdRemitos      Remito[] @relation("CreatedBy")
+  statusHistory       StatusHistory[]
+}
+
+model Category {
+  id          String   @id @default(cuid())
+  companyId   String
+  company     Company  @relation(fields: [companyId], references: [id])
+  name        String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  products    Product[]
+  @@unique([companyId, name])
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  companyId   String
+  company     Company  @relation(fields: [companyId], references: [id])
+  categoryId  String?
+  category    Category? @relation(fields: [categoryId], references: [id])
+  name        String
+  description String?
+  price       Decimal
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  remitoItems RemitoItem[]
+  @@unique([companyId, name])
+}
+
+model Client {
+  id          String   @id @default(cuid())
+  companyId   String
+  company     Company  @relation(fields: [companyId], references: [id])
+  name        String
+  address     String?
+  phone       String?
+  email       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  remitos     Remito[]
+  @@unique([companyId, name])
+}
+
+model Remito {
+  id          String   @id @default(cuid())
+  companyId   String
+  company     Company  @relation(fields: [companyId], references: [id])
+  number      Int      // numeración por empresa
+  clientId    String
+  client      Client   @relation(fields: [clientId], references: [id])
+  status      DeliveryStatus @default(PENDIENTE)
+  statusAt    DateTime @default(now()) // fecha/hora del último cambio de estado (visible)
+  items       RemitoItem[]
+  notes       String?
+  createdById String
+  createdBy   User     @relation("CreatedBy", fields: [createdById], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  history     StatusHistory[]
+  @@unique([companyId, number])
+}
+
+model RemitoItem {
+  id             String   @id @default(cuid())
+  remitoId       String
+  remito         Remito   @relation(fields: [remitoId], references: [id])
+  productId      String?  // nullable si el producto fue borrado luego
+  product        Product? @relation(fields: [productId], references: [id])
+  quantity       Int
+  // Snapshot de producto en el momento del remito
+  productName    String
+  productDesc    String?
+  unitPrice      Decimal
+  lineTotal      Decimal
+}
+
+model StatusHistory {
+  id        String         @id @default(cuid())
+  remitoId  String
+  remito    Remito         @relation(fields: [remitoId], references: [id])
+  status    DeliveryStatus
+  at        DateTime       @default(now())
+  byUserId  String?
+  byUser    User?          @relation(fields: [byUserId], references: [id])
+}

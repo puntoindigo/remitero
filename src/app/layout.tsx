@@ -1,19 +1,20 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Providers } from "@/components/providers";
+import AuthSessionProvider from "@/components/providers/SessionProvider";
 
 export const metadata: Metadata = {
-  title: "Sistema de Gestión",
-  description: "Remitos, productos, clientes y categorías",
+  title: "Sistema de Remitos",
+  description: "Sistema de gestión de remitos con multi-empresa",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es">
       <body>
-        <div className="container">
+        <AuthSessionProvider>
           <Providers>{children}</Providers>
-        </div>
+        </AuthSessionProvider>
       </body>
     </html>
   );

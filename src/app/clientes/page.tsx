@@ -1,88 +1,359 @@
 "use client";
-import { useState } from "react";
-import { useDB } from "@/lib/db";
-import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
-import { Label } from "@/components/ui/Label";
-import { FileText, Package, Users, Tag } from "lucide-react";
+
+import React, { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
+import Layout from "@/components/layout/Layout";
+import { ClientService } from "@/lib/services/clientService";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { ClientForm, clientSchema } from "@/lib/validations";
+import { Plus, Edit, Trash2, Users, Mail, Phone, MapPin } from "lucide-react";
+
+interface Client {
+  id: string;
+  name: string;
+  address?: string;
+  phone?: string;
+  email?: string;
+  remitos: { id: string }[];
+  createdAt: Date;
+}
 
 export default function ClientesPage() {
-  const { db, addCliente, deleteCliente } = useDB();
-  const [nombre, setNombre] = useState("");
+  const { data: session } = useSession();
+  const [clients, setClients] = useState<Client[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [editingClient, setEditingClient] = useState<Client | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    setValue,
+    formState: { errors, isSubmitting }
+  } = useForm<ClientForm>({
+    resolver: zodResolver(clientSchema)
+  });
+
+  const loadClients = async () => {
+    if (!session?.user?.companyId) return;
+    
+    try {
+      const data = await ClientService.getClients(session.user.companyId);
+      setClients(data);
+    } catch (error) {
+      console.error("Error loading clients:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadClients();
+  }, [session?.user?.companyId]);
+
+  const onSubmit = async (data: ClientForm) => {
+    if (!session?.user?.companyId) return;
+
+    try {
+      if (editingClient) {
+        await ClientService.updateClient(editingClient.id, data, session.user.companyId);
+      } else {
+        await ClientService.createClient({ ...data, companyId: session.user.companyId });
+      }
+      
+      reset();
+      setEditingClient(null);
+      await loadClients();
+    } catch (error) {
+      console.error("Error saving client:", error);
+    }
+  };
+
+  const handleEdit = (client: Client) => {
+    setEditingClient(client);
+    setValue("name", client.name);
+    setValue("address", client.address || "");
+    setValue("phone", client.phone || "");
+    setValue("email", client.email || "");
+  };
+
+  const handleCancel = () => {
+    setEditingClient(null);
+    reset();
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!session?.user?.companyId) return;
+
+    try {
+      await ClientService.deleteClient(id, session.user.companyId);
+      await loadClients();
+      setShowDeleteConfirm(null);
+    } catch (error: any) {
+      alert(error.message || "Error al eliminar el cliente");
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <Layout>
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
-    <div>
-      <header>
-        <h1>Sistema de Gestión</h1>
-        <nav>
-          <a href="/categorias">Categorías</a>
-          <a href="/clientes" className="active">Clientes</a>
-          <a href="/productos">Productos</a>
-          <a href="/remitos">Remitos</a>
-        </nav>
-      </header>
+    <Layout>
+      <div className="px-4 py-6 sm:px-0">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900">Gestión de Clientes</h1>
+          <p className="mt-2 text-gray-600">
+            Administra la base de datos de clientes
+          </p>
+        </div>
 
-      <main>
-        <h2>Gestión de Clientes</h2>
-        
-        <div className="form-section">
-          <h3>Nuevo Cliente</h3>
-          <div className="form-row">
-            <div className="form-group">
-              <label>Nombre:</label>
-              <input
-                value={nombre}
-                onChange={(e) => setNombre(e.target.value)}
-                placeholder="Ingresa el nombre del cliente"
-              />
-            </div>
-            <div className="form-group">
-              <label>&nbsp;</label>
-              <button
-                onClick={() => {
-                  if (!nombre) return;
-                  addCliente(nombre);
-                  setNombre("");
-                }}
-              >
-                Guardar
-              </button>
-            </div>
+        {/* Formulario */}
+        <div className="bg-white shadow rounded-lg mb-8">
+          <div className="px-4 py-5 sm:p-6">
+            <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
+              {editingClient ? "Editar Cliente" : "Nuevo Cliente"}
+            </h3>
+            
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div>
+                  <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+                    Nombre del cliente *
+                  </label>
+                  <input
+                    {...register("name")}
+                    type="text"
+                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    placeholder="Ingresa el nombre del cliente"
+                  />
+                  {errors.name && (
+                    <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                    Email
+                  </label>
+                  <div className="mt-1 relative rounded-md shadow-sm">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <Mail className="h-4 w-4 text-gray-400" />
+                    </div>
+                    <input
+                      {...register("email")}
+                      type="email"
+                      className="pl-10 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                      placeholder="cliente@email.com"
+                    />
+                  </div>
+                  {errors.email && (
+                    <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div>
+                  <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
+                    Teléfono
+                  </label>
+                  <div className="mt-1 relative rounded-md shadow-sm">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <Phone className="h-4 w-4 text-gray-400" />
+                    </div>
+                    <input
+                      {...register("phone")}
+                      type="tel"
+                      className="pl-10 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                      placeholder="+54 11 1234-5678"
+                    />
+                  </div>
+                  {errors.phone && (
+                    <p className="mt-1 text-sm text-red-600">{errors.phone.message}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label htmlFor="address" className="block text-sm font-medium text-gray-700">
+                    Dirección
+                  </label>
+                  <div className="mt-1 relative rounded-md shadow-sm">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <MapPin className="h-4 w-4 text-gray-400" />
+                    </div>
+                    <input
+                      {...register("address")}
+                      type="text"
+                      className="pl-10 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                      placeholder="Av. Corrientes 1234, CABA"
+                    />
+                  </div>
+                  {errors.address && (
+                    <p className="mt-1 text-sm text-red-600">{errors.address.message}</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex justify-end space-x-3">
+                {editingClient && (
+                  <button
+                    type="button"
+                    onClick={handleCancel}
+                    className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+                  >
+                    Cancelar
+                  </button>
+                )}
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  {isSubmitting ? "Guardando..." : editingClient ? "Actualizar" : "Crear"}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
 
-        <div className="form-section">
-          <h3>Lista de Clientes</h3>
-          {db.clientes.length === 0 ? (
-            <div className="empty-state">
-              <p>No hay clientes registrados</p>
-            </div>
-          ) : (
-            <table>
-              <thead>
-                <tr>
-                  <th>Nombre</th>
-                  <th>Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {db.clientes.map(c => (
-                  <tr key={c.id}>
-                    <td>{c.nombre}</td>
-                    <td>
-                      <div className="actions">
-                        <button className="small danger" onClick={() => deleteCliente(c.id)}>
-                          Eliminar
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
+        {/* Lista de clientes */}
+        <div className="bg-white shadow rounded-lg">
+          <div className="px-4 py-5 sm:p-6">
+            <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
+              Lista de Clientes
+            </h3>
+            
+            {clients.length === 0 ? (
+              <div className="text-center py-12">
+                <Users className="mx-auto h-12 w-12 text-gray-400" />
+                <h3 className="mt-2 text-sm font-medium text-gray-900">No hay clientes</h3>
+                <p className="mt-1 text-sm text-gray-500">
+                  Comienza creando un nuevo cliente.
+                </p>
+              </div>
+            ) : (
+              <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
+                <table className="min-w-full divide-y divide-gray-300">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Cliente
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Contacto
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Remitos
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Fecha de creación
+                      </th>
+                      <th className="relative px-6 py-3">
+                        <span className="sr-only">Acciones</span>
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {clients.map((client) => (
+                      <tr key={client.id}>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm font-medium text-gray-900">
+                            {client.name}
+                          </div>
+                          {client.address && (
+                            <div className="text-sm text-gray-500 flex items-center">
+                              <MapPin className="h-3 w-3 mr-1" />
+                              {client.address}
+                            </div>
+                          )}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="space-y-1">
+                            {client.email && (
+                              <div className="text-sm text-gray-500 flex items-center">
+                                <Mail className="h-3 w-3 mr-1" />
+                                {client.email}
+                              </div>
+                            )}
+                            {client.phone && (
+                              <div className="text-sm text-gray-500 flex items-center">
+                                <Phone className="h-3 w-3 mr-1" />
+                                {client.phone}
+                              </div>
+                            )}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {client.remitos.length} remitos
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {new Date(client.createdAt).toLocaleDateString()}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                          <div className="flex justify-end space-x-2">
+                            <button
+                              onClick={() => handleEdit(client)}
+                              className="text-blue-600 hover:text-blue-900"
+                            >
+                              <Edit className="h-4 w-4" />
+                            </button>
+                            <button
+                              onClick={() => setShowDeleteConfirm(client.id)}
+                              className="text-red-600 hover:text-red-900"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
         </div>
-      </main>
-    </div>
+
+        {/* Modal de confirmación de eliminación */}
+        {showDeleteConfirm && (
+          <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+            <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+              <div className="mt-3 text-center">
+                <h3 className="text-lg font-medium text-gray-900">Confirmar eliminación</h3>
+                <div className="mt-2 px-7 py-3">
+                  <p className="text-sm text-gray-500">
+                    ¿Estás seguro de que quieres eliminar este cliente? Esta acción no se puede deshacer.
+                  </p>
+                </div>
+                <div className="flex justify-center space-x-4 mt-4">
+                  <button
+                    onClick={() => setShowDeleteConfirm(null)}
+                    className="px-4 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    onClick={() => handleDelete(showDeleteConfirm)}
+                    className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+                  >
+                    Eliminar
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </Layout>
   );
 }
