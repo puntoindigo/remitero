@@ -64,3 +64,45 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Error interno del servidor" }, { status: 500 });
   }
 }
+
+export async function PUT(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions);
+    
+    if (!session?.user?.companyId) {
+      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+    }
+
+    const body = await request.json();
+    const { id, ...updateData } = body;
+    
+    if (!id) {
+      return NextResponse.json({ error: "ID de producto requerido" }, { status: 400 });
+    }
+
+    const validatedData = productSchema.parse(updateData);
+
+    const product = await prisma.product.update({
+      where: { 
+        id: id,
+        companyId: session.user.companyId 
+      },
+      data: validatedData,
+      include: { category: true }
+    });
+
+    return NextResponse.json(product);
+  } catch (error: any) {
+    console.error("Error updating product:", error);
+    
+    if (error.name === "ZodError") {
+      return NextResponse.json({ error: "Datos inválidos", details: error.errors }, { status: 400 });
+    }
+
+    if (error.code === "P2025") {
+      return NextResponse.json({ error: "Producto no encontrado" }, { status: 404 });
+    }
+
+    return NextResponse.json({ error: "Error interno del servidor" }, { status: 500 });
+  }
+}

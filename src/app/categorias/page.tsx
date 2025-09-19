@@ -252,10 +252,10 @@ export default function CategoriasPage() {
                     <td className="font-medium">{category.name}</td>
                     <td>
                       <button
-                        onClick={() => window.open(`/productos?category=${category.id}`, '_blank')}
+                        onClick={() => window.location.href = `/productos?category=${category.id}`}
                         className="text-blue-600 hover:text-blue-800 underline"
                       >
-                        {category.products?.length || 0} productos
+                        {category._count?.products || 0} productos
                       </button>
                     </td>
                     <td>{formatDate(category.createdAt)}</td>
