@@ -24,6 +24,7 @@ export default function ClientesPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [editingClient, setEditingClient] = useState<Client | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
+  const [showForm, setShowForm] = useState(false);
 
   const {
     register,
@@ -68,10 +69,17 @@ export default function ClientesPage() {
       
       reset();
       setEditingClient(null);
+      setShowForm(false);
       await loadClients();
     } catch (error) {
       console.error("Error saving client:", error);
     }
+  };
+
+  const handleNew = () => {
+    setEditingClient(null);
+    reset();
+    setShowForm(true);
   };
 
   const handleEdit = (client: Client) => {
@@ -80,11 +88,13 @@ export default function ClientesPage() {
     setValue("address", client.address || "");
     setValue("phone", client.phone || "");
     setValue("email", client.email || "");
+    setShowForm(true);
   };
 
   const handleCancel = () => {
     setEditingClient(null);
     reset();
+    setShowForm(false);
   };
 
   const handleDelete = async (id: string) => {

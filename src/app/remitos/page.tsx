@@ -358,7 +358,7 @@ export default function RemitosPage() {
                         .filter(p => !items.some(item => item.productId === p.id))
                         .map((product) => (
                           <option key={product.id} value={product.id}>
-                            {product.name} - ${product.price.toFixed(2)}
+                            {product.name} - ${Number(product.price).toFixed(2)}
                           </option>
                         ))}
                     </select>

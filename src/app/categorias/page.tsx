@@ -21,6 +21,7 @@ export default function CategoriasPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
+  const [showForm, setShowForm] = useState(false);
 
   const {
     register,
@@ -77,6 +78,7 @@ export default function CategoriasPage() {
       
       reset();
       setEditingCategory(null);
+      setShowForm(false);
       await loadCategories();
     } catch (error: any) {
       console.error("Error saving category:", error);
@@ -84,14 +86,22 @@ export default function CategoriasPage() {
     }
   };
 
+  const handleNew = () => {
+    setEditingCategory(null);
+    reset();
+    setShowForm(true);
+  };
+
   const handleEdit = (category: Category) => {
     setEditingCategory(category);
     setValue("name", category.name);
+    setShowForm(true);
   };
 
   const handleCancel = () => {
     setEditingCategory(null);
     reset();
+    setShowForm(false);
   };
 
   const handleDelete = async (id: string) => {
@@ -126,31 +136,44 @@ export default function CategoriasPage() {
           </p>
         </div>
 
-        {/* Formulario */}
-        <div className="bg-white shadow rounded-lg mb-8">
-          <div className="px-4 py-5 sm:p-6">
-            <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
-              {editingCategory ? "Editar Categoría" : "Nueva Categoría"}
-            </h3>
-            
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-              <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-                  Nombre de la categoría
-                </label>
-                <input
-                  {...register("name")}
-                  type="text"
-                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  placeholder="Ingresa el nombre de la categoría"
-                />
-                {errors.name && (
-                  <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>
-                )}
-              </div>
+        {/* Botón Nuevo */}
+        {!showForm && (
+          <div className="mb-6">
+            <button
+              onClick={handleNew}
+              className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Nueva Categoría
+            </button>
+          </div>
+        )}
 
-              <div className="flex justify-end space-x-3">
-                {editingCategory && (
+        {/* Formulario */}
+        {showForm && (
+          <div className="bg-white shadow rounded-lg mb-8">
+            <div className="px-4 py-5 sm:p-6">
+              <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
+                {editingCategory ? "Editar Categoría" : "Nueva Categoría"}
+              </h3>
+              
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                <div>
+                  <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+                    Nombre de la categoría
+                  </label>
+                  <input
+                    {...register("name")}
+                    type="text"
+                    className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    placeholder="Ingresa el nombre de la categoría"
+                  />
+                  {errors.name && (
+                    <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>
+                  )}
+                </div>
+
+                <div className="flex justify-end space-x-3">
                   <button
                     type="button"
                     onClick={handleCancel}
@@ -158,19 +181,19 @@ export default function CategoriasPage() {
                   >
                     Cancelar
                   </button>
-                )}
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  {isSubmitting ? "Guardando..." : editingCategory ? "Actualizar" : "Crear"}
-                </button>
-              </div>
-            </form>
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    {isSubmitting ? "Guardando..." : editingCategory ? "Actualizar" : "Crear"}
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Lista de categorías */}
         <div className="bg-white shadow rounded-lg">
