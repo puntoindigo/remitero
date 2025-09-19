@@ -273,6 +273,6 @@ export default function CategoriasPage() {
           </div>
         )}
       </div>
-    </Layout>
+    </main>
   );
 }
