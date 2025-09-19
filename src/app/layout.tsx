@@ -1,26 +1,18 @@
-import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
-import './globals.css'
-
-const inter = Inter({ subsets: ['latin'] })
+import type { Metadata } from "next";
+import "./globals.css";
+import { Providers } from "@/components/providers";
 
 export const metadata: Metadata = {
-  title: 'Sistema de Gestión de Productos y Remitos',
-  description: 'Sistema completo para la gestión de productos, clientes y remitos con impresión A4 duplicado',
-}
+  title: "Sistema de Gestión",
+  description: "Remitos, productos, clientes y categorías",
+};
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es">
-      <body className={inter.className}>
-        <div className="min-h-screen bg-gray-50">
-          {children}
-        </div>
+      <body className="min-h-screen bg-slate-50">
+        <Providers>{children}</Providers>
       </body>
     </html>
-  )
+  );
 }
