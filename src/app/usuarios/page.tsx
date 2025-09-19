@@ -50,6 +50,7 @@ function UsuariosContent() {
   const [isLoading, setIsLoading] = useState(true);
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
+  const [showForm, setShowForm] = useState(false);
 
   const {
     register,
@@ -116,11 +117,18 @@ function UsuariosContent() {
 
       reset();
       setEditingUser(null);
+      setShowForm(false);
       await loadData();
     } catch (error: any) {
       console.error("Error saving user:", error);
       alert(error.message || 'Error al guardar el usuario');
     }
+  };
+
+  const handleNew = () => {
+    setEditingUser(null);
+    reset();
+    setShowForm(true);
   };
 
   const handleEdit = (user: User) => {
@@ -131,11 +139,13 @@ function UsuariosContent() {
     setValue("address", user.address || "");
     setValue("phone", user.phone || "");
     setValue("companyId", user.company?.id || "");
+    setShowForm(true);
   };
 
   const handleCancel = () => {
     setEditingUser(null);
     reset();
+    setShowForm(false);
   };
 
   const handleDelete = async (id: string) => {
@@ -196,8 +206,23 @@ function UsuariosContent() {
           <p>Mostrando usuarios de la empresa seleccionada</p>
         )}
         
-        <div className="form-section">
-          <h3>{editingUser ? "Editar Usuario" : "Nuevo Usuario"}</h3>
+        {/* Botón Nuevo */}
+        {!showForm && (
+          <div className="mb-6">
+            <button
+              onClick={handleNew}
+              className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Nuevo Usuario
+            </button>
+          </div>
+        )}
+
+        {/* Formulario */}
+        {showForm && (
+          <div className="form-section">
+            <h3>{editingUser ? "Editar Usuario" : "Nuevo Usuario"}</h3>
           
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="form-row">
@@ -309,6 +334,7 @@ function UsuariosContent() {
             </div>
           </form>
         </div>
+        )}
 
         <div className="form-section">
           <h3>Lista de Usuarios</h3>
