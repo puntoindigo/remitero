@@ -212,8 +212,7 @@ export default function CategoriasPage() {
                   {isSubmitting ? "Guardando..." : editingCategory ? "Actualizar" : "Crear"}
                 </button>
               </div>
-              </form>
-            </div>
+            </form>
           </div>
         )}
 

@@ -302,7 +302,6 @@ export default function ProductosPage() {
               </div>
             </form>
           </div>
-        </div>
         )}
 
         <div className="form-section">
