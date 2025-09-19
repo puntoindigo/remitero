@@ -163,35 +163,34 @@ export default function RemitosPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-white">
       {/* Header */}
-      <header className="bg-black text-white">
-        <div className="max-w-7xl mx-auto px-6 py-3">
+      <header className="bg-white border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="p-1.5 bg-white rounded">
-                <FileText className="h-5 w-5 text-black" />
+              <div className="p-2 bg-blue-100 rounded-lg">
+                <FileText className="h-5 w-5 text-blue-600" />
               </div>
-              <h1 className="text-lg font-semibold">Sistema de Gestión</h1>
+              <h1 className="text-xl font-bold text-gray-900">Sistema de Gestión</h1>
             </div>
-            <nav className="flex space-x-6">
-              <a href="/categorias" className="px-3 py-1.5 rounded text-sm font-medium text-gray-400 hover:text-white">Categorías</a>
-              <a href="/clientes" className="px-3 py-1.5 rounded text-sm font-medium text-gray-400 hover:text-white">Clientes</a>
-              <a href="/productos" className="px-3 py-1.5 rounded text-sm font-medium text-gray-400 hover:text-white">Productos</a>
-              <a href="/remitos" className="px-3 py-1.5 rounded text-sm font-medium bg-gray-800 text-white">Remitos</a>
+            <nav className="flex space-x-1">
+              <a href="/categorias" className="px-4 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100">Categorías</a>
+              <a href="/clientes" className="px-4 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100">Clientes</a>
+              <a href="/productos" className="px-4 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100">Productos</a>
+              <a href="/remitos" className="px-4 py-2 rounded-md text-sm font-medium bg-white text-gray-900 shadow-sm border border-gray-200">Remitos</a>
             </nav>
             <div className="flex items-center space-x-3">
-              <span className="px-2 py-1 bg-gray-800 text-xs font-medium rounded text-gray-300">BETA</span>
-              <div className="w-8 h-8 bg-gray-700 rounded-full"></div>
+              <span className="px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full">BETA</span>
             </div>
           </div>
         </div>
       </header>
 
-      <div className="max-w-4xl mx-auto p-6">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-gray-900">Gestión de Remitos</h2>
-          <Button onClick={() => setShowForm(true)} className="flex items-center space-x-2">
+      <div className="max-w-6xl mx-auto p-6">
+        <div className="flex justify-between items-center mb-8">
+          <h2 className="text-3xl font-bold text-gray-900">Gestión de Remitos</h2>
+          <Button onClick={() => setShowForm(true)} className="bg-black text-white hover:bg-gray-800 px-6 py-2 rounded-lg flex items-center space-x-2">
             <Plus className="h-4 w-4" />
             <span>Nuevo Remito</span>
           </Button>
@@ -375,28 +374,30 @@ export default function RemitosPage() {
         )}
 
         {/* Lista de remitos */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Número</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cliente</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">NÚMERO</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">FECHA</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">CLIENTE</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900 uppercase tracking-wider">TOTAL</th>
+                  <th className="px-6 py-4 text-right text-sm font-semibold text-gray-900 uppercase tracking-wider">ACCIONES</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {remitos.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="px-6 py-12 text-center">
-                      <div className="flex flex-col items-center space-y-3">
-                        <div className="p-4 bg-gray-100 rounded-full">
+                    <td colSpan={5} className="px-6 py-16 text-center">
+                      <div className="flex flex-col items-center space-y-4">
+                        <div className="p-3 bg-gray-100 rounded-full">
                           <FileText className="h-8 w-8 text-gray-400" />
                         </div>
-                        <p className="text-sm font-medium text-gray-500">No hay remitos registrados</p>
-                        <p className="text-xs text-gray-400">Comienza creando tu primer remito</p>
+                        <div className="text-center">
+                          <p className="text-base font-medium text-gray-900">No hay remitos registrados</p>
+                          <p className="text-sm text-gray-500 mt-1">Comienza creando tu primer remito</p>
+                        </div>
                       </div>
                     </td>
                   </tr>
@@ -409,7 +410,7 @@ export default function RemitosPage() {
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${remito.total.toFixed(2)}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <div className="flex justify-end space-x-2">
-                          <Button variant="outline" size="sm" onClick={() => handlePrint(remito)}>
+                          <Button variant="outline" size="sm" onClick={() => handlePrint(remito)} className="text-gray-600 hover:text-gray-900">
                             <Printer className="h-4 w-4" />
                           </Button>
                         </div>
