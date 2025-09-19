@@ -39,7 +39,14 @@ export default function LoginPage() {
       })
 
       if (result?.error) {
-        setError("Credenciales inválidas")
+        console.error("Login error:", result.error)
+        if (result.error === "CredentialsSignin") {
+          setError("Email o contraseña incorrectos")
+        } else if (result.error === "Configuration") {
+          setError("Error de configuración del servidor. Contacta al administrador.")
+        } else {
+          setError("Error al iniciar sesión. Intenta nuevamente.")
+        }
       } else {
         // Verificar la sesión para obtener el rol
         const session = await getSession()
@@ -50,7 +57,8 @@ export default function LoginPage() {
         }
       }
     } catch (error) {
-      setError("Error al iniciar sesión")
+      console.error("Login error:", error)
+      setError("Error de conexión. Verifica tu conexión a internet.")
     } finally {
       setIsLoading(false)
     }

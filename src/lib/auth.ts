@@ -14,40 +14,45 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" }
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
-          return null
-        }
-
-        const user = await prisma.user.findUnique({
-          where: {
-            email: credentials.email
-          },
-          include: {
-            company: true
+        try {
+          if (!credentials?.email || !credentials?.password) {
+            throw new Error("Credenciales requeridas")
           }
-        })
 
-        if (!user) {
+          const user = await prisma.user.findUnique({
+            where: {
+              email: credentials.email
+            },
+            include: {
+              company: true
+            }
+          })
+
+          if (!user) {
+            throw new Error("Usuario no encontrado")
+          }
+
+          const isPasswordValid = await bcrypt.compare(
+            credentials.password,
+            user.password
+          )
+
+          if (!isPasswordValid) {
+            throw new Error("Contraseña incorrecta")
+          }
+
+          return {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            role: user.role,
+            companyId: user.companyId,
+            companyName: user.company?.name,
+            impersonatingUserId: user.impersonatingUserId
+          }
+        } catch (error) {
+          console.error("Auth error:", error)
           return null
-        }
-
-        const isPasswordValid = await bcrypt.compare(
-          credentials.password,
-          user.password
-        )
-
-        if (!isPasswordValid) {
-          return null
-        }
-
-        return {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          role: user.role,
-          companyId: user.companyId,
-          companyName: user.company?.name,
-          impersonatingUserId: user.impersonatingUserId
         }
       }
     })
@@ -79,5 +84,17 @@ export const authOptions: NextAuthOptions = {
   pages: {
     signIn: "/auth/login",
     error: "/auth/error"
+  },
+  debug: process.env.NODE_ENV === "development",
+  logger: {
+    error: (code, metadata) => {
+      console.error("NextAuth Error:", code, metadata)
+    },
+    warn: (code) => {
+      console.warn("NextAuth Warning:", code)
+    },
+    debug: (code) => {
+      console.log("NextAuth Debug:", code)
+    }
   }
 }
