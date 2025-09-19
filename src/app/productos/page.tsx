@@ -34,6 +34,7 @@ export default function ProductosPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
+  const [showForm, setShowForm] = useState(false);
 
   const {
     register,
@@ -79,6 +80,7 @@ export default function ProductosPage() {
       
       reset();
       setEditingProduct(null);
+      setShowForm(false);
       await loadData();
     } catch (error) {
       console.error("Error saving product:", error);
@@ -87,14 +89,22 @@ export default function ProductosPage() {
 
   const handleEdit = (product: Product) => {
     setEditingProduct(product);
+    setShowForm(true);
     setValue("name", product.name);
     setValue("description", product.description || "");
     setValue("price", product.price);
     setValue("categoryId", product.category?.id || "");
   };
 
+  const handleNew = () => {
+    setEditingProduct(null);
+    setShowForm(true);
+    reset();
+  };
+
   const handleCancel = () => {
     setEditingProduct(null);
+    setShowForm(false);
     reset();
   };
 
@@ -112,16 +122,16 @@ export default function ProductosPage() {
 
   if (isLoading) {
     return (
-      <Layout>
+      <main className="main-content">
         <div className="flex justify-center items-center h-64">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
         </div>
-      </Layout>
+      </main>
     );
   }
 
   return (
-    <Layout>
+    <main className="main-content">
       <div className="px-4 py-6 sm:px-0">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Gestión de Productos</h1>
@@ -130,8 +140,22 @@ export default function ProductosPage() {
           </p>
         </div>
 
+        {/* Botón Nuevo Producto */}
+        {!showForm && (
+          <div className="mb-6">
+            <button
+              onClick={handleNew}
+              className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Nuevo Producto
+            </button>
+          </div>
+        )}
+
         {/* Formulario */}
-        <div className="bg-white shadow rounded-lg mb-8">
+        {showForm && (
+          <div className="bg-white shadow rounded-lg mb-8">
           <div className="px-4 py-5 sm:p-6">
             <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
               {editingProduct ? "Editar Producto" : "Nuevo Producto"}
@@ -213,15 +237,13 @@ export default function ProductosPage() {
               </div>
 
               <div className="flex justify-end space-x-3">
-                {editingProduct && (
-                  <button
-                    type="button"
-                    onClick={handleCancel}
-                    className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
-                  >
-                    Cancelar
-                  </button>
-                )}
+                <button
+                  type="button"
+                  onClick={handleCancel}
+                  className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+                >
+                  Cancelar
+                </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
@@ -234,6 +256,7 @@ export default function ProductosPage() {
             </form>
           </div>
         </div>
+        )}
 
         {/* Lista de productos */}
         <div className="bg-white shadow rounded-lg">
@@ -358,6 +381,6 @@ export default function ProductosPage() {
           </div>
         )}
       </div>
-    </Layout>
+    </main>
   );
 }

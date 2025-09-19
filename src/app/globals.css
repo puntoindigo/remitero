@@ -24,43 +24,7 @@ body {
   box-shadow: 0 0 10px rgba(0,0,0,0.1);
 }
 
-/* Header styling */
-header {
-  background: #0078d4;
-  color: white;
-  padding: 8px 16px;
-  border-bottom: 1px solid #106ebe;
-}
-
-header h1 {
-  font-size: 16px;
-  font-weight: 600;
-  margin-bottom: 4px;
-}
-
-header nav {
-  display: flex;
-  gap: 16px;
-  margin-top: 8px;
-}
-
-header nav a {
-  color: white;
-  text-decoration: none;
-  padding: 4px 8px;
-  border-radius: 3px;
-  font-size: 11px;
-  font-weight: 600;
-  transition: background-color 0.2s;
-}
-
-header nav a:hover {
-  background: rgba(255,255,255,0.2);
-}
-
-header nav a.active {
-  background: rgba(255,255,255,0.3);
-}
+/* Header styling - using .header class instead of header element */
 
 /* Main content */
 main {

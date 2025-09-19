@@ -2,12 +2,11 @@
 
 import React, { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
-import Layout from "@/components/layout/Layout";
-import { ClientService } from "@/lib/services/clientService";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ClientForm, clientSchema } from "@/lib/validations";
 import { Plus, Edit, Trash2, Users, Mail, Phone, MapPin } from "lucide-react";
+import { formatDate } from "@/lib/utils/formatters";
 
 interface Client {
   id: string;
@@ -98,16 +97,16 @@ export default function ClientesPage() {
 
   if (isLoading) {
     return (
-      <Layout>
+      <main className="main-content">
         <div className="flex justify-center items-center h-64">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
         </div>
-      </Layout>
+      </main>
     );
   }
 
   return (
-    <Layout>
+    <main className="main-content">
       <div className="px-4 py-6 sm:px-0">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Gestión de Clientes</h1>

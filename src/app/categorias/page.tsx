@@ -2,12 +2,11 @@
 
 import React, { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
-import Layout from "@/components/layout/Layout";
-import { CategoryService } from "@/lib/services/categoryService";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CategoryForm, categorySchema } from "@/lib/validations";
 import { Plus, Edit, Trash2, Package } from "lucide-react";
+import { formatDate } from "@/lib/utils/formatters";
 
 interface Category {
   id: string;
@@ -37,7 +36,9 @@ export default function CategoriasPage() {
     if (!session?.user?.companyId) return;
     
     try {
-      const data = await CategoryService.getCategories(session.user.companyId);
+      const response = await fetch('/api/categories');
+      if (!response.ok) throw new Error('Failed to fetch categories');
+      const data = await response.json();
       setCategories(data);
     } catch (error) {
       console.error("Error loading categories:", error);
@@ -54,17 +55,32 @@ export default function CategoriasPage() {
     if (!session?.user?.companyId) return;
 
     try {
+      let response;
       if (editingCategory) {
-        await CategoryService.updateCategory(editingCategory.id, data, session.user.companyId);
+        response = await fetch(`/api/categories/${editingCategory.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        });
       } else {
-        await CategoryService.createCategory({ ...data, companyId: session.user.companyId });
+        response = await fetch("/api/categories", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        });
+      }
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Error al guardar la categoría");
       }
       
       reset();
       setEditingCategory(null);
       await loadCategories();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error saving category:", error);
+      alert(error.message);
     }
   };
 
@@ -92,16 +108,16 @@ export default function CategoriasPage() {
 
   if (isLoading) {
     return (
-      <Layout>
+      <main className="main-content">
         <div className="flex justify-center items-center h-64">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
         </div>
-      </Layout>
+      </main>
     );
   }
 
   return (
-    <Layout>
+    <main className="main-content">
       <div className="px-4 py-6 sm:px-0">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Gestión de Categorías</h1>
