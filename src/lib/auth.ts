@@ -79,6 +79,12 @@ export const authOptions: NextAuthOptions = {
         session.user.impersonatingUserId = token.impersonatingUserId as string
       }
       return session
+    },
+    async redirect({ url, baseUrl }) {
+      // Asegurar que siempre use la URL base correcta
+      if (url.startsWith("/")) return `${baseUrl}${url}`
+      else if (new URL(url).origin === baseUrl) return url
+      return baseUrl
     }
   },
   pages: {
