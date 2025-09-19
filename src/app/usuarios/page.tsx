@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { useSession } from "next-auth/react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -40,7 +40,7 @@ interface Company {
   name: string;
 }
 
-export default function UsuariosPage() {
+function UsuariosContent() {
   const { data: session } = useSession();
   const searchParams = useSearchParams();
   const companyId = searchParams?.get('companyId');
@@ -395,5 +395,19 @@ export default function UsuariosPage() {
         )}
       </section>
     </main>
+  );
+}
+
+export default function UsuariosPage() {
+  return (
+    <Suspense fallback={
+      <main className="main-content">
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+        </div>
+      </main>
+    }>
+      <UsuariosContent />
+    </Suspense>
   );
 }
