@@ -429,34 +429,69 @@ nav a[href*="remitos"] {
   }
 }
 
-/* Fix para iconos SVG que se muestran enormes */
+/* Fix para iconos SVG - reset completo */
+* {
+  box-sizing: border-box;
+}
+
 svg {
-  max-width: 100%;
-  height: auto;
   display: inline-block;
+  vertical-align: middle;
 }
 
-/* Asegurar que los iconos tengan el tamaño correcto según sus clases de Tailwind */
-.h-4 svg,
-.w-4 svg {
-  width: 1rem !important;
-  height: 1rem !important;
+/* Forzar tamaños específicos para todos los iconos */
+svg.h-4,
+.h-4 svg {
+  width: 16px !important;
+  height: 16px !important;
+  max-width: 16px !important;
+  max-height: 16px !important;
 }
 
-.h-5 svg,
-.w-5 svg {
-  width: 1.25rem !important;
-  height: 1.25rem !important;
+svg.h-5,
+.h-5 svg {
+  width: 20px !important;
+  height: 20px !important;
+  max-width: 20px !important;
+  max-height: 20px !important;
 }
 
-.h-8 svg,
-.w-8 svg {
-  width: 2rem !important;
-  height: 2rem !important;
+svg.h-8,
+.h-8 svg {
+  width: 32px !important;
+  height: 32px !important;
+  max-width: 32px !important;
+  max-height: 32px !important;
 }
 
-.h-12 svg,
-.w-12 svg {
-  width: 3rem !important;
-  height: 3rem !important;
+svg.h-12,
+.h-12 svg {
+  width: 48px !important;
+  height: 48px !important;
+  max-width: 48px !important;
+  max-height: 48px !important;
+}
+
+/* Fix específico para iconos en botones */
+button svg {
+  width: 16px !important;
+  height: 16px !important;
+  max-width: 16px !important;
+  max-height: 16px !important;
+}
+
+/* Fix para iconos de error */
+.text-red-600 svg {
+  width: 16px !important;
+  height: 16px !important;
+  max-width: 16px !important;
+  max-height: 16px !important;
+}
+
+/* Fix para iconos de loading */
+.animate-spin {
+  width: 20px !important;
+  height: 20px !important;
+  max-width: 20px !important;
+  max-height: 20px !important;
 }
