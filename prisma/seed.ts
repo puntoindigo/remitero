@@ -5,7 +5,7 @@ const prisma = new PrismaClient()
 
 async function main() {
   // Crear SUPERADMIN
-  const hashedPassword = await bcrypt.hash("daedae", 12)
+  const hashedPassword = await bcrypt.hash("daedae123", 12)
   
   const superAdmin = await prisma.user.upsert({
     where: { email: "admin@remitero.com" },
