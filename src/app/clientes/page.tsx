@@ -39,7 +39,11 @@ export default function ClientesPage() {
     if (!session?.user?.companyId) return;
     
     try {
-      const data = await ClientService.getClients(session.user.companyId);
+      const response = await fetch('/api/clients');
+      if (!response.ok) {
+        throw new Error('Error al cargar los clientes');
+      }
+      const data = await response.json();
       setClients(data);
     } catch (error) {
       console.error("Error loading clients:", error);
