@@ -9,6 +9,9 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ProductForm, productSchema } from "@/lib/validations";
 import { Plus, Edit, Trash2, Package, Tag, DollarSign } from "lucide-react";
+import { formatDate } from "@/lib/utils/formatters";
+import SearchAndPagination from "@/components/common/SearchAndPagination";
+import { useSearchAndPagination } from "@/hooks/useSearchAndPagination";
 
 interface Product {
   id: string;
@@ -35,6 +38,22 @@ export default function ProductosPage() {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
+
+  // Hook para búsqueda y paginación
+  const {
+    searchTerm,
+    currentPage,
+    totalPages,
+    totalItems,
+    itemsPerPage,
+    paginatedData,
+    handleSearchChange,
+    handlePageChange
+  } = useSearchAndPagination({
+    data: products,
+    searchFields: ['name', 'description'],
+    itemsPerPage: 10
+  });
 
   const {
     register,
@@ -258,97 +277,85 @@ export default function ProductosPage() {
         </div>
         )}
 
-        {/* Lista de productos */}
-        <div className="bg-white shadow rounded-lg">
-          <div className="px-4 py-5 sm:p-6">
-            <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
-              Lista de Productos
-            </h3>
-            
-            {!Array.isArray(products) || products.length === 0 ? (
-              <div className="text-center py-12">
-                <Package className="mx-auto h-12 w-12 text-gray-400" />
-                <h3 className="mt-2 text-sm font-medium text-gray-900">No hay productos</h3>
-                <p className="mt-1 text-sm text-gray-500">
-                  Comienza creando un nuevo producto.
-                </p>
-              </div>
-            ) : (
-              <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
-                <table className="min-w-full divide-y divide-gray-300">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Producto
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Categoría
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Precio
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Fecha de creación
-                      </th>
-                      <th className="relative px-6 py-3">
-                        <span className="sr-only">Acciones</span>
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {Array.isArray(products) && products.map((product) => (
-                      <tr key={product.id}>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div>
-                            <div className="text-sm font-medium text-gray-900">
-                              {product.name}
-                            </div>
-                            {product.description && (
-                              <div className="text-sm text-gray-500">
-                                {product.description}
-                              </div>
-                            )}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          {product.category ? (
-                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                              <Tag className="h-3 w-3 mr-1" />
-                              {product.category.name}
-                            </span>
-                          ) : (
-                            <span className="text-sm text-gray-500">Sin categoría</span>
-                          )}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          ${typeof product.price === 'number' ? product.price.toFixed(2) : '0.00'}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {new Date(product.createdAt).toLocaleDateString()}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                          <div className="flex justify-end space-x-2">
-                            <button
-                              onClick={() => handleEdit(product)}
-                              className="text-blue-600 hover:text-blue-900"
-                            >
-                              <Edit className="h-4 w-4" />
-                            </button>
-                            <button
-                              onClick={() => setShowDeleteConfirm(product.id)}
-                              className="text-red-600 hover:text-red-900"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
+        <div className="form-section">
+          <h3>Lista de Productos</h3>
+          
+          <SearchAndPagination
+            searchTerm={searchTerm}
+            onSearchChange={handleSearchChange}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+            totalItems={totalItems}
+            itemsPerPage={itemsPerPage}
+            placeholder="Buscar productos..."
+          />
+          
+          {!Array.isArray(products) || products.length === 0 ? (
+            <div className="empty-state">
+              <Package className="empty-icon" />
+              <p className="empty-text">No hay productos</p>
+              <p className="empty-subtext">Comienza creando un nuevo producto.</p>
+            </div>
+          ) : (
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Producto</th>
+                  <th>Categoría</th>
+                  <th>Precio</th>
+                  <th>Fecha de creación</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {Array.isArray(paginatedData) && paginatedData.map((product) => (
+                  <tr key={product.id}>
+                    <td>
+                      <div className="font-medium">{product.name}</div>
+                      {product.description && (
+                        <div className="text-sm text-gray-500">
+                          {product.description}
+                        </div>
+                      )}
+                    </td>
+                    <td>
+                      {product.category ? (
+                        <span className="badge">
+                          <Tag className="h-3 w-3 mr-1" />
+                          {product.category.name}
+                        </span>
+                      ) : (
+                        <span className="text-sm text-gray-500">Sin categoría</span>
+                      )}
+                    </td>
+                    <td className="font-medium">
+                      ${Number(product.price).toFixed(2)}
+                    </td>
+                    <td>{formatDate(product.createdAt)}</td>
+                    <td>
+                      <div className="action-buttons">
+                        <button
+                          onClick={() => handleEdit(product)}
+                          className="action-btn edit"
+                          title="Editar"
+                        >
+                          <Edit className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={() => setShowDeleteConfirm(product.id)}
+                          className="action-btn delete"
+                          title="Eliminar"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
 
         {/* Modal de confirmación de eliminación */}

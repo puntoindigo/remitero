@@ -7,6 +7,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { CategoryForm, categorySchema } from "@/lib/validations";
 import { Plus, Edit, Trash2, Package } from "lucide-react";
 import { formatDate } from "@/lib/utils/formatters";
+import SearchAndPagination from "@/components/common/SearchAndPagination";
+import { useSearchAndPagination } from "@/hooks/useSearchAndPagination";
 
 interface Category {
   id: string;
@@ -22,6 +24,22 @@ export default function CategoriasPage() {
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
+
+  // Hook para búsqueda y paginación
+  const {
+    searchTerm,
+    currentPage,
+    totalPages,
+    totalItems,
+    itemsPerPage,
+    paginatedData,
+    handleSearchChange,
+    handlePageChange
+  } = useSearchAndPagination({
+    data: categories,
+    searchFields: ['name'],
+    itemsPerPage: 10
+  });
 
   const {
     register,
@@ -195,75 +213,65 @@ export default function CategoriasPage() {
           </div>
         )}
 
-        {/* Lista de categorías */}
-        <div className="bg-white shadow rounded-lg">
-          <div className="px-4 py-5 sm:p-6">
-            <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
-              Lista de Categorías
-            </h3>
-            
-            {!Array.isArray(categories) || categories.length === 0 ? (
-              <div className="text-center py-12">
-                <Package className="mx-auto h-12 w-12 text-gray-400" />
-                <h3 className="mt-2 text-sm font-medium text-gray-900">No hay categorías</h3>
-                <p className="mt-1 text-sm text-gray-500">
-                  Comienza creando una nueva categoría.
-                </p>
-              </div>
-            ) : (
-              <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
-                <table className="min-w-full divide-y divide-gray-300">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Nombre
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Productos
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Fecha de creación
-                      </th>
-                      <th className="relative px-6 py-3">
-                        <span className="sr-only">Acciones</span>
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {Array.isArray(categories) && categories.map((category) => (
-                      <tr key={category.id}>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                          {category.name}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {category.products?.length || 0} productos
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {new Date(category.createdAt).toLocaleDateString()}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                          <div className="flex justify-end space-x-2">
-                            <button
-                              onClick={() => handleEdit(category)}
-                              className="text-blue-600 hover:text-blue-900"
-                            >
-                              <Edit className="h-4 w-4" />
-                            </button>
-                            <button
-                              onClick={() => setShowDeleteConfirm(category.id)}
-                              className="text-red-600 hover:text-red-900"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
+        <div className="form-section">
+          <h3>Lista de Categorías</h3>
+          
+          <SearchAndPagination
+            searchTerm={searchTerm}
+            onSearchChange={handleSearchChange}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+            totalItems={totalItems}
+            itemsPerPage={itemsPerPage}
+            placeholder="Buscar categorías..."
+          />
+          
+          {!Array.isArray(categories) || categories.length === 0 ? (
+            <div className="empty-state">
+              <Package className="empty-icon" />
+              <p className="empty-text">No hay categorías</p>
+              <p className="empty-subtext">Comienza creando una nueva categoría.</p>
+            </div>
+          ) : (
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Nombre</th>
+                  <th>Productos</th>
+                  <th>Fecha de creación</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {Array.isArray(paginatedData) && paginatedData.map((category) => (
+                  <tr key={category.id}>
+                    <td className="font-medium">{category.name}</td>
+                    <td>{category.products?.length || 0} productos</td>
+                    <td>{formatDate(category.createdAt)}</td>
+                    <td>
+                      <div className="action-buttons">
+                        <button
+                          onClick={() => handleEdit(category)}
+                          className="action-btn edit"
+                          title="Editar"
+                        >
+                          <Edit className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={() => setShowDeleteConfirm(category.id)}
+                          className="action-btn delete"
+                          title="Eliminar"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
 
         {/* Modal de confirmación de eliminación */}

@@ -8,6 +8,8 @@ import { z } from "zod";
 import { Plus, Edit, Trash2, Users, Building2 } from "lucide-react";
 import { formatDate } from "@/lib/utils/formatters";
 import { useSearchParams } from "next/navigation";
+import SearchAndPagination from "@/components/common/SearchAndPagination";
+import { useSearchAndPagination } from "@/hooks/useSearchAndPagination";
 
 const userSchema = z.object({
   name: z.string().min(1, "El nombre es requerido"),
@@ -51,6 +53,22 @@ function UsuariosContent() {
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
+
+  // Hook para búsqueda y paginación
+  const {
+    searchTerm,
+    currentPage,
+    totalPages,
+    totalItems,
+    itemsPerPage,
+    paginatedData,
+    handleSearchChange,
+    handlePageChange
+  } = useSearchAndPagination({
+    data: users,
+    searchFields: ['name', 'email'],
+    itemsPerPage: 10
+  });
 
   const {
     register,
@@ -339,6 +357,17 @@ function UsuariosContent() {
         <div className="form-section">
           <h3>Lista de Usuarios</h3>
           
+          <SearchAndPagination
+            searchTerm={searchTerm}
+            onSearchChange={handleSearchChange}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+            totalItems={totalItems}
+            itemsPerPage={itemsPerPage}
+            placeholder="Buscar usuarios..."
+          />
+          
           {!Array.isArray(users) || users.length === 0 ? (
             <div className="empty-state">
               <Users className="h-12 w-12 text-gray-400" />
@@ -358,7 +387,7 @@ function UsuariosContent() {
                 </tr>
               </thead>
               <tbody>
-                {Array.isArray(users) && users.map((user) => (
+                {Array.isArray(paginatedData) && paginatedData.map((user) => (
                   <tr key={user.id}>
                     <td className="font-medium">{user.name}</td>
                     <td>{user.email}</td>

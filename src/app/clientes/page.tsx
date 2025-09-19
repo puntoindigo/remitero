@@ -7,6 +7,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { ClientForm, clientSchema } from "@/lib/validations";
 import { Plus, Edit, Trash2, Users, Mail, Phone, MapPin } from "lucide-react";
 import { formatDate } from "@/lib/utils/formatters";
+import SearchAndPagination from "@/components/common/SearchAndPagination";
+import { useSearchAndPagination } from "@/hooks/useSearchAndPagination";
 
 interface Client {
   id: string;
@@ -25,6 +27,22 @@ export default function ClientesPage() {
   const [editingClient, setEditingClient] = useState<Client | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
+
+  // Hook para búsqueda y paginación
+  const {
+    searchTerm,
+    currentPage,
+    totalPages,
+    totalItems,
+    itemsPerPage,
+    paginatedData,
+    handleSearchChange,
+    handlePageChange
+  } = useSearchAndPagination({
+    data: clients,
+    searchFields: ['name', 'email', 'phone'],
+    itemsPerPage: 10
+  });
 
   const {
     register,
@@ -254,102 +272,90 @@ export default function ClientesPage() {
         </div>
         )}
 
-        {/* Lista de clientes */}
-        <div className="bg-white shadow rounded-lg">
-          <div className="px-4 py-5 sm:p-6">
-            <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
-              Lista de Clientes
-            </h3>
-            
-            {!Array.isArray(clients) || clients.length === 0 ? (
-              <div className="text-center py-12">
-                <Users className="mx-auto h-12 w-12 text-gray-400" />
-                <h3 className="mt-2 text-sm font-medium text-gray-900">No hay clientes</h3>
-                <p className="mt-1 text-sm text-gray-500">
-                  Comienza creando un nuevo cliente.
-                </p>
-              </div>
-            ) : (
-              <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
-                <table className="min-w-full divide-y divide-gray-300">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Cliente
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Contacto
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Remitos
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Fecha de creación
-                      </th>
-                      <th className="relative px-6 py-3">
-                        <span className="sr-only">Acciones</span>
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {Array.isArray(clients) && clients.map((client) => (
-                      <tr key={client.id}>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm font-medium text-gray-900">
-                            {client.name}
+        <div className="form-section">
+          <h3>Lista de Clientes</h3>
+          
+          <SearchAndPagination
+            searchTerm={searchTerm}
+            onSearchChange={handleSearchChange}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+            totalItems={totalItems}
+            itemsPerPage={itemsPerPage}
+            placeholder="Buscar clientes..."
+          />
+          
+          {!Array.isArray(clients) || clients.length === 0 ? (
+            <div className="empty-state">
+              <Users className="empty-icon" />
+              <p className="empty-text">No hay clientes</p>
+              <p className="empty-subtext">Comienza creando un nuevo cliente.</p>
+            </div>
+          ) : (
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Cliente</th>
+                  <th>Contacto</th>
+                  <th>Remitos</th>
+                  <th>Fecha de creación</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {Array.isArray(paginatedData) && paginatedData.map((client) => (
+                  <tr key={client.id}>
+                    <td>
+                      <div className="font-medium">{client.name}</div>
+                      {client.address && (
+                        <div className="text-sm text-gray-500 flex items-center">
+                          <MapPin className="h-3 w-3 mr-1" />
+                          {client.address}
+                        </div>
+                      )}
+                    </td>
+                    <td>
+                      <div className="space-y-1">
+                        {client.email && (
+                          <div className="text-sm text-gray-500 flex items-center">
+                            <Mail className="h-3 w-3 mr-1" />
+                            {client.email}
                           </div>
-                          {client.address && (
-                            <div className="text-sm text-gray-500 flex items-center">
-                              <MapPin className="h-3 w-3 mr-1" />
-                              {client.address}
-                            </div>
-                          )}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="space-y-1">
-                            {client.email && (
-                              <div className="text-sm text-gray-500 flex items-center">
-                                <Mail className="h-3 w-3 mr-1" />
-                                {client.email}
-                              </div>
-                            )}
-                            {client.phone && (
-                              <div className="text-sm text-gray-500 flex items-center">
-                                <Phone className="h-3 w-3 mr-1" />
-                                {client.phone}
-                              </div>
-                            )}
+                        )}
+                        {client.phone && (
+                          <div className="text-sm text-gray-500 flex items-center">
+                            <Phone className="h-3 w-3 mr-1" />
+                            {client.phone}
                           </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {client.remitos.length} remitos
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {new Date(client.createdAt).toLocaleDateString()}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                          <div className="flex justify-end space-x-2">
-                            <button
-                              onClick={() => handleEdit(client)}
-                              className="text-blue-600 hover:text-blue-900"
-                            >
-                              <Edit className="h-4 w-4" />
-                            </button>
-                            <button
-                              onClick={() => setShowDeleteConfirm(client.id)}
-                              className="text-red-600 hover:text-red-900"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
+                        )}
+                      </div>
+                    </td>
+                    <td>{client.remitos.length} remitos</td>
+                    <td>{formatDate(client.createdAt)}</td>
+                    <td>
+                      <div className="action-buttons">
+                        <button
+                          onClick={() => handleEdit(client)}
+                          className="action-btn edit"
+                          title="Editar"
+                        >
+                          <Edit className="h-4 w-4" />
+                        </button>
+                        <button
+                          onClick={() => setShowDeleteConfirm(client.id)}
+                          className="action-btn delete"
+                          title="Eliminar"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
 
         {/* Modal de confirmación de eliminación */}
