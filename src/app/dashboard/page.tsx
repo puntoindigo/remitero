@@ -1,7 +1,6 @@
 "use client"
 
 import { useSession } from "next-auth/react"
-import Layout from "@/components/layout/Layout"
 import { FileText, Package, Users, Building2, TrendingUp } from "lucide-react"
 
 export default function DashboardPage() {
@@ -35,7 +34,7 @@ export default function DashboardPage() {
   ]
 
   return (
-    <Layout>
+    <main className="main-content">
       <div className="px-4 py-6 sm:px-0">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
@@ -111,6 +110,6 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
-    </Layout>
+    </main>
   )
 }

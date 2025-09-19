@@ -213,7 +213,7 @@ export default function CategoriasPage() {
                           {category.name}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {category.products.length} productos
+                          {category.products?.length || 0} productos
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {new Date(category.createdAt).toLocaleDateString()}
