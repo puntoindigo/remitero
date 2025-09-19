@@ -2,9 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
-import Layout from "@/components/layout/Layout";
-import { ProductService } from "@/lib/services/productService";
-import { CategoryService } from "@/lib/services/categoryService";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ProductForm, productSchema } from "@/lib/validations";
@@ -70,10 +67,20 @@ export default function ProductosPage() {
     if (!session?.user?.companyId) return;
     
     try {
-      const [productsData, categoriesData] = await Promise.all([
-        ProductService.getProducts(session.user.companyId),
-        CategoryService.getCategories(session.user.companyId)
+      const [productsResponse, categoriesResponse] = await Promise.all([
+        fetch('/api/products'),
+        fetch('/api/categories')
       ]);
+
+      if (!productsResponse.ok || !categoriesResponse.ok) {
+        throw new Error('Error al cargar los datos');
+      }
+
+      const [productsData, categoriesData] = await Promise.all([
+        productsResponse.json(),
+        categoriesResponse.json()
+      ]);
+
       setProducts(productsData);
       setCategories(categoriesData);
     } catch (error) {
@@ -91,10 +98,20 @@ export default function ProductosPage() {
     if (!session?.user?.companyId) return;
 
     try {
-      if (editingProduct) {
-        await ProductService.updateProduct(editingProduct.id, data, session.user.companyId);
-      } else {
-        await ProductService.createProduct({ ...data, companyId: session.user.companyId });
+      const url = editingProduct ? `/api/products/${editingProduct.id}` : '/api/products';
+      const method = editingProduct ? 'PUT' : 'POST';
+
+      const response = await fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Error al guardar el producto');
       }
       
       reset();
@@ -103,6 +120,7 @@ export default function ProductosPage() {
       await loadData();
     } catch (error) {
       console.error("Error saving product:", error);
+      alert(error instanceof Error ? error.message : 'Error al guardar el producto');
     }
   };
 
@@ -131,7 +149,15 @@ export default function ProductosPage() {
     if (!session?.user?.companyId) return;
 
     try {
-      await ProductService.deleteProduct(id, session.user.companyId);
+      const response = await fetch(`/api/products/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Error al eliminar el producto');
+      }
+
       await loadData();
       setShowDeleteConfirm(null);
     } catch (error: any) {

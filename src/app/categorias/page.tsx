@@ -126,7 +126,15 @@ export default function CategoriasPage() {
     if (!session?.user?.companyId) return;
 
     try {
-      await CategoryService.deleteCategory(id, session.user.companyId);
+      const response = await fetch(`/api/categories/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Error al eliminar la categoría');
+      }
+
       await loadCategories();
       setShowDeleteConfirm(null);
     } catch (error: any) {

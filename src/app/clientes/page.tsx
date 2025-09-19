@@ -79,10 +79,20 @@ export default function ClientesPage() {
     if (!session?.user?.companyId) return;
 
     try {
-      if (editingClient) {
-        await ClientService.updateClient(editingClient.id, data, session.user.companyId);
-      } else {
-        await ClientService.createClient({ ...data, companyId: session.user.companyId });
+      const url = editingClient ? `/api/clients/${editingClient.id}` : '/api/clients';
+      const method = editingClient ? 'PUT' : 'POST';
+
+      const response = await fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Error al guardar el cliente');
       }
       
       reset();
@@ -91,6 +101,7 @@ export default function ClientesPage() {
       await loadClients();
     } catch (error) {
       console.error("Error saving client:", error);
+      alert(error instanceof Error ? error.message : 'Error al guardar el cliente');
     }
   };
 
@@ -119,7 +130,15 @@ export default function ClientesPage() {
     if (!session?.user?.companyId) return;
 
     try {
-      await ClientService.deleteClient(id, session.user.companyId);
+      const response = await fetch(`/api/clients/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Error al eliminar el cliente');
+      }
+
       await loadClients();
       setShowDeleteConfirm(null);
     } catch (error: any) {
