@@ -346,19 +346,179 @@ export default function RemitosPage() {
   const [printRemito, setPrintRemito] = useState<Remito | null>(null);
   const [isPrinting, setIsPrinting] = useState(false);
 
-  const handlePrint = (remito: Remito) => {
-    // Activar modo de impresión directamente
-    setPrintRemito(remito);
-    setIsPrinting(true);
-    // Esperar un momento y luego imprimir
-    setTimeout(() => {
-      window.print();
-      // Desactivar modo de impresión después de imprimir
-      setTimeout(() => {
-        setIsPrinting(false);
-        setPrintRemito(null);
-      }, 1000);
-    }, 500);
+  const handlePrint = async (remito: Remito) => {
+    try {
+      // Crear una nueva ventana para imprimir
+      const printWindow = window.open('', '_blank');
+      if (!printWindow) return;
+
+      // Obtener los datos del remito
+      const response = await fetch(`/api/remitos/${remito.id}`);
+      if (!response.ok) throw new Error('Error al obtener el remito');
+      const remitoData = await response.json();
+
+      // Generar el HTML de impresión
+      const printHTML = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <title>Remito ${remitoData.number}</title>
+          <style>
+            body { 
+              font-family: Arial, sans-serif; 
+              margin: 0; 
+              padding: 20px; 
+              font-size: 12px;
+              background: white;
+            }
+            .print-container {
+              display: flex;
+              width: 100%;
+              min-height: 100vh;
+            }
+            .print-original, .print-copy {
+              width: 50%;
+              padding: 15px;
+              box-sizing: border-box;
+              border-right: 2px dashed #000;
+            }
+            .print-copy {
+              border-right: none;
+            }
+            .print-header {
+              text-align: center;
+              margin-bottom: 20px;
+              border-bottom: 2px solid #000;
+              padding-bottom: 10px;
+            }
+            .print-title {
+              font-size: 18px;
+              font-weight: bold;
+              margin-bottom: 5px;
+            }
+            .print-subtitle {
+              font-size: 14px;
+            }
+            .print-info {
+              display: flex;
+              justify-content: space-between;
+              margin-bottom: 20px;
+            }
+            .print-table {
+              width: 100%;
+              border-collapse: collapse;
+              margin-bottom: 20px;
+            }
+            .print-table th, .print-table td {
+              border: 1px solid #000;
+              padding: 8px;
+              text-align: left;
+            }
+            .print-table th {
+              background-color: #f0f0f0;
+              font-weight: bold;
+            }
+            .print-total {
+              text-align: right;
+              font-weight: bold;
+              font-size: 14px;
+              margin-top: 10px;
+            }
+            @media print {
+              body { margin: 0; padding: 0; }
+              .print-container { page-break-inside: avoid; }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="print-container">
+            <div class="print-original">
+              <div class="print-header">
+                <div class="print-title">DISTRIBUIDORA RUBEN</div>
+                <div class="print-subtitle">REMITO DE ENTREGA</div>
+              </div>
+              <div class="print-info">
+                <div>N°: ${remitoData.number}</div>
+                <div>Fecha: ${new Date(remitoData.createdAt).toLocaleDateString('es-AR')}</div>
+              </div>
+              <div><strong>CLIENTE:</strong> ${remitoData.client.name}</div>
+              <table class="print-table">
+                <thead>
+                  <tr>
+                    <th>Cant.</th>
+                    <th>Descripción</th>
+                    <th>Precio Unit.</th>
+                    <th>Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${remitoData.items.map((item: any) => `
+                    <tr>
+                      <td>${item.quantity}</td>
+                      <td>${item.productName}</td>
+                      <td>$${Number(item.unitPrice).toFixed(2)}</td>
+                      <td>$${Number(item.lineTotal).toFixed(2)}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+              <div class="print-total">
+                TOTAL: $${Number(remitoData.total).toFixed(2)}
+              </div>
+            </div>
+            <div class="print-copy">
+              <div class="print-header">
+                <div class="print-title">DISTRIBUIDORA RUBEN</div>
+                <div class="print-subtitle">REMITO DE ENTREGA</div>
+              </div>
+              <div class="print-info">
+                <div>N°: ${remitoData.number}</div>
+                <div>Fecha: ${new Date(remitoData.createdAt).toLocaleDateString('es-AR')}</div>
+              </div>
+              <div><strong>CLIENTE:</strong> ${remitoData.client.name}</div>
+              <table class="print-table">
+                <thead>
+                  <tr>
+                    <th>Cant.</th>
+                    <th>Descripción</th>
+                    <th>Precio Unit.</th>
+                    <th>Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${remitoData.items.map((item: any) => `
+                    <tr>
+                      <td>${item.quantity}</td>
+                      <td>${item.productName}</td>
+                      <td>$${Number(item.unitPrice).toFixed(2)}</td>
+                      <td>$${Number(item.lineTotal).toFixed(2)}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+              <div class="print-total">
+                TOTAL: $${Number(remitoData.total).toFixed(2)}
+              </div>
+            </div>
+          </div>
+        </body>
+        </html>
+      `;
+
+      // Escribir el HTML en la nueva ventana
+      printWindow.document.write(printHTML);
+      printWindow.document.close();
+
+      // Imprimir después de cargar
+      printWindow.onload = () => {
+        printWindow.print();
+        printWindow.close();
+      };
+    } catch (error) {
+      console.error('Error al imprimir:', error);
+      alert('Error al imprimir el remito');
+    }
   };
 
   const getStatusIcon = (status: string) => {
