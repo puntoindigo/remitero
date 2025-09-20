@@ -1051,8 +1051,27 @@ form svg {
   .main-content,
   .sidebar,
   nav,
-  header,
+  header {
+    display: none !important;
+  }
+  
+  /* Mostrar solo el contenido del modal durante la impresión */
   .print-modal {
+    position: static !important;
+    background: transparent !important;
+    padding: 0 !important;
+    display: block !important;
+  }
+  
+  .print-modal-content {
+    background: transparent !important;
+    box-shadow: none !important;
+    max-width: none !important;
+    max-height: none !important;
+    border-radius: 0 !important;
+  }
+  
+  .print-modal-header {
     display: none !important;
   }
   
@@ -1065,6 +1084,8 @@ form svg {
     position: absolute;
     top: 0;
     left: 0;
+    visibility: visible !important;
+    opacity: 1 !important;
   }
   
   .print-original, .print-copy {
