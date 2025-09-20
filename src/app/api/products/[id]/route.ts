@@ -33,7 +33,16 @@ export async function PUT(
     const filteredData = Object.keys(body)
       .filter(key => allowedFields.includes(key))
       .reduce((obj, key) => {
-        obj[key] = body[key];
+        if (key === 'stock') {
+          // Validar que el valor de stock sea válido para el enum StockStatus
+          if (body[key] === 'IN_STOCK' || body[key] === 'OUT_OF_STOCK') {
+            obj[key] = body[key];
+          } else {
+            throw new Error(`Valor inválido para stock: ${body[key]}. Debe ser IN_STOCK o OUT_OF_STOCK`);
+          }
+        } else {
+          obj[key] = body[key];
+        }
         return obj;
       }, {});
 
