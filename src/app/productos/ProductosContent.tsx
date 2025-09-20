@@ -194,7 +194,8 @@ export default function ProductosContent() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Error al actualizar el stock');
+        console.error('Error response:', errorData);
+        throw new Error(`${errorData.error || 'Error al actualizar el stock'}${errorData.debug ? ` - Debug: ${JSON.stringify(errorData.debug)}` : ''}`);
       }
 
       await loadData();

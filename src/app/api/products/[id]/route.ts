@@ -9,10 +9,12 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  let session: any = null;
+  
   try {
     console.log("PUT /api/products/[id] - Starting");
     
-    const session = await getServerSession(authOptions);
+    session = await getServerSession(authOptions);
     console.log("Session:", session?.user);
     
     if (!session?.user?.companyId) {
@@ -62,7 +64,13 @@ export async function PUT(
 
     return NextResponse.json({ 
       error: "Error interno del servidor", 
-      details: error.message 
+      details: error.message,
+      debug: {
+        productId: params.id,
+        sessionCompanyId: session?.user?.companyId,
+        errorCode: error.code,
+        errorName: error.name
+      }
     }, { status: 500 });
   } finally {
     await prisma.$disconnect();
