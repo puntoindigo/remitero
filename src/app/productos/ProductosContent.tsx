@@ -355,7 +355,7 @@ export default function ProductosContent() {
               onChange={setSelectedCategory}
               placeholder="Filtrar por categoría"
               searchFields={["name"]}
-              className="max-w-xs"
+              className="max-w-48"
             />
           </div>
           

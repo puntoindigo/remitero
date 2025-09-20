@@ -81,39 +81,25 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: "ID de producto requerido" }, { status: 400 });
     }
 
-    // Si solo se está actualizando el stock, usar un esquema más simple
-    if (Object.keys(updateData).length === 1 && updateData.stock) {
-      const stockSchema = z.object({
-        stock: z.enum(["IN_STOCK", "OUT_OF_STOCK"])
-      });
-      
-      const validatedData = stockSchema.parse(updateData);
-      
-      const product = await prisma.product.update({
-        where: { 
-          id: id,
-          companyId: session.user.companyId 
-        },
-        data: validatedData,
-        include: { category: true }
-      });
+    // Validar solo los campos que se están enviando
+    const allowedFields = ['name', 'description', 'price', 'categoryId', 'stock'];
+    const filteredData = Object.keys(updateData)
+      .filter(key => allowedFields.includes(key))
+      .reduce((obj, key) => {
+        obj[key] = updateData[key];
+        return obj;
+      }, {});
 
-      return NextResponse.json(product);
-    } else {
-      // Para actualizaciones completas, usar el esquema completo
-      const validatedData = productSchema.parse(updateData);
+    const product = await prisma.product.update({
+      where: { 
+        id: id,
+        companyId: session.user.companyId 
+      },
+      data: filteredData,
+      include: { category: true }
+    });
 
-      const product = await prisma.product.update({
-        where: { 
-          id: id,
-          companyId: session.user.companyId 
-        },
-        data: validatedData,
-        include: { category: true }
-      });
-
-      return NextResponse.json(product);
-    }
+    return NextResponse.json(product);
   } catch (error: any) {
     console.error("Error updating product:", error);
     

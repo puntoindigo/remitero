@@ -1198,7 +1198,16 @@ form svg {
 }
 
 .row-odd {
-  background-color: #f1f5f9;
+  background-color: #f8fafc;
+}
+
+/* Asegurar que las filas intercaladas se vean en la tabla */
+.data-table tbody tr.row-even {
+  background-color: #ffffff !important;
+}
+
+.data-table tbody tr.row-odd {
+  background-color: #f8fafc !important;
 }
 
 /* Estilos para botones de acciones con más separación */
@@ -1218,17 +1227,27 @@ form svg {
   cursor: pointer;
   min-width: 90px;
   max-width: 100px;
+  background-color: white;
+  color: #374151;
 }
 
 .stock-select.stock-in {
-  background-color: #f0fdf4;
   border-color: #22c55e;
-  color: #15803d;
 }
 
 .stock-select.stock-out {
-  background-color: #fef2f2;
   border-color: #ef4444;
+}
+
+.stock-select option {
+  color: #374151;
+}
+
+.stock-select option[value="IN_STOCK"] {
+  color: #15803d;
+}
+
+.stock-select option[value="OUT_OF_STOCK"] {
   color: #dc2626;
 }
 
