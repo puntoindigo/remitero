@@ -247,14 +247,15 @@ export default function RemitosPage() {
     
     setItems(prev => prev.map((item, i) => {
       if (i === index) {
-        const lineTotal = item.unitPrice * newQuantity;
-        return { ...item, quantity: newQuantity, lineTotal };
+        const unitPrice = Number(item.unitPrice);
+        const lineTotal = unitPrice * newQuantity;
+        return { ...item, quantity: newQuantity, unitPrice, lineTotal };
       }
       return item;
     }));
   };
 
-  const total = items.reduce((sum, item) => sum + item.lineTotal, 0);
+  const total = items.reduce((sum, item) => sum + Number(item.lineTotal), 0);
 
   const handleEdit = (remito: Remito) => {
     setEditingRemito(remito);
