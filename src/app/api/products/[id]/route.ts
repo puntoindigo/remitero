@@ -12,7 +12,7 @@ export async function PUT(
   let session: any = null;
   
   try {
-    console.log("PUT /api/products/[id] - Starting");
+    console.log("PUT /api/products/[id] - Starting - VERSION 2.0.0");
     
     session = await getServerSession(authOptions);
     console.log("Session:", session?.user);
@@ -34,10 +34,13 @@ export async function PUT(
       .filter(key => allowedFields.includes(key))
       .reduce((obj, key) => {
         if (key === 'stock') {
+          console.log(`Processing stock field: "${body[key]}" (type: ${typeof body[key]})`);
           // Validar que el valor de stock sea válido para el enum StockStatus
           if (body[key] === 'IN_STOCK' || body[key] === 'OUT_OF_STOCK') {
             obj[key] = body[key];
+            console.log(`Stock value accepted: ${obj[key]}`);
           } else {
+            console.log(`Invalid stock value: "${body[key]}"`);
             throw new Error(`Valor inválido para stock: ${body[key]}. Debe ser IN_STOCK o OUT_OF_STOCK`);
           }
         } else {
