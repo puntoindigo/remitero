@@ -938,6 +938,7 @@ form svg {
     padding: 15px;
     box-sizing: border-box;
     border-right: 2px dashed #000;
+    page-break-inside: avoid;
   }
   
   .print-copy {
@@ -952,9 +953,15 @@ form svg {
   }
   
   .print-header h1 {
-    font-size: 20px;
+    font-size: 18px;
     font-weight: bold;
     margin: 0 0 5px 0;
+  }
+  
+  .print-header h2 {
+    font-size: 16px;
+    font-weight: normal;
+    margin: 0 0 10px 0;
   }
   
   .print-info {

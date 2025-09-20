@@ -53,7 +53,8 @@ export default function PrintRemito() {
       {/* Original Copy - Left Half */}
       <div className="print-original">
         <div className="print-header">
-          <h1>REMITO DE ENTREGA</h1>
+          <h1>DISTRIBUIDORA RUBEN</h1>
+          <h2>REMITO DE ENTREGA</h2>
           <div className="print-info">
             <p><strong>N°:</strong> {remito.number}</p>
             <p><strong>Fecha:</strong> {new Date(remito.createdAt).toLocaleDateString('es-AR')}</p>
@@ -94,33 +95,19 @@ export default function PrintRemito() {
           <p><strong>TOTAL: ${total.toFixed(2)}</strong></p>
         </div>
 
-        <div className="print-status">
-          <p><strong>Estado:</strong> {remito.status}</p>
-        </div>
-
         {remito.notes && (
           <div className="print-notes">
             <p><strong>Observaciones:</strong></p>
             <p>{remito.notes}</p>
           </div>
         )}
-
-        <div className="print-signatures">
-          <div className="signature-box">
-            <p>Firma Cliente:</p>
-            <div className="signature-line"></div>
-          </div>
-          <div className="signature-box">
-            <p>Firma Empresa:</p>
-            <div className="signature-line"></div>
-          </div>
-        </div>
       </div>
 
       {/* Client Copy - Right Half */}
       <div className="print-copy">
         <div className="print-header">
-          <h1>REMITO DE ENTREGA</h1>
+          <h1>DISTRIBUIDORA RUBEN</h1>
+          <h2>REMITO DE ENTREGA</h2>
           <div className="print-info">
             <p><strong>N°:</strong> {remito.number}</p>
             <p><strong>Fecha:</strong> {new Date(remito.createdAt).toLocaleDateString('es-AR')}</p>
@@ -161,27 +148,12 @@ export default function PrintRemito() {
           <p><strong>TOTAL: ${total.toFixed(2)}</strong></p>
         </div>
 
-        <div className="print-status">
-          <p><strong>Estado:</strong> {remito.status}</p>
-        </div>
-
         {remito.notes && (
           <div className="print-notes">
             <p><strong>Observaciones:</strong></p>
             <p>{remito.notes}</p>
           </div>
         )}
-
-        <div className="print-signatures">
-          <div className="signature-box">
-            <p>Firma Cliente:</p>
-            <div className="signature-line"></div>
-          </div>
-          <div className="signature-box">
-            <p>Firma Empresa:</p>
-            <div className="signature-line"></div>
-          </div>
-        </div>
       </div>
     </div>
   );
