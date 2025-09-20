@@ -27,7 +27,8 @@ export async function POST(request: NextRequest) {
       console.error('Zod errors:', error.errors);
       return NextResponse.json({ 
         error: "Validation failed", 
-        details: error.errors
+        details: error.errors,
+        receivedData: body
       }, { status: 400 });
     }
     

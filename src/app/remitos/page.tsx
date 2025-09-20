@@ -174,6 +174,10 @@ export default function RemitosPage() {
       
       if (!testResponse.ok) {
         console.error('Validation test failed:', testResult);
+        if (testResult.details) {
+          const errorMessages = testResult.details.map((err: any) => `${err.path.join('.')}: ${err.message}`).join(', ');
+          throw new Error(`Datos inválidos: ${errorMessages}`);
+        }
         throw new Error(`Validation test failed: ${JSON.stringify(testResult)}`);
       }
       
