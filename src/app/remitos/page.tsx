@@ -344,6 +344,7 @@ export default function RemitosPage() {
   };
 
   const [printRemito, setPrintRemito] = useState<Remito | null>(null);
+  const [isPrinting, setIsPrinting] = useState(false);
 
   const handlePrint = (remito: Remito) => {
     setPrintRemito(remito);
@@ -354,7 +355,18 @@ export default function RemitosPage() {
   };
 
   const triggerPrint = () => {
-    window.print();
+    // Activar modo de impresión
+    setIsPrinting(true);
+    // Cerrar el modal
+    setPrintRemito(null);
+    // Esperar un momento y luego imprimir
+    setTimeout(() => {
+      window.print();
+      // Desactivar modo de impresión después de imprimir
+      setTimeout(() => {
+        setIsPrinting(false);
+      }, 1000);
+    }, 100);
   };
 
   const getStatusIcon = (status: string) => {
@@ -703,6 +715,117 @@ export default function RemitosPage() {
                   </button>
                 </div>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* Contenido de impresión directo en la página */}
+        {isPrinting && printRemito && (
+          <div className="print-container">
+            {/* Original Copy - Left Half */}
+            <div className="print-original">
+              <div className="print-header">
+                <h1>DISTRIBUIDORA RUBEN</h1>
+                <h2>REMITO DE ENTREGA</h2>
+                <div className="print-info">
+                  <p><strong>N°:</strong> {printRemito.number}</p>
+                  <p><strong>Fecha:</strong> {new Date(printRemito.createdAt).toLocaleDateString('es-AR')}</p>
+                </div>
+              </div>
+
+              <div className="print-client">
+                <h3>CLIENTE:</h3>
+                <p><strong>{printRemito.client.name}</strong></p>
+                {printRemito.client.address && <p>{printRemito.client.address}</p>}
+                {printRemito.client.phone && <p>Tel: {printRemito.client.phone}</p>}
+              </div>
+
+              <div className="print-items">
+                <table className="print-table">
+                  <thead>
+                    <tr>
+                      <th>Cant.</th>
+                      <th>Descripción</th>
+                      <th>Precio Unit.</th>
+                      <th>Total</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {printRemito.items.map((item, index) => (
+                      <tr key={index}>
+                        <td>{item.quantity}</td>
+                        <td>{item.productName}</td>
+                        <td>${(Number(item.unitPrice) || 0).toFixed(2)}</td>
+                        <td>${(Number(item.lineTotal) || 0).toFixed(2)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="print-total">
+                <p><strong>TOTAL: ${(printRemito.items.reduce((sum, item) => sum + (Number(item.lineTotal) || 0), 0)).toFixed(2)}</strong></p>
+              </div>
+
+              {printRemito.notes && (
+                <div className="print-notes">
+                  <p><strong>Observaciones:</strong></p>
+                  <p>{printRemito.notes}</p>
+                </div>
+              )}
+            </div>
+
+            {/* Client Copy - Right Half */}
+            <div className="print-copy">
+              <div className="print-header">
+                <h1>DISTRIBUIDORA RUBEN</h1>
+                <h2>REMITO DE ENTREGA</h2>
+                <div className="print-info">
+                  <p><strong>N°:</strong> {printRemito.number}</p>
+                  <p><strong>Fecha:</strong> {new Date(printRemito.createdAt).toLocaleDateString('es-AR')}</p>
+                </div>
+              </div>
+
+              <div className="print-client">
+                <h3>CLIENTE:</h3>
+                <p><strong>{printRemito.client.name}</strong></p>
+                {printRemito.client.address && <p>{printRemito.client.address}</p>}
+                {printRemito.client.phone && <p>Tel: {printRemito.client.phone}</p>}
+              </div>
+
+              <div className="print-items">
+                <table className="print-table">
+                  <thead>
+                    <tr>
+                      <th>Cant.</th>
+                      <th>Descripción</th>
+                      <th>Precio Unit.</th>
+                      <th>Total</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {printRemito.items.map((item, index) => (
+                      <tr key={index}>
+                        <td>{item.quantity}</td>
+                        <td>{item.productName}</td>
+                        <td>${(Number(item.unitPrice) || 0).toFixed(2)}</td>
+                        <td>${(Number(item.lineTotal) || 0).toFixed(2)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="print-total">
+                <p><strong>TOTAL: ${(printRemito.items.reduce((sum, item) => sum + (Number(item.lineTotal) || 0), 0)).toFixed(2)}</strong></p>
+              </div>
+
+              {printRemito.notes && (
+                <div className="print-notes">
+                  <p><strong>Observaciones:</strong></p>
+                  <p>{printRemito.notes}</p>
+                </div>
+              )}
             </div>
           </div>
         )}
