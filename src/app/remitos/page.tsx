@@ -145,7 +145,11 @@ export default function RemitosPage() {
     try {
       const remitoData = {
         ...data,
-        items: items
+        items: items.map(item => ({
+          ...item,
+          unitPrice: Number(item.unitPrice),
+          lineTotal: Number(item.lineTotal)
+        }))
       };
 
       console.log('Sending remito data:', remitoData);
@@ -244,14 +248,14 @@ export default function RemitosPage() {
     if (!product) return;
 
     const unitPrice = Number(product.price);
-    const lineTotal = unitPrice * quantity;
+    const lineTotal = Number(unitPrice * quantity);
     const newItem: RemitoItem = {
       productId: product.id,
       productName: product.name,
       productDesc: product.description,
-      quantity,
-      unitPrice,
-      lineTotal
+      quantity: Number(quantity),
+      unitPrice: Number(unitPrice),
+      lineTotal: Number(lineTotal)
     };
 
     setItems(prev => [...prev, newItem]);
@@ -269,8 +273,13 @@ export default function RemitosPage() {
     setItems(prev => prev.map((item, i) => {
       if (i === index) {
         const unitPrice = Number(item.unitPrice);
-        const lineTotal = unitPrice * newQuantity;
-        return { ...item, quantity: newQuantity, unitPrice, lineTotal };
+        const lineTotal = Number(unitPrice * newQuantity);
+        return { 
+          ...item, 
+          quantity: Number(newQuantity), 
+          unitPrice: Number(unitPrice), 
+          lineTotal: Number(lineTotal) 
+        };
       }
       return item;
     }));
