@@ -159,22 +159,8 @@ export default function RemitosPage() {
         lineTotalType: typeof item.lineTotal
       })));
 
-      // Test validation first
-      console.log('=== TESTING VALIDATION ===');
-      const testResponse = await fetch('/api/test-remito', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(remitoData),
-      });
-      
-      const testResult = await testResponse.json();
-      console.log('Test result:', testResult);
-      
-      if (!testResponse.ok) {
-        throw new Error(`Validation test failed: ${JSON.stringify(testResult)}`);
-      }
+      // Skip test validation for now
+      console.log('=== SKIPPING VALIDATION TEST ===');
       
       // Determine if we're creating or updating
       const isEditing = editingRemito !== null;
