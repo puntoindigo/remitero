@@ -1,0 +1,188 @@
+"use client";
+
+import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { Remito } from "@/lib/types";
+
+export default function PrintRemito() {
+  const params = useParams();
+  const [remito, setRemito] = useState<Remito | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchRemito = async () => {
+      try {
+        const response = await fetch(`/api/remitos/${params.id}`);
+        if (response.ok) {
+          const data = await response.json();
+          setRemito(data);
+        }
+      } catch (error) {
+        console.error("Error fetching remito:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (params.id) {
+      fetchRemito();
+    }
+  }, [params.id]);
+
+  useEffect(() => {
+    if (remito && !loading) {
+      // Trigger print after component loads
+      setTimeout(() => {
+        window.print();
+      }, 500);
+    }
+  }, [remito, loading]);
+
+  if (loading) {
+    return <div className="loading">Cargando remito...</div>;
+  }
+
+  if (!remito) {
+    return <div className="error">Remito no encontrado</div>;
+  }
+
+  const total = remito.items.reduce((sum, item) => sum + Number(item.lineTotal), 0);
+
+  return (
+    <div className="print-container">
+      {/* Original Copy - Left Half */}
+      <div className="print-original">
+        <div className="print-header">
+          <h1>REMITO DE ENTREGA</h1>
+          <div className="print-info">
+            <p><strong>N°:</strong> {remito.number}</p>
+            <p><strong>Fecha:</strong> {new Date(remito.createdAt).toLocaleDateString('es-AR')}</p>
+          </div>
+        </div>
+
+        <div className="print-client">
+          <h3>CLIENTE:</h3>
+          <p><strong>{remito.client.name}</strong></p>
+          {remito.client.address && <p>{remito.client.address}</p>}
+          {remito.client.phone && <p>Tel: {remito.client.phone}</p>}
+        </div>
+
+        <div className="print-items">
+          <table className="print-table">
+            <thead>
+              <tr>
+                <th>Cant.</th>
+                <th>Descripción</th>
+                <th>Precio Unit.</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              {remito.items.map((item, index) => (
+                <tr key={index}>
+                  <td>{item.quantity}</td>
+                  <td>{item.productName}</td>
+                  <td>${Number(item.unitPrice).toFixed(2)}</td>
+                  <td>${Number(item.lineTotal).toFixed(2)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="print-total">
+          <p><strong>TOTAL: ${total.toFixed(2)}</strong></p>
+        </div>
+
+        <div className="print-status">
+          <p><strong>Estado:</strong> {remito.status}</p>
+        </div>
+
+        {remito.notes && (
+          <div className="print-notes">
+            <p><strong>Observaciones:</strong></p>
+            <p>{remito.notes}</p>
+          </div>
+        )}
+
+        <div className="print-signatures">
+          <div className="signature-box">
+            <p>Firma Cliente:</p>
+            <div className="signature-line"></div>
+          </div>
+          <div className="signature-box">
+            <p>Firma Empresa:</p>
+            <div className="signature-line"></div>
+          </div>
+        </div>
+      </div>
+
+      {/* Client Copy - Right Half */}
+      <div className="print-copy">
+        <div className="print-header">
+          <h1>REMITO DE ENTREGA</h1>
+          <div className="print-info">
+            <p><strong>N°:</strong> {remito.number}</p>
+            <p><strong>Fecha:</strong> {new Date(remito.createdAt).toLocaleDateString('es-AR')}</p>
+          </div>
+        </div>
+
+        <div className="print-client">
+          <h3>CLIENTE:</h3>
+          <p><strong>{remito.client.name}</strong></p>
+          {remito.client.address && <p>{remito.client.address}</p>}
+          {remito.client.phone && <p>Tel: {remito.client.phone}</p>}
+        </div>
+
+        <div className="print-items">
+          <table className="print-table">
+            <thead>
+              <tr>
+                <th>Cant.</th>
+                <th>Descripción</th>
+                <th>Precio Unit.</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              {remito.items.map((item, index) => (
+                <tr key={index}>
+                  <td>{item.quantity}</td>
+                  <td>{item.productName}</td>
+                  <td>${Number(item.unitPrice).toFixed(2)}</td>
+                  <td>${Number(item.lineTotal).toFixed(2)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="print-total">
+          <p><strong>TOTAL: ${total.toFixed(2)}</strong></p>
+        </div>
+
+        <div className="print-status">
+          <p><strong>Estado:</strong> {remito.status}</p>
+        </div>
+
+        {remito.notes && (
+          <div className="print-notes">
+            <p><strong>Observaciones:</strong></p>
+            <p>{remito.notes}</p>
+          </div>
+        )}
+
+        <div className="print-signatures">
+          <div className="signature-box">
+            <p>Firma Cliente:</p>
+            <div className="signature-line"></div>
+          </div>
+          <div className="signature-box">
+            <p>Firma Empresa:</p>
+            <div className="signature-line"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

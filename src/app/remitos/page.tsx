@@ -166,6 +166,11 @@ export default function RemitosPage() {
       const result = await response.json();
       console.log('Remito saved successfully:', result);
 
+      // Abrir impresión automáticamente
+      setTimeout(() => {
+        handlePrint(result);
+      }, 1000);
+
       reset();
       setEditingRemito(null);
       setShowForm(false);
@@ -274,8 +279,11 @@ export default function RemitosPage() {
   };
 
   const handlePrint = (remito: Remito) => {
-    // TODO: Implementar impresión
-    console.log("Imprimir remito:", remito);
+    // Abrir página de impresión en nueva ventana
+    const printWindow = window.open(`/remitos/${remito.id}/print`, '_blank');
+    if (printWindow) {
+      printWindow.focus();
+    }
   };
 
   const getStatusIcon = (status: string) => {
