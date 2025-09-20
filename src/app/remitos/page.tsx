@@ -148,6 +148,15 @@ export default function RemitosPage() {
       };
 
       console.log('Sending remito data:', remitoData);
+      console.log('Items details:', remitoData.items.map(item => ({
+        productId: item.productId,
+        productName: item.productName,
+        quantity: item.quantity,
+        unitPrice: item.unitPrice,
+        lineTotal: item.lineTotal,
+        unitPriceType: typeof item.unitPrice,
+        lineTotalType: typeof item.lineTotal
+      })));
 
       const response = await fetch('/api/remitos', {
         method: 'POST',
@@ -160,6 +169,13 @@ export default function RemitosPage() {
       if (!response.ok) {
         const errorData = await response.json();
         console.error('Response error:', errorData);
+        
+        if (errorData.details) {
+          console.error('Validation details:', errorData.details);
+          const errorMessages = errorData.details.map((err: any) => `${err.path.join('.')}: ${err.message}`).join(', ');
+          throw new Error(`Datos inválidos: ${errorMessages}`);
+        }
+        
         throw new Error(errorData.error || 'Error al guardar el remito');
       }
 
