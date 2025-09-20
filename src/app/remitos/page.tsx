@@ -183,13 +183,14 @@ export default function RemitosPage() {
     const product = products.find(p => p.id === selectedProduct);
     if (!product) return;
 
-    const lineTotal = product.price * quantity;
+    const unitPrice = Number(product.price);
+    const lineTotal = unitPrice * quantity;
     const newItem: RemitoItem = {
       productId: product.id,
       productName: product.name,
       productDesc: product.description,
       quantity,
-      unitPrice: product.price,
+      unitPrice,
       lineTotal
     };
 
