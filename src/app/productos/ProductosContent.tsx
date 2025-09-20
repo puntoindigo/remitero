@@ -17,6 +17,7 @@ interface Product {
   name: string;
   description?: string;
   price: number;
+  stock: 'IN_STOCK' | 'OUT_OF_STOCK';
   category?: {
     id: string;
     name: string;
@@ -179,6 +180,40 @@ export default function ProductosContent() {
     setShowForm(false);
   };
 
+  const handleStockChange = async (productId: string, newStock: 'IN_STOCK' | 'OUT_OF_STOCK') => {
+    try {
+      const response = await fetch(`/api/products/${productId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          stock: newStock,
+          companyId: session?.user?.companyId
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Error al actualizar el stock');
+      }
+
+      await loadData();
+    } catch (error) {
+      console.error('Error updating stock:', error);
+    }
+  };
+
+  const getStockColor = (stock: string) => {
+    switch (stock) {
+      case "IN_STOCK":
+        return "stock-in";
+      case "OUT_OF_STOCK":
+        return "stock-out";
+      default:
+        return "stock-out";
+    }
+  };
+
   if (isLoading) {
     return (
       <main className="main-content">
@@ -192,9 +227,6 @@ export default function ProductosContent() {
       <div className="px-4 py-6 sm:px-0">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Gestión de Productos</h1>
-          <p className="mt-2 text-gray-600">
-            Administra el catálogo de productos
-          </p>
         </div>
 
         {/* Botón Nuevo Producto */}
@@ -340,13 +372,14 @@ export default function ProductosContent() {
                   <th>Producto</th>
                   <th>Categoría</th>
                   <th>Precio</th>
+                  <th>Stock</th>
                   <th>Fecha de creación</th>
                   <th>Acciones</th>
                 </tr>
               </thead>
               <tbody>
-                {Array.isArray(paginatedData) && paginatedData.map((product) => (
-                  <tr key={product.id}>
+                {Array.isArray(paginatedData) && paginatedData.map((product, index) => (
+                  <tr key={product.id} className={index % 2 === 0 ? "row-even" : "row-odd"}>
                     <td>
                       <div>
                         <div className="font-medium">{product.name}</div>
@@ -363,9 +396,19 @@ export default function ProductosContent() {
                       )}
                     </td>
                     <td>${(Number(product.price) || 0).toFixed(2)}</td>
+                    <td>
+                      <select
+                        value={product.stock || 'OUT_OF_STOCK'}
+                        onChange={(e) => handleStockChange(product.id, e.target.value as 'IN_STOCK' | 'OUT_OF_STOCK')}
+                        className={`stock-select ${getStockColor(product.stock || 'OUT_OF_STOCK')}`}
+                      >
+                        <option value="IN_STOCK">✅ Hay stock</option>
+                        <option value="OUT_OF_STOCK">❌ Sin stock</option>
+                      </select>
+                    </td>
                     <td>{formatDate(new Date(product.createdAt))}</td>
                     <td>
-                      <div className="action-buttons">
+                      <div className="action-buttons-spaced">
                         <button
                           onClick={() => handleEdit(product)}
                           className="action-btn edit"

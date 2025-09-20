@@ -1191,3 +1191,52 @@ form svg {
 .print-container {
   display: none;
 }
+
+/* Estilos para filas intercaladas */
+.row-even {
+  background-color: #ffffff;
+}
+
+.row-odd {
+  background-color: #f8fafc;
+}
+
+/* Estilos para botones de acciones con más separación */
+.action-buttons-spaced {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+/* Estilos para el selector de stock */
+.stock-select {
+  padding: 0.375rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  transition: all 0.2s;
+  cursor: pointer;
+  min-width: 120px;
+}
+
+.stock-select.stock-in {
+  background-color: #f0fdf4;
+  border-color: #22c55e;
+  color: #15803d;
+}
+
+.stock-select.stock-out {
+  background-color: #fef2f2;
+  border-color: #ef4444;
+  color: #dc2626;
+}
+
+.stock-select:hover {
+  opacity: 0.8;
+}
+
+.stock-select:focus {
+  outline: none;
+  ring: 2px;
+  ring-color: #3b82f6;
+}
