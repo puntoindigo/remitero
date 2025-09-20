@@ -476,12 +476,27 @@ export default function RemitosPage() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => {
+                  onClick={async () => {
                     console.log('Button clicked');
-                    console.log('Form values:', getValues());
+                    const formData = getValues();
+                    console.log('Form values:', formData);
                     console.log('Items:', items);
                     console.log('Form errors:', errors);
-                    handleSubmit(onSubmit)();
+                    
+                    // Validar manualmente
+                    if (!formData.clientId) {
+                      alert('Debe seleccionar un cliente');
+                      return;
+                    }
+                    
+                    if (items.length === 0) {
+                      alert('Debe agregar al menos un producto');
+                      return;
+                    }
+                    
+                    // Llamar directamente a onSubmit
+                    console.log('Calling onSubmit directly...');
+                    await onSubmit(formData);
                   }}
                   disabled={isSubmitting || items.length === 0}
                   className="primary"
