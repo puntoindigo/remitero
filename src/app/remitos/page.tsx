@@ -513,11 +513,14 @@ export default function RemitosPage() {
 
       // Imprimir después de cargar
       printWindow.onload = () => {
+        // Enfocar la ventana principal para minimizar la de impresión
+        window.focus();
+        // Imprimir inmediatamente
         printWindow.print();
-        // Cerrar después de un pequeño delay
+        // Cerrar inmediatamente después de iniciar la impresión
         setTimeout(() => {
           printWindow.close();
-        }, 1000);
+        }, 50);
       };
 
     } catch (error) {
