@@ -53,6 +53,19 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
+    console.log('Received remito data:', JSON.stringify(body, null, 2));
+    
+    try {
+      const validatedData = remitoSchema.parse(body);
+      console.log('Validation successful:', JSON.stringify(validatedData, null, 2));
+    } catch (validationError: any) {
+      console.error('Validation error:', validationError.errors);
+      return NextResponse.json({ 
+        error: "Datos inválidos", 
+        details: validationError.errors 
+      }, { status: 400 });
+    }
+    
     const validatedData = remitoSchema.parse(body);
 
     const newRemito = await prisma.$transaction(async (tx) => {
