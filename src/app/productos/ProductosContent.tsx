@@ -6,7 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ProductForm, productSchema } from "@/lib/validations";
-import { Plus, Edit, Trash2, Package, Tag, DollarSign } from "lucide-react";
+import { Plus, Edit, Trash2, Package, Tag, DollarSign, Search } from "lucide-react";
 import { formatDate } from "@/lib/utils/formatters";
 import SearchAndPagination from "@/components/common/SearchAndPagination";
 import { useSearchAndPagination } from "@/hooks/useSearchAndPagination";
@@ -336,31 +336,44 @@ export default function ProductosContent() {
           <h3>Lista de Productos</h3>
           
           <div className="search-and-filter-container">
-            <SearchAndPagination
-              searchTerm={searchTerm}
-              onSearchChange={handleSearchChange}
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={handlePageChange}
-              totalItems={totalItems}
-              itemsPerPage={itemsPerPage}
-              placeholder="Buscar productos..."
-            />
-            
-            <div className="category-filter-wrapper">
-              <FilterableSelect
-                options={[
-                  { id: "", name: "Todas las categorías" },
-                  ...categories.map(cat => ({ id: cat.id, name: cat.name }))
-                ]}
-                value={selectedCategory}
-                onChange={setSelectedCategory}
-                placeholder="Filtrar por categoría"
-                searchFields={["name"]}
-                className="category-filter-select"
-              />
+            <div className="search-wrapper">
+              <div className="search-input-wrapper">
+                <Search className="search-icon" />
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => handleSearchChange(e.target.value)}
+                  placeholder="Buscar productos..."
+                  className="search-input"
+                />
+              </div>
+              
+              <div className="category-filter-wrapper">
+                <FilterableSelect
+                  options={[
+                    { id: "", name: "Todas las categorías" },
+                    ...categories.map(cat => ({ id: cat.id, name: cat.name }))
+                  ]}
+                  value={selectedCategory}
+                  onChange={setSelectedCategory}
+                  placeholder="Filtrar por categoría"
+                  searchFields={["name"]}
+                  className="category-filter-select"
+                />
+              </div>
             </div>
           </div>
+          
+          <SearchAndPagination
+            searchTerm={searchTerm}
+            onSearchChange={handleSearchChange}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+            totalItems={totalItems}
+            itemsPerPage={itemsPerPage}
+            placeholder="Buscar productos..."
+          />
           
           {!Array.isArray(products) || products.length === 0 ? (
             <div className="empty-state">

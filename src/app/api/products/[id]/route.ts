@@ -10,14 +10,21 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
+    console.log("PUT /api/products/[id] - Starting");
+    
     const session = await getServerSession(authOptions);
+    console.log("Session:", session?.user);
     
     if (!session?.user?.companyId) {
+      console.log("No companyId in session");
       return NextResponse.json({ error: "No autorizado" }, { status: 401 });
     }
 
     const productId = params.id;
+    console.log("Product ID:", productId);
+    
     const body = await request.json();
+    console.log("Request body:", body);
 
     // Validar solo los campos que se están enviando
     const allowedFields = ['name', 'description', 'price', 'categoryId', 'stock'];
@@ -28,6 +35,8 @@ export async function PUT(
         return obj;
       }, {});
 
+    console.log("Filtered data:", filteredData);
+
     const product = await prisma.product.update({
       where: { 
         id: productId,
@@ -37,15 +46,24 @@ export async function PUT(
       include: { category: true }
     });
 
+    console.log("Product updated successfully:", product);
     return NextResponse.json(product);
   } catch (error: any) {
     console.error("Error updating product:", error);
+    console.error("Error details:", {
+      message: error.message,
+      code: error.code,
+      meta: error.meta
+    });
     
     if (error.code === "P2025") {
       return NextResponse.json({ error: "Producto no encontrado" }, { status: 404 });
     }
 
-    return NextResponse.json({ error: "Error interno del servidor" }, { status: 500 });
+    return NextResponse.json({ 
+      error: "Error interno del servidor", 
+      details: error.message 
+    }, { status: 500 });
   }
 }
 
