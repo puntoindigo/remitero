@@ -126,13 +126,27 @@ export default function RemitosPage() {
   }, [session?.user?.companyId]);
 
   const onSubmit = async (data: RemitoForm) => {
-    if (!session?.user?.companyId || !session?.user?.id) return;
+    console.log('onSubmit called with data:', data);
+    console.log('items:', items);
+    console.log('session:', session?.user);
+    
+    if (!session?.user?.companyId || !session?.user?.id) {
+      console.log('Missing session data');
+      return;
+    }
+
+    if (items.length === 0) {
+      alert('Debe agregar al menos un producto');
+      return;
+    }
 
     try {
       const remitoData = {
         ...data,
         items: items
       };
+
+      console.log('Sending remito data:', remitoData);
 
       const response = await fetch('/api/remitos', {
         method: 'POST',
@@ -143,8 +157,13 @@ export default function RemitosPage() {
       });
 
       if (!response.ok) {
-        throw new Error('Error al guardar el remito');
+        const errorData = await response.json();
+        console.error('Response error:', errorData);
+        throw new Error(errorData.error || 'Error al guardar el remito');
       }
+
+      const result = await response.json();
+      console.log('Remito saved successfully:', result);
 
       reset();
       setEditingRemito(null);
@@ -153,7 +172,7 @@ export default function RemitosPage() {
       await loadData();
     } catch (error) {
       console.error("Error saving remito:", error);
-      alert('Error al guardar el remito');
+      alert('Error al guardar el remito: ' + error.message);
     }
   };
 

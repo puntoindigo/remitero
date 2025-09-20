@@ -161,6 +161,7 @@ form, .form-section {
   transition: all 0.15s ease;
   outline: none;
   min-height: 36px;
+  font-weight: normal;
 }
 
 .vercel-select-trigger:hover {
@@ -278,7 +279,7 @@ form, .form-section {
 
 .vercel-select-search-input {
   width: 100%;
-  padding: 8px 8px 8px 32px;
+  padding: 8px 8px 8px 36px;
   border: 1px solid #e5e7eb;
   border-radius: 4px;
   font-size: 14px;
@@ -312,6 +313,7 @@ form, .form-section {
   color: #111827;
   cursor: pointer;
   transition: background-color 0.15s ease;
+  font-weight: normal;
 }
 
 .vercel-select-option:hover {
@@ -321,7 +323,7 @@ form, .form-section {
 .vercel-select-option-selected {
   background-color: #eff6ff;
   color: #1d4ed8;
-  font-weight: 500;
+  font-weight: normal;
 }
 
 .vercel-select-empty {
