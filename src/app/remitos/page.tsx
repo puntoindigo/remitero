@@ -127,6 +127,7 @@ export default function RemitosPage() {
   }, [session?.user?.companyId]);
 
   const onSubmit = async (data: RemitoForm) => {
+    console.log('=== REMITO SUBMIT DEBUG ===');
     console.log('onSubmit called with data:', data);
     console.log('items:', items);
     console.log('session:', session?.user);

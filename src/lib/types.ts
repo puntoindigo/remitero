@@ -24,23 +24,33 @@ export interface Cliente {
 }
 
 export interface RemitoItem {
-  productoId: string;
-  nombre: string;
-  precioUnit: number;
-  cantidad: number;
-  subtotal: number;
+  productId?: string;
+  productName: string;
+  productDesc?: string;
+  quantity: number;
+  unitPrice: number;
+  lineTotal: number;
 }
 
 export interface Remito {
   id: string;
-  numero: string;     // REM-0001
-  fecha: string;      // ISO yyyy-mm-dd
-  clienteId: string;
-  clienteNombre: string;
+  number: number;
+  clientId: string;
+  client: {
+    id: string;
+    name: string;
+    address?: string;
+    phone?: string;
+    email?: string;
+  };
   items: RemitoItem[];
-  observaciones?: string;
+  notes?: string;
+  status: string;
   total: number;
   createdAt: string;
+  createdBy: {
+    name: string;
+  };
 }
 
 export interface DBShape {
