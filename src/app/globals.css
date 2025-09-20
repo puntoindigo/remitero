@@ -1207,7 +1207,7 @@ form svg {
 }
 
 .data-table tbody tr.row-odd {
-  background-color: #f8fafc !important;
+  background-color: #f1f5f9 !important;
 }
 
 /* Estilos para botones de acciones con más separación */
@@ -1276,4 +1276,10 @@ form svg {
 .product-description {
   font-size: 0.875rem;
   color: #6b7280;
+}
+
+/* Estilos para el filtro de categorías más pequeño */
+.category-filter-select {
+  max-width: 200px;
+  min-width: 180px;
 }

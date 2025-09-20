@@ -355,7 +355,7 @@ export default function ProductosContent() {
               onChange={setSelectedCategory}
               placeholder="Filtrar por categoría"
               searchFields={["name"]}
-              className="max-w-48"
+              className="category-filter-select"
             />
           </div>
           
@@ -398,9 +398,9 @@ export default function ProductosContent() {
                     <td>${(Number(product.price) || 0).toFixed(2)}</td>
                     <td>
                       <select
-                        value={product.stock || 'OUT_OF_STOCK'}
+                        value={product.stock || 'IN_STOCK'}
                         onChange={(e) => handleStockChange(product.id, e.target.value as 'IN_STOCK' | 'OUT_OF_STOCK')}
-                        className={`stock-select ${getStockColor(product.stock || 'OUT_OF_STOCK')}`}
+                        className={`stock-select ${getStockColor(product.stock || 'IN_STOCK')}`}
                       >
                         <option value="IN_STOCK">✅ Hay stock</option>
                         <option value="OUT_OF_STOCK">❌ Sin stock</option>
