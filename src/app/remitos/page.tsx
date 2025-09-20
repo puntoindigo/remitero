@@ -484,8 +484,8 @@ export default function RemitosPage() {
                               className="w-20"
                             />
                           </td>
-                          <td>${(Number(item.unitPrice) || 0).toFixed(2)}</td>
-                          <td>${(Number(item.lineTotal) || 0).toFixed(2)}</td>
+                          <td>${(Number(item.unitPrice) || 0).toLocaleString('es-AR', { style: 'currency', currency: 'ARS' })}</td>
+                          <td>${(Number(item.lineTotal) || 0).toLocaleString('es-AR', { style: 'currency', currency: 'ARS' })}</td>
                           <td>
                             <button
                               type="button"
@@ -504,7 +504,7 @@ export default function RemitosPage() {
                 {/* Total */}
                 {items.length > 0 && (
                   <div className="total-display">
-                    <strong>Total: ${(Number(total) || 0).toFixed(2)}</strong>
+                    <strong>Total: ${(Number(total) || 0).toLocaleString('es-AR', { style: 'currency', currency: 'ARS' })}</strong>
                   </div>
                 )}
               </div>
@@ -604,7 +604,7 @@ export default function RemitosPage() {
                           <span className="ml-1">{remito.status}</span>
                         </span>
                       </td>
-                      <td>${(Number(remito.total) || 0).toFixed(2)}</td>
+                      <td>${(Number(remito.total) || 0).toLocaleString('es-AR', { style: 'currency', currency: 'ARS' })}</td>
                       <td>{formatDate(new Date(remito.createdAt))}</td>
                       <td>
                         <div className="action-buttons">
