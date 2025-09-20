@@ -362,7 +362,7 @@ export default function ProductosContent() {
                         <span className="text-gray-400">Sin categoría</span>
                       )}
                     </td>
-                    <td>${Number(product.price).toFixed(2)}</td>
+                    <td>${(Number(product.price) || 0).toFixed(2)}</td>
                     <td>{formatDate(new Date(product.createdAt))}</td>
                     <td>
                       <div className="action-buttons">

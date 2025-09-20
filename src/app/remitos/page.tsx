@@ -450,8 +450,8 @@ export default function RemitosPage() {
                               className="w-20"
                             />
                           </td>
-                          <td>${Number(item.unitPrice).toFixed(2)}</td>
-                          <td>${item.lineTotal.toFixed(2)}</td>
+                          <td>${(Number(item.unitPrice) || 0).toFixed(2)}</td>
+                          <td>${(Number(item.lineTotal) || 0).toFixed(2)}</td>
                           <td>
                             <button
                               type="button"
@@ -470,7 +470,7 @@ export default function RemitosPage() {
                 {/* Total */}
                 {items.length > 0 && (
                   <div className="total-display">
-                    <strong>Total: ${total.toFixed(2)}</strong>
+                    <strong>Total: ${(Number(total) || 0).toFixed(2)}</strong>
                   </div>
                 )}
               </div>
@@ -552,7 +552,7 @@ export default function RemitosPage() {
                           <span className="ml-1">{remito.status}</span>
                         </span>
                       </td>
-                      <td>${remito.total.toFixed(2)}</td>
+                      <td>${(Number(remito.total) || 0).toFixed(2)}</td>
                       <td>{formatDate(new Date(remito.createdAt))}</td>
                       <td>
                         <div className="action-buttons">
