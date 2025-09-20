@@ -6,6 +6,60 @@ import { remitoSchema } from "@/lib/validations";
 
 const prisma = new PrismaClient();
 
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const session = await getServerSession(authOptions);
+    
+    if (!session?.user?.companyId) {
+      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+    }
+
+    const remitoId = params.id;
+    
+    if (!remitoId) {
+      return NextResponse.json({ error: "ID de remito requerido" }, { status: 400 });
+    }
+
+    const remito = await prisma.remito.findFirst({
+      where: { 
+        id: remitoId,
+        companyId: session.user.companyId 
+      },
+      include: {
+        client: { select: { id: true, name: true, address: true, phone: true } },
+        items: true,
+        createdBy: { select: { name: true } },
+        company: { select: { name: true, address: true, phone: true } },
+        history: {
+          orderBy: { at: "desc" },
+          take: 1,
+          include: { byUser: { select: { name: true } } }
+        }
+      }
+    });
+
+    if (!remito) {
+      return NextResponse.json({ error: "Remito no encontrado" }, { status: 404 });
+    }
+
+    // Calculate total and format data
+    const formattedRemito = {
+      ...remito,
+      total: remito.items.reduce((sum, item) => sum + Number(item.lineTotal), 0),
+      statusAt: remito.history[0]?.at.toISOString() || remito.createdAt.toISOString(),
+      status: remito.history[0]?.status || remito.status,
+    };
+
+    return NextResponse.json(formattedRemito);
+  } catch (error: any) {
+    console.error("Error fetching remito:", error);
+    return NextResponse.json({ error: "Error interno del servidor" }, { status: 500 });
+  }
+}
+
 export async function PUT(
   request: NextRequest,
   { params }: { params: { id: string } }
