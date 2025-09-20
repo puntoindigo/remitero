@@ -12,6 +12,7 @@ interface SearchAndPaginationProps {
   totalItems: number;
   itemsPerPage: number;
   placeholder?: string;
+  children?: React.ReactNode;
 }
 
 export default function SearchAndPagination({
@@ -22,7 +23,8 @@ export default function SearchAndPagination({
   onPageChange,
   totalItems,
   itemsPerPage,
-  placeholder = "Buscar..."
+  placeholder = "Buscar...",
+  children
 }: SearchAndPaginationProps) {
   const startItem = (currentPage - 1) * itemsPerPage + 1;
   const endItem = Math.min(currentPage * itemsPerPage, totalItems);
@@ -40,6 +42,7 @@ export default function SearchAndPagination({
             className="search-input"
           />
         </div>
+        {children}
       </div>
 
       <div className="pagination-info">

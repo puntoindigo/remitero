@@ -957,8 +957,10 @@ form svg {
 }
 
 .search-container {
-  flex: 1;
-  max-width: 300px;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
 }
 
 .search-input-wrapper {
@@ -1235,7 +1237,7 @@ form svg {
   transition: all 0.2s;
   cursor: pointer;
   min-width: 90px;
-  max-width: 100px;
+  max-width: 115px;
   background-color: white;
   color: #374151;
 }

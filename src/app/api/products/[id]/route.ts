@@ -64,6 +64,8 @@ export async function PUT(
       error: "Error interno del servidor", 
       details: error.message 
     }, { status: 500 });
+  } finally {
+    await prisma.$disconnect();
   }
 }
 
@@ -96,5 +98,7 @@ export async function DELETE(
     }
 
     return NextResponse.json({ error: "Error interno del servidor" }, { status: 500 });
+  } finally {
+    await prisma.$disconnect();
   }
 }

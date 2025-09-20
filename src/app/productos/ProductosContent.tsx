@@ -335,35 +335,6 @@ export default function ProductosContent() {
         <div className="form-section">
           <h3>Lista de Productos</h3>
           
-          <div className="search-and-filter-container">
-            <div className="search-wrapper">
-              <div className="search-input-wrapper">
-                <Search className="search-icon" />
-                <input
-                  type="text"
-                  value={searchTerm}
-                  onChange={(e) => handleSearchChange(e.target.value)}
-                  placeholder="Buscar productos..."
-                  className="search-input"
-                />
-              </div>
-              
-              <div className="category-filter-wrapper">
-                <FilterableSelect
-                  options={[
-                    { id: "", name: "Todas las categorías" },
-                    ...categories.map(cat => ({ id: cat.id, name: cat.name }))
-                  ]}
-                  value={selectedCategory}
-                  onChange={setSelectedCategory}
-                  placeholder="Filtrar por categoría"
-                  searchFields={["name"]}
-                  className="category-filter-select"
-                />
-              </div>
-            </div>
-          </div>
-          
           <SearchAndPagination
             searchTerm={searchTerm}
             onSearchChange={handleSearchChange}
@@ -373,7 +344,21 @@ export default function ProductosContent() {
             totalItems={totalItems}
             itemsPerPage={itemsPerPage}
             placeholder="Buscar productos..."
-          />
+          >
+            <div className="category-filter-wrapper">
+              <FilterableSelect
+                options={[
+                  { id: "", name: "Todas las categorías" },
+                  ...categories.map(cat => ({ id: cat.id, name: cat.name }))
+                ]}
+                value={selectedCategory}
+                onChange={setSelectedCategory}
+                placeholder="Filtrar por categoría"
+                searchFields={["name"]}
+                className="category-filter-select"
+              />
+            </div>
+          </SearchAndPagination>
           
           {!Array.isArray(products) || products.length === 0 ? (
             <div className="empty-state">
