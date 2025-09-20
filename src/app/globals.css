@@ -651,6 +651,11 @@ table tbody tr:last-child td {
   background: #e5e7eb;
 }
 
+/* Ocultar contenido de impresión en pantalla */
+.print-only {
+  display: none !important;
+}
+
 /* Print styles */
 @media print {
   .no-print {
@@ -1054,6 +1059,11 @@ form svg {
   header,
   .print-modal {
     display: none !important;
+  }
+  
+  /* Mostrar contenido de impresión solo durante la impresión */
+  .print-only {
+    display: flex !important;
   }
   
   .print-container {
