@@ -182,24 +182,25 @@ export default function ProductosContent() {
 
   const handleStockChange = async (productId: string, newStock: 'IN_STOCK' | 'OUT_OF_STOCK') => {
     try {
-      const response = await fetch('/api/products', {
+      const response = await fetch(`/api/products/${productId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          id: productId,
           stock: newStock
         }),
       });
 
       if (!response.ok) {
-        throw new Error('Error al actualizar el stock');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Error al actualizar el stock');
       }
 
       await loadData();
     } catch (error) {
       console.error('Error updating stock:', error);
+      alert('Error al actualizar el stock: ' + (error as Error).message);
     }
   };
 
@@ -334,29 +335,31 @@ export default function ProductosContent() {
         <div className="form-section">
           <h3>Lista de Productos</h3>
           
-          <SearchAndPagination
-            searchTerm={searchTerm}
-            onSearchChange={handleSearchChange}
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={handlePageChange}
-            totalItems={totalItems}
-            itemsPerPage={itemsPerPage}
-            placeholder="Buscar productos..."
-          />
-          
-          <div className="mb-4">
-            <FilterableSelect
-              options={[
-                { id: "", name: "Todas las categorías" },
-                ...categories.map(cat => ({ id: cat.id, name: cat.name }))
-              ]}
-              value={selectedCategory}
-              onChange={setSelectedCategory}
-              placeholder="Filtrar por categoría"
-              searchFields={["name"]}
-              className="category-filter-select"
+          <div className="search-and-filter-container">
+            <SearchAndPagination
+              searchTerm={searchTerm}
+              onSearchChange={handleSearchChange}
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+              totalItems={totalItems}
+              itemsPerPage={itemsPerPage}
+              placeholder="Buscar productos..."
             />
+            
+            <div className="category-filter-wrapper">
+              <FilterableSelect
+                options={[
+                  { id: "", name: "Todas las categorías" },
+                  ...categories.map(cat => ({ id: cat.id, name: cat.name }))
+                ]}
+                value={selectedCategory}
+                onChange={setSelectedCategory}
+                placeholder="Filtrar por categoría"
+                searchFields={["name"]}
+                className="category-filter-select"
+              />
+            </div>
           </div>
           
           {!Array.isArray(products) || products.length === 0 ? (

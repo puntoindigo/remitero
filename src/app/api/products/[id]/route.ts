@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { ProductService } from "@/lib/services/productService";
-import { productSchema } from "@/lib/validations";
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
 
 export async function PUT(
   request: NextRequest,
@@ -15,21 +16,33 @@ export async function PUT(
       return NextResponse.json({ error: "No autorizado" }, { status: 401 });
     }
 
+    const productId = params.id;
     const body = await request.json();
-    const validatedData = productSchema.parse(body);
 
-    const product = await ProductService.updateProduct(
-      params.id,
-      validatedData,
-      session.user.companyId
-    );
+    // Validar solo los campos que se están enviando
+    const allowedFields = ['name', 'description', 'price', 'categoryId', 'stock'];
+    const filteredData = Object.keys(body)
+      .filter(key => allowedFields.includes(key))
+      .reduce((obj, key) => {
+        obj[key] = body[key];
+        return obj;
+      }, {});
+
+    const product = await prisma.product.update({
+      where: { 
+        id: productId,
+        companyId: session.user.companyId 
+      },
+      data: filteredData,
+      include: { category: true }
+    });
 
     return NextResponse.json(product);
   } catch (error: any) {
     console.error("Error updating product:", error);
     
-    if (error.name === "ZodError") {
-      return NextResponse.json({ error: "Datos inválidos", details: error.errors }, { status: 400 });
+    if (error.code === "P2025") {
+      return NextResponse.json({ error: "Producto no encontrado" }, { status: 404 });
     }
 
     return NextResponse.json({ error: "Error interno del servidor" }, { status: 500 });
@@ -47,14 +60,21 @@ export async function DELETE(
       return NextResponse.json({ error: "No autorizado" }, { status: 401 });
     }
 
-    await ProductService.deleteProduct(params.id, session.user.companyId);
-    
+    const productId = params.id;
+
+    await prisma.product.delete({
+      where: { 
+        id: productId,
+        companyId: session.user.companyId 
+      }
+    });
+
     return NextResponse.json({ message: "Producto eliminado correctamente" });
   } catch (error: any) {
     console.error("Error deleting product:", error);
     
-    if (error.message.includes("remitos")) {
-      return NextResponse.json({ error: error.message }, { status: 400 });
+    if (error.code === "P2025") {
+      return NextResponse.json({ error: "Producto no encontrado" }, { status: 404 });
     }
 
     return NextResponse.json({ error: "Error interno del servidor" }, { status: 500 });

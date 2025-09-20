@@ -1210,6 +1210,15 @@ form svg {
   background-color: #f1f5f9 !important;
 }
 
+/* Forzar estilos de filas intercaladas */
+.data-table tbody tr:nth-child(even) {
+  background-color: #f1f5f9 !important;
+}
+
+.data-table tbody tr:nth-child(odd) {
+  background-color: #ffffff !important;
+}
+
 /* Estilos para botones de acciones con más separación */
 .action-buttons-spaced {
   display: flex;
@@ -1232,11 +1241,13 @@ form svg {
 }
 
 .stock-select.stock-in {
-  border-color: #22c55e;
+  border-color: #22c55e !important;
+  background-color: #f0fdf4;
 }
 
 .stock-select.stock-out {
-  border-color: #ef4444;
+  border-color: #ef4444 !important;
+  background-color: #fef2f2;
 }
 
 .stock-select option {
@@ -1276,6 +1287,22 @@ form svg {
 .product-description {
   font-size: 0.875rem;
   color: #6b7280;
+}
+
+/* Contenedor de búsqueda y filtro */
+.search-and-filter-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.category-filter-wrapper {
+  display: flex;
+  align-items: center;
+  margin-top: 0.5rem;
 }
 
 /* Estilos para el filtro de categorías más pequeño */
