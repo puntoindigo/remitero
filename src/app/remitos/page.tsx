@@ -86,6 +86,7 @@ export default function RemitosPage() {
     reset,
     setValue,
     watch,
+    getValues,
     formState: { errors, isSubmitting }
   } = useForm<RemitoForm>({
     resolver: zodResolver(remitoSchema)
@@ -335,7 +336,10 @@ export default function RemitosPage() {
           <div className="form-section">
             <h3>{editingRemito ? `Editar Remito #${editingRemito.number}` : "Nuevo Remito"}</h3>
             
-            <form onSubmit={handleSubmit(onSubmit)}>
+            <form onSubmit={handleSubmit(onSubmit, (errors) => {
+              console.log('Validation errors:', errors);
+              alert('Por favor complete todos los campos requeridos');
+            })}>
               <div className="form-row">
                 <div className="form-group">
                   <label>Cliente *</label>
@@ -471,7 +475,14 @@ export default function RemitosPage() {
                   Cancelar
                 </button>
                 <button
-                  type="submit"
+                  type="button"
+                  onClick={() => {
+                    console.log('Button clicked');
+                    console.log('Form values:', getValues());
+                    console.log('Items:', items);
+                    console.log('Form errors:', errors);
+                    handleSubmit(onSubmit)();
+                  }}
                   disabled={isSubmitting || items.length === 0}
                   className="primary"
                 >
