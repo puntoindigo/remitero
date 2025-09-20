@@ -85,52 +85,46 @@ export default function FilterableSelect({
   }, []);
 
   return (
-    <div className={`relative ${className}`} ref={dropdownRef}>
+    <div className={`vercel-select-container ${className}`} ref={dropdownRef}>
       <button
         type="button"
         onClick={handleToggle}
         disabled={disabled}
-        className={`w-full px-3 py-2 text-left border border-gray-200 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-white transition-all duration-200 ${
-          disabled ? "bg-gray-50 cursor-not-allowed opacity-50" : "cursor-pointer hover:border-gray-300"
-        } ${isOpen ? "ring-2 ring-blue-500 border-blue-500" : ""}`}
+        className={`vercel-select-trigger ${isOpen ? 'vercel-select-open' : ''} ${disabled ? 'vercel-select-disabled' : ''}`}
       >
-        <div className="flex items-center justify-between">
-          <span className={`truncate ${value ? "text-gray-900" : "text-gray-500"}`}>
-            {displayText}
-          </span>
-          <div className="flex items-center space-x-1 ml-2">
-            {value && (
-              <button
-                type="button"
-                onClick={handleClear}
-                className="text-gray-400 hover:text-gray-600 p-0.5 rounded-full hover:bg-gray-100 transition-colors"
-              >
-                <X className="h-3 w-3" />
-              </button>
-            )}
-            <ChevronDown className={`h-4 w-4 text-gray-400 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} />
-          </div>
+        <span className={`vercel-select-value ${value ? 'vercel-select-has-value' : ''}`}>
+          {displayText}
+        </span>
+        <div className="vercel-select-actions">
+          {value && (
+            <button
+              type="button"
+              onClick={handleClear}
+              className="vercel-select-clear"
+            >
+              <X className="vercel-select-clear-icon" />
+            </button>
+          )}
+          <ChevronDown className={`vercel-select-chevron ${isOpen ? 'vercel-select-chevron-open' : ''}`} />
         </div>
       </button>
 
       {isOpen && (
-        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-xl max-h-60 overflow-hidden animate-in fade-in-0 zoom-in-95 duration-200">
-          <div className="p-2 border-b border-gray-100">
-            <div className="relative">
-              <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <input
-                ref={inputRef}
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Buscar..."
-                className="w-full pl-8 pr-3 py-2 text-sm border border-gray-200 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-              />
-            </div>
+        <div className="vercel-select-dropdown">
+          <div className="vercel-select-search">
+            <Search className="vercel-select-search-icon" />
+            <input
+              ref={inputRef}
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Buscar..."
+              className="vercel-select-search-input"
+            />
           </div>
-          <div className="max-h-48 overflow-y-auto">
+          <div className="vercel-select-options">
             {filteredOptions.length === 0 ? (
-              <div className="px-3 py-4 text-sm text-gray-500 text-center">
+              <div className="vercel-select-empty">
                 No se encontraron opciones
               </div>
             ) : (
@@ -139,11 +133,7 @@ export default function FilterableSelect({
                   key={option.id}
                   type="button"
                   onClick={() => handleSelect(option.id)}
-                  className={`w-full px-3 py-2 text-left text-sm transition-colors duration-150 ${
-                    value === option.id 
-                      ? "bg-blue-50 text-blue-900 font-medium" 
-                      : "text-gray-900 hover:bg-gray-50"
-                  }`}
+                  className={`vercel-select-option ${value === option.id ? 'vercel-select-option-selected' : ''}`}
                 >
                   {option.name}
                 </button>
