@@ -381,10 +381,10 @@ export default function ProductosContent() {
                 {Array.isArray(paginatedData) && paginatedData.map((product, index) => (
                   <tr key={product.id} className={index % 2 === 0 ? "row-even" : "row-odd"}>
                     <td>
-                      <div>
-                        <div className="font-medium">{product.name}</div>
+                      <div className="product-info">
+                        <div className="product-name">{product.name}</div>
                         {product.description && (
-                          <div className="text-sm text-gray-500">{product.description}</div>
+                          <div className="product-description">{product.description}</div>
                         )}
                       </div>
                     </td>

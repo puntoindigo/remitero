@@ -1260,3 +1260,20 @@ form svg {
   ring: 2px;
   ring-color: #3b82f6;
 }
+
+/* Estilos específicos para información del producto */
+.product-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.product-name {
+  font-weight: 500;
+  color: #111827;
+}
+
+.product-description {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
