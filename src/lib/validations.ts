@@ -43,7 +43,7 @@ export const remitoSchema = z.object({
     unitPrice: z.number().min(0, "Precio unitario debe ser mayor a 0"),
     lineTotal: z.number().min(0, "Total de línea debe ser mayor a 0")
   })).min(1, "Debe agregar al menos un producto")
-})
+}).strict()
 
 export const statusChangeSchema = z.object({
   status: z.enum(["PENDIENTE", "PREPARADO", "ENTREGADO"])

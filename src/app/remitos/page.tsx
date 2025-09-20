@@ -520,9 +520,27 @@ export default function RemitosPage() {
                       return;
                     }
                     
-                    // Llamar directamente a onSubmit
-                    console.log('Calling onSubmit directly...');
-                    await onSubmit(formData);
+      // Llamar directamente a onSubmit
+      console.log('Calling onSubmit directly...');
+      
+      // Test de validación manual
+      console.log('=== VALIDATION TEST ===');
+      console.log('clientId:', formData.clientId, typeof formData.clientId);
+      console.log('items length:', items.length);
+      items.forEach((item, index) => {
+        console.log(`Item ${index}:`, {
+          productId: item.productId,
+          productName: item.productName,
+          quantity: item.quantity,
+          unitPrice: item.unitPrice,
+          lineTotal: item.lineTotal,
+          quantityType: typeof item.quantity,
+          unitPriceType: typeof item.unitPrice,
+          lineTotalType: typeof item.lineTotal
+        });
+      });
+      
+      await onSubmit(formData);
                   }}
                   disabled={isSubmitting || items.length === 0}
                   className="primary"
