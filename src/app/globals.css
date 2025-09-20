@@ -926,7 +926,11 @@ form svg {
   }
   
   /* Ocultar todo excepto el contenido de impresión */
-  body > *:not(.print-container) {
+  .header,
+  .main-content,
+  .sidebar,
+  nav,
+  header {
     display: none !important;
   }
   

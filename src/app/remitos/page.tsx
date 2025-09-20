@@ -279,8 +279,11 @@ export default function RemitosPage() {
   };
 
   const handlePrint = (remito: Remito) => {
-    // Navegar a la página de impresión en la misma ventana
-    window.location.href = `/remitos/${remito.id}/print`;
+    // Abrir página de impresión en nueva ventana
+    const printWindow = window.open(`/remitos/${remito.id}/print`, '_blank');
+    if (printWindow) {
+      printWindow.focus();
+    }
   };
 
   const getStatusIcon = (status: string) => {

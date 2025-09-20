@@ -11,11 +11,16 @@ export default function PrintRemito() {
 
   useEffect(() => {
     const fetchRemito = async () => {
+      console.log('Fetching remito with ID:', params.id);
       try {
         const response = await fetch(`/api/remitos/${params.id}`);
+        console.log('Response status:', response.status);
         if (response.ok) {
           const data = await response.json();
+          console.log('Remito data:', data);
           setRemito(data);
+        } else {
+          console.error('Error response:', response.status, response.statusText);
         }
       } catch (error) {
         console.error("Error fetching remito:", error);
