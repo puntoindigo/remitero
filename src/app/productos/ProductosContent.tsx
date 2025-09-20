@@ -182,14 +182,14 @@ export default function ProductosContent() {
 
   const handleStockChange = async (productId: string, newStock: 'IN_STOCK' | 'OUT_OF_STOCK') => {
     try {
-      const response = await fetch(`/api/products/${productId}`, {
+      const response = await fetch('/api/products', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          stock: newStock,
-          companyId: session?.user?.companyId
+          id: productId,
+          stock: newStock
         }),
       });
 

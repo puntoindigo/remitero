@@ -11,6 +11,7 @@ const productSchema = z.object({
   description: z.string().optional(),
   price: z.number().min(0, "El precio debe ser mayor o igual a 0"),
   categoryId: z.string().optional(),
+  stock: z.enum(["IN_STOCK", "OUT_OF_STOCK"]).optional(),
 });
 
 export async function GET(request: NextRequest) {
@@ -80,18 +81,39 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: "ID de producto requerido" }, { status: 400 });
     }
 
-    const validatedData = productSchema.parse(updateData);
+    // Si solo se está actualizando el stock, usar un esquema más simple
+    if (Object.keys(updateData).length === 1 && updateData.stock) {
+      const stockSchema = z.object({
+        stock: z.enum(["IN_STOCK", "OUT_OF_STOCK"])
+      });
+      
+      const validatedData = stockSchema.parse(updateData);
+      
+      const product = await prisma.product.update({
+        where: { 
+          id: id,
+          companyId: session.user.companyId 
+        },
+        data: validatedData,
+        include: { category: true }
+      });
 
-    const product = await prisma.product.update({
-      where: { 
-        id: id,
-        companyId: session.user.companyId 
-      },
-      data: validatedData,
-      include: { category: true }
-    });
+      return NextResponse.json(product);
+    } else {
+      // Para actualizaciones completas, usar el esquema completo
+      const validatedData = productSchema.parse(updateData);
 
-    return NextResponse.json(product);
+      const product = await prisma.product.update({
+        where: { 
+          id: id,
+          companyId: session.user.companyId 
+        },
+        data: validatedData,
+        include: { category: true }
+      });
+
+      return NextResponse.json(product);
+    }
   } catch (error: any) {
     console.error("Error updating product:", error);
     
