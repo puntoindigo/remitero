@@ -46,7 +46,7 @@ export default function PrintRemito() {
     return <div className="error">Remito no encontrado</div>;
   }
 
-  const total = remito.items.reduce((sum, item) => sum + Number(item.lineTotal), 0);
+  const total = remito.items.reduce((sum, item) => sum + (Number(item.lineTotal) || 0), 0);
 
   return (
     <div className="print-container">
@@ -82,8 +82,8 @@ export default function PrintRemito() {
                 <tr key={index}>
                   <td>{item.quantity}</td>
                   <td>{item.productName}</td>
-                  <td>${Number(item.unitPrice).toFixed(2)}</td>
-                  <td>${Number(item.lineTotal).toFixed(2)}</td>
+                  <td>${(Number(item.unitPrice) || 0).toFixed(2)}</td>
+                  <td>${(Number(item.lineTotal) || 0).toFixed(2)}</td>
                 </tr>
               ))}
             </tbody>
@@ -149,8 +149,8 @@ export default function PrintRemito() {
                 <tr key={index}>
                   <td>{item.quantity}</td>
                   <td>{item.productName}</td>
-                  <td>${Number(item.unitPrice).toFixed(2)}</td>
-                  <td>${Number(item.lineTotal).toFixed(2)}</td>
+                  <td>${(Number(item.unitPrice) || 0).toFixed(2)}</td>
+                  <td>${(Number(item.lineTotal) || 0).toFixed(2)}</td>
                 </tr>
               ))}
             </tbody>
