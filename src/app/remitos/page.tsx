@@ -348,14 +348,20 @@ export default function RemitosPage() {
 
   const handlePrint = async (remito: Remito) => {
     try {
+      console.log('Iniciando impresión del remito:', remito);
+      
       // Crear una nueva ventana para imprimir
       const printWindow = window.open('', '_blank');
-      if (!printWindow) return;
+      if (!printWindow) {
+        alert('No se pudo abrir la ventana de impresión. Verifica que los pop-ups estén permitidos.');
+        return;
+      }
 
-      // Obtener los datos del remito
-      const response = await fetch(`/api/remitos/${remito.id}`);
-      if (!response.ok) throw new Error('Error al obtener el remito');
-      const remitoData = await response.json();
+      console.log('Ventana de impresión creada exitosamente');
+
+      // Usar los datos del remito que ya tenemos
+      const remitoData = remito;
+      console.log('Datos del remito para impresión:', remitoData);
 
       // Generar el HTML de impresión
       const printHTML = `
@@ -512,12 +518,28 @@ export default function RemitosPage() {
 
       // Imprimir después de cargar
       printWindow.onload = () => {
+        console.log('Ventana de impresión cargada, iniciando impresión...');
         printWindow.print();
-        printWindow.close();
+        // Cerrar después de un pequeño delay
+        setTimeout(() => {
+          printWindow.close();
+        }, 1000);
       };
+
+      // Fallback si onload no funciona
+      setTimeout(() => {
+        if (printWindow.document.readyState === 'complete') {
+          console.log('Fallback: iniciando impresión...');
+          printWindow.print();
+          setTimeout(() => {
+            printWindow.close();
+          }, 1000);
+        }
+      }, 2000);
+
     } catch (error) {
       console.error('Error al imprimir:', error);
-      alert('Error al imprimir el remito');
+      alert(`Error al imprimir el remito: ${error.message}`);
     }
   };
 
