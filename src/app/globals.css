@@ -925,12 +925,20 @@ form svg {
     padding: 0;
   }
   
+  /* Ocultar todo excepto el contenido de impresión */
+  body > *:not(.print-container) {
+    display: none !important;
+  }
+  
   .print-container {
     display: flex !important;
     width: 100vw;
     height: 100vh;
     font-family: Arial, sans-serif;
     font-size: 12px;
+    position: absolute;
+    top: 0;
+    left: 0;
   }
   
   .print-original, .print-copy {

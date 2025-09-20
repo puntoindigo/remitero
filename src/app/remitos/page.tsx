@@ -166,16 +166,16 @@ export default function RemitosPage() {
       const result = await response.json();
       console.log('Remito saved successfully:', result);
 
-      // Abrir impresión automáticamente
-      setTimeout(() => {
-        handlePrint(result);
-      }, 1000);
-
       reset();
       setEditingRemito(null);
       setShowForm(false);
       setItems([]);
       await loadData();
+      
+      // Mostrar mensaje de éxito y opción de imprimir
+      if (confirm('Remito guardado exitosamente. ¿Desea imprimirlo?')) {
+        handlePrint(result);
+      }
     } catch (error) {
       console.error("Error saving remito:", error);
       alert('Error al guardar el remito: ' + error.message);
@@ -279,11 +279,8 @@ export default function RemitosPage() {
   };
 
   const handlePrint = (remito: Remito) => {
-    // Abrir página de impresión en nueva ventana
-    const printWindow = window.open(`/remitos/${remito.id}/print`, '_blank');
-    if (printWindow) {
-      printWindow.focus();
-    }
+    // Navegar a la página de impresión en la misma ventana
+    window.location.href = `/remitos/${remito.id}/print`;
   };
 
   const getStatusIcon = (status: string) => {
