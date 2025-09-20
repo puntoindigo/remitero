@@ -713,7 +713,29 @@ export default function RemitosPage() {
 
         {/* Contenido de impresión directo en la página */}
         {isPrinting && printRemito && (
-          <div className="print-container print-only">
+          <div className="print-container print-only" style={{ 
+            position: 'fixed', 
+            top: 0, 
+            left: 0, 
+            width: '100vw', 
+            height: '100vh', 
+            background: 'white', 
+            zIndex: 9999,
+            display: 'flex'
+          }}>
+            {/* Indicador temporal de debug */}
+            <div style={{ 
+              position: 'absolute', 
+              top: '10px', 
+              left: '10px', 
+              background: 'red', 
+              color: 'white', 
+              padding: '10px', 
+              zIndex: 10000 
+            }}>
+              DEBUG: IMPRIMIENDO REMITO #{printRemito.number} - {printRemito.items.length} items
+            </div>
+            
             {/* Original Copy - Left Half */}
             <div className="print-original">
               <div className="print-header">

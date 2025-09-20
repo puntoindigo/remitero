@@ -651,9 +651,9 @@ table tbody tr:last-child td {
   background: #e5e7eb;
 }
 
-/* Ocultar contenido de impresión en pantalla */
+/* Ocultar contenido de impresión en pantalla - TEMPORALMENTE VISIBLE PARA DEBUG */
 .print-only {
-  display: none !important;
+  /* display: none !important; */
 }
 
 /* Print styles */
