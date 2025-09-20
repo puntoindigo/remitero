@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { CategoryService } from "@/lib/services/categoryService";
+import { PrismaClient } from "@prisma/client";
 import { categorySchema } from "@/lib/validations";
+
+const prisma = new PrismaClient();
 
 export async function PUT(
   request: NextRequest,
@@ -18,11 +20,18 @@ export async function PUT(
     const body = await request.json();
     const validatedData = categorySchema.parse(body);
 
-    const category = await CategoryService.updateCategory(
-      params.id,
-      validatedData,
-      session.user.companyId
-    );
+    const category = await prisma.category.update({
+      where: { 
+        id: params.id,
+        companyId: session.user.companyId 
+      },
+      data: validatedData,
+      include: {
+        _count: {
+          select: { products: true }
+        }
+      }
+    });
 
     return NextResponse.json(category);
   } catch (error: any) {
@@ -32,7 +41,13 @@ export async function PUT(
       return NextResponse.json({ error: "Datos inválidos", details: error.errors }, { status: 400 });
     }
 
+    if (error.code === "P2025") {
+      return NextResponse.json({ error: "Categoría no encontrada" }, { status: 404 });
+    }
+
     return NextResponse.json({ error: "Error interno del servidor" }, { status: 500 });
+  } finally {
+    await prisma.$disconnect();
   }
 }
 
@@ -47,16 +62,37 @@ export async function DELETE(
       return NextResponse.json({ error: "No autorizado" }, { status: 401 });
     }
 
-    await CategoryService.deleteCategory(params.id, session.user.companyId);
+    // Verificar si hay productos asociados
+    const productsCount = await prisma.product.count({
+      where: { 
+        categoryId: params.id,
+        companyId: session.user.companyId 
+      }
+    });
+
+    if (productsCount > 0) {
+      return NextResponse.json({ 
+        error: `No se puede eliminar la categoría porque tiene ${productsCount} productos asociados` 
+      }, { status: 400 });
+    }
+
+    await prisma.category.delete({
+      where: { 
+        id: params.id,
+        companyId: session.user.companyId 
+      }
+    });
     
     return NextResponse.json({ message: "Categoría eliminada correctamente" });
   } catch (error: any) {
     console.error("Error deleting category:", error);
     
-    if (error.message.includes("productos asociados")) {
-      return NextResponse.json({ error: error.message }, { status: 400 });
+    if (error.code === "P2025") {
+      return NextResponse.json({ error: "Categoría no encontrada" }, { status: 404 });
     }
 
     return NextResponse.json({ error: "Error interno del servidor" }, { status: 500 });
+  } finally {
+    await prisma.$disconnect();
   }
 }

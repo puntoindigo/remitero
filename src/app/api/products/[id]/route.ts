@@ -47,6 +47,13 @@ export async function PUT(
       }, {});
 
     console.log("Filtered data:", filteredData);
+    console.log("About to update product with:", {
+      where: { 
+        id: productId,
+        companyId: session.user.companyId 
+      },
+      data: filteredData
+    });
 
     const product = await prisma.product.update({
       where: { 
