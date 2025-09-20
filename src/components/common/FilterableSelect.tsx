@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { ChevronDown, X } from "lucide-react";
+import { ChevronDown, X, Search } from "lucide-react";
 
 interface FilterableSelectProps {
   options: Array<{ id: string; name: string; [key: string]: any }>;
