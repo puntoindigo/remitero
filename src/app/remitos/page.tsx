@@ -630,24 +630,20 @@ export default function RemitosPage() {
                       <td className="font-medium">#{remito.number}</td>
                       <td>{remito.client.name}</td>
                       <td>
-                        <span className={`badge ${getStatusColor(remito.status)}`}>
-                          {getStatusIcon(remito.status)}
-                          <span className="ml-1">{remito.status}</span>
-                        </span>
+                        <select
+                          value={remito.status}
+                          onChange={(e) => handleStatusChange(remito.id, e.target.value as any)}
+                          className={`status-select ${getStatusColor(remito.status)}`}
+                        >
+                          <option value="PENDIENTE">🕐 Pendiente</option>
+                          <option value="PREPARADO">✅ Preparado</option>
+                          <option value="ENTREGADO">🚚 Entregado</option>
+                        </select>
                       </td>
                       <td>{(Number(remito.total) || 0).toLocaleString('es-AR', { style: 'currency', currency: 'ARS' })}</td>
                       <td>{formatDate(new Date(remito.createdAt))}</td>
                       <td>
                         <div className="action-buttons">
-                          <select
-                            value={remito.status}
-                            onChange={(e) => handleStatusChange(remito.id, e.target.value as any)}
-                            className="small"
-                          >
-                            <option value="PENDIENTE">Pendiente</option>
-                            <option value="PREPARADO">Preparado</option>
-                            <option value="ENTREGADO">Entregado</option>
-                          </select>
                           <button
                             onClick={() => handlePrint(remito)}
                             className="small"
