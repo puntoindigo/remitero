@@ -28,9 +28,11 @@ export async function PUT(
     
     try {
       const validatedData = remitoSchema.parse(body);
-      console.log('Validation successful for update:', JSON.stringify(validatedData, null, 2));
+      console.log('Validation successful for update');
     } catch (validationError: any) {
-      console.error('Validation error:', validationError.errors);
+      console.error('=== VALIDATION ERROR IN PUT ===');
+      console.error('Validation error details:', validationError.errors);
+      console.error('Received body:', JSON.stringify(body, null, 2));
       return NextResponse.json({ 
         error: "Datos inválidos", 
         details: validationError.errors 
