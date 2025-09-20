@@ -1064,6 +1064,9 @@ form svg {
   /* Mostrar contenido de impresión solo durante la impresión */
   .print-only {
     display: flex !important;
+    position: static !important;
+    background: white !important;
+    z-index: 1 !important;
   }
   
   .print-container {
@@ -1072,11 +1075,12 @@ form svg {
     height: 100vh;
     font-family: Arial, sans-serif;
     font-size: 12px;
-    position: absolute;
-    top: 0;
-    left: 0;
+    position: static !important;
+    top: auto !important;
+    left: auto !important;
     visibility: visible !important;
     opacity: 1 !important;
+    background: white !important;
   }
   
   .print-original, .print-copy {
