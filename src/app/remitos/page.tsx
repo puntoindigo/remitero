@@ -176,8 +176,17 @@ export default function RemitosPage() {
         throw new Error(`Validation test failed: ${JSON.stringify(testResult)}`);
       }
       
-      const response = await fetch('/api/remitos', {
-        method: 'POST',
+      // Determine if we're creating or updating
+      const isEditing = editingRemito !== null;
+      const url = isEditing ? `/api/remitos/${editingRemito.id}` : '/api/remitos';
+      const method = isEditing ? 'PUT' : 'POST';
+      
+      console.log(`=== ${isEditing ? 'UPDATING' : 'CREATING'} REMITO ===`);
+      console.log('URL:', url);
+      console.log('Method:', method);
+      
+      const response = await fetch(url, {
+        method,
         headers: {
           'Content-Type': 'application/json',
         },
@@ -198,7 +207,7 @@ export default function RemitosPage() {
       }
 
       const result = await response.json();
-      console.log('Remito saved successfully:', result);
+      console.log(`Remito ${isEditing ? 'updated' : 'saved'} successfully:`, result);
 
       reset();
       setEditingRemito(null);
@@ -207,7 +216,8 @@ export default function RemitosPage() {
       await loadData();
       
       // Mostrar mensaje de éxito y opción de imprimir
-      if (confirm('Remito guardado exitosamente. ¿Desea imprimirlo?')) {
+      const action = isEditing ? 'actualizado' : 'guardado';
+      if (confirm(`Remito ${action} exitosamente. ¿Desea imprimirlo?`)) {
         handlePrint(result);
       }
     } catch (error) {
