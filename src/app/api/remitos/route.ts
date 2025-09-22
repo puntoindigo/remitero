@@ -53,20 +53,26 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    console.log('Received remito data:', JSON.stringify(body, null, 2));
+    console.log('=== POST /api/remitos - Received data ===');
+    console.log('Raw body:', JSON.stringify(body, null, 2));
+    console.log('Body type:', typeof body);
+    console.log('Body keys:', Object.keys(body));
     
+    // Validate the data
+    let validatedData;
     try {
-      const validatedData = remitoSchema.parse(body);
-      console.log('Validation successful:', JSON.stringify(validatedData, null, 2));
+      validatedData = remitoSchema.parse(body);
+      console.log('✅ Validation successful:', JSON.stringify(validatedData, null, 2));
     } catch (validationError: any) {
-      console.error('Validation error:', validationError.errors);
+      console.error('❌ Validation error details:');
+      console.error('Error name:', validationError.name);
+      console.error('Error message:', validationError.message);
+      console.error('Validation errors:', validationError.errors);
       return NextResponse.json({ 
         error: "Datos inválidos", 
         details: validationError.errors 
       }, { status: 400 });
     }
-    
-    const validatedData = remitoSchema.parse(body);
 
     const newRemito = await prisma.$transaction(async (tx) => {
       // Get the last remito number for the company and increment
