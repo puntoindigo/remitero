@@ -165,6 +165,31 @@ export default function RemitosPage() {
 
       // Skip validation test - proceed directly to save
       console.log('=== PROCEEDING DIRECTLY TO SAVE ===');
+      console.log('remitoData structure:', {
+        clientId: remitoData.clientId,
+        notes: remitoData.notes,
+        itemsCount: remitoData.items.length,
+        items: remitoData.items.map(item => ({
+          productId: item.productId,
+          productName: item.productName,
+          quantity: item.quantity,
+          unitPrice: item.unitPrice,
+          lineTotal: item.lineTotal
+        }))
+      });
+      
+      // DEBUG: Use debug endpoint first
+      console.log('=== DEBUGGING REMITO DATA ===');
+      const debugResponse = await fetch('/api/debug-remito', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(remitoData),
+      });
+      
+      const debugResult = await debugResponse.json();
+      console.log('Debug result:', debugResult);
       
       // Determine if we're creating or updating
       const isEditing = editingRemito !== null;
