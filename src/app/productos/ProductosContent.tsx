@@ -182,23 +182,22 @@ export default function ProductosContent() {
 
   const handleStockChange = async (productId: string, newStock: 'IN_STOCK' | 'OUT_OF_STOCK') => {
     try {
-      console.log('=== TESTING STOCK CHANGE ===');
+      console.log('=== UPDATING STOCK ===');
       console.log('Product ID:', productId);
       console.log('New stock:', newStock);
       
-      const response = await fetch('/api/test-stock', {
-        method: 'POST',
+      const response = await fetch(`/api/products/${productId}`, {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          productId: productId,
           stock: newStock
         }),
       });
 
       const result = await response.json();
-      console.log('Test result:', result);
+      console.log('Update result:', result);
 
       if (!response.ok) {
         throw new Error(`${result.error || 'Error al actualizar el stock'}`);

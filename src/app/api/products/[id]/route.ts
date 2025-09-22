@@ -28,42 +28,26 @@ export async function PUT(
     const body = await request.json();
     console.log("Request body:", body);
 
-    // Validar solo los campos que se están enviando
-    const allowedFields = ['name', 'description', 'price', 'categoryId', 'stock'];
-    const filteredData = Object.keys(body)
-      .filter(key => allowedFields.includes(key))
-      .reduce((obj, key) => {
-        if (key === 'stock') {
-          console.log(`Processing stock field: "${body[key]}" (type: ${typeof body[key]})`);
-          // Validar que el valor de stock sea válido para el enum StockStatus
-          if (body[key] === 'IN_STOCK' || body[key] === 'OUT_OF_STOCK') {
-            obj[key] = body[key];
-            console.log(`Stock value accepted: ${obj[key]}`);
-          } else {
-            console.log(`Invalid stock value: "${body[key]}"`);
-            throw new Error(`Valor inválido para stock: ${body[key]}. Debe ser IN_STOCK o OUT_OF_STOCK`);
-          }
-        } else {
-          obj[key] = body[key];
-        }
-        return obj;
-      }, {});
+    // Simplificar validación - solo permitir stock por ahora
+    const updateData: any = {};
+    
+    if (body.stock) {
+      console.log(`Updating stock to: "${body.stock}"`);
+      if (body.stock === 'IN_STOCK' || body.stock === 'OUT_OF_STOCK') {
+        updateData.stock = body.stock;
+      } else {
+        throw new Error(`Valor inválido para stock: ${body.stock}`);
+      }
+    }
 
-    console.log("Filtered data:", filteredData);
-    console.log("About to update product with:", {
-      where: { 
-        id: productId,
-        companyId: session.user.companyId 
-      },
-      data: filteredData
-    });
+    console.log("Update data:", updateData);
 
     const product = await prisma.product.update({
       where: { 
         id: productId,
         companyId: session.user.companyId 
       },
-      data: filteredData,
+      data: updateData,
       include: { category: true }
     });
 
