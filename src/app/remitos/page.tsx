@@ -129,8 +129,8 @@ function RemitosContent() {
           return product.stock === 'IN_STOCK';
         }
         
-        // Si no tiene stock, no incluir
-        if (product.stock === 'OUT_OF_STOCK') {
+        // Si no, verificar que no tenga "Stock: OUT_OF_STOCK" en la descripción
+        if (product.description && product.description.includes('Stock: OUT_OF_STOCK')) {
           return false;
         }
         
