@@ -99,7 +99,7 @@ export default function RemitosPage() {
       const [remitosResponse, clientsResponse, productsResponse] = await Promise.all([
         fetch('/api/remitos'),
         fetch('/api/clients'),
-        fetch('/api/products')
+        fetch('/api/products?stock=IN_STOCK')
       ]);
 
       if (!remitosResponse.ok || !clientsResponse.ok || !productsResponse.ok) {
@@ -230,6 +230,15 @@ export default function RemitosPage() {
     }
   };
 
+  const getCleanDescription = (description: string | null) => {
+    if (!description) return null;
+    // Remover el texto "Stock: XXX" de la descripción
+    if (description.includes('Stock: ')) {
+      return description.replace(/Stock: (IN_STOCK|OUT_OF_STOCK)/, '').trim();
+    }
+    return description;
+  };
+
   const handleAddItem = () => {
     if (!selectedProduct || quantity <= 0) return;
 
@@ -241,7 +250,7 @@ export default function RemitosPage() {
     const newItem: RemitoItem = {
       productId: product.id,
       productName: product.name,
-      productDesc: product.description,
+      productDesc: getCleanDescription(product.description),
       quantity: Number(quantity),
       unitPrice: Number(unitPrice),
       lineTotal: Number(lineTotal)
