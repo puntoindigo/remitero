@@ -4,7 +4,7 @@ import React, { useState, useEffect, Suspense } from "react";
 import { useSession } from "next-auth/react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { CategoryForm, categorySchema } from "@/lib/validations";
 import { Plus, Edit, Trash2, Package } from "lucide-react";
 import { formatDate } from "@/lib/utils/formatters";
@@ -21,6 +21,7 @@ interface Category {
 function CategoriasContent() {
   const { data: session } = useSession();
   const searchParams = useSearchParams();
+  const router = useRouter();
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
@@ -257,7 +258,7 @@ function CategoriasContent() {
                     <td className="font-medium">{category.name}</td>
                     <td>
                       <button
-                        onClick={() => window.location.href = `/productos?category=${category.id}`}
+                        onClick={() => router.push(`/productos?category=${category.id}`)}
                         className="text-blue-600 hover:text-blue-800 underline"
                       >
                         {category._count?.products || 0} productos

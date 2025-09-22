@@ -4,7 +4,7 @@ import React, { useState, useEffect, Suspense } from "react";
 import { useSession } from "next-auth/react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { ClientForm, clientSchema } from "@/lib/validations";
 import { Plus, Edit, Trash2, Users, Mail, Phone, MapPin } from "lucide-react";
 import { formatDate } from "@/lib/utils/formatters";
@@ -24,6 +24,7 @@ interface Client {
 function ClientesContent() {
   const { data: session } = useSession();
   const searchParams = useSearchParams();
+  const router = useRouter();
   const [clients, setClients] = useState<Client[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [editingClient, setEditingClient] = useState<Client | null>(null);
@@ -314,13 +315,13 @@ function ClientesContent() {
                       <div className="space-y-1">
                         {client.email && (
                           <div className="text-sm text-gray-500 flex items-center">
-                            <Mail className="h-3 w-3 mr-3" />
+                            <Mail className="h-3 w-3 mr-4" />
                             {client.email}
                           </div>
                         )}
                         {client.phone && (
                           <div className="text-sm text-gray-500 flex items-center">
-                            <Phone className="h-3 w-3 mr-3" />
+                            <Phone className="h-3 w-3 mr-4" />
                             {client.phone}
                           </div>
                         )}
@@ -328,7 +329,7 @@ function ClientesContent() {
                     </td>
                     <td>
                       <button
-                        onClick={() => window.location.href = `/remitos?client=${client.id}`}
+                        onClick={() => router.push(`/remitos?client=${client.id}`)}
                         className="text-blue-600 hover:text-blue-800 underline"
                       >
                         {client.remitos?.length || 0} remitos
