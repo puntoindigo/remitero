@@ -642,7 +642,7 @@ export default function RemitosPage() {
                 <h4>Productos</h4>
                 
                 <div className="form-row">
-                  <div className="form-group">
+                  <div className="form-group-step">
                     <label>Producto</label>
                     <FilterableSelect
                       options={products
@@ -669,22 +669,23 @@ export default function RemitosPage() {
                     />
                   </div>
 
-                  <div className="form-group">
+                  <div className="form-group-step">
                     <label>Cantidad</label>
                     <input
                       type="number"
                       min="1"
                       value={quantity}
                       onChange={(e) => setQuantity(parseInt(e.target.value) || 1)}
-                      disabled={!watch("clientId")}
+                      disabled={!watch("clientId") || !selectedProduct}
                     />
                   </div>
 
-                  <div className="form-group">
+                  <div className="form-group-step">
                     <button
                       type="button"
                       onClick={handleAddItem}
-                      className="primary"
+                      className={`primary add-button ${!watch("clientId") || !selectedProduct || quantity <= 0 ? 'disabled' : ''}`}
+                      disabled={!watch("clientId") || !selectedProduct || quantity <= 0}
                     >
                       <Plus className="h-4 w-4" />
                       Agregar

@@ -23,6 +23,7 @@ export default function Header() {
       <header className="header">
         <div className="header-left">
           <h1>Sistema de Remitos</h1>
+          <span className="company-name">Sistema de Gestión</span>
         </div>
         <div className="header-right">
           <Link href="/auth/login" className="logout-button">
@@ -61,10 +62,8 @@ export default function Header() {
   return (
     <header className="header">
       <div className="header-left">
-        <h1>Sistema de Remitos</h1>
-        {session.user.companyName && (
-          <span className="company-name">Empresa: {session.user.companyName}</span>
-        )}
+        <h1>{session.user.companyName || 'Sistema de Remitos'}</h1>
+        <span className="company-name">Sistema de Remitos</span>
       </div>
       
       <nav className="main-nav">
