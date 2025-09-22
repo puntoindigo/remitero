@@ -309,22 +309,29 @@ export default function ClientesPage() {
                       <div className="space-y-1">
                         {client.email && (
                           <div className="text-sm text-gray-500 flex items-center">
-                            <Mail className="h-3 w-3 mr-1" />
+                            <Mail className="h-3 w-3 mr-2" />
                             {client.email}
                           </div>
                         )}
                         {client.phone && (
                           <div className="text-sm text-gray-500 flex items-center">
-                            <Phone className="h-3 w-3 mr-1" />
+                            <Phone className="h-3 w-3 mr-2" />
                             {client.phone}
                           </div>
                         )}
                       </div>
                     </td>
-                    <td>{client.remitos?.length || 0} remitos</td>
+                    <td>
+                      <button
+                        onClick={() => window.location.href = `/remitos?client=${client.id}`}
+                        className="text-blue-600 hover:text-blue-800 underline"
+                      >
+                        {client.remitos?.length || 0} remitos
+                      </button>
+                    </td>
                     <td>{formatDate(client.createdAt)}</td>
                     <td>
-                      <div className="action-buttons">
+                      <div className="action-buttons-spaced">
                         <button
                           onClick={() => handleEdit(client)}
                           className="action-btn edit"

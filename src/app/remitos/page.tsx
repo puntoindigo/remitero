@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { formatDate } from "@/lib/utils/formatters";
 import FilterableSelect from "@/components/common/FilterableSelect";
+import SearchAndPagination from "@/components/common/SearchAndPagination";
 
 interface RemitoItem {
   productId?: string;
@@ -79,6 +80,12 @@ export default function RemitosPage() {
   const [items, setItems] = useState<RemitoItem[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<string>("");
   const [quantity, setQuantity] = useState<number>(1);
+  const [selectedClient, setSelectedClient] = useState<string>("");
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [totalPages, setTotalPages] = useState<number>(1);
+  const [totalItems, setTotalItems] = useState<number>(0);
+  const [itemsPerPage] = useState<number>(10);
 
   const {
     register,
@@ -300,6 +307,47 @@ export default function RemitosPage() {
   };
 
   const total = items.reduce((sum, item) => sum + Number(item.lineTotal), 0);
+
+  // Lógica de filtrado y paginación
+  const filteredRemitos = remitos.filter(remito => {
+    const matchesSearch = !searchTerm || 
+      remito.client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      remito.number.toString().includes(searchTerm) ||
+      remito.status.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesClient = !selectedClient || remito.client.id === selectedClient;
+    
+    return matchesSearch && matchesClient;
+  });
+
+  const paginatedRemitos = filteredRemitos.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const handleSearchChange = (value: string) => {
+    setSearchTerm(value);
+    setCurrentPage(1);
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  // Actualizar totales cuando cambien los filtros
+  useEffect(() => {
+    setTotalItems(filteredRemitos.length);
+    setTotalPages(Math.ceil(filteredRemitos.length / itemsPerPage));
+  }, [filteredRemitos.length, itemsPerPage]);
+
+  // Manejar filtro por cliente desde URL
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const clientId = urlParams.get('client');
+    if (clientId) {
+      setSelectedClient(clientId);
+    }
+  }, []);
 
   const handleEdit = (remito: Remito) => {
     setEditingRemito(remito);
@@ -816,6 +864,31 @@ export default function RemitosPage() {
           <div className="form-section">
             <h3>Lista de Remitos</h3>
             
+            <SearchAndPagination
+              searchTerm={searchTerm}
+              onSearchChange={handleSearchChange}
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+              totalItems={totalItems}
+              itemsPerPage={itemsPerPage}
+              placeholder="Buscar remitos..."
+            >
+              <div className="category-filter-wrapper">
+                <FilterableSelect
+                  options={[
+                    { id: "", name: "Todos los clientes" },
+                    ...clients.map(client => ({ id: client.id, name: client.name }))
+                  ]}
+                  value={selectedClient}
+                  onChange={setSelectedClient}
+                  placeholder="Filtrar por cliente"
+                  searchFields={["name"]}
+                  className="category-filter-select"
+                />
+              </div>
+            </SearchAndPagination>
+            
             {remitos.length === 0 ? (
               <div className="empty-state">
                 <FileText className="h-12 w-12 text-gray-400" />
@@ -830,12 +903,12 @@ export default function RemitosPage() {
                     <th>Cliente</th>
                     <th>Estado</th>
                     <th>Total</th>
-                    <th>Fecha</th>
+                    <th>Registrada</th>
                     <th>Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {remitos.map((remito) => (
+                  {paginatedRemitos.map((remito) => (
                     <tr key={remito.id}>
                       <td className="font-medium">#{remito.number}</td>
                       <td>{remito.client.name}</td>
@@ -851,9 +924,15 @@ export default function RemitosPage() {
                         </select>
                       </td>
                       <td>{(Number(remito.total) || 0).toLocaleString('es-AR', { style: 'currency', currency: 'ARS' })}</td>
-                      <td>{formatDate(new Date(remito.createdAt))}</td>
+                      <td>{new Date(remito.createdAt).toLocaleString('es-AR', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}</td>
                       <td>
-                        <div className="action-buttons">
+                        <div className="action-buttons-spaced">
                           <button
                             onClick={() => handlePrint(remito)}
                             className="small"
