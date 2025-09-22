@@ -99,7 +99,7 @@ export default function RemitosPage() {
       const [remitosResponse, clientsResponse, productsResponse] = await Promise.all([
         fetch('/api/remitos'),
         fetch('/api/clients'),
-        fetch('/api/products?stock=IN_STOCK')
+        fetch('/api/products')
       ]);
 
       if (!remitosResponse.ok || !clientsResponse.ok || !productsResponse.ok) {
@@ -112,9 +112,25 @@ export default function RemitosPage() {
         productsResponse.json()
       ]);
 
+      // Filtrar productos con stock en el frontend
+      const productsWithStock = productsData.filter((product: any) => {
+        // Si el campo stock existe, usarlo
+        if (product.stock) {
+          return product.stock === 'IN_STOCK';
+        }
+        
+        // Si no, verificar que no tenga "Stock: OUT_OF_STOCK" en la descripción
+        if (product.description && product.description.includes('Stock: OUT_OF_STOCK')) {
+          return false;
+        }
+        
+        // Por defecto, incluir el producto
+        return true;
+      });
+
       setRemitos(remitosData);
       setClients(clientsData);
-      setProducts(productsData);
+      setProducts(productsWithStock);
     } catch (error) {
       console.error("Error loading data:", error);
     } finally {
