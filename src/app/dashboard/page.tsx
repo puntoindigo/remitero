@@ -90,10 +90,10 @@ export default function DashboardPage() {
   // Funciones helper para generar enlaces y nombres
   const getNewLink = (title: string) => {
     switch (title) {
-      case "Remitos": return "/remitos";
-      case "Productos": return "/productos";
-      case "Clientes": return "/clientes";
-      case "Categorías": return "/categorias";
+      case "Remitos": return "/remitos?new=true";
+      case "Productos": return "/productos?new=true";
+      case "Clientes": return "/clientes?new=true";
+      case "Categorías": return "/categorias?new=true";
       default: return "/";
     }
   };
@@ -216,28 +216,6 @@ export default function DashboardPage() {
           ))}
         </div>
 
-        {/* Acciones rápidas */}
-        <div className="mt-8">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Acciones Rápidas</h2>
-          <div className="dashboard-actions">
-            <Link href="/remitos" className="dashboard-action-item">
-              <FileText className="h-5 w-5 text-blue-600 mr-3" />
-              <span className="font-medium text-gray-900">Nuevo Remito</span>
-            </Link>
-            <Link href="/productos" className="dashboard-action-item">
-              <Package className="h-5 w-5 text-green-600 mr-3" />
-              <span className="font-medium text-gray-900">Gestionar Productos</span>
-            </Link>
-            <Link href="/clientes" className="dashboard-action-item">
-              <Users className="h-5 w-5 text-purple-600 mr-3" />
-              <span className="font-medium text-gray-900">Gestionar Clientes</span>
-            </Link>
-            <Link href="/categorias" className="dashboard-action-item">
-              <Tag className="h-5 w-5 text-orange-600 mr-3" />
-              <span className="font-medium text-gray-900">Gestionar Categorías</span>
-            </Link>
-          </div>
-        </div>
       </div>
     </main>
   )

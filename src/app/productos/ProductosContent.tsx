@@ -112,6 +112,16 @@ export default function ProductosContent() {
     loadData();
   }, [session?.user?.companyId]);
 
+  // Detectar parámetro ?new=true para abrir formulario automáticamente
+  useEffect(() => {
+    const newParam = searchParams?.get('new');
+    if (newParam === 'true') {
+      setShowForm(true);
+      setEditingProduct(null);
+      reset();
+    }
+  }, [searchParams, reset]);
+
   // Leer parámetro de categoría de la URL
   useEffect(() => {
     const categoryParam = searchParams?.get('category');

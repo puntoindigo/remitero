@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useSearchParams } from "next/navigation";
 import { CategoryForm, categorySchema } from "@/lib/validations";
 import { Plus, Edit, Trash2, Package } from "lucide-react";
 import { formatDate } from "@/lib/utils/formatters";
@@ -19,6 +20,7 @@ interface Category {
 
 export default function CategoriasPage() {
   const { data: session } = useSession();
+  const searchParams = useSearchParams();
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
@@ -69,6 +71,16 @@ export default function CategoriasPage() {
   useEffect(() => {
     loadCategories();
   }, [session?.user?.companyId]);
+
+  // Detectar parámetro ?new=true para abrir formulario automáticamente
+  useEffect(() => {
+    const newParam = searchParams?.get('new');
+    if (newParam === 'true') {
+      setShowForm(true);
+      setEditingCategory(null);
+      reset();
+    }
+  }, [searchParams, reset]);
 
   const onSubmit = async (data: CategoryForm) => {
     if (!session?.user?.companyId) return;

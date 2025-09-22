@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useSearchParams } from "next/navigation";
 import { RemitoForm, remitoSchema } from "@/lib/validations";
 import { 
   Plus, 
@@ -70,6 +71,7 @@ interface Product {
 
 export default function RemitosPage() {
   const { data: session } = useSession();
+  const searchParams = useSearchParams();
   const [remitos, setRemitos] = useState<Remito[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
@@ -149,6 +151,17 @@ export default function RemitosPage() {
   useEffect(() => {
     loadData();
   }, [session?.user?.companyId]);
+
+  // Detectar parámetro ?new=true para abrir formulario automáticamente
+  useEffect(() => {
+    const newParam = searchParams?.get('new');
+    if (newParam === 'true') {
+      setShowForm(true);
+      setEditingRemito(null);
+      setItems([]);
+      reset();
+    }
+  }, [searchParams, reset]);
 
   const onSubmit = async (data: RemitoForm) => {
     console.log('=== REMITO SUBMIT DEBUG ===');

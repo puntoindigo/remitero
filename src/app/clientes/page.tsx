@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useSearchParams } from "next/navigation";
 import { ClientForm, clientSchema } from "@/lib/validations";
 import { Plus, Edit, Trash2, Users, Mail, Phone, MapPin } from "lucide-react";
 import { formatDate } from "@/lib/utils/formatters";
@@ -22,6 +23,7 @@ interface Client {
 
 export default function ClientesPage() {
   const { data: session } = useSession();
+  const searchParams = useSearchParams();
   const [clients, setClients] = useState<Client[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [editingClient, setEditingClient] = useState<Client | null>(null);
@@ -74,6 +76,16 @@ export default function ClientesPage() {
   useEffect(() => {
     loadClients();
   }, [session?.user?.companyId]);
+
+  // Detectar parámetro ?new=true para abrir formulario automáticamente
+  useEffect(() => {
+    const newParam = searchParams?.get('new');
+    if (newParam === 'true') {
+      setShowForm(true);
+      setEditingClient(null);
+      reset();
+    }
+  }, [searchParams, reset]);
 
   const onSubmit = async (data: ClientForm) => {
     if (!session?.user?.companyId) return;
