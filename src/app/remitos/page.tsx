@@ -81,6 +81,7 @@ export default function RemitosPage() {
   const [selectedProduct, setSelectedProduct] = useState<string>("");
   const [quantity, setQuantity] = useState<number>(1);
   const [selectedClient, setSelectedClient] = useState<string>("");
+  const [selectedStatus, setSelectedStatus] = useState<string>("");
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
@@ -316,8 +317,9 @@ export default function RemitosPage() {
       remito.status.toLowerCase().includes(searchTerm.toLowerCase());
     
     const matchesClient = !selectedClient || remito.client.id === selectedClient;
+    const matchesStatus = !selectedStatus || remito.status === selectedStatus;
     
-    return matchesSearch && matchesClient;
+    return matchesSearch && matchesClient && matchesStatus;
   });
 
   const paginatedRemitos = filteredRemitos.slice(
@@ -872,9 +874,9 @@ export default function RemitosPage() {
               onPageChange={handlePageChange}
               totalItems={totalItems}
               itemsPerPage={itemsPerPage}
-              placeholder="Buscar remitos..."
+              placeholder="Buscar por número..."
             >
-              <div className="category-filter-wrapper">
+              <div className="category-filter-wrapper" style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
                 <FilterableSelect
                   options={[
                     { id: "", name: "Todos los clientes" },
@@ -883,6 +885,19 @@ export default function RemitosPage() {
                   value={selectedClient}
                   onChange={setSelectedClient}
                   placeholder="Filtrar por cliente"
+                  searchFields={["name"]}
+                  className="category-filter-select"
+                />
+                <FilterableSelect
+                  options={[
+                    { id: "", name: "Todos los estados" },
+                    { id: "PENDIENTE", name: "🕐 Pendiente" },
+                    { id: "PREPARADO", name: "✅ Preparado" },
+                    { id: "ENTREGADO", name: "🚚 Entregado" }
+                  ]}
+                  value={selectedStatus}
+                  onChange={setSelectedStatus}
+                  placeholder="Filtrar por estado"
                   searchFields={["name"]}
                   className="category-filter-select"
                 />
@@ -903,7 +918,7 @@ export default function RemitosPage() {
                     <th>Cliente</th>
                     <th>Estado</th>
                     <th>Total</th>
-                    <th>Registrada</th>
+                    <th>Registrado</th>
                     <th>Acciones</th>
                   </tr>
                 </thead>
@@ -929,7 +944,8 @@ export default function RemitosPage() {
                         month: '2-digit',
                         day: '2-digit',
                         hour: '2-digit',
-                        minute: '2-digit'
+                        minute: '2-digit',
+                        hour12: false
                       })}</td>
                       <td>
                         <div className="action-buttons-spaced">

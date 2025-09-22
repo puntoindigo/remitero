@@ -289,7 +289,7 @@ export default function ClientesPage() {
                   <th>Cliente</th>
                   <th>Contacto</th>
                   <th>Remitos</th>
-                  <th>Fecha de creación</th>
+                  <th>Registrado</th>
                   <th>Acciones</th>
                 </tr>
               </thead>
@@ -309,13 +309,13 @@ export default function ClientesPage() {
                       <div className="space-y-1">
                         {client.email && (
                           <div className="text-sm text-gray-500 flex items-center">
-                            <Mail className="h-3 w-3 mr-2" />
+                            <Mail className="h-3 w-3 mr-3" />
                             {client.email}
                           </div>
                         )}
                         {client.phone && (
                           <div className="text-sm text-gray-500 flex items-center">
-                            <Phone className="h-3 w-3 mr-2" />
+                            <Phone className="h-3 w-3 mr-3" />
                             {client.phone}
                           </div>
                         )}
@@ -329,7 +329,14 @@ export default function ClientesPage() {
                         {client.remitos?.length || 0} remitos
                       </button>
                     </td>
-                    <td>{formatDate(client.createdAt)}</td>
+                    <td>{new Date(client.createdAt).toLocaleString('es-AR', {
+                      year: 'numeric',
+                      month: '2-digit',
+                      day: '2-digit',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      hour12: false
+                    })}</td>
                     <td>
                       <div className="action-buttons-spaced">
                         <button

@@ -407,7 +407,7 @@ export default function ProductosContent() {
                   <th>Categoría</th>
                   <th>Precio</th>
                   <th>Stock</th>
-                  <th>Fecha de creación</th>
+                  <th>Registrado</th>
                   <th>Acciones</th>
                 </tr>
               </thead>
@@ -440,7 +440,14 @@ export default function ProductosContent() {
                         <option value="OUT_OF_STOCK">❌ Sin stock</option>
                       </select>
                     </td>
-                    <td>{formatDate(new Date(product.createdAt))}</td>
+                    <td>{new Date(product.createdAt).toLocaleString('es-AR', {
+                      year: 'numeric',
+                      month: '2-digit',
+                      day: '2-digit',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      hour12: false
+                    })}</td>
                     <td>
                       <div className="action-buttons-spaced">
                         <button
