@@ -178,39 +178,7 @@ export default function RemitosPage() {
         }))
       });
       
-      // DEBUG: Use debug endpoint first
-      console.log('=== DEBUGGING REMITO DATA ===');
-      const debugResponse = await fetch('/api/debug-remito', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(remitoData),
-      });
-      
-      const debugResult = await debugResponse.json();
-      console.log('Debug result:', debugResult);
-      
-      // TEST: Use validation test endpoint first
-      console.log('=== TESTING VALIDATION ===');
-      const testResponse = await fetch('/api/test-validation', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(remitoData),
-      });
-      
-      const testResult = await testResponse.json();
-      console.log('Test validation result:', testResult);
-      
-      if (!testResponse.ok) {
-        console.error('Validation test failed:', testResult);
-        console.error('Analysis:', testResult.analysis);
-        console.error('Details:', testResult.details);
-        console.error('Received data:', testResult.receivedData);
-        throw new Error(`Validation test failed: ${testResult.error}`);
-      }
+      // Validation fixed - proceed directly to save
       
       // Determine if we're creating or updating
       const isEditing = editingRemito !== null;

@@ -39,7 +39,7 @@ export const remitoSchema = z.object({
   items: z.array(z.object({
     productId: z.string().optional(),
     productName: z.string().min(1, "Nombre de producto requerido"),
-    productDesc: z.string().optional(),
+    productDesc: z.string().optional().nullable(),
     quantity: z.number().min(1, "Cantidad debe ser mayor a 0"),
     unitPrice: z.number().min(0, "Precio unitario debe ser mayor a 0"),
     lineTotal: z.number().min(0, "Total de línea debe ser mayor a 0")
