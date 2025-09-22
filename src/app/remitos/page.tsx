@@ -206,6 +206,9 @@ export default function RemitosPage() {
       
       if (!testResponse.ok) {
         console.error('Validation test failed:', testResult);
+        console.error('Analysis:', testResult.analysis);
+        console.error('Details:', testResult.details);
+        console.error('Received data:', testResult.receivedData);
         throw new Error(`Validation test failed: ${testResult.error}`);
       }
       

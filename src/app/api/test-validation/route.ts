@@ -58,7 +58,17 @@ export async function POST(request: NextRequest) {
         success: false,
         error: "Validation failed",
         details: validationError.errors,
-        receivedData: body
+        receivedData: body,
+        analysis: {
+          hasClientId: !!body.clientId,
+          clientIdType: typeof body.clientId,
+          hasNotes: body.notes !== undefined,
+          notesType: typeof body.notes,
+          hasItems: !!body.items,
+          itemsIsArray: Array.isArray(body.items),
+          itemsLength: body.items?.length || 0,
+          firstItem: body.items?.[0] || null
+        }
       }, { status: 400 });
     }
     
