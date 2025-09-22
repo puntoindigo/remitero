@@ -61,22 +61,8 @@ export default function DashboardPage() {
         // Procesar estadísticas de productos
         const productosStats = {
           total: productos.length,
-          conStock: productos.filter((p: any) => {
-            // Si tiene campo stock, usarlo
-            if (p.stock) {
-              return p.stock === 'IN_STOCK';
-            }
-            // Si no, verificar que no tenga "Stock: OUT_OF_STOCK" en la descripción
-            return !p.description?.includes('Stock: OUT_OF_STOCK');
-          }).length,
-          sinStock: productos.filter((p: any) => {
-            // Si tiene campo stock, usarlo
-            if (p.stock) {
-              return p.stock === 'OUT_OF_STOCK';
-            }
-            // Si no, verificar que tenga "Stock: OUT_OF_STOCK" en la descripción
-            return p.description?.includes('Stock: OUT_OF_STOCK');
-          }).length
+          conStock: productos.filter((p: any) => p.stock === 'IN_STOCK').length,
+          sinStock: productos.filter((p: any) => p.stock === 'OUT_OF_STOCK').length
         }
 
         setStats({

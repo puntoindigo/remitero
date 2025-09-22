@@ -1,0 +1,21 @@
+{
+  "git": {
+    "deploymentEnabled": {
+      "main": true,
+      "develop": true
+    }
+  },
+  "github": {
+    "autoAlias": false
+  },
+  "alias": [
+    {
+      "domain": "remitero-prod.vercel.app",
+      "branch": "main"
+    },
+    {
+      "domain": "remitero-dev.vercel.app", 
+      "branch": "develop"
+    }
+  ]
+}

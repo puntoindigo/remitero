@@ -230,20 +230,7 @@ function ProductosContent() {
   };
 
   const getStockFromProduct = (product: any) => {
-    // Si el campo stock existe, usarlo
-    if (product.stock) {
-      return product.stock;
-    }
-    
-    // Si no, buscar en la descripción como fallback
-    if (product.description && product.description.includes('Stock: ')) {
-      const stockMatch = product.description.match(/Stock: (IN_STOCK|OUT_OF_STOCK)/);
-      if (stockMatch) {
-        return stockMatch[1];
-      }
-    }
-    
-    return 'OUT_OF_STOCK';
+    return product.stock || 'OUT_OF_STOCK';
   };
 
   const getStockColor = (stock: string) => {
