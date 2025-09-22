@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { useSession } from "next-auth/react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -18,7 +18,7 @@ interface Category {
   createdAt: Date;
 }
 
-export default function CategoriasPage() {
+function CategoriasContent() {
   const { data: session } = useSession();
   const searchParams = useSearchParams();
   const [categories, setCategories] = useState<Category[]>([]);
@@ -321,5 +321,19 @@ export default function CategoriasPage() {
           </div>
         </div>
       </main>
+  );
+}
+
+export default function CategoriasPage() {
+  return (
+    <Suspense fallback={
+      <main className="main-content">
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+        </div>
+      </main>
+    }>
+      <CategoriasContent />
+    </Suspense>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { useSession } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -30,7 +30,7 @@ interface Category {
   name: string;
 }
 
-export default function ProductosContent() {
+function ProductosContent() {
   const { data: session } = useSession();
   const searchParams = useSearchParams();
   const [products, setProducts] = useState<Product[]>([]);
@@ -525,5 +525,19 @@ export default function ProductosContent() {
         )}
       </div>
     </main>
+  );
+}
+
+export default function ProductosContentWrapper() {
+  return (
+    <Suspense fallback={
+      <main className="main-content">
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+        </div>
+      </main>
+    }>
+      <ProductosContent />
+    </Suspense>
   );
 }

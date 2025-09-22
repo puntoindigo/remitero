@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { useSession } from "next-auth/react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -69,7 +69,7 @@ interface Product {
   price: number;
 }
 
-export default function RemitosPage() {
+function RemitosContent() {
   const { data: session } = useSession();
   const searchParams = useSearchParams();
   const [remitos, setRemitos] = useState<Remito[]>([]);
@@ -1154,5 +1154,19 @@ export default function RemitosPage() {
 
       </section>
     </main>
+  );
+}
+
+export default function RemitosPage() {
+  return (
+    <Suspense fallback={
+      <main className="main-content">
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+        </div>
+      </main>
+    }>
+      <RemitosContent />
+    </Suspense>
   );
 }
