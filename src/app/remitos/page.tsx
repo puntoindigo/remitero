@@ -583,7 +583,7 @@ export default function RemitosPage() {
             })}>
               <div className="form-row">
                 <div className="form-group">
-                  <label>Cliente *</label>
+                  <label className="label-aligned">Cliente *</label>
                   <FilterableSelect
                     options={clients.map(client => ({ id: client.id, name: client.name }))}
                     value={watch("clientId") || ""}
@@ -597,7 +597,7 @@ export default function RemitosPage() {
                 </div>
 
                 <div className="form-group">
-                  <label>Observaciones</label>
+                  <label className="label-aligned">Observaciones</label>
                   <textarea
                     {...register("notes")}
                     rows={3}
@@ -619,12 +619,23 @@ export default function RemitosPage() {
                         .filter(p => !items.some(item => item.productId === p.id))
                         .map(product => ({ 
                           id: product.id, 
-                          name: `${product.name} - $${Number(product.price).toFixed(2)}` 
+                          name: product.name
                         }))}
                       value={selectedProduct}
-                      onChange={setSelectedProduct}
+                      onChange={(value) => {
+                        setSelectedProduct(value);
+                        // Focus en cantidad después de seleccionar producto
+                        setTimeout(() => {
+                          const quantityInput = document.querySelector('input[type="number"]') as HTMLInputElement;
+                          if (quantityInput) {
+                            quantityInput.focus();
+                            quantityInput.select();
+                          }
+                        }, 100);
+                      }}
                       placeholder="Seleccionar producto"
                       searchFields={["name"]}
+                      disabled={!watch("clientId")}
                     />
                   </div>
 
@@ -635,6 +646,7 @@ export default function RemitosPage() {
                       min="1"
                       value={quantity}
                       onChange={(e) => setQuantity(parseInt(e.target.value) || 1)}
+                      disabled={!watch("clientId")}
                     />
                   </div>
 

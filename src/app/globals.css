@@ -504,6 +504,21 @@ table tbody tr:last-child td {
 }
 
 
+/* Estilos para labels alineados */
+.label-aligned {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #374151;
+  line-height: 1.25;
+}
+
+/* Mejorar espaciado del input de búsqueda en FilterableSelect */
+.vercel-select-search-input {
+  padding-left: 40px !important;
+  margin-left: 0 !important;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .form-row {
