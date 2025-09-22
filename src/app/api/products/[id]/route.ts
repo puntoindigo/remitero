@@ -42,37 +42,14 @@ export async function PUT(
 
     console.log("Update data:", updateData);
 
-    let product;
-    try {
-      // Intentar actualizar el campo stock
-      product = await prisma.product.update({
-        where: { 
-          id: productId,
-          companyId: session.user.companyId 
-        },
-        data: updateData,
-        include: { category: true }
-      });
-    } catch (stockError: any) {
-      console.log('Campo stock no disponible, usando descripción como fallback');
-      console.log('Stock error:', stockError.message);
-      
-      // Si el campo stock no existe, actualizar la descripción como fallback
-      if (updateData.stock) {
-        product = await prisma.product.update({
-          where: { 
-            id: productId,
-            companyId: session.user.companyId 
-          },
-          data: {
-            description: `Stock: ${updateData.stock}`
-          },
-          include: { category: true }
-        });
-      } else {
-        throw stockError;
-      }
-    }
+    const product = await prisma.product.update({
+      where: { 
+        id: productId,
+        companyId: session.user.companyId 
+      },
+      data: updateData,
+      include: { category: true }
+    });
 
     console.log("Product updated successfully:", product);
     return NextResponse.json(product);
