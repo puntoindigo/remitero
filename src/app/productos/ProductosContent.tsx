@@ -211,6 +211,24 @@ export default function ProductosContent() {
     }
   };
 
+  const getStockFromProduct = (product: any) => {
+    // Si el campo stock existe, usarlo
+    if (product.stock) {
+      return product.stock;
+    }
+    
+    // Si no, extraer de la descripción
+    if (product.description && product.description.includes('Stock: ')) {
+      const stockMatch = product.description.match(/Stock: (IN_STOCK|OUT_OF_STOCK)/);
+      if (stockMatch) {
+        return stockMatch[1];
+      }
+    }
+    
+    // Por defecto, IN_STOCK
+    return 'IN_STOCK';
+  };
+
   const getStockColor = (stock: string) => {
     switch (stock) {
       case "IN_STOCK":
@@ -220,6 +238,14 @@ export default function ProductosContent() {
       default:
         return "stock-out";
     }
+  };
+
+  const getCleanDescription = (product: any) => {
+    // Remover el texto "Stock: XXX" de la descripción
+    if (product.description && product.description.includes('Stock: ')) {
+      return product.description.replace(/Stock: (IN_STOCK|OUT_OF_STOCK)/, '').trim();
+    }
+    return product.description;
   };
 
   if (isLoading) {
@@ -391,8 +417,8 @@ export default function ProductosContent() {
                     <td>
                       <div className="product-info">
                         <div className="product-name">{product.name}</div>
-                        {product.description && (
-                          <div className="product-description">{product.description}</div>
+                        {getCleanDescription(product) && (
+                          <div className="product-description">{getCleanDescription(product)}</div>
                         )}
                       </div>
                     </td>
@@ -406,9 +432,9 @@ export default function ProductosContent() {
                     <td>${(Number(product.price) || 0).toFixed(2)}</td>
                     <td>
                       <select
-                        value={product.stock || 'IN_STOCK'}
+                        value={getStockFromProduct(product)}
                         onChange={(e) => handleStockChange(product.id, e.target.value as 'IN_STOCK' | 'OUT_OF_STOCK')}
-                        className={`stock-select ${getStockColor(product.stock || 'IN_STOCK')}`}
+                        className={`stock-select ${getStockColor(getStockFromProduct(product))}`}
                       >
                         <option value="IN_STOCK">✅ Hay stock</option>
                         <option value="OUT_OF_STOCK">❌ Sin stock</option>
