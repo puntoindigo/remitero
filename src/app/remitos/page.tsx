@@ -371,6 +371,11 @@ export default function RemitosPage() {
 
       // Usar los datos del remito que ya tenemos
       const remitoData = remito;
+      
+      // Calcular el total correctamente
+      const calculatedTotal = remitoData.items.reduce((sum: number, item: any) => {
+        return sum + Number(item.lineTotal || 0);
+      }, 0);
 
       // Generar el HTML de impresión
       const printHTML = `
@@ -479,7 +484,7 @@ export default function RemitosPage() {
                 </tbody>
               </table>
               <div class="print-total">
-                TOTAL: $${Number(remitoData.total || 0).toFixed(2)}
+                TOTAL: $${calculatedTotal.toFixed(2)}
               </div>
             </div>
             <div class="print-copy">
@@ -513,7 +518,7 @@ export default function RemitosPage() {
                 </tbody>
               </table>
               <div class="print-total">
-                TOTAL: $${Number(remitoData.total || 0).toFixed(2)}
+                TOTAL: $${calculatedTotal.toFixed(2)}
               </div>
             </div>
           </div>
