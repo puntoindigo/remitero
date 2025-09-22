@@ -99,7 +99,7 @@ export default function RemitosPage() {
       const [remitosResponse, clientsResponse, productsResponse] = await Promise.all([
         fetch('/api/remitos'),
         fetch('/api/clients'),
-        fetch('/api/products')
+        fetch('/api/products?stock=IN_STOCK')
       ]);
 
       if (!remitosResponse.ok || !clientsResponse.ok || !productsResponse.ok) {
@@ -454,7 +454,7 @@ export default function RemitosPage() {
                 </tbody>
               </table>
               <div class="print-total">
-                TOTAL: $${Number(remitoData.total).toFixed(2)}
+                TOTAL: $${Number(remitoData.total || 0).toFixed(2)}
               </div>
             </div>
             <div class="print-copy">
@@ -488,7 +488,7 @@ export default function RemitosPage() {
                 </tbody>
               </table>
               <div class="print-total">
-                TOTAL: $${Number(remitoData.total).toFixed(2)}
+                TOTAL: $${Number(remitoData.total || 0).toFixed(2)}
               </div>
             </div>
           </div>

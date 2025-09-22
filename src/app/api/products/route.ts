@@ -22,8 +22,18 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "No autorizado" }, { status: 401 });
     }
 
+    const { searchParams } = new URL(request.url);
+    const stockFilter = searchParams.get('stock');
+
+    let whereClause: any = { companyId: session.user.companyId };
+    
+    // Filter by stock if specified
+    if (stockFilter === 'IN_STOCK') {
+      whereClause.stock = 'IN_STOCK';
+    }
+
     const products = await prisma.product.findMany({
-      where: { companyId: session.user.companyId },
+      where: whereClause,
       include: { category: true },
       orderBy: { name: "asc" }
     });
