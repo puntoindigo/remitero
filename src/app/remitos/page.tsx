@@ -99,7 +99,7 @@ export default function RemitosPage() {
       const [remitosResponse, clientsResponse, productsResponse] = await Promise.all([
         fetch('/api/remitos'),
         fetch('/api/clients'),
-        fetch('/api/products?stock=IN_STOCK')
+        fetch('/api/products')
       ]);
 
       if (!remitosResponse.ok || !clientsResponse.ok || !productsResponse.ok) {
