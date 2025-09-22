@@ -168,8 +168,8 @@ export default function CategoriasPage() {
             </button>
           </div>
 
-        {/* Formulario */}
-        {showForm && (
+          {/* Formulario */}
+          {showForm && (
           <div className="form-section">
             <h3>{editingCategory ? "Editar Categoría" : "Nueva Categoría"}</h3>
             
@@ -207,9 +207,9 @@ export default function CategoriasPage() {
               </div>
             </form>
           </div>
-        )}
+          )}
 
-        <div className="form-section">
+          <div className="form-section">
           <h3>Lista de Categorías</h3>
           
           <SearchAndPagination
@@ -306,7 +306,8 @@ export default function CategoriasPage() {
             </div>
           </div>
         )}
-      </div>
-    </main>
+          </div>
+        </div>
+      </main>
   );
 }
