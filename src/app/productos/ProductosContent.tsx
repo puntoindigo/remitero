@@ -201,23 +201,22 @@ function ProductosContent() {
 
   const handleStockChange = async (productId: string, newStock: 'IN_STOCK' | 'OUT_OF_STOCK') => {
     try {
-      console.log('=== DEBUG STOCK UPDATE ===');
+      console.log('=== STOCK UPDATE ===');
       console.log('Product ID:', productId);
       console.log('New stock:', newStock);
       
-      const response = await fetch('/api/debug-product', {
-        method: 'POST',
+      const response = await fetch(`/api/products/${productId}`, {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          productId: productId,
           stock: newStock
         }),
       });
 
       const result = await response.json();
-      console.log('Debug result:', result);
+      console.log('Update result:', result);
 
       if (!response.ok) {
         throw new Error(`${result.error || 'Error al actualizar el stock'}`);
@@ -231,21 +230,8 @@ function ProductosContent() {
   };
 
   const getStockFromProduct = (product: any) => {
-    // Si el campo stock existe, usarlo
-    if (product.stock) {
-      return product.stock;
-    }
-    
-    // Si no, extraer de la descripción
-    if (product.description && product.description.includes('Stock: ')) {
-      const stockMatch = product.description.match(/Stock: (IN_STOCK|OUT_OF_STOCK)/);
-      if (stockMatch) {
-        return stockMatch[1];
-      }
-    }
-    
-    // Por defecto, IN_STOCK
-    return 'IN_STOCK';
+    // Usar el campo stock directamente
+    return product.stock || 'OUT_OF_STOCK';
   };
 
   const getStockColor = (stock: string) => {
@@ -261,9 +247,7 @@ function ProductosContent() {
 
   const getCleanDescription = (product: any) => {
     // Remover el texto "Stock: XXX" de la descripción
-    if (product.description && product.description.includes('Stock: ')) {
-      return product.description.replace(/Stock: (IN_STOCK|OUT_OF_STOCK)/, '').trim();
-    }
+    // La descripción ya no contiene información de stock
     return product.description;
   };
 

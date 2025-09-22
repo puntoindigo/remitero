@@ -61,14 +61,8 @@ export default function DashboardPage() {
         // Procesar estadísticas de productos
         const productosStats = {
           total: productos.length,
-          conStock: productos.filter((p: any) => {
-            if (p.stock) return p.stock === 'IN_STOCK'
-            return !p.description?.includes('Stock: OUT_OF_STOCK')
-          }).length,
-          sinStock: productos.filter((p: any) => {
-            if (p.stock) return p.stock === 'OUT_OF_STOCK'
-            return p.description?.includes('Stock: OUT_OF_STOCK')
-          }).length
+          conStock: productos.filter((p: any) => p.stock === 'IN_STOCK').length,
+          sinStock: productos.filter((p: any) => p.stock === 'OUT_OF_STOCK').length
         }
 
         setStats({

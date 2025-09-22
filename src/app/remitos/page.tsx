@@ -129,8 +129,8 @@ function RemitosContent() {
           return product.stock === 'IN_STOCK';
         }
         
-        // Si no, verificar que no tenga "Stock: OUT_OF_STOCK" en la descripción
-        if (product.description && product.description.includes('Stock: OUT_OF_STOCK')) {
+        // Si no tiene stock, no incluir
+        if (product.stock === 'OUT_OF_STOCK') {
           return false;
         }
         
@@ -269,10 +269,7 @@ function RemitosContent() {
 
   const getCleanDescription = (description: string | null) => {
     if (!description) return null;
-    // Remover el texto "Stock: XXX" de la descripción
-    if (description.includes('Stock: ')) {
-      return description.replace(/Stock: (IN_STOCK|OUT_OF_STOCK)/, '').trim();
-    }
+    // La descripción ya no contiene información de stock
     return description;
   };
 
