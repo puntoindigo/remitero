@@ -247,7 +247,7 @@ function CategoriasContent() {
                 <tr>
                   <th>Nombre</th>
                   <th>Productos</th>
-                  <th>Fecha de creación</th>
+                  <th>Registrado</th>
                   <th>Acciones</th>
                 </tr>
               </thead>
@@ -263,7 +263,14 @@ function CategoriasContent() {
                         {category._count?.products || 0} productos
                       </button>
                     </td>
-                    <td>{formatDate(category.createdAt)}</td>
+                    <td>{new Date(category.createdAt).toLocaleString('es-AR', {
+                      year: 'numeric',
+                      month: '2-digit',
+                      day: '2-digit',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      hour12: false
+                    })}</td>
                     <td>
                       <div className="action-buttons">
                         <button

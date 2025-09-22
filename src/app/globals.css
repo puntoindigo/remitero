@@ -582,6 +582,22 @@ table tbody tr:last-child td {
   color: #1e40af;
 }
 
+/* Asegurar que el texto sea blanco en desplegables con fondo azul */
+.vercel-select-option.selected {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.vercel-select-option:hover {
+  background-color: #f3f4f6;
+  color: #111827;
+}
+
+.vercel-select-option.selected:hover {
+  background-color: #2563eb;
+  color: white;
+}
+
 .status-select.delivered {
   background-color: #d1fae5;
   border-color: #10b981;

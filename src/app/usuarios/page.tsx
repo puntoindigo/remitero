@@ -380,7 +380,7 @@ function UsuariosContent() {
                   <th>Email</th>
                   <th>Rol</th>
                   <th>Empresa</th>
-                  <th>Fecha de Creación</th>
+                  <th>Registrado</th>
                   <th>Acciones</th>
                 </tr>
               </thead>
@@ -395,7 +395,14 @@ function UsuariosContent() {
                       </span>
                     </td>
                     <td>{user.company?.name || "N/A"}</td>
-                    <td>{formatDate(user.createdAt)}</td>
+                    <td>{new Date(user.createdAt).toLocaleString('es-AR', {
+                      year: 'numeric',
+                      month: '2-digit',
+                      day: '2-digit',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      hour12: false
+                    })}</td>
                     <td>
                       <div className="action-buttons">
                         <button
@@ -407,7 +414,7 @@ function UsuariosContent() {
                         </button>
                         <button
                           onClick={() => setShowDeleteConfirm(user.id)}
-                          className="small danger"
+                          className="small"
                           title="Eliminar"
                         >
                           <Trash2 className="h-4 w-4" />

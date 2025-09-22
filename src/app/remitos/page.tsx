@@ -343,10 +343,35 @@ function RemitosContent() {
   const handleSearchChange = (value: string) => {
     setSearchTerm(value);
     setCurrentPage(1);
+    updateURL({ search: value });
   };
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
+  };
+
+  const handleClientFilterChange = (clientId: string) => {
+    setSelectedClient(clientId);
+    setCurrentPage(1);
+    updateURL({ client: clientId });
+  };
+
+  const handleStatusFilterChange = (status: string) => {
+    setSelectedStatus(status);
+    setCurrentPage(1);
+    updateURL({ status: status });
+  };
+
+  const updateURL = (params: { search?: string; client?: string; status?: string }) => {
+    const url = new URL(window.location.href);
+    Object.entries(params).forEach(([key, value]) => {
+      if (value && value !== '') {
+        url.searchParams.set(key, value);
+      } else {
+        url.searchParams.delete(key);
+      }
+    });
+    window.history.replaceState({}, '', url.toString());
   };
 
   // Actualizar totales cuando cambien los filtros
@@ -359,8 +384,13 @@ function RemitosContent() {
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const clientId = urlParams.get('client');
+    const status = urlParams.get('status');
+    
     if (clientId) {
       setSelectedClient(clientId);
+    }
+    if (status) {
+      setSelectedStatus(status);
     }
   }, []);
 
@@ -896,7 +926,7 @@ function RemitosContent() {
                     ...clients.map(client => ({ id: client.id, name: client.name }))
                   ]}
                   value={selectedClient}
-                  onChange={setSelectedClient}
+                  onChange={handleClientFilterChange}
                   placeholder="Filtrar por cliente"
                   searchFields={["name"]}
                   className="category-filter-select"
@@ -909,7 +939,7 @@ function RemitosContent() {
                     { id: "ENTREGADO", name: "🚚 Entregado" }
                   ]}
                   value={selectedStatus}
-                  onChange={setSelectedStatus}
+                  onChange={handleStatusFilterChange}
                   placeholder="Filtrar por estado"
                   searchFields={["name"]}
                   className="category-filter-select"
@@ -978,7 +1008,7 @@ function RemitosContent() {
                           </button>
                           <button
                             onClick={() => setShowDeleteConfirm(remito.id)}
-                            className="small danger"
+                            className="small"
                             title="Eliminar"
                           >
                             <Trash2 className="h-4 w-4" />

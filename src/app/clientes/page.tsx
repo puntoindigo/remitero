@@ -314,13 +314,13 @@ function ClientesContent() {
                       <div className="space-y-1">
                         {client.email && (
                           <div className="text-sm text-gray-500 flex items-center">
-                            <Mail className="h-3 w-3 mr-6" />
+                            <Mail className="h-3 w-3 mr-3" />
                             {client.email}
                           </div>
                         )}
                         {client.phone && (
                           <div className="text-sm text-gray-500 flex items-center">
-                            <Phone className="h-3 w-3 mr-6" />
+                            <Phone className="h-3 w-3 mr-3" />
                             {client.phone}
                           </div>
                         )}
