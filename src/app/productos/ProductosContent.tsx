@@ -40,11 +40,20 @@ export default function ProductosContent() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedStock, setSelectedStock] = useState("");
 
-  // Filtrar productos por categoría
-  const filteredProducts = products.filter(product => 
-    !selectedCategory || product.category?.id === selectedCategory
-  );
+  // Filtrar productos por categoría y stock
+  const filteredProducts = products.filter(product => {
+    const matchesCategory = !selectedCategory || product.category?.id === selectedCategory;
+    
+    let matchesStock = true;
+    if (selectedStock) {
+      const productStock = getStockFromProduct(product);
+      matchesStock = productStock === selectedStock;
+    }
+    
+    return matchesCategory && matchesStock;
+  });
 
   // Hook para búsqueda y paginación
   const {
@@ -366,6 +375,18 @@ export default function ProductosContent() {
         )}
 
         <div className="form-section">
+          <h2>Gestión de Productos</h2>
+          
+          <div className="form-actions">
+            <button
+              onClick={() => setShowForm(true)}
+              className="primary"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Nuevo Producto
+            </button>
+          </div>
+          
           <h3>Lista de Productos</h3>
           
           <SearchAndPagination
@@ -378,7 +399,7 @@ export default function ProductosContent() {
             itemsPerPage={itemsPerPage}
             placeholder="Buscar productos..."
           >
-            <div className="category-filter-wrapper">
+            <div className="category-filter-wrapper" style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
               <FilterableSelect
                 options={[
                   { id: "", name: "Todas las categorías" },
@@ -387,6 +408,18 @@ export default function ProductosContent() {
                 value={selectedCategory}
                 onChange={setSelectedCategory}
                 placeholder="Filtrar por categoría"
+                searchFields={["name"]}
+                className="category-filter-select"
+              />
+              <FilterableSelect
+                options={[
+                  { id: "", name: "Todos los estados" },
+                  { id: "IN_STOCK", name: "✅ Con Stock" },
+                  { id: "OUT_OF_STOCK", name: "❌ Sin Stock" }
+                ]}
+                value={selectedStock}
+                onChange={setSelectedStock}
+                placeholder="Filtrar por stock"
                 searchFields={["name"]}
                 className="category-filter-select"
               />

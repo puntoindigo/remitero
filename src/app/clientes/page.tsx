@@ -263,6 +263,18 @@ export default function ClientesPage() {
         )}
 
         <div className="form-section">
+          <h2>Gestión de Clientes</h2>
+          
+          <div className="form-actions">
+            <button
+              onClick={() => setShowForm(true)}
+              className="primary"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Nuevo Cliente
+            </button>
+          </div>
+          
           <h3>Lista de Clientes</h3>
           
           <SearchAndPagination
@@ -309,13 +321,13 @@ export default function ClientesPage() {
                       <div className="space-y-1">
                         {client.email && (
                           <div className="text-sm text-gray-500 flex items-center">
-                            <Mail className="h-3 w-3 mr-3" />
+                            <Mail className="h-3 w-3 mr-4" />
                             {client.email}
                           </div>
                         )}
                         {client.phone && (
                           <div className="text-sm text-gray-500 flex items-center">
-                            <Phone className="h-3 w-3 mr-3" />
+                            <Phone className="h-3 w-3 mr-4" />
                             {client.phone}
                           </div>
                         )}

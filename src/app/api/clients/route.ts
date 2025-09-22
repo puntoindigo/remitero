@@ -23,6 +23,11 @@ export async function GET(request: NextRequest) {
 
     const clients = await prisma.client.findMany({
       where: { companyId: session.user.companyId },
+      include: {
+        remitos: {
+          select: { id: true }
+        }
+      },
       orderBy: { name: "asc" }
     });
 

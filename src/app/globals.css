@@ -1368,7 +1368,16 @@ form svg {
   font-weight: 500;
   color: #374151;
   line-height: 1.25;
-  min-height: 20px; /* Asegurar altura mínima consistente */
+  min-height: 24px; /* Asegurar altura mínima consistente */
+  display: flex;
+  align-items: flex-start;
+}
+
+/* Estilos para acciones de formulario */
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1rem;
 }
 
 /* Estilos para el formulario de productos paso a paso */
