@@ -159,25 +159,6 @@ export default function ClientesPage() {
   return (
     <main className="main-content">
       <div className="px-4 py-6 sm:px-0">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Gestión de Clientes</h1>
-          <p className="mt-2 text-gray-600">
-            Administra la base de datos de clientes
-          </p>
-        </div>
-
-        {/* Botón Nuevo */}
-        {!showForm && (
-          <div className="mb-6">
-            <button
-              onClick={handleNew}
-              className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Nuevo Cliente
-            </button>
-          </div>
-        )}
 
         {/* Formulario */}
         {showForm && (
@@ -321,13 +302,13 @@ export default function ClientesPage() {
                       <div className="space-y-1">
                         {client.email && (
                           <div className="text-sm text-gray-500 flex items-center">
-                            <Mail className="h-3 w-3 mr-4" />
+                            <Mail className="h-3 w-3 mr-6" />
                             {client.email}
                           </div>
                         )}
                         {client.phone && (
                           <div className="text-sm text-gray-500 flex items-center">
-                            <Phone className="h-3 w-3 mr-4" />
+                            <Phone className="h-3 w-3 mr-6" />
                             {client.phone}
                           </div>
                         )}

@@ -155,51 +155,35 @@ export default function DashboardPage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="dashboard-grid">
           {cards.map((card) => (
-            <div
-              key={card.title}
-              className="bg-white overflow-hidden shadow-lg rounded-xl hover:shadow-xl transition-shadow duration-300"
-            >
-              <div className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <div className={`p-3 rounded-lg ${card.bgColor}`}>
-                    <card.icon className={`h-6 w-6 ${card.textColor}`} />
-                  </div>
-                  <h3 className="text-lg font-semibold text-gray-900">{card.title}</h3>
+            <div key={card.title} className="dashboard-card">
+              <div className="dashboard-card-header">
+                <div className={`dashboard-icon ${card.bgColor}`}>
+                  <card.icon className={`h-6 w-6 ${card.textColor}`} />
                 </div>
-                
-                <div className="space-y-3">
-                  {card.stats.map((stat, index) => (
-                    <Link
-                      key={index}
-                      href={stat.link}
-                      className="block p-3 rounded-lg hover:bg-gray-50 transition-colors duration-200"
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium text-gray-600">
-                          {stat.label}
-                        </span>
-                        <div className="flex items-center space-x-2">
-                          <span className="text-2xl font-bold text-gray-900">
-                            {stat.value}
-                          </span>
-                          <Eye className="h-4 w-4 text-gray-400" />
-                        </div>
+                <h3 className="dashboard-card-title">{card.title}</h3>
+              </div>
+              
+              <div className="dashboard-stats">
+                {card.stats.map((stat, index) => (
+                  <Link key={index} href={stat.link} className="dashboard-stat-link">
+                    <div className="dashboard-stat-content">
+                      <span className="dashboard-stat-label">{stat.label}</span>
+                      <div className="dashboard-stat-value">
+                        <span className="dashboard-stat-number">{stat.value}</span>
+                        <Eye className="h-4 w-4 text-gray-400" />
                       </div>
-                    </Link>
-                  ))}
-                </div>
-
-                <div className="mt-4 pt-4 border-t border-gray-200">
-                  <Link
-                    href={card.stats[0].link}
-                    className="flex items-center justify-center w-full px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors duration-200"
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Ver {card.title.toLowerCase()}
+                    </div>
                   </Link>
-                </div>
+                ))}
+              </div>
+
+              <div className="dashboard-card-footer">
+                <Link href={card.stats[0].link} className="dashboard-action-button">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Ver {card.title.toLowerCase()}
+                </Link>
               </div>
             </div>
           ))}
@@ -208,32 +192,20 @@ export default function DashboardPage() {
         {/* Acciones rápidas */}
         <div className="mt-8">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">Acciones Rápidas</h2>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <Link
-              href="/remitos"
-              className="flex items-center p-4 bg-white rounded-lg shadow hover:shadow-md transition-shadow duration-200"
-            >
+          <div className="dashboard-actions">
+            <Link href="/remitos" className="dashboard-action-item">
               <FileText className="h-5 w-5 text-blue-600 mr-3" />
               <span className="font-medium text-gray-900">Nuevo Remito</span>
             </Link>
-            <Link
-              href="/productos"
-              className="flex items-center p-4 bg-white rounded-lg shadow hover:shadow-md transition-shadow duration-200"
-            >
+            <Link href="/productos" className="dashboard-action-item">
               <Package className="h-5 w-5 text-green-600 mr-3" />
               <span className="font-medium text-gray-900">Gestionar Productos</span>
             </Link>
-            <Link
-              href="/clientes"
-              className="flex items-center p-4 bg-white rounded-lg shadow hover:shadow-md transition-shadow duration-200"
-            >
+            <Link href="/clientes" className="dashboard-action-item">
               <Users className="h-5 w-5 text-purple-600 mr-3" />
               <span className="font-medium text-gray-900">Gestionar Clientes</span>
             </Link>
-            <Link
-              href="/categorias"
-              className="flex items-center p-4 bg-white rounded-lg shadow hover:shadow-md transition-shadow duration-200"
-            >
+            <Link href="/categorias" className="dashboard-action-item">
               <Tag className="h-5 w-5 text-orange-600 mr-3" />
               <span className="font-medium text-gray-900">Gestionar Categorías</span>
             </Link>
