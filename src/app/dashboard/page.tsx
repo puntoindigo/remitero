@@ -87,6 +87,27 @@ export default function DashboardPage() {
     loadStats()
   }, [session?.user?.companyId])
 
+  // Funciones helper para generar enlaces y nombres
+  const getNewLink = (title: string) => {
+    switch (title) {
+      case "Remitos": return "/remitos";
+      case "Productos": return "/productos";
+      case "Clientes": return "/clientes";
+      case "Categorías": return "/categorias";
+      default: return "/";
+    }
+  };
+
+  const getSingularName = (title: string) => {
+    switch (title) {
+      case "Remitos": return "Remito";
+      case "Productos": return "Producto";
+      case "Clientes": return "Cliente";
+      case "Categorías": return "Categoría";
+      default: return title;
+    }
+  };
+
   const cards = [
     {
       title: "Remitos",
@@ -180,10 +201,16 @@ export default function DashboardPage() {
               </div>
 
               <div className="dashboard-card-footer">
-                <Link href={card.stats[0].link} className="dashboard-action-button">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Ver {card.title.toLowerCase()}
-                </Link>
+                <div className="dashboard-buttons-row">
+                  <Link href={card.stats[0].link} className="dashboard-view-button">
+                    <Eye className="h-4 w-4 mr-2" />
+                    Ver {card.title.toLowerCase()}
+                  </Link>
+                  <Link href={getNewLink(card.title)} className="dashboard-new-button">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Nuevo {getSingularName(card.title)}
+                  </Link>
+                </div>
               </div>
             </div>
           ))}

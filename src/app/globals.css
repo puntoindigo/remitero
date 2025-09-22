@@ -1473,23 +1473,51 @@ form svg {
   background-color: #f9fafb;
 }
 
-.dashboard-action-button {
+.dashboard-buttons-row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.dashboard-view-button {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 100%;
+  flex: 1;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+  background-color: #f3f4f6;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.dashboard-view-button:hover {
+  background-color: #e5e7eb;
+  border-color: #9ca3af;
+}
+
+.dashboard-new-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
   padding: 0.5rem 1rem;
   font-size: 0.875rem;
   font-weight: 500;
   color: white;
   background-color: #2563eb;
+  border: 1px solid #2563eb;
   border-radius: 6px;
   text-decoration: none;
-  transition: background-color 0.2s ease;
+  transition: all 0.2s ease;
 }
 
-.dashboard-action-button:hover {
+.dashboard-new-button:hover {
   background-color: #1d4ed8;
+  border-color: #1d4ed8;
 }
 
 .dashboard-actions {
