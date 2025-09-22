@@ -34,6 +34,14 @@ export async function POST(request: NextRequest) {
           unitPrice: item.unitPrice,
           lineTotal: item.lineTotal
         });
+        console.log(`Item ${index} types:`, {
+          productId: typeof item.productId,
+          productName: typeof item.productName,
+          productDesc: typeof item.productDesc,
+          quantity: typeof item.quantity,
+          unitPrice: typeof item.unitPrice,
+          lineTotal: typeof item.lineTotal
+        });
       });
     } else {
       console.log('❌ items missing or not array');
@@ -53,11 +61,14 @@ export async function POST(request: NextRequest) {
       console.log('Error name:', validationError.name);
       console.log('Error message:', validationError.message);
       console.log('Validation errors:', validationError.errors);
+      console.log('Full error object:', JSON.stringify(validationError, null, 2));
       
       return NextResponse.json({ 
         success: false,
         error: "Validation failed",
-        details: validationError.errors,
+        details: validationError.errors || validationError.message || "Unknown validation error",
+        errorName: validationError.name,
+        errorMessage: validationError.message,
         receivedData: body,
         analysis: {
           hasClientId: !!body.clientId,
