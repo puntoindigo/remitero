@@ -11,18 +11,11 @@ git pull origin develop
 # Instalar dependencias
 npm install
 
-# Ejecutar migración de base de datos
-echo "📝 Ejecutando migración de base de datos..."
-node scripts/migrate-vercel.js
-
-# Hacer build
-echo "🔨 Construyendo aplicación..."
-npm run build
-
-# Hacer commit y push
+# Hacer commit y push (esto activará el deploy automático)
 git add .
-git commit -m "deploy: actualización de desarrollo $(date)"
+git commit -m "deploy: actualización de desarrollo $(date)" || echo "No hay cambios para commitear"
 git push origin develop
 
-echo "✅ Despliegue de desarrollo completado"
-echo "🌐 URL: https://remitero-dev.vercel.app"
+echo "✅ Push completado - Vercel hará deploy automático"
+echo "🌐 URL: https://remitero-nextjs-[hash].vercel.app"
+echo "📋 Verifica en Vercel Dashboard para la URL exacta"
