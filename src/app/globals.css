@@ -1773,3 +1773,42 @@ form svg {
   color: #dc2626;
   font-size: 0.875rem;
 }
+
+/* Environment Card Styles */
+.environment-card {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  z-index: 50;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  backdrop-filter: blur(8px);
+  max-width: 280px;
+  cursor: move;
+  user-select: none;
+  transition: all 0.2s ease-in-out;
+}
+
+.environment-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.environment-card.development {
+  background-color: rgba(220, 38, 38, 0.9);
+  color: white;
+  border: 1px solid rgba(220, 38, 38, 0.3);
+}
+
+.environment-card.preview {
+  background-color: rgba(234, 88, 12, 0.9);
+  color: white;
+  border: 1px solid rgba(234, 88, 12, 0.3);
+}
+
+.environment-card.production {
+  background-color: rgba(5, 150, 105, 0.9);
+  color: white;
+  border: 1px solid rgba(5, 150, 105, 0.3);
+}
