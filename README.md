@@ -200,4 +200,4 @@ Para soporte o consultas:
 
 **Desarrollado con ❤️ usando Next.js, TypeScript y Tailwind CSS**
 
-*Sistema profesional para la gestión eficiente de productos y remitos*
+*Sistema profesional para la gestión eficiente de productos y remitos*// Force new deployment Tue Sep 23 12:32:52 -03 2025
