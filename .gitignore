@@ -40,3 +40,9 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 /src/generated/prisma
+
+# scripts with credentials
+scripts/*-seed.js
+scripts/*-migrate.js
+scripts/*-create.js
+scripts/*-data.js
