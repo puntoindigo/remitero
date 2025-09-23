@@ -18,14 +18,19 @@ export function useEnvironment(): Environment {
           return;
         }
         
-        // Detectar si es un preview de Vercel (URLs con hash muy largo)
-        if (hostname.includes('vercel.app') && hostname.includes('-') && 
-            hostname.split('-').length >= 4) {
+        // Detectar si es preview (remitero-dev.vercel.app)
+        if (hostname === 'remitero-dev.vercel.app') {
           setEnvironment('preview');
           return;
         }
         
-        // Todo lo demás es producción
+        // Detectar si es producción (v0-remitero.vercel.app)
+        if (hostname === 'v0-remitero.vercel.app') {
+          setEnvironment('production');
+          return;
+        }
+        
+        // Por defecto, producción
         setEnvironment('production');
       }
     };
