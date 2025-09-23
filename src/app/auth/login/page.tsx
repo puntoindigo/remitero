@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
+import { useEnvironment } from "@/hooks/useEnvironment"
 
 const loginSchema = z.object({
   email: z.string().email("Email inválido"),
@@ -18,6 +19,7 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
   const router = useRouter()
+  const environment = useEnvironment()
 
   const {
     register,
@@ -74,7 +76,7 @@ export default function LoginPage() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
           </div>
-          <h2 className="mt-6 text-3xl font-bold text-gray-900">
+          <h2 className="mt-8 text-3xl font-bold text-gray-900">
             Acceso
           </h2>
         </div>
@@ -154,18 +156,20 @@ export default function LoginPage() {
             </div>
           </form>
 
-          {/* Demo credentials */}
-          <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-            <h3 className="text-sm font-medium text-gray-700 mb-2">Credenciales de demostración:</h3>
-            <div className="text-xs text-gray-600 space-y-1">
-              <p><strong>SuperAdmin:</strong> admin@remitero.com / daedae123</p>
-              <p><strong>Admin Empresa:</strong> admin@empresademo.com / admin123</p>
+          {/* Demo credentials - Solo en Preview */}
+          {environment === 'preview' && (
+            <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+              <h3 className="text-sm font-medium text-gray-700 mb-2">Credenciales de demostración:</h3>
+              <div className="text-xs text-gray-600 space-y-1">
+                <p><strong>SuperAdmin:</strong> admin@remitero.com / daedae123</p>
+                <p><strong>Admin Empresa:</strong> admin@empresademo.com / admin123</p>
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Footer */}
-        <div className="text-center">
+        <div className="text-center mt-6">
           <p className="text-xs text-gray-500">
             © 2025 Desarrollado por{' '}
             <a 
