@@ -50,26 +50,40 @@ export default function DashboardPage() {
           categoriasRes.json()
         ])
 
+        // Debug logs
+        console.log('Dashboard API responses:', {
+          remitos: Array.isArray(remitos) ? `Array(${remitos.length})` : typeof remitos,
+          productos: Array.isArray(productos) ? `Array(${productos.length})` : typeof productos,
+          clientes: Array.isArray(clientes) ? `Array(${clientes.length})` : typeof clientes,
+          categorias: Array.isArray(categorias) ? `Array(${categorias.length})` : typeof categorias
+        })
+
+        // Validar que las respuestas sean arrays
+        const remitosArray = Array.isArray(remitos) ? remitos : []
+        const productosArray = Array.isArray(productos) ? productos : []
+        const clientesArray = Array.isArray(clientes) ? clientes : []
+        const categoriasArray = Array.isArray(categorias) ? categorias : []
+
         // Procesar estadísticas de remitos
         const remitosStats = {
-          total: remitos.length,
-          pendientes: remitos.filter((r: any) => r.status === 'PENDIENTE').length,
-          preparados: remitos.filter((r: any) => r.status === 'PREPARADO').length,
-          entregados: remitos.filter((r: any) => r.status === 'ENTREGADO').length
+          total: remitosArray.length,
+          pendientes: remitosArray.filter((r: any) => r.status === 'PENDIENTE').length,
+          preparados: remitosArray.filter((r: any) => r.status === 'PREPARADO').length,
+          entregados: remitosArray.filter((r: any) => r.status === 'ENTREGADO').length
         }
 
         // Procesar estadísticas de productos
         const productosStats = {
-          total: productos.length,
-          conStock: productos.filter((p: any) => p.stock === 'IN_STOCK').length,
-          sinStock: productos.filter((p: any) => p.stock === 'OUT_OF_STOCK').length
+          total: productosArray.length,
+          conStock: productosArray.filter((p: any) => p.stock === 'IN_STOCK').length,
+          sinStock: productosArray.filter((p: any) => p.stock === 'OUT_OF_STOCK').length
         }
 
         setStats({
           remitos: remitosStats,
           productos: productosStats,
-          clientes: clientes.length,
-          categorias: categorias.length
+          clientes: clientesArray.length,
+          categorias: categoriasArray.length
         })
       } catch (error) {
         console.error('Error loading dashboard stats:', error)
