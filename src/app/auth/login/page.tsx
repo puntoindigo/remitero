@@ -156,21 +156,11 @@ export default function LoginPage() {
             </div>
           </form>
 
-          {/* Demo credentials - Solo en Preview */}
-          {environment === 'preview' && (
-            <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-              <h3 className="text-sm font-medium text-gray-700 mb-2">Credenciales de demostración:</h3>
-              <div className="text-xs text-gray-600 space-y-1">
-                <p><strong>SuperAdmin:</strong> admin@remitero.com / daedae123</p>
-                <p><strong>Admin Empresa:</strong> admin@empresademo.com / admin123</p>
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Footer */}
-        <div className="text-center mt-6">
-          <p className="text-xs text-gray-500">
+        <div className="text-center mt-8">
+          <p className="text-xs text-gray-500 mx-auto">
             © 2025 Desarrollado por{' '}
             <a 
               href="https://www.linkedin.com/company/punto-indigo/" 

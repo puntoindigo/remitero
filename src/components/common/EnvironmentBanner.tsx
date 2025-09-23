@@ -49,6 +49,16 @@ export default function EnvironmentBanner({ environment }: EnvironmentBannerProp
           {environment === 'development' ? 'Local' : 'Vercel'}
         </span>
       </div>
+      
+      {/* Credenciales de demostración solo en preview */}
+      {environment === 'preview' && (
+        <div className="mt-2 text-xs opacity-90">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4">
+            <span><strong>SuperAdmin:</strong> admin@remitero.com / daedae123</span>
+            <span><strong>Admin:</strong> admin@empresademo.com / admin123</span>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
