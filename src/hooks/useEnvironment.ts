@@ -9,29 +9,23 @@ export function useEnvironment(): Environment {
 
   useEffect(() => {
     const detectEnvironment = () => {
-      // Detectar si estamos en localhost
       if (typeof window !== 'undefined') {
         const hostname = window.location.hostname;
         
+        // Detectar si estamos en localhost
         if (hostname === 'localhost' || hostname === '127.0.0.1') {
           setEnvironment('development');
           return;
         }
         
-        // Detectar si es un preview de Vercel (URLs con hash o preview)
-        if (hostname.includes('vercel.app') && 
-            (hostname.includes('-') || hostname.includes('preview') || hostname.includes('dev'))) {
+        // Detectar si es un preview de Vercel (URLs con hash muy largo)
+        if (hostname.includes('vercel.app') && hostname.includes('-') && 
+            hostname.split('-').length >= 4) {
           setEnvironment('preview');
           return;
         }
         
-        // Detectar si es producción (URL limpia de Vercel)
-        if (hostname === 'v0-remitero.vercel.app' || hostname === 'remitero.vercel.app') {
-          setEnvironment('production');
-          return;
-        }
-        
-        // Por defecto, producción
+        // Todo lo demás es producción
         setEnvironment('production');
       }
     };
