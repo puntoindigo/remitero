@@ -2,6 +2,8 @@
 
 Un sistema web moderno y completo para la gestión de productos, clientes, categorías y remitos con impresión en formato A4 duplicado, desarrollado con Next.js, TypeScript y Tailwind CSS.
 
+<!-- Deploy test - proyecto v0-remitero -->
+
 ## 🚀 Características
 
 ### 📦 Gestión Completa
