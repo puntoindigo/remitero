@@ -18,9 +18,16 @@ export function useEnvironment(): Environment {
           return;
         }
         
-        // Detectar si es un preview de Vercel
-        if (hostname.includes('vercel.app') && !hostname.includes('remitero-prod')) {
+        // Detectar si es un preview de Vercel (URLs con hash o preview)
+        if (hostname.includes('vercel.app') && 
+            (hostname.includes('-') || hostname.includes('preview') || hostname.includes('dev'))) {
           setEnvironment('preview');
+          return;
+        }
+        
+        // Detectar si es producción (URL limpia de Vercel)
+        if (hostname === 'v0-remitero.vercel.app' || hostname === 'remitero.vercel.app') {
+          setEnvironment('production');
           return;
         }
         
