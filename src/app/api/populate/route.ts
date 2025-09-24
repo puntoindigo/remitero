@@ -6,6 +6,10 @@ export async function POST(request: NextRequest) {
   try {
     console.log('🚀 Iniciando poblamiento de datos...');
     
+    // Verificar conexión a la base de datos
+    await prisma.$connect();
+    console.log('✅ Conexión a base de datos establecida');
+    
     // Crear company principal
     const company = await prisma.company.upsert({
       where: { name: "Distribuidora Ruben" },
