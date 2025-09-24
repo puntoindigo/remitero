@@ -1,11 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/db";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
-
-const prisma = new PrismaClient();
 
 const userSchema = z.object({
   name: z.string().min(1, "El nombre es requerido"),
