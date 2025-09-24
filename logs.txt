@@ -1,6 +1,0 @@
-Vercel CLI 48.0.0
-The "--limit" option was ignored because it is now deprecated. Please remove it.
-Fetching deployment "remitero-dev.vercel.app" in daeiman0
-Displaying runtime logs for deployment v0-remitero-c5ezcjfrx-daeiman0.vercel.app (dpl_E4hAxgBTCq2e7xqyRcYfGXqrke8a) starting from Sep We 18:25:05.69
-
-waiting for new logs...
