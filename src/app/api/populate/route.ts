@@ -1,10 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/db";
+import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 
 export async function POST(request: NextRequest) {
   try {
     console.log('🚀 Iniciando poblamiento de datos...');
+    
+    // Crear instancia directa de Prisma
+    const prisma = new PrismaClient({
+      datasources: {
+        db: {
+          url: process.env.DATABASE_URL || process.env.PRISMA_DATABASE_URL || process.env.POSTGRES_URL
+        }
+      }
+    });
     
     // Verificar conexión a la base de datos
     await prisma.$connect();
@@ -172,5 +181,9 @@ export async function POST(request: NextRequest) {
       success: false, 
       error: error instanceof Error ? error.message : 'Error desconocido' 
     }, { status: 500 });
+  } finally {
+    if (prisma) {
+      await prisma.$disconnect();
+    }
   }
 }
