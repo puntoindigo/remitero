@@ -3,11 +3,8 @@ import { prisma } from '@/lib/db';
 
 export async function GET() {
   try {
-    console.log('🔍 Test DB endpoint called');
-    
     // Verificar conexión
     const userCount = await prisma.user.count();
-    console.log(`📊 Total users: ${userCount}`);
     
     // Buscar usuarios específicos
     const users = await prisma.user.findMany({
@@ -32,7 +29,6 @@ export async function GET() {
     });
     
   } catch (error) {
-    console.error('❌ Test DB error:', error);
     return NextResponse.json({
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error',

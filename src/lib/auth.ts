@@ -13,22 +13,26 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         try {
+          console.log("🔍 NextAuth authorize called with:", { email: credentials?.email, hasPassword: !!credentials?.password })
+          
           if (!credentials?.email || !credentials?.password) {
+            console.log("❌ Credenciales faltantes")
             throw new Error("Credenciales requeridas")
           }
 
+          console.log("🔍 Buscando usuario en base de datos...")
           const user = await prisma.user.findUnique({
             where: {
               email: credentials.email
-            },
-            include: {
-              company: true
             }
           })
 
           if (!user) {
+            console.log("❌ Usuario no encontrado:", credentials.email)
             throw new Error("Usuario no encontrado")
           }
+
+          console.log("✅ Usuario encontrado:", { email: user.email, role: user.role })
 
           const isPasswordValid = await bcrypt.compare(
             credentials.password,
@@ -36,8 +40,11 @@ export const authOptions: NextAuthOptions = {
           )
 
           if (!isPasswordValid) {
+            console.log("❌ Contraseña incorrecta para:", credentials.email)
             throw new Error("Contraseña incorrecta")
           }
+
+          console.log("✅ Autenticación exitosa para:", credentials.email)
 
           return {
             id: user.id,
@@ -45,11 +52,11 @@ export const authOptions: NextAuthOptions = {
             name: user.name,
             role: user.role,
             companyId: user.companyId,
-            companyName: user.company?.name,
+            companyName: null, // Se puede obtener después si es necesario
             impersonatingUserId: user.impersonatingUserId
           }
         } catch (error) {
-          console.error("Auth error:", error)
+          console.error("❌ Auth error:", error)
           return null
         }
       }
