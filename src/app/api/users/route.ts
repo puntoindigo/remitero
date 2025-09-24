@@ -1,29 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { PrismaClient } from "@prisma/client";
+import { withPrisma } from "@/lib/prisma";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
-
-// Crear una instancia de Prisma específica para este endpoint
-const createPrismaClient = () => {
-  const isPreview = process.env.VERCEL_ENV === 'preview' || process.env.NODE_ENV === 'development'
-  const databaseUrl = isPreview 
-    ? process.env.DATABASE_URL || process.env.dev_PRISMA_DATABASE_URL || process.env.dev_POSTGRES_URL
-    : process.env.DATABASE_URL || process.env.prod_PRISMA_DATABASE_URL || process.env.prod_POSTGRES_URL
-  
-  if (!databaseUrl) {
-    throw new Error('DATABASE_URL is not configured')
-  }
-  
-  return new PrismaClient({
-    datasources: {
-      db: {
-        url: databaseUrl
-      }
-    }
-  })
-}
 
 const userSchema = z.object({
   name: z.string().min(1, "El nombre es requerido"),
@@ -36,8 +16,6 @@ const userSchema = z.object({
 });
 
 export async function GET(request: NextRequest) {
-  const prisma = createPrismaClient();
-  
   try {
     const session = await getServerSession(authOptions);
     
@@ -45,28 +23,26 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "No autorizado" }, { status: 401 });
     }
 
-    const users = await prisma.user.findMany({
-      where: {
-        companyId: session.user.role === "ADMIN" ? session.user.companyId : undefined,
-      },
-      include: {
-        company: true
-      },
-      orderBy: { name: "asc" }
+    const users = await withPrisma(async (prisma) => {
+      return await prisma.user.findMany({
+        where: {
+          companyId: session.user.role === "ADMIN" ? session.user.companyId : undefined,
+        },
+        include: {
+          company: true
+        },
+        orderBy: { name: "asc" }
+      });
     });
 
     return NextResponse.json(users);
   } catch (error) {
     console.error("Error fetching users:", error);
     return NextResponse.json({ error: "Error interno del servidor" }, { status: 500 });
-  } finally {
-    await prisma.$disconnect();
   }
 }
 
 export async function POST(request: NextRequest) {
-  const prisma = createPrismaClient();
-  
   try {
     const session = await getServerSession(authOptions);
     
@@ -77,43 +53,45 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const validatedData = userSchema.parse(body);
 
-    // Verificar que el email no esté en uso
-    const existingUser = await prisma.user.findUnique({
-      where: { email: validatedData.email }
-    });
+    const user = await withPrisma(async (prisma) => {
+      // Verificar que el email no esté en uso
+      const existingUser = await prisma.user.findUnique({
+        where: { email: validatedData.email }
+      });
 
-    if (existingUser) {
-      return NextResponse.json({ error: "El email ya está en uso" }, { status: 400 });
-    }
-
-    // Hash de la contraseña si se proporciona
-    let hashedPassword = "";
-    if (validatedData.password) {
-      hashedPassword = await bcrypt.hash(validatedData.password, 12);
-    }
-
-    // Determinar la empresa del usuario
-    const companyId = session.user.role === "SUPERADMIN" 
-      ? validatedData.companyId 
-      : session.user.companyId;
-
-    if (!companyId) {
-      return NextResponse.json({ error: "Empresa requerida" }, { status: 400 });
-    }
-
-    const user = await prisma.user.create({
-      data: {
-        name: validatedData.name,
-        email: validatedData.email,
-        password: hashedPassword,
-        role: validatedData.role,
-        address: validatedData.address,
-        phone: validatedData.phone,
-        companyId: companyId
-      },
-      include: {
-        company: true
+      if (existingUser) {
+        throw new Error("El email ya está en uso");
       }
+
+      // Hash de la contraseña si se proporciona
+      let hashedPassword = "";
+      if (validatedData.password) {
+        hashedPassword = await bcrypt.hash(validatedData.password, 12);
+      }
+
+      // Determinar la empresa del usuario
+      const companyId = session.user.role === "SUPERADMIN" 
+        ? validatedData.companyId 
+        : session.user.companyId;
+
+      if (!companyId) {
+        throw new Error("Empresa requerida");
+      }
+
+      return await prisma.user.create({
+        data: {
+          name: validatedData.name,
+          email: validatedData.email,
+          password: hashedPassword,
+          role: validatedData.role,
+          address: validatedData.address,
+          phone: validatedData.phone,
+          companyId: companyId
+        },
+        include: {
+          company: true
+        }
+      });
     });
 
     return NextResponse.json(user, { status: 201 });
@@ -124,8 +102,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Datos inválidos", details: error.errors }, { status: 400 });
     }
 
+    if (error.message === "El email ya está en uso") {
+      return NextResponse.json({ error: error.message }, { status: 400 });
+    }
+
+    if (error.message === "Empresa requerida") {
+      return NextResponse.json({ error: error.message }, { status: 400 });
+    }
+
     return NextResponse.json({ error: "Error interno del servidor" }, { status: 500 });
-  } finally {
-    await prisma.$disconnect();
   }
 }

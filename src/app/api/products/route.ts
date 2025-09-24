@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { prisma } from "@/lib/db";
+import { withPrisma } from "@/lib/prisma";
 import { z } from "zod";
 
 const productSchema = z.object({
@@ -30,10 +30,12 @@ export async function GET(request: NextRequest) {
       whereClause.stock = 'IN_STOCK';
     }
 
-    const products = await prisma.product.findMany({
-      where: whereClause,
-      include: { category: true },
-      orderBy: { name: "asc" }
+    const products = await withPrisma(async (prisma) => {
+      return await prisma.product.findMany({
+        where: whereClause,
+        include: { category: true },
+        orderBy: { name: "asc" }
+      });
     });
 
     return NextResponse.json(products);
@@ -54,12 +56,14 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const validatedData = productSchema.parse(body);
 
-    const product = await prisma.product.create({
-      data: {
-        ...validatedData,
-        companyId: session.user.companyId
-      },
-      include: { category: true }
+    const product = await withPrisma(async (prisma) => {
+      return await prisma.product.create({
+        data: {
+          ...validatedData,
+          companyId: session.user.companyId
+        },
+        include: { category: true }
+      });
     });
 
     return NextResponse.json(product, { status: 201 });

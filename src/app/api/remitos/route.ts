@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { prisma } from "@/lib/db";
+import { withPrisma } from "@/lib/prisma";
 import { remitoSchema } from "@/lib/validations";
 
 export async function GET(request: NextRequest) {
@@ -12,19 +12,21 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "No autorizado" }, { status: 401 });
     }
 
-    const remitos = await prisma.remito.findMany({
-      where: { companyId: session.user.companyId },
-      include: {
-        client: { select: { id: true, name: true } },
-        items: true,
-        createdBy: { select: { name: true } },
-        history: {
-          orderBy: { at: "desc" },
-          take: 1,
-          include: { byUser: { select: { name: true } } }
-        }
-      },
-      orderBy: { number: "desc" }
+    const remitos = await withPrisma(async (prisma) => {
+      return await prisma.remito.findMany({
+        where: { companyId: session.user.companyId },
+        include: {
+          client: { select: { id: true, name: true } },
+          items: true,
+          createdBy: { select: { name: true } },
+          history: {
+            orderBy: { at: "desc" },
+            take: 1,
+            include: { byUser: { select: { name: true } } }
+          }
+        },
+        orderBy: { number: "desc" }
+      });
     });
 
     // Map history to get the latest statusAt and calculate total
