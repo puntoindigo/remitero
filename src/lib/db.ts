@@ -21,10 +21,15 @@ const getDatabaseUrl = () => {
   return prodUrl || process.env.prod_PRISMA_DATABASE_URL || process.env.prod_POSTGRES_URL
 }
 
+const databaseUrl = getDatabaseUrl()
+if (!databaseUrl) {
+  throw new Error('DATABASE_URL is not configured')
+}
+
 export const prisma = globalForPrisma.prisma ?? new PrismaClient({
   datasources: {
     db: {
-      url: getDatabaseUrl()
+      url: databaseUrl
     }
   },
   log: ['query', 'info', 'warn', 'error']
