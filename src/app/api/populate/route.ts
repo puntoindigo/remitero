@@ -1,31 +1,10 @@
-#!/usr/bin/env node
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/db";
+import bcrypt from "bcryptjs";
 
-const { PrismaClient } = require('@prisma/client');
-const bcrypt = require('bcryptjs');
-
-// Usar la URL de producción directamente (solo para este script)
-const PROD_DB_URL = process.env.PRISMA_DATABASE_URL || process.env.POSTGRES_URL;
-
-if (!PROD_DB_URL) {
-  console.error('❌ Error: No hay URL de base de datos de producción configurada');
-  console.error('Variables disponibles:');
-  console.error('PRISMA_DATABASE_URL:', process.env.PRISMA_DATABASE_URL ? '✅ Configurada' : '❌ No encontrada');
-  console.error('POSTGRES_URL:', process.env.POSTGRES_URL ? '✅ Configurada' : '❌ No encontrada');
-  process.exit(1);
-}
-
-const prisma = new PrismaClient({
-  datasources: {
-    db: {
-      url: PROD_DB_URL
-    }
-  }
-});
-
-async function populateProduction() {
+export async function POST(request: NextRequest) {
   try {
-    console.log('🚀 Poblando datos de producción...');
-    console.log('🔗 Usando URL:', PROD_DB_URL.substring(0, 20) + '...');
+    console.log('🚀 Iniciando poblamiento de datos...');
     
     // Crear company principal
     const company = await prisma.company.upsert({
@@ -171,25 +150,23 @@ async function populateProduction() {
     }
     console.log('✅ Clientes creados');
     
-    console.log('🎉 ¡Datos de producción poblados exitosamente!');
-    console.log('🔗 Ahora puedes acceder a la aplicación con:');
-    console.log('   - SuperAdmin: admin@remitero.com / daedae123');
-    console.log('   - Admin: admin@empresademo.com / admin123');
+    return NextResponse.json({ 
+      success: true, 
+      message: "Datos poblados exitosamente",
+      data: {
+        company: company.name,
+        users: [superAdminUser.name, adminDemoUser.name],
+        categories: 2,
+        products: 3,
+        clients: 2
+      }
+    });
     
   } catch (error) {
     console.error('❌ Error poblando datos:', error);
-    throw error;
-  } finally {
-    await prisma.$disconnect();
+    return NextResponse.json({ 
+      success: false, 
+      error: error instanceof Error ? error.message : 'Error desconocido' 
+    }, { status: 500 });
   }
 }
-
-populateProduction()
-  .then(() => {
-    console.log('✅ Script completado');
-    process.exit(0);
-  })
-  .catch((error) => {
-    console.error('❌ Script falló:', error);
-    process.exit(1);
-  });
