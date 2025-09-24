@@ -1,14 +1,36 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { prisma } from "@/lib/db";
+import { PrismaClient } from "@prisma/client";
 import { z } from "zod";
+
+// Crear una instancia de Prisma específica para este endpoint
+const createPrismaClient = () => {
+  const isPreview = process.env.VERCEL_ENV === 'preview' || process.env.NODE_ENV === 'development'
+  const databaseUrl = isPreview 
+    ? process.env.DATABASE_URL || process.env.dev_PRISMA_DATABASE_URL || process.env.dev_POSTGRES_URL
+    : process.env.DATABASE_URL || process.env.prod_PRISMA_DATABASE_URL || process.env.prod_POSTGRES_URL
+  
+  if (!databaseUrl) {
+    throw new Error('DATABASE_URL is not configured')
+  }
+  
+  return new PrismaClient({
+    datasources: {
+      db: {
+        url: databaseUrl
+      }
+    }
+  })
+}
 
 const categorySchema = z.object({
   name: z.string().min(1, "El nombre es requerido"),
 });
 
 export async function GET(request: NextRequest) {
+  const prisma = createPrismaClient();
+  
   try {
     const session = await getServerSession(authOptions);
     
@@ -30,10 +52,14 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error("Error fetching categories:", error);
     return NextResponse.json({ error: "Error interno del servidor" }, { status: 500 });
+  } finally {
+    await prisma.$disconnect();
   }
 }
 
 export async function POST(request: NextRequest) {
+  const prisma = createPrismaClient();
+  
   try {
     const session = await getServerSession(authOptions);
     
@@ -60,6 +86,8 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json({ error: "Error interno del servidor" }, { status: 500 });
+  } finally {
+    await prisma.$disconnect();
   }
 }
 
