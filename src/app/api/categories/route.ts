@@ -32,6 +32,8 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error("Error fetching categories:", error);
     return NextResponse.json({ error: "Error interno del servidor" }, { status: 500 });
+  } finally {
+    await prisma.$disconnect();
   }
 }
 
@@ -62,6 +64,8 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json({ error: "Error interno del servidor" }, { status: 500 });
+  } finally {
+    await prisma.$disconnect();
   }
 }
 
@@ -103,5 +107,7 @@ export async function PUT(request: NextRequest) {
     }
 
     return NextResponse.json({ error: "Error interno del servidor" }, { status: 500 });
+  } finally {
+    await prisma.$disconnect();
   }
 }
