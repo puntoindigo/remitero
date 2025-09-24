@@ -23,16 +23,40 @@ function createPrismaClient(databaseUrl) {
 
 // Función para obtener estadísticas de una base de datos
 async function getDatabaseStats(prisma) {
-  const stats = {
-    users: await prisma.user.count(),
-    companies: await prisma.company.count(),
-    categories: await prisma.category.count(),
-    products: await prisma.product.count(),
-    clients: await prisma.client.count(),
-    remitos: await prisma.remito.count(),
-    remitoItems: await prisma.remitoItem.count(),
-    remitoHistory: await prisma.remitoHistory.count()
-  };
+  const stats = {};
+  
+  try {
+    stats.users = await prisma.user.count();
+  } catch (e) { stats.users = 0; }
+  
+  try {
+    stats.companies = await prisma.company.count();
+  } catch (e) { stats.companies = 0; }
+  
+  try {
+    stats.categories = await prisma.category.count();
+  } catch (e) { stats.categories = 0; }
+  
+  try {
+    stats.products = await prisma.product.count();
+  } catch (e) { stats.products = 0; }
+  
+  try {
+    stats.clients = await prisma.client.count();
+  } catch (e) { stats.clients = 0; }
+  
+  try {
+    stats.remitos = await prisma.remito.count();
+  } catch (e) { stats.remitos = 0; }
+  
+  try {
+    stats.remitoItems = await prisma.remitoItem.count();
+  } catch (e) { stats.remitoItems = 0; }
+  
+  try {
+    stats.remitoHistory = await prisma.statusHistory.count();
+  } catch (e) { stats.remitoHistory = 0; }
+  
   return stats;
 }
 
@@ -96,14 +120,14 @@ async function migrateData(sourceUrl, targetUrl, direction) {
 
     // Limpiar base de datos destino
     console.log('\n🧹 Limpiando base de datos destino...');
-    await targetPrisma.remitoHistory.deleteMany();
-    await targetPrisma.remitoItem.deleteMany();
-    await targetPrisma.remito.deleteMany();
-    await targetPrisma.product.deleteMany();
-    await targetPrisma.client.deleteMany();
-    await targetPrisma.category.deleteMany();
-    await targetPrisma.user.deleteMany();
-    await targetPrisma.company.deleteMany();
+    try { await targetPrisma.statusHistory.deleteMany(); } catch (e) { console.log('⚠️  Tabla statusHistory no existe o está vacía'); }
+    try { await targetPrisma.remitoItem.deleteMany(); } catch (e) { console.log('⚠️  Tabla remitoItem no existe o está vacía'); }
+    try { await targetPrisma.remito.deleteMany(); } catch (e) { console.log('⚠️  Tabla remito no existe o está vacía'); }
+    try { await targetPrisma.product.deleteMany(); } catch (e) { console.log('⚠️  Tabla product no existe o está vacía'); }
+    try { await targetPrisma.client.deleteMany(); } catch (e) { console.log('⚠️  Tabla client no existe o está vacía'); }
+    try { await targetPrisma.category.deleteMany(); } catch (e) { console.log('⚠️  Tabla category no existe o está vacía'); }
+    try { await targetPrisma.user.deleteMany(); } catch (e) { console.log('⚠️  Tabla user no existe o está vacía'); }
+    try { await targetPrisma.company.deleteMany(); } catch (e) { console.log('⚠️  Tabla company no existe o está vacía'); }
     console.log('✅ Base de datos destino limpiada');
 
     // Migrar empresas
@@ -221,6 +245,12 @@ async function migrateData(sourceUrl, targetUrl, direction) {
     console.log('\n📋 Migrando items de remitos...');
     const remitoItems = await sourcePrisma.remitoItem.findMany();
     for (const item of remitoItems) {
+      // Obtener el nombre del producto
+      const product = await sourcePrisma.product.findUnique({
+        where: { id: item.productId },
+        select: { name: true }
+      });
+      
       await targetPrisma.remitoItem.create({
         data: {
           id: item.id,
@@ -229,6 +259,7 @@ async function migrateData(sourceUrl, targetUrl, direction) {
           lineTotal: item.lineTotal,
           remitoId: item.remitoId,
           productId: item.productId,
+          productName: product?.name || 'Producto no encontrado',
           createdAt: item.createdAt,
           updatedAt: item.updatedAt
         }
@@ -238,21 +269,24 @@ async function migrateData(sourceUrl, targetUrl, direction) {
 
     // Migrar historial de remitos
     console.log('\n📝 Migrando historial de remitos...');
-    const remitoHistory = await sourcePrisma.remitoHistory.findMany();
-    for (const history of remitoHistory) {
-      await targetPrisma.remitoHistory.create({
-        data: {
-          id: history.id,
-          status: history.status,
-          at: history.at,
-          remitoId: history.remitoId,
-          byUserId: history.byUserId,
-          createdAt: history.createdAt,
-          updatedAt: history.updatedAt
-        }
-      });
+    let remitoHistory = [];
+    try {
+      remitoHistory = await sourcePrisma.statusHistory.findMany();
+      for (const history of remitoHistory) {
+        await targetPrisma.statusHistory.create({
+          data: {
+            id: history.id,
+            status: history.status,
+            at: history.at,
+            remitoId: history.remitoId,
+            byUserId: history.byUserId
+          }
+        });
+      }
+      console.log(`✅ ${remitoHistory.length} historial de remitos migrado`);
+    } catch (error) {
+      console.log('⚠️  No se pudo migrar el historial de remitos (tabla no existe o está vacía)');
     }
-    console.log(`✅ ${remitoHistory.length} historial de remitos migrado`);
 
     // Verificar migración
     console.log('\n🔍 Verificando migración...');
@@ -268,7 +302,7 @@ async function migrateData(sourceUrl, targetUrl, direction) {
     console.log(`  • Clientes: ${clients.length} migrados`);
     console.log(`  • Remitos: ${remitos.length} migrados`);
     console.log(`  • Items: ${remitoItems.length} migrados`);
-    console.log(`  • Historial: ${remitoHistory.length} migrado`);
+    console.log(`  • Historial: ${remitoHistory ? remitoHistory.length : 0} migrado`);
 
   } catch (error) {
     console.error('\n❌ Error durante la migración:', error.message);
