@@ -20,12 +20,24 @@ class Logger {
   }
 
   private ensureLogDir() {
-    if (!fs.existsSync(this.logDir)) {
-      fs.mkdirSync(this.logDir, { recursive: true });
+    try {
+      if (!fs.existsSync(this.logDir)) {
+        fs.mkdirSync(this.logDir, { recursive: true });
+      }
+    } catch (error) {
+      // En Vercel, no podemos crear directorios, solo loguear a consola
+      console.warn('Cannot create log directory in Vercel environment:', error);
     }
   }
 
   private writeLog(entry: LogEntry) {
+    // En Vercel, solo loguear a consola ya que no podemos escribir archivos
+    if (process.env.VERCEL) {
+      console.log(`[${entry.level}] ${entry.timestamp} - ${entry.message}`, entry.details || '');
+      return;
+    }
+
+    // En desarrollo local, intentar escribir al archivo
     const logFile = path.join(this.logDir, `app-${new Date().toISOString().split('T')[0]}.log`);
     const logLine = JSON.stringify(entry) + '\n';
     
