@@ -57,14 +57,15 @@ export async function POST(request: NextRequest) {
     
     return NextResponse.json({
       success: true,
-      message: "Product found and authorized",
+      message: "NEW VERSION - Product found and authorized",
       session: {
         userId: session.user.id,
         userRole: session.user.role,
         companyId: session.user.companyId
       },
       product: existingProduct,
-      requestedStock: stock
+      requestedStock: stock,
+      timestamp: new Date().toISOString()
     });
     
   } catch (error: any) {
