@@ -404,13 +404,15 @@ function RemitosContent() {
       });
 
       if (!response.ok) {
-        throw new Error('Error al eliminar el remito');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Error al eliminar el remito');
       }
 
       await loadData();
       setShowDeleteConfirm(null);
     } catch (error: any) {
       alert(error.message || "Error al eliminar el remito");
+      setShowDeleteConfirm(null); // Cerrar el modal después del error
     }
   };
 

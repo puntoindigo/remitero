@@ -168,11 +168,9 @@ export default function EmpresasPage() {
             </div>
 
             <div className="form-actions">
-              {editingCompany && (
-                <button type="button" onClick={handleCancel} className="secondary">
-                  Cancelar
-                </button>
-              )}
+              <button type="button" onClick={handleCancel} className="secondary">
+                Cancelar
+              </button>
               <button type="submit" disabled={isSubmitting} className="primary">
                 {isSubmitting ? "Guardando..." : editingCompany ? "Actualizar" : "Crear"}
               </button>

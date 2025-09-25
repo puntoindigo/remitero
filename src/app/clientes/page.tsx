@@ -156,6 +156,7 @@ function ClientesContent() {
       setShowDeleteConfirm(null);
     } catch (error: any) {
       alert(error.message || "Error al eliminar el cliente");
+      setShowDeleteConfirm(null); // Cerrar el modal después del error
     }
   };
 
@@ -315,13 +316,13 @@ function ClientesContent() {
                       <div className="space-y-1">
                         {client.email && (
                           <div className="text-sm text-gray-500 flex items-center">
-                            <Mail className="h-3 w-3 mr-4" />
+                            <Mail className="h-3 w-3 mr-1" />
                             {client.email}
                           </div>
                         )}
                         {client.phone && (
                           <div className="text-sm text-gray-500 flex items-center">
-                            <Phone className="h-3 w-3 mr-4" />
+                            <Phone className="h-3 w-3 mr-1" />
                             {client.phone}
                           </div>
                         )}

@@ -177,13 +177,16 @@ function ProductosContent() {
       });
 
       if (!response.ok) {
-        throw new Error('Error al eliminar el producto');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Error al eliminar el producto');
       }
 
       await loadData();
       setShowDeleteConfirm(null);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error deleting product:', error);
+      alert(error.message || "Error al eliminar el producto");
+      setShowDeleteConfirm(null); // Cerrar el modal después del error
     }
   };
 

@@ -152,6 +152,7 @@ function CategoriasContent() {
       setShowDeleteConfirm(null);
     } catch (error: any) {
       alert(error.message || "Error al eliminar la categoría");
+      setShowDeleteConfirm(null); // Cerrar el modal después del error
     }
   };
 

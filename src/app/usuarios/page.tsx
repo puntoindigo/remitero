@@ -14,7 +14,7 @@ import { useSearchAndPagination } from "@/hooks/useSearchAndPagination";
 const userSchema = z.object({
   name: z.string().min(1, "El nombre es requerido"),
   email: z.string().email("Email inválido"),
-  password: z.string().min(6, "La contraseña debe tener al menos 6 caracteres").optional(),
+  password: z.string().min(6, "La contraseña debe tener al menos 6 caracteres").optional().or(z.literal("")),
   role: z.enum(["ADMIN", "USER"]),
   address: z.string().optional(),
   phone: z.string().optional(),
@@ -181,6 +181,7 @@ function UsuariosContent() {
       setShowDeleteConfirm(null);
     } catch (error: any) {
       alert(error.message || "Error al eliminar el usuario");
+      setShowDeleteConfirm(null); // Cerrar el modal después del error
     }
   };
 
