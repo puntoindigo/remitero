@@ -11,6 +11,8 @@ import { formatDate } from "@/lib/utils/formatters";
 import SearchAndPagination from "@/components/common/SearchAndPagination";
 import { useSearchAndPagination } from "@/hooks/useSearchAndPagination";
 import FilterableSelect from "@/components/common/FilterableSelect";
+import { MessageModal } from "@/components/common/MessageModal";
+import { useMessageModal } from "@/hooks/useMessageModal";
 
 interface Product {
   id: string;
@@ -41,6 +43,9 @@ function ProductosContent() {
   const [showForm, setShowForm] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedStock, setSelectedStock] = useState("");
+  
+  // Hook para manejar modales de mensajes
+  const { modalState, showSuccess, showError, closeModal } = useMessageModal();
 
   // Filtrar productos por categoría y stock
   const filteredProducts = products.filter(product => {
@@ -204,10 +209,6 @@ function ProductosContent() {
 
   const handleStockChange = async (productId: string, newStock: 'IN_STOCK' | 'OUT_OF_STOCK') => {
     try {
-      console.log('=== STOCK UPDATE ===');
-      console.log('Product ID:', productId);
-      console.log('New stock:', newStock);
-      
       const response = await fetch(`/api/products/${productId}`, {
         method: 'PUT',
         headers: {
@@ -219,16 +220,47 @@ function ProductosContent() {
       });
 
       const result = await response.json();
-      console.log('Update result:', result);
 
       if (!response.ok) {
-        throw new Error(`${result.error || 'Error al actualizar el stock'}`);
+        // Si es error 401, redirigir al login
+        if (response.status === 401) {
+          showError(
+            'Sesión expirada',
+            'Tu sesión ha expirado. Por favor, inicia sesión nuevamente.',
+            result.message
+          );
+          // Redirigir al login después de 2 segundos
+          setTimeout(() => {
+            window.location.href = '/auth/login';
+          }, 2000);
+          return;
+        }
+
+        // Para otros errores, mostrar el mensaje específico
+        showError(
+          'Error al actualizar stock',
+          result.message || result.error || 'Error al actualizar el stock',
+          response.status === 500 ? result.details : undefined
+        );
+        return;
       }
+
+      // Éxito
+      const stockText = newStock === 'IN_STOCK' ? 'en stock' : 'sin stock';
+      showSuccess(
+        'Stock actualizado',
+        `El producto ahora está ${stockText}.`,
+        `Producto ID: ${productId}`
+      );
 
       await loadData();
     } catch (error) {
       console.error('Error updating stock:', error);
-      alert('Error al actualizar el stock: ' + (error as Error).message);
+      showError(
+        'Error de conexión',
+        'No se pudo conectar con el servidor. Verifica tu conexión a internet.',
+        (error as Error).message
+      );
     }
   };
 
@@ -511,6 +543,16 @@ function ProductosContent() {
             </div>
           </div>
         )}
+
+        {/* Modal de mensajes */}
+        <MessageModal
+          isOpen={modalState.isOpen}
+          onClose={closeModal}
+          type={modalState.type}
+          title={modalState.title}
+          message={modalState.message}
+          details={modalState.details}
+        />
       </div>
     </main>
   );
