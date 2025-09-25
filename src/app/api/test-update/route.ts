@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
     
     const { productId, stock } = body;
     
-    // Verificar que el producto existe
+    // Solo verificar que el producto existe, sin actualizar
     const existingProduct = await withPrisma(async (prisma) => {
       return await prisma.product.findUnique({
         where: { id: productId },
@@ -43,24 +43,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Not authorized" }, { status: 401 });
     }
     
-    // Intentar actualizar SIN include para evitar problemas
-    const updatedProduct = await withPrisma(async (prisma) => {
-      return await prisma.product.update({
-        where: { id: productId },
-        data: { stock: stock },
-        select: {
-          id: true,
-          name: true,
-          stock: true
-        }
-      });
-    });
-    
-    console.log("Updated product:", updatedProduct);
-    
+    // Solo devolver el producto existente sin actualizar
     return NextResponse.json({
       success: true,
-      product: updatedProduct
+      message: "Product found and authorized",
+      product: existingProduct,
+      requestedStock: stock
     });
     
   } catch (error: any) {
