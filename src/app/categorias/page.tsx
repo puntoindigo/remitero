@@ -300,25 +300,21 @@ function CategoriasContent() {
 
         {/* Modal de confirmación de eliminación */}
         {showDeleteConfirm && (
-          <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-            <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-              <div className="mt-3 text-center">
-                <h3 className="text-lg font-medium text-gray-900">Confirmar eliminación</h3>
-                <div className="mt-2 px-7 py-3">
-                  <p className="text-sm text-gray-500">
-                    ¿Estás seguro de que quieres eliminar esta categoría? Esta acción no se puede deshacer.
-                  </p>
-                </div>
-                <div className="flex justify-center space-x-4 mt-4">
+          <div className="modal-overlay">
+            <div className="modal">
+              <div className="modal-content">
+                <h3>Confirmar eliminación</h3>
+                <p>¿Estás seguro de que quieres eliminar esta categoría? Esta acción no se puede deshacer.</p>
+                <div className="modal-actions">
                   <button
                     onClick={() => setShowDeleteConfirm(null)}
-                    className="px-4 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400"
+                    className="secondary"
                   >
                     Cancelar
                   </button>
                   <button
                     onClick={() => handleDelete(showDeleteConfirm)}
-                    className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+                    className="danger"
                   >
                     Eliminar
                   </button>

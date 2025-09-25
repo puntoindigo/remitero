@@ -490,21 +490,23 @@ function ProductosContent() {
         {showDeleteConfirm && (
           <div className="modal-overlay">
             <div className="modal">
-              <h3>Confirmar eliminación</h3>
-              <p>¿Estás seguro de que quieres eliminar este producto?</p>
-              <div className="modal-actions">
-                <button
-                  onClick={() => setShowDeleteConfirm(null)}
-                  className="secondary"
-                >
-                  Cancelar
-                </button>
-                <button
-                  onClick={() => handleDelete(showDeleteConfirm)}
-                  className="primary delete"
-                >
-                  Eliminar
-                </button>
+              <div className="modal-content">
+                <h3>Confirmar eliminación</h3>
+                <p>¿Estás seguro de que quieres eliminar este producto? Esta acción no se puede deshacer.</p>
+                <div className="modal-actions">
+                  <button
+                    onClick={() => setShowDeleteConfirm(null)}
+                    className="secondary"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    onClick={() => handleDelete(showDeleteConfirm)}
+                    className="danger"
+                  >
+                    Eliminar
+                  </button>
+                </div>
               </div>
             </div>
           </div>
