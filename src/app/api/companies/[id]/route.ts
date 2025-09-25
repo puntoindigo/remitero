@@ -8,7 +8,10 @@ const companySchema = z.object({
   name: z.string().min(1, "El nombre es requerido"),
 });
 
-export async function GET(request: NextRequest) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
     const session = await getServerSession(authOptions);
     
@@ -16,20 +19,27 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "No autorizado" }, { status: 401 });
     }
 
-    const companies = await withPrisma(async (prisma) => {
-      return await prisma.company.findMany({
-        orderBy: { name: "asc" }
+    const company = await withPrisma(async (prisma) => {
+      return await prisma.company.findUnique({
+        where: { id: params.id }
       });
     });
 
-    return NextResponse.json(companies);
+    if (!company) {
+      return NextResponse.json({ error: "Empresa no encontrada" }, { status: 404 });
+    }
+
+    return NextResponse.json(company);
   } catch (error) {
-    console.error("Error fetching companies:", error);
+    console.error("Error fetching company:", error);
     return NextResponse.json({ error: "Error interno del servidor" }, { status: 500 });
   }
 }
 
-export async function POST(request: NextRequest) {
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
     const session = await getServerSession(authOptions);
     
@@ -41,43 +51,8 @@ export async function POST(request: NextRequest) {
     const validatedData = companySchema.parse(body);
 
     const company = await withPrisma(async (prisma) => {
-      return await prisma.company.create({
-        data: validatedData
-      });
-    });
-
-    return NextResponse.json(company, { status: 201 });
-  } catch (error: any) {
-    console.error("Error creating company:", error);
-    
-    if (error.name === "ZodError") {
-      return NextResponse.json({ error: "Datos inválidos", details: error.errors }, { status: 400 });
-    }
-
-    return NextResponse.json({ error: "Error interno del servidor" }, { status: 500 });
-  }
-}
-
-export async function PUT(request: NextRequest) {
-  try {
-    const session = await getServerSession(authOptions);
-    
-    if (!session || session.user.role !== "SUPERADMIN") {
-      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-    }
-
-    const body = await request.json();
-    const { id, ...updateData } = body;
-    
-    if (!id) {
-      return NextResponse.json({ error: "ID de empresa requerido" }, { status: 400 });
-    }
-
-    const validatedData = companySchema.parse(updateData);
-
-    const company = await withPrisma(async (prisma) => {
       return await prisma.company.update({
-        where: { id },
+        where: { id: params.id },
         data: validatedData
       });
     });
@@ -98,7 +73,10 @@ export async function PUT(request: NextRequest) {
   }
 }
 
-export async function DELETE(request: NextRequest) {
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
     const session = await getServerSession(authOptions);
     
@@ -106,16 +84,9 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: "No autorizado" }, { status: 401 });
     }
 
-    const { searchParams } = new URL(request.url);
-    const id = searchParams.get('id');
-    
-    if (!id) {
-      return NextResponse.json({ error: "ID de empresa requerido" }, { status: 400 });
-    }
-
     await withPrisma(async (prisma) => {
       return await prisma.company.delete({
-        where: { id }
+        where: { id: params.id }
       });
     });
 

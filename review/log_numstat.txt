@@ -1,0 +1,1244 @@
+---
+c939d174999e97471218bac87e512f0798e0dd10|2025-09-24 18:46:35 -0300|Diego Andres Eiman|test: complete system functionality verification
+55	0	scripts/create-status-history.js
+
+---
+30aaef1359345a5cd27b4355693cd07c429272bd|2025-09-24 18:39:51 -0300|Diego Andres Eiman|fix: correct database schema synchronization and migration script
+67	33	scripts/migrate-database.js
+
+---
+700fc0cfa93670a7b7c7a691caf970731586b0e4|2025-09-24 18:30:20 -0300|Diego Andres Eiman|feat: create unified database migration script
+0	6	logs.txt
+0	74	scripts/check-deployment-db.js
+0	66	scripts/check-preview-env.sh
+0	60	scripts/check-vercel-env.sh
+0	52	scripts/clean-dev-variables.sh
+0	72	scripts/clean-prod-variables.sh
+0	65	scripts/clean-stock-descriptions.js
+0	19	scripts/configure-db-variables.sh
+0	53	scripts/configure-separate-databases.sh
+0	108	scripts/create-users-both-envs.js
+0	108	scripts/create-users-direct.js
+0	122	scripts/create-users-final.js
+0	116	scripts/create-users-fixed.js
+0	75	scripts/create-users.js
+0	108	scripts/debug-auth.sh
+0	58	scripts/debug-nextauth.sh
+0	21	scripts/deploy-dev.sh
+0	23	scripts/deploy-develop.sh
+0	28	scripts/deploy-prod.sh
+0	20	scripts/deploy-production.sh
+0	174	scripts/dev-db.js
+0	43	scripts/direct-auth-test.sh
+0	116	scripts/final-diagnosis-complete.sh
+0	109	scripts/final-diagnosis.sh
+0	45	scripts/final-solution.sh
+0	91	scripts/final-verification.sh
+0	54	scripts/fix-all-endpoints.sh
+0	89	scripts/fix-branch-config.sh
+0	52	scripts/fix-branch-mapping.sh
+0	79	scripts/fix-prisma-imports.sh
+0	55	scripts/force-branch-config.sh
+0	118	scripts/generate-credentials.sh
+336	0	scripts/migrate-database.js
+0	148	scripts/migrate-dev-to-prod.js
+0	60	scripts/migrate-vercel.js
+40	0	scripts/migrate.sh
+0	174	scripts/prod-db.js
+0	104	scripts/reset-all-environments.sh
+0	83	scripts/reset-dev-variables.sh
+0	25	scripts/setup-environments.sh
+0	21	scripts/show-credentials.sh
+0	58	scripts/test-api-auth.js
+0	90	scripts/test-auth.js
+0	49	scripts/test-complete-login.sh
+0	82	scripts/test-deployment-auth.js
+0	44	scripts/test-full-auth.sh
+0	53	scripts/update-dev-connection.sh
+0	131	scripts/verify-both-environments.sh
+0	96	scripts/verify-credentials.sh
+
+---
+a62e0157a9bf9b17eb65d431d76a710245e061ba|2025-09-24 18:25:53 -0300|Diego Andres Eiman|remove: delete non-functional check-errors.sh script
+6	0	logs.txt
+0	37	scripts/check-errors.sh
+
+---
+379bb0ff84fbbbd3793b836616900f1ca4a3af26|2025-09-24 18:23:53 -0300|Diego Andres Eiman|feat: optimize all API endpoints with centralized Prisma client management
+0	24	logs.txt
+54	0	scripts/fix-all-endpoints.sh
+18	42	src/app/api/categories/route.ts
+18	14	src/app/api/clients/route.ts
+15	11	src/app/api/products/route.ts
+16	14	src/app/api/remitos/route.ts
+53	69	src/app/api/users/route.ts
+41	0	src/lib/prisma.ts
+
+---
+7b4be389ee1adba8ce912b963f1a68c3689883ea|2025-09-24 18:14:22 -0300|Diego Andres Eiman|fix: resolve prisma undefined errors in users and categories endpoints
+24	0	logs.txt
+37	0	scripts/check-errors.sh
+79	0	scripts/fix-prisma-imports.sh
+29	1	src/app/api/categories/route.ts
+29	1	src/app/api/users/route.ts
+
+---
+7bd8e5b923901e188c9fc31cb40adc7bcf58ac3b|2025-09-24 14:27:58 -0300|Diego Andres Eiman|fix: create dedicated Prisma client for NextAuth to resolve undefined prisma error
+45	0	scripts/final-solution.sh
+28	1	src/lib/auth.ts
+
+---
+44574301367f1799f9bc87b859a9540b195b4006|2025-09-24 14:22:32 -0300|Diego Andres Eiman|fix: ensure database URL is configured before creating Prisma client
+6	1	src/lib/db.ts
+
+---
+47dd11480062d984ebd42300ea23ad923e346e50|2025-09-24 14:19:12 -0300|Diego Andres Eiman|fix: add prisma logging for debugging
+2	1	src/lib/db.ts
+
+---
+1597a9ec82b9d8d849a21eae1092c4c35e6df622|2025-09-24 14:15:25 -0300|Diego Andres Eiman|add: test prisma endpoint for debugging
+56	0	src/app/api/test-prisma/route.ts
+
+---
+05366a459be39c260821345717f0aca5fea384ce|2025-09-24 14:12:49 -0300|Diego Andres Eiman|fix: prisma database URL configuration
+2	2	src/lib/db.ts
+
+---
+f559f7947600eed8861c3b1c38137b574f8c17b4|2025-09-24 14:11:02 -0300|Diego Andres Eiman|fix: debugging authentication issue
+30	11	CONFIGURACION_ENTORNOS.md
+17	0	env.development
+9	2	env.example
+17	0	env.preview
+17	0	env.production
+106	104	prisma/schema.prisma
+74	0	scripts/check-deployment-db.js
+66	0	scripts/check-preview-env.sh
+60	0	scripts/check-vercel-env.sh
+52	0	scripts/clean-dev-variables.sh
+72	0	scripts/clean-prod-variables.sh
+108	0	scripts/create-users-both-envs.js
+108	0	scripts/create-users-direct.js
+122	0	scripts/create-users-final.js
+116	0	scripts/create-users-fixed.js
+75	0	scripts/create-users.js
+108	0	scripts/debug-auth.sh
+58	0	scripts/debug-nextauth.sh
+43	0	scripts/direct-auth-test.sh
+116	0	scripts/final-diagnosis-complete.sh
+109	0	scripts/final-diagnosis.sh
+91	0	scripts/final-verification.sh
+89	0	scripts/fix-branch-config.sh
+52	0	scripts/fix-branch-mapping.sh
+55	0	scripts/force-branch-config.sh
+118	0	scripts/generate-credentials.sh
+104	0	scripts/reset-all-environments.sh
+83	0	scripts/reset-dev-variables.sh
+21	0	scripts/show-credentials.sh
+58	0	scripts/test-api-auth.js
+90	0	scripts/test-auth.js
+49	0	scripts/test-complete-login.sh
+82	0	scripts/test-deployment-auth.js
+44	0	scripts/test-full-auth.sh
+53	0	scripts/update-dev-connection.sh
+131	0	scripts/verify-both-environments.sh
+96	0	scripts/verify-credentials.sh
+38	0	src/app/api/check-db/route.ts
+71	0	src/app/api/debug-auth/route.ts
+30	34	src/app/api/test-db/route.ts
+0	17	src/app/api/test-simple/route.ts
+12	5	src/lib/auth.ts
+7	5	src/lib/db.ts
+
+---
+117533a5bbec2dd952055654294252a37d54be4b|2025-09-23 23:51:45 -0300|Diego Andres Eiman|feat: agregar endpoint test-simple para probar funcionalidad básica
+17	0	src/app/api/test-simple/route.ts
+
+---
+8ecb0983e566ed3fcb18f5f516afc06b98b4f65d|2025-09-23 23:46:00 -0300|Diego Andres Eiman|feat: agregar endpoint simple-seed para probar conexión
+40	0	src/app/api/simple-seed/route.ts
+
+---
+cd00beb9397a5fb53f757d7787da562fad181391|2025-09-23 23:44:41 -0300|Diego Andres Eiman|fix: corregir endpoint populate con instancia directa de Prisma
+14	1	src/app/api/populate/route.ts
+
+---
+8e39e256a293a604c05ddb857f54b4330346b17e|2025-09-23 23:43:16 -0300|Diego Andres Eiman|clean: limpiar scripts innecesarios y agregar endpoint de test
+0	42	scripts/check-data.js
+0	47	scripts/check-db-schema.js
+0	63	scripts/check-db-structure.js
+0	41	scripts/check-product-schema.js
+0	33	scripts/debug-products.js
+0	48	scripts/fix-product-descriptions.js
+0	55	scripts/fix-stock-field.js
+0	97	scripts/populate-prod-simple.js
+0	195	scripts/populate-production.js
+0	107	scripts/setup-dev-db.js
+0	141	scripts/simple-migrate.js
+0	30	scripts/test-api.js
+0	31	scripts/update-products-stock.js
+0	81	src/app/api/seed/route.ts
+46	0	src/app/api/test-db/route.ts
+
+---
+de238f3a5399afbc4696ea7b977de5119b19b17b|2025-09-23 23:41:07 -0300|Diego Andres Eiman|fix: corregir función getDatabaseUrl para evitar undefined
+2	2	src/lib/db.ts
+
+---
+5036cab90a61c5a39f07f05062c79c4a548473ec|2025-09-23 23:40:00 -0300|Diego Andres Eiman|feat: agregar endpoint simple para seed básico
+81	0	src/app/api/seed/route.ts
+
+---
+3a8830f1a713be30e6f78bde68f4fa643647e3d7|2025-09-23 23:38:57 -0300|Diego Andres Eiman|fix: corregir endpoint de poblamiento y agregar script simple
+97	0	scripts/populate-prod-simple.js
+4	0	src/app/api/populate/route.ts
+
+---
+9f17447df62919658dfcd3000d1ab8527acaa061|2025-09-23 23:35:01 -0300|Diego Andres Eiman|feat: agregar scripts reutilizables para manejo de base de datos
+174	0	scripts/dev-db.js
+174	0	scripts/prod-db.js
+
+---
+eaac7af707ec6218b87cde6fcc615dad1a3fbb48|2025-09-23 23:26:35 -0300|Diego Andres Eiman|🔧 Agregar endpoint temporal para poblar datos de producción
+40	30	scripts/populate-production.js
+172	0	src/app/api/populate/route.ts
+
+---
+0efcecdedc5da0149102b9a4a456c71d29661be8|2025-09-23 23:22:56 -0300|Diego Andres Eiman|🔧 CORRECCIÓN CRÍTICA: Corregir autenticación para usar instancia centralizada de Prisma
+1	3	src/app/api/users/route.ts
+1	3	src/lib/auth.ts
+
+---
+c5726f013171fee829bfbd50f94d0c4fb2badde5|2025-09-23 23:20:19 -0300|Diego Andres Eiman|🔧 Corregir APIs para usar instancia centralizada de Prisma con configuración correcta de base de datos
+1	7	src/app/api/categories/[id]/route.ts
+1	9	src/app/api/categories/route.ts
+1	7	src/app/api/clients/[id]/route.ts
+1	7	src/app/api/clients/route.ts
+1	7	src/app/api/products/[id]/route.ts
+1	9	src/app/api/products/route.ts
+1	3	src/app/api/remitos/[id]/route.ts
+1	7	src/app/api/remitos/route.ts
+
+---
+3eb6c6b98e48bfc24db2d4aad69f89c336ab3ca8|2025-09-23 23:11:59 -0300|Diego Andres Eiman|🗑️ Eliminar script con credenciales expuestas
+0	183	scripts/populate-prod-direct.js
+
+---
+40674bb6a93c6d9b6b7de95eab91d9ebd742f608|2025-09-23 23:11:44 -0300|Diego Andres Eiman|🔧 Agregar prisma.() a todas las APIs para corregir errores de conexión
+183	0	scripts/populate-prod-direct.js
+6	0	src/app/api/categories/route.ts
+6	0	src/app/api/products/route.ts
+4	0	src/app/api/remitos/route.ts
+
+---
+f782ff91ca3cc97f3727ce22151fb4cde81f47f8|2025-09-23 23:07:26 -0300|Diego Andres Eiman|🗑️ Eliminar script con credenciales expuestas
+0	183	scripts/populate-prod-direct.js
+
+---
+88008430b327adf9f73c71baadcebdd6a9135da4|2025-09-23 23:07:08 -0300|Diego Andres Eiman|🔧 Corregir errores de APIs y poblar datos de producción
+183	0	scripts/populate-prod-direct.js
+185	0	scripts/populate-production.js
+4	0	src/app/api/clients/route.ts
+
+---
+eac576156f9068382dc063ea293c42a31e0f1774|2025-09-23 16:40:42 -0300|Diego Andres Eiman|🚨 URGENTE: Eliminar credenciales expuestas de scripts - seguridad
+6	0	.gitignore
+0	136	scripts/direct-migrate.js
+0	189	scripts/final-seed.js
+0	138	scripts/seed-dev-data.js
+0	138	scripts/simple-create.js
+0	147	scripts/simple-seed.js
+
+---
+f977aef017040c5d4f3ec0fa71aaa2c7c0d1693e|2025-09-23 16:32:03 -0300|Diego Andres Eiman|🔧 Corregir error .filter() en dashboard - agregar validaciones de array
+136	0	scripts/direct-migrate.js
+189	0	scripts/final-seed.js
+148	0	scripts/migrate-dev-to-prod.js
+138	0	scripts/seed-dev-data.js
+138	0	scripts/simple-create.js
+141	0	scripts/simple-migrate.js
+147	0	scripts/simple-seed.js
+23	9	src/app/dashboard/page.tsx
+
+---
+62670f6c08d86a916a49b8908a2b710cefa1e3e9|2025-09-23 15:37:35 -0300|Diego Andres Eiman|🔧 Corregir configuración de base de datos para usar variables correctas por entorno
+53	0	scripts/configure-separate-databases.sh
+10	5	src/lib/db.ts
+
+---
+6fc8bfd490a2de8712bc7aae90090880970a2fc9|2025-09-23 14:47:44 -0300|Diego Andres Eiman|fix: corregir error 500 en API de clientes
+58	12	src/app/api/clients/[id]/route.ts
+
+---
+42d2158dc980182c48a479ce8ea9f987a8980567|2025-09-23 14:40:49 -0300|Diego Andres Eiman|feat: cambiar banner naranja por card movible
+39	0	src/app/globals.css
+68	11	src/components/common/EnvironmentBanner.tsx
+
+---
+32171854e1825f1bfab9603bd25ffca11ce4b9a3|2025-09-23 14:36:41 -0300|Diego Andres Eiman|feat: configurar bases de datos separadas por entorno
+19	0	scripts/configure-db-variables.sh
+17	1	src/lib/db.ts
+
+---
+08c34f02acc519533d643acbf3189b5e378af554|2025-09-23 14:24:42 -0300|Diego Andres Eiman|docs: agregar configuración para entornos separados
+68	0	CONFIGURACION_ENTORNOS.md
+25	0	scripts/setup-environments.sh
+
+---
+b4c0b2b5bfb859be21b5c29cdf074bec90deddd1|2025-09-23 14:01:42 -0300|Diego Andres Eiman|fix: corregir detección de entorno con URLs reales
+9	4	src/hooks/useEnvironment.ts
+
+---
+e44c7a4499ee8309001f21b534e5ecb5644981e6|2025-09-23 14:00:21 -0300|Diego Andres Eiman|fix: simplificar detección de entorno para corregir banner en producción
+6	12	src/hooks/useEnvironment.ts
+
+---
+7f6a44d93a69e4ce46b3eeb88db42e45d72e6913|2025-09-23 13:46:29 -0300|Diego Andres Eiman|fix: corregir detección de entorno y crear scripts de deploy
+23	0	scripts/deploy-develop.sh
+20	0	scripts/deploy-production.sh
+9	2	src/hooks/useEnvironment.ts
+
+---
+095b0e73eb92334eebbfb46f5e590c49dbf59a14|2025-09-23 13:32:24 -0300|Diego Andres Eiman|fix: mover credenciales al banner naranja y mejorar centrado
+2	12	src/app/auth/login/page.tsx
+10	0	src/components/common/EnvironmentBanner.tsx
+15	0	vercel-preview.json
+
+---
+d7a25612c2993351637640159bdcc88d5cd4a059|2025-09-23 13:20:17 -0300|Diego Andres Eiman|fix: mejorar estética de login y credenciales condicionales
+13	9	src/app/auth/login/page.tsx
+
+---
+063ca49ef075ba5c4d30ce6aedd2d11380b6f38c|2025-09-23 13:14:10 -0300|Diego Andres Eiman|trigger: forzar deploy automático
+1	0	README.md
+
+---
+a32aadfbec5d79f5d022adba2ff28b9b13226f2b|2025-09-23 13:03:59 -0300|Diego Andres Eiman|fix: mejorar estética de pantalla de login
+6	15	src/app/auth/login/page.tsx
+77	0	src/app/globals.css
+
+---
+ddc6154119cabd9a72d0ea432c91f3ced60337c1|2025-09-23 12:46:44 -0300|Diego Andres Eiman|fix: limpiar package.json y agregar tipos TypeScript
+4	23	package.json
+
+---
+a3e0268e72a8a63e64681aa59e3c8efca9e1371c|2025-09-23 12:41:23 -0300|Diego Andres Eiman|fix: duplicar dependencias para Vercel
+19	0	package.json
+
+---
+ee15991aa2d6a7e492fa6db0e51cc64846330aeb|2025-09-23 12:40:23 -0300|Diego Andres Eiman|fix: mover tailwindcss a dependencias de producción
+1	1	package.json
+
+---
+906dc6c94b48397c538b2426b7b1bf97b4692778|2025-09-23 12:37:43 -0300|Diego Andres Eiman|test: forzar deployment con Tailwind CSS v3
+2	0	README.md
+
+---
+a31bbd6b1b28792bed3cb870f035177971eae947|2025-09-23 12:34:36 -0300|Diego Andres Eiman|fix: cambiar a Tailwind CSS v3 estable
+961	684	package-lock.json
+1	2	package.json
+1	1	postcss.config.js
+
+---
+b1e370728d2457f0bbde2a5e13a61ce1cb8c692b|2025-09-23 12:33:07 -0300|Diego Andres Eiman|force: forzar nuevo deployment sin cache
+1	1	README.md
+
+---
+d9211fd5c398522d17e64737466cfbc4891e5b3f|2025-09-23 12:27:50 -0300|Diego Andres Eiman|fix: corregir configuración de PostCSS para Tailwind CSS v4
+2	51	package-lock.json
+1	1	package.json
+1	1	postcss.config.js
+
+---
+b42e0d75e86fe4c90387c07cf426deb8266d93ec|2025-09-23 12:23:59 -0300|Diego Andres Eiman|fix: mover tailwindcss a dependencias de producción
+1	1	package.json
+
+---
+c8fec057562f84d9585af659ab7e292088c476bb|2025-09-23 12:22:06 -0300|Diego Andres Eiman|fix: agregar configuración de Tailwind CSS
+159	1	package-lock.json
+1	0	package.json
+6	0	postcss.config.js
+5	12	scripts/deploy-dev.sh
+12	0	tailwind.config.js
+
+---
+b3383790128c061fbd9365626a68d142c47e9c84|2025-09-23 11:56:05 -0300|Diego Andres Eiman|test: activar deploy automático en proyecto v0-remitero
+2	0	README.md
+
+---
+d83b6fdd8090f32ab584fdfc19c56a7c51c67e51|2025-09-23 11:31:06 -0300|Diego Andres Eiman|feat: mejorar estética de pantalla de login
+23	15	src/app/auth/login/page.tsx
+62	0	src/app/globals.css
+
+---
+8a2a53b1c4cf155c20dba0ffcbca0b49c63cfa38|2025-09-23 07:59:40 -0300|Diego Andres Eiman|feat: agregar banner visual para diferenciar entornos
+29	0	src/app/globals.css
+2	0	src/app/layout.tsx
+54	0	src/components/common/EnvironmentBanner.tsx
+10	0	src/components/common/EnvironmentBannerWrapper.tsx
+36	0	src/hooks/useEnvironment.ts
+
+---
+0d8ea2d526fbb74c122da72ea7ff8bdf9b0fe860|2025-09-22 19:44:51 -0300|Diego Andres Eiman|feat: agregar script de configuración de base de datos de desarrollo
+107	0	scripts/setup-dev-db.js
+8	31	src/app/api/products/[id]/route.ts
+
+---
+68805ff20c05ac519db339aece19702b8ada373d|2025-09-22 19:18:57 -0300|Diego Andres Eiman|feat: configurar entornos separados de desarrollo y producción
+65	0	ENTORNOS.md
+9	0	env.example
+28	0	scripts/deploy-dev.sh
+28	0	scripts/deploy-prod.sh
+60	0	scripts/migrate-vercel.js
+2	16	src/app/dashboard/page.tsx
+1	14	src/app/productos/ProductosContent.tsx
+1	12	src/app/remitos/page.tsx
+21	0	vercel-branches.json
+12	5	vercel.json
+
+---
+7fb60c32e01cf90318a6170b2db442f70e0eea4b|2025-09-22 19:08:06 -0300|Diego Andres Eiman|fix: solución compatible para stock en local y Vercel
+63	0	scripts/check-db-structure.js
+89	0	src/app/api/debug-product/route.ts
+31	8	src/app/api/products/[id]/route.ts
+16	2	src/app/dashboard/page.tsx
+14	2	src/app/productos/ProductosContent.tsx
+2	2	src/app/remitos/page.tsx
+
+---
+a1ac7600e0c187c1c5aa6dfba23c768f218e1136|2025-09-22 15:23:27 -0300|Diego Andres Eiman|fix: corregir manejo de stock en campo dedicado
+65	0	scripts/clean-stock-descriptions.js
+0	100	src/app/api/debug-product/route.ts
+2	8	src/app/dashboard/page.tsx
+7	23	src/app/productos/ProductosContent.tsx
+3	6	src/app/remitos/page.tsx
+
+---
+ca4c7e64a0c9b25655bc9fc93b2409e92421b655|2025-09-22 15:16:18 -0300|Diego Andres Eiman|fix: corregir espaciado de iconos y error de Vercel
+3	2	src/app/categorias/page.tsx
+5	4	src/app/clientes/page.tsx
+
+---
+6dbb6736847d5704770278a41a6e73b7cb63487a|2025-09-22 15:05:54 -0300|Diego Andres Eiman|fix: corregir múltiples problemas de UI y funcionalidad
+9	2	src/app/categorias/page.tsx
+2	2	src/app/clientes/page.tsx
+16	0	src/app/globals.css
+33	3	src/app/remitos/page.tsx
+10	3	src/app/usuarios/page.tsx
+
+---
+225a2cd80abdbdda171868cb0295fe2cb2b38fc9|2025-09-22 14:51:51 -0300|Diego Andres Eiman|fix: corregir error de Suspense boundary en useSearchParams
+16	2	src/app/categorias/page.tsx
+16	2	src/app/clientes/page.tsx
+16	2	src/app/productos/ProductosContent.tsx
+16	2	src/app/remitos/page.tsx
+
+---
+0a6fc55e02eb047f999b767e7964588f71f898b4|2025-09-22 14:45:53 -0300|Diego Andres Eiman|feat: mejorar dashboard y enlaces de creación
+12	0	src/app/categorias/page.tsx
+12	0	src/app/clientes/page.tsx
+4	26	src/app/dashboard/page.tsx
+16	2	src/app/globals.css
+10	0	src/app/productos/ProductosContent.tsx
+13	0	src/app/remitos/page.tsx
+
+---
+48174ea5ebb7b09432cc7c2bf777f1dd739d2f83|2025-09-22 14:37:51 -0300|Diego Andres Eiman|feat: mejorar botones del dashboard con Ver y Nuevo lado a lado
+31	4	src/app/dashboard/page.tsx
+32	4	src/app/globals.css
+
+---
+c06b750eb7b12cd7d08aca0a0592e92010e993d1|2025-09-22 14:28:59 -0300|Diego Andres Eiman|fix: eliminar duplicaciones y corregir dashboard
+2	21	src/app/clientes/page.tsx
+30	58	src/app/dashboard/page.tsx
+136	3	src/app/globals.css
+0	16	src/app/productos/ProductosContent.tsx
+
+---
+12a6a6c2f4a6f30cb8d0b0e053a64e7a835b5789|2025-09-22 14:21:29 -0300|Diego Andres Eiman|fix: corregir error de sintaxis en categorias/page.tsx
+7	6	src/app/categorias/page.tsx
+
+---
+bba1c05e147fa52c9cf10745297739abfb063c0f|2025-09-22 14:13:34 -0300|Diego Andres Eiman|fix: corregir múltiples problemas de UX y estandarizar ABM
+5	0	src/app/api/clients/route.ts
+5	12	src/app/categorias/page.tsx
+14	2	src/app/clientes/page.tsx
+10	1	src/app/globals.css
+38	5	src/app/productos/ProductosContent.tsx
+
+---
+9e86ba00e23e01b884c6c5bee5ce2cd1e197fc43|2025-09-22 14:00:32 -0300|Diego Andres Eiman|feat: mejorar UX y funcionalidad en todos los ABM
+11	4	src/app/clientes/page.tsx
+200	70	src/app/dashboard/page.tsx
+9	2	src/app/productos/ProductosContent.tsx
+21	5	src/app/remitos/page.tsx
+
+---
+12aa39a6f8abf03d509d99f3f3770b7061ee74e3|2025-09-22 13:48:37 -0300|Diego Andres Eiman|feat: mejorar listados de clientes y remitos con filtros y UX
+11	4	src/app/clientes/page.tsx
+83	4	src/app/remitos/page.tsx
+
+---
+9c6d8255bb95a9b06f995ccf2e5354bd3db4a68d|2025-09-22 13:37:14 -0300|Diego Andres Eiman|feat: mejorar UX de formulario de remitos y jerarquía de títulos
+45	0	src/app/globals.css
+6	5	src/app/remitos/page.tsx
+3	4	src/components/layout/Header.tsx
+
+---
+5bd3bc0e555ed9bd3d781364bb0024c3453efb9b|2025-09-22 13:29:19 -0300|Diego Andres Eiman|fix: corregir cálculo del total en impresión de remitos
+7	2	src/app/remitos/page.tsx
+
+---
+637baab14fd086f875e6f22a01fcb280d0ce2ca5|2025-09-22 13:25:21 -0300|Diego Andres Eiman|fix: filtrar productos sin stock en frontend para compatibilidad
+18	2	src/app/remitos/page.tsx
+
+---
+78105aa9ad93f5c72768fcc4fad28620cdc3fc5e|2025-09-22 13:23:32 -0300|Diego Andres Eiman|fix: filtrar productos sin stock en remitos y limpiar descripciones
+11	2	src/app/remitos/page.tsx
+
+---
+3070bf513c4a6f98393027c7279882d8caa5c846|2025-09-22 13:17:50 -0300|Diego Andres Eiman|fix: corregir visualización de stock y limpiar descripción
+30	4	src/app/productos/ProductosContent.tsx
+
+---
+28d9681524abd0b1b72ea910fb8d63573f59b307|2025-09-22 13:13:45 -0300|Diego Andres Eiman|fix: solución temporal para campo stock no disponible en producción
+47	0	scripts/check-db-schema.js
+37	18	src/app/api/debug-product/route.ts
+
+---
+e565c80ac108d372ab7dd8a062337821fcf4a17e|2025-09-22 13:08:35 -0300|Diego Andres Eiman|debug: agregar endpoint de debug para identificar problema de stock
+81	0	src/app/api/debug-product/route.ts
+5	4	src/app/productos/ProductosContent.tsx
+
+---
+c86d422e6e3977e858c030a57e36c35b259decea|2025-09-22 12:52:31 -0300|Diego Andres Eiman|fix: simplificar endpoint de productos y corregir cambio de stock
+55	0	scripts/fix-stock-field.js
+13	29	src/app/api/products/[id]/route.ts
+4	5	src/app/productos/ProductosContent.tsx
+
+---
+e247f6c3432814513ded431df3ca20030d14431b|2025-09-22 12:40:57 -0300|Diego Andres Eiman|fix: corregir endpoint de test stock y mejorar UI de remitos
+13	1	src/app/api/test-stock/route.ts
+15	0	src/app/globals.css
+16	4	src/app/remitos/page.tsx
+
+---
+d765d68c4ffa641419885c1f846688d3f2a99ac2|2025-09-22 12:26:15 -0300|Diego Andres Eiman|debug: agregar endpoint de test para stock y revertir filtro
+42	0	scripts/check-data.js
+41	0	scripts/check-product-schema.js
+39	0	src/app/api/test-stock/route.ts
+11	5	src/app/productos/ProductosContent.tsx
+1	1	src/app/remitos/page.tsx
+
+---
+fef95e16c6ea851a3f852995bff0934e8bef34e8|2025-09-22 11:59:08 -0300|Diego Andres Eiman|fix: corregir total NaN, stock y filtro de productos
+11	1	src/app/api/products/route.ts
+3	3	src/app/remitos/page.tsx
+
+---
+135d9aa9eccaf615a44e8a7b97b948a52004a83a|2025-09-22 11:53:37 -0300|Diego Andres Eiman|fix: corregir validación de productDesc nullable
+1	33	src/app/remitos/page.tsx
+1	1	src/lib/validations.ts
+
+---
+0f28633019c195e1977b27564c00723a4ed8e8ee|2025-09-22 11:49:08 -0300|Diego Andres Eiman|debug: mejorar logging de errores de validación
+12	1	src/app/api/test-validation/route.ts
+
+---
+01d0911cf7a4338b0dcdd225febf7464515c21ff|2025-09-22 11:43:52 -0300|Diego Andres Eiman|debug: agregar análisis detallado de datos en validación
+11	1	src/app/api/test-validation/route.ts
+3	0	src/app/remitos/page.tsx
+
+---
+b14e11c99915c9e6a20dd08c36042fbaee2d317b|2025-09-22 11:38:08 -0300|Diego Andres Eiman|debug: agregar endpoint de validación paso a paso
+72	0	src/app/api/test-validation/route.ts
+18	0	src/app/remitos/page.tsx
+
+---
+8c3edaba3da086cf495b255719336a5e89f8cd1b|2025-09-22 11:21:33 -0300|Diego Andres Eiman|debug: agregar endpoint de debug y logging detallado para remitos
+21	0	src/app/api/debug-remito/route.ts
+25	0	src/app/remitos/page.tsx
+
+---
+b326649c9ae8bc5c2cd3e7a0ee7b2f44e8b19676|2025-09-22 11:13:21 -0300|Diego Andres Eiman|debug: agregar logging detallado para POST remitos y regenerar Prisma
+12	6	src/app/api/remitos/route.ts
+
+---
+d2f593259cbd828f39b0de5ebfdf2624236ba60c|2025-09-22 11:08:56 -0300|Diego Andres Eiman|fix: eliminar validación de prueba que causaba error 400
+1	0	src/app/api/test-deploy/route.ts
+2	27	src/app/remitos/page.tsx
+
+---
+cd889bab6814566caa4eb04111db1c57bd811fa4|2025-09-20 14:38:45 -0300|Diego Andres Eiman|debug: agregar logging detallado para debugging de stock
+4	1	src/app/api/products/[id]/route.ts
+9	0	src/app/api/test-deploy/route.ts
+
+---
+c400ce80b9764cc4098c2a3400ab8fecb41dd594|2025-09-20 14:30:46 -0300|Diego Andres Eiman|fix: corregir endpoints de categorías y debugging de productos
+45	9	src/app/api/categories/[id]/route.ts
+7	0	src/app/api/products/[id]/route.ts
+
+---
+a8e18712d204766aa524fb1cd5e04d3f666e7af8|2025-09-20 14:27:36 -0300|Diego Andres Eiman|fix: corregir validación de enum StockStatus
+10	1	src/app/api/products/[id]/route.ts
+
+---
+81d75230a7f71eb99e58f8cc51440f7eefe2c599|2025-09-20 14:25:41 -0300|Diego Andres Eiman|debug: agregar información de debug para error 500
+10	2	src/app/api/products/[id]/route.ts
+2	1	src/app/productos/ProductosContent.tsx
+
+---
+52de9ee770908975a1da0f1bdcda20342231ba76|2025-09-20 14:23:01 -0300|Diego Andres Eiman|fix: corregir layout y debugging de stock
+4	0	src/app/api/products/[id]/route.ts
+5	3	src/app/globals.css
+15	30	src/app/productos/ProductosContent.tsx
+4	1	src/components/common/SearchAndPagination.tsx
+
+---
+2e582207814a08e5e4203be44b6f35f342173291|2025-09-20 13:38:38 -0300|Diego Andres Eiman|fix: corregir layout y debugging de stock
+19	1	src/app/api/products/[id]/route.ts
+39	6	src/app/globals.css
+37	24	src/app/productos/ProductosContent.tsx
+
+---
+144d0f346ab147638aa2fc3c92d8b662f20b7f30|2025-09-20 13:30:17 -0300|Diego Andres Eiman|fix: corregir problemas pendientes del listado de productos
+35	15	src/app/api/products/[id]/route.ts
+29	2	src/app/globals.css
+28	25	src/app/productos/ProductosContent.tsx
+
+---
+bfa5079041584a09dd86fe951585a676573fa98c|2025-09-20 13:23:07 -0300|Diego Andres Eiman|fix: resolver todos los problemas del listado de productos
+48	0	scripts/fix-product-descriptions.js
+7	1	src/app/globals.css
+3	3	src/app/productos/ProductosContent.tsx
+
+---
+4ceed25babe7fff379acc7788aa4957111055844|2025-09-20 13:14:50 -0300|Diego Andres Eiman|debug: investigar y corregir duplicación del nombre del producto
+33	0	scripts/debug-products.js
+30	0	scripts/test-api.js
+17	0	src/app/globals.css
+3	3	src/app/productos/ProductosContent.tsx
+
+---
+ee0525b55055723b8a535ebcf7e81c4563ddd2d5|2025-09-20 12:51:45 -0300|Diego Andres Eiman|fix: corregir problemas visuales y funcionales del listado de productos
+19	33	src/app/api/products/route.ts
+23	4	src/app/globals.css
+1	1	src/app/productos/ProductosContent.tsx
+
+---
+f77bd7346d6bdd214e0584283f43da3658ed7dc3|2025-09-20 12:46:01 -0300|Diego Andres Eiman|fix: corregir problemas del listado de productos
+0	120	prisma/migrations/20250919151112_init/migration.sql
+0	3	prisma/migrations/migration_lock.toml
+31	0	scripts/update-products-stock.js
+34	12	src/app/api/products/route.ts
+5	4	src/app/globals.css
+3	3	src/app/productos/ProductosContent.tsx
+
+---
+9dff58988444021cc7b67022a32a30b2b56289ef|2025-09-20 12:38:21 -0300|Diego Andres Eiman|feat: mejorar listado de productos con nuevas funcionalidades
+6	0	prisma/schema.prisma
+49	0	src/app/globals.css
+49	6	src/app/productos/ProductosContent.tsx
+2	1	src/lib/validations.ts
+
+---
+a49fd92cc2cfd658c536e7bec830a5928cb6efef|2025-09-20 12:27:16 -0300|Diego Andres Eiman|optimize: mejorar experiencia de impresión
+5	2	src/app/remitos/page.tsx
+
+---
+db451136d8c82f9cc4406401b189cf678c1f8637|2025-09-20 11:42:54 -0300|Diego Andres Eiman|fix: eliminar impresión duplicada y limpiar logging
+0	17	src/app/remitos/page.tsx
+
+---
+163a3b271cb935765cb00d2c7685292006d8b2d6|2025-09-20 11:40:40 -0300|Diego Andres Eiman|debug: agregar logging detallado para debuggear impresión
+29	7	src/app/remitos/page.tsx
+
+---
+244433b576b9634cc81be69c17ca68171fd1570e|2025-09-20 03:08:22 -0300|Diego Andres Eiman|feat: implementar impresión en nueva ventana con HTML completo
+173	13	src/app/remitos/page.tsx
+
+---
+f21e734083b84acd6efaa4a55fdb9c00f715887e|2025-09-20 03:03:01 -0300|Diego Andres Eiman|fix: corregir estilos CSS de impresión para vista previa
+7	3	src/app/globals.css
+
+---
+5495daccc9902989274819c6aca5c02132b5e69f|2025-09-20 03:00:25 -0300|Diego Andres Eiman|debug: hacer contenido de impresión visible temporalmente
+2	2	src/app/globals.css
+23	1	src/app/remitos/page.tsx
+
+---
+3a0192c704a0ba115280c7e2186afc1761b6d0fe|2025-09-20 02:57:15 -0300|Diego Andres Eiman|fix: ocultar contenido de impresión en pantalla, mostrar solo al imprimir
+10	0	src/app/globals.css
+1	23	src/app/remitos/page.tsx
+
+---
+c2491a9b8962e19e91c730b48f98281e20faf420|2025-09-20 02:54:09 -0300|Diego Andres Eiman|debug: agregar indicador visual y estilos inline para impresión
+23	1	src/app/remitos/page.tsx
+
+---
+384bc7cae8ccc0e9fa569785b212bd57457efed6|2025-09-20 02:51:39 -0300|Diego Andres Eiman|fix: simplificar impresión eliminando modal
+3	138	src/app/remitos/page.tsx
+
+---
+2d2d960ce4f0b59786905e9b394ded56c46e4a15|2025-09-20 02:48:36 -0300|Diego Andres Eiman|fix: implementar impresión directa en página principal
+1	20	src/app/globals.css
+124	1	src/app/remitos/page.tsx
+
+---
+2f0e2826e36e44129d54b7b8f918a14148e84866|2025-09-20 02:45:08 -0300|Diego Andres Eiman|fix: corregir impresión en blanco del modal
+22	1	src/app/globals.css
+
+---
+cce5abca3344aaecb01f8f6fe91c92987a27bc65|2025-09-20 02:42:15 -0300|Diego Andres Eiman|feat: implementar modal de impresión sin nueva pestaña
+80	1	src/app/globals.css
+139	5	src/app/remitos/page.tsx
+
+---
+3f605af04abf652d05d1ded4e1b9f113bb23ef9c|2025-09-20 02:37:44 -0300|Diego Andres Eiman|fix: agregar endpoint GET para obtener remito individual
+54	0	src/app/api/remitos/[id]/route.ts
+
+---
+d70307de2f1b6e3654dfc092d27b59f39c48a4f5|2025-09-20 02:34:44 -0300|Diego Andres Eiman|feat: unificar columna de estado con desplegable
+43	0	src/app/globals.css
+9	13	src/app/remitos/page.tsx
+
+---
+830c31e50aedb3da430bb27a9b640657b9579091|2025-09-20 02:19:33 -0300|Diego Andres Eiman|fix: convertir strings a números en validación de remitos
+16	7	src/app/remitos/page.tsx
+
+---
+5d09c0abc9d65cd15fd899e495c2168052f1dfd3|2025-09-20 02:16:48 -0300|Diego Andres Eiman|fix: simplificar endpoint de test y mejorar manejo de errores
+2	14	src/app/api/test-remito/route.ts
+10	4	src/app/remitos/page.tsx
+
+---
+5f373002a83d86b225098c2e0f8cae197d262883|2025-09-20 02:09:33 -0300|Diego Andres Eiman|debug: mostrar detalles específicos de error de validación
+2	1	src/app/api/test-remito/route.ts
+4	0	src/app/remitos/page.tsx
+
+---
+d3f25e5e0ca4ee89c3507f9001c23e95d599b389|2025-09-20 02:07:04 -0300|Diego Andres Eiman|debug: mejorar logging para identificar error de validación
+4	2	src/app/api/remitos/[id]/route.ts
+17	2	src/app/remitos/page.tsx
+
+---
+fe123c2965b961e6497056b5792342307b4719b4|2025-09-20 02:04:16 -0300|Diego Andres Eiman|fix: crear endpoint PUT dinámico para actualizar remitos
+74	39	src/app/api/remitos/[id]/route.ts
+0	90	src/app/api/remitos/route.ts
+
+---
+7518f07051005bcdec0c3be4c882d9d269f0f7ba|2025-09-20 02:02:07 -0300|Diego Andres Eiman|debug: simplificar endpoint de test y saltar validación temporal
+11	10	src/app/api/test-remito/route.ts
+2	16	src/app/remitos/page.tsx
+
+---
+7830393c04d565ded54544c46a4d3d673be498b1|2025-09-20 01:59:30 -0300|Diego Andres Eiman|feat: implementar actualización de remitos
+91	0	src/app/api/remitos/route.ts
+14	4	src/app/remitos/page.tsx
+
+---
+bdb49add30cd7808bf3ed6470c544efbe64de579|2025-09-20 01:51:53 -0300|Diego Andres Eiman|fix: corregir concatenación de números y error 500
+2	1	src/app/api/test-remito/route.ts
+4	3	src/app/remitos/page.tsx
+
+---
+603971db2aacf798865418fafa7a453f510c3bef|2025-09-20 01:47:47 -0300|Diego Andres Eiman|fix: corregir duplicación del símbolo $ en formato de moneda
+4	4	src/app/remitos/page.tsx
+
+---
+c5302238c60ab9b2cc80c58c254f7b40dc836b9f|2025-09-20 01:44:29 -0300|Diego Andres Eiman|feat: agregar separación de miles a todos los valores monetarios
+4	4	src/app/remitos/page.tsx
+
+---
+060eb7bffeb9d47edbbcbfa3e9c47f7d5d80f585|2025-09-20 01:41:39 -0300|Diego Andres Eiman|debug: crear endpoint de test para validación de remitos
+37	0	src/app/api/test-remito/route.ts
+17	0	src/app/remitos/page.tsx
+
+---
+39a8392169677697f1a2cdb75cec64ee9bc13917|2025-09-20 01:39:24 -0300|Diego Andres Eiman|debug: agregar test de validación detallado y strict mode
+21	3	src/app/remitos/page.tsx
+1	1	src/lib/validations.ts
+
+---
+d533a05caa76a8ca9b136f2095f4911569126013|2025-09-20 01:36:41 -0300|Diego Andres Eiman|fix: corregir tipos RemitoItem y Remito para coincidir con esquema
+1	0	src/app/remitos/page.tsx
+20	10	src/lib/types.ts
+
+---
+d92bfb7b0d8168749789495d5a6b11da4b49fa95|2025-09-20 01:34:21 -0300|Diego Andres Eiman|debug: agregar logs detallados para debuggear error de validación
+16	0	src/app/remitos/page.tsx
+
+---
+e47684544597924b2624a1d19e6f35af85df95b6|2025-09-20 00:13:03 -0300|Diego Andres Eiman|fix: corregir todos los errores toFixed en la aplicación
+1	1	src/app/productos/ProductosContent.tsx
+4	4	src/app/remitos/page.tsx
+
+---
+e73ed7130d66e4218ca5da79e18ac7da44c3668f|2025-09-19 23:23:24 -0300|Diego Andres Eiman|fix: corregir problemas de impresión y navegación
+5	1	src/app/globals.css
+5	0	src/app/remitos/[id]/print/page.tsx
+5	2	src/app/remitos/page.tsx
+
+---
+180981e048fcbcc29a16760274836d653efc14c8|2025-09-19 23:20:15 -0300|Diego Andres Eiman|fix: mejorar experiencia de impresión de remitos
+8	0	src/app/globals.css
+7	10	src/app/remitos/page.tsx
+
+---
+2e285429f78032bb6f2aa783f2ee0bedf070564e|2025-09-19 23:16:15 -0300|Diego Andres Eiman|refactor: mejorar diseño de impresión de remitos
+8	1	src/app/globals.css
+4	32	src/app/remitos/[id]/print/page.tsx
+
+---
+1e3f0f43674a8fbfa7f2dd878e8a69550d12c213|2025-09-19 23:11:08 -0300|Diego Andres Eiman|fix: corregir errores de impresión y toFixed
+33	33	src/app/globals.css
+5	5	src/app/remitos/[id]/print/page.tsx
+
+---
+ce5698b66325f8f2eccf5670b9f474dc92a15f78|2025-09-19 21:51:45 -0300|Diego Andres Eiman|feat: implementar funcionalidad de impresión de remitos
+122	0	src/app/globals.css
+188	0	src/app/remitos/[id]/print/page.tsx
+10	2	src/app/remitos/page.tsx
+
+---
+d84cbb9a526f883b765bde64ff9f3db41247e988|2025-09-19 21:48:13 -0300|Diego Andres Eiman|fix: convertir Decimal de Prisma a number para validación Zod
+3	2	src/app/remitos/page.tsx
+
+---
+6644cfa745a3f022c112c63da72656c3ffb61578|2025-09-19 21:47:38 -0300|Diego Andres Eiman|debug: agregar logs detallados en API de remitos para ver error de validación
+13	0	src/app/api/remitos/route.ts
+
+---
+b2c11bb9ed9d29f6c1b37cc3c608fbec287a14f8|2025-09-19 21:45:58 -0300|Diego Andres Eiman|fix: llamar directamente a onSubmit en lugar de usar handleSubmit
+18	3	src/app/remitos/page.tsx
+
+---
+130224520713847ebbff1e33730efcc603b0f7e2|2025-09-19 21:20:05 -0300|Diego Andres Eiman|debug: agregar logs detallados para debuggear submit de remitos
+13	2	src/app/remitos/page.tsx
+
+---
+291ff1b3365227411b68ebc2d2622b8b33e607e2|2025-09-19 21:11:24 -0300|Diego Andres Eiman|fix: mejorar estilos del desplegable y debuggear submit de remitos
+4	2	src/app/globals.css
+22	3	src/app/remitos/page.tsx
+
+---
+019dcf679bdae8270cde3476fbd6bc28728ca7a1|2025-09-19 21:06:25 -0300|Diego Andres Eiman|feat: implementar estilo Vercel auténtico en FilterableSelect
+192	0	src/app/globals.css
+30	40	src/components/common/FilterableSelect.tsx
+
+---
+98c6de7097a73ecd18e36d6ed2b6f6a56202ccef|2025-09-19 21:01:15 -0300|Diego Andres Eiman|fix: agregar import faltante de Search en FilterableSelect
+1	1	src/components/common/FilterableSelect.tsx
+
+---
+e6843d5cc578095cf17bc0ff4d3c3bd5be545451|2025-09-19 20:58:03 -0300|Diego Andres Eiman|fix: corregir múltiples problemas en ABM y mejorar UX
+46	0	src/app/api/categories/route.ts
+42	0	src/app/api/products/route.ts
+2	2	src/app/categorias/page.tsx
+26	21	src/components/common/FilterableSelect.tsx
+
+---
+759bbaf9dca34f10d8d52f4a45a62c48fdf9b8e6|2025-09-19 20:47:58 -0300|Diego Andres Eiman|fix: resolver error de Suspense boundary en productos
+418	0	src/app/productos/ProductosContent.tsx
+5	429	src/app/productos/page.tsx
+
+---
+af1477eb949eff923ae7ecb5408d8505dcd35e4d|2025-09-19 20:43:31 -0300|Diego Andres Eiman|fix: corregir errores de sintaxis JSX en categorías y productos
+1	2	src/app/categorias/page.tsx
+0	1	src/app/productos/page.tsx
+
+---
+a14f8d2face2dcf5bfe3ed865d5a5c60121dd12d|2025-09-19 20:37:04 -0300|Diego Andres Eiman|feat: completar unificación de formularios y mejoras UX
+26	30	src/app/categorias/page.tsx
+39	68	src/app/clientes/page.tsx
+3	5	src/app/usuarios/page.tsx
+
+---
+a2a50aa6441a287130e4439565174553ce5d5196|2025-09-19 20:35:10 -0300|Diego Andres Eiman|feat: unificar estilos de formularios y agregar campo precio mejorado
+31	0	src/app/globals.css
+43	58	src/app/productos/page.tsx
+
+---
+c0c7b6596e053571bc098ff123931a5891a28027|2025-09-19 20:31:14 -0300|Diego Andres Eiman|feat: mejorar formularios y filtros en ABM
+8	1	src/app/categorias/page.tsx
+32	1	src/app/productos/page.tsx
+24	24	src/app/remitos/page.tsx
+152	0	src/components/common/FilterableSelect.tsx
+
+---
+4683d746dfa98ce6bc0eed04de4bc3919acfaaf2|2025-09-19 16:16:24 -0300|Diego Andres Eiman|fix: corregir error 'Cannot read properties of undefined (reading length)'
+1	1	src/app/clientes/page.tsx
+1	0	src/hooks/useSearchAndPagination.ts
+
+---
+0cac809563f276bab1ac91270ed3ca0a86093415|2025-09-19 16:12:22 -0300|Diego Andres Eiman|fix: corregir referencias a servicios no definidos en ABM
+9	1	src/app/categorias/page.tsx
+24	5	src/app/clientes/page.tsx
+36	10	src/app/productos/page.tsx
+
+---
+5ec43270b3232e6caa769bdcbf07d842171eb6bf|2025-09-19 16:07:52 -0300|Diego Andres Eiman|feat: unificar estética y agregar búsqueda/paginación en todos los ABM
+77	69	src/app/categorias/page.tsx
+100	94	src/app/clientes/page.tsx
+93	0	src/app/globals.css
+98	91	src/app/productos/page.tsx
+30	1	src/app/usuarios/page.tsx
+76	0	src/components/common/SearchAndPagination.tsx
+69	0	src/hooks/useSearchAndPagination.ts
+
+---
+e8f8d5b0e054f7075a27d5bdd224466b8cefc54d|2025-09-19 15:51:11 -0300|Diego Andres Eiman|feat: implementar lógica de formularios condicionales en todas las secciones
+16	1	src/app/clientes/page.tsx
+28	2	src/app/usuarios/page.tsx
+
+---
+112cb755b6e8293cd45aa1606e925c84583b6471|2025-09-19 15:49:37 -0300|Diego Andres Eiman|fix: corregir error price.toFixed en remitos y agregar lógica showForm en categorías
+58	35	src/app/categorias/page.tsx
+10	0	src/app/clientes/page.tsx
+1	1	src/app/remitos/page.tsx
+
+---
+8a458db0c7374ddc4d4173ab527b50580c6d540b|2025-09-19 15:34:54 -0300|Diego Andres Eiman|fix: corregir errores restantes en categorías y dashboard
+1	1	src/app/categorias/page.tsx
+2	3	src/app/dashboard/page.tsx
+
+---
+d3693bc8f0a82a152e4aa2d2fc3bf759aff1bb9f|2025-09-19 15:32:01 -0300|Diego Andres Eiman|fix: corregir error ClientService is not defined
+5	1	src/app/clientes/page.tsx
+
+---
+3a98d4d5a737b076b0a5dda0294b5b8b65f35747|2025-09-19 15:26:08 -0300|Diego Andres Eiman|fix: corregir estado activo de Remitos en menú
+0	4	src/app/globals.css
+
+---
+9e7137b90e9d23746cc1d8b7d181ec18dbdae8fc|2025-09-19 15:23:32 -0300|Diego Andres Eiman|fix: corregir error JSX en categorias - cambiar Layout por main
+1	1	src/app/categorias/page.tsx
+267	0	src/app/categorias/page_backup.tsx
+4	0	temp_clean.tsx
+
+---
+31acdaf04fbee534c17edbd7d2882c13143c3c52|2025-09-19 14:48:43 -0300|Diego Andres Eiman|fix: corregir error de sintaxis JSX en clientes/page.tsx
+1	1	src/app/clientes/page.tsx
+
+---
+228b30c451eddb98981d5271371d9f417fce805b|2025-09-19 14:46:56 -0300|Diego Andres Eiman|fix: corregir problemas de UI y errores de aplicación
+25	9	src/app/categorias/page.tsx
+4	5	src/app/clientes/page.tsx
+1	37	src/app/globals.css
+37	14	src/app/productos/page.tsx
+
+---
+b7ce3171143c8246d6086e7ba501f7242c9695c5|2025-09-19 14:33:14 -0300|Diego Andres Eiman|fix: agregar verificaciones Array.isArray defensivas en todas las páginas
+2	2	src/app/categorias/page.tsx
+2	2	src/app/clientes/page.tsx
+2	2	src/app/empresas/page.tsx
+3	3	src/app/productos/page.tsx
+3	3	src/app/usuarios/page.tsx
+
+---
+ce81524c2db570464846e316c0989860ffcc494e|2025-09-19 14:25:46 -0300|Diego Andres Eiman|fix: corregir errores de frontend y campo total faltante
+2	2	src/app/api/remitos/route.ts
+1	1	src/app/productos/page.tsx
+
+---
+afe0caa3112b2d7d7851987f5f9af4e844ee000b|2025-09-19 14:24:00 -0300|Diego Andres Eiman|fix: corregir error 500 en /api/remitos y bucles infinitos
+18	4	src/app/api/remitos/[id]/route.ts
+22	8	src/app/api/remitos/[id]/status/route.ts
+74	8	src/app/api/remitos/route.ts
+
+---
+992183d5c9ebf2a86bdcc79e0573c16fd17304f6|2025-09-19 14:17:29 -0300|Diego Andres Eiman|fix: corregir error de useSearchParams con Suspense boundary
+16	2	src/app/usuarios/page.tsx
+
+---
+4ba9e123b131718929c1d13722cdf5fdd88b23e3|2025-09-19 13:45:38 -0300|Diego Andres Eiman|fix: corregir APIs faltantes y problema de sesión en header
+57	0	src/app/api/companies/route.ts
+105	0	src/app/api/users/route.ts
+2	4	src/app/layout.tsx
+3	7	src/components/layout/Header.tsx
+
+---
+4b303ec37a944dd71aa855197658a44f94cf7216|2025-09-19 13:39:22 -0300|Diego Andres Eiman|fix: convertir páginas de empresas y usuarios a Client Components
+238	41	src/app/empresas/page.tsx
+339	61	src/app/usuarios/page.tsx
+
+---
+f7fec71cba60c46f61c5a35e5843ef6617d74695|2025-09-19 13:29:53 -0300|Diego Andres Eiman|fix: corregir error de servidor y iconos grandes
+54	6	src/app/globals.css
+276	311	src/app/remitos/page.tsx
+
+---
+c2cbb5645932c1a57e12c15591a3c40a3caaa631|2025-09-19 13:24:18 -0300|Diego Andres Eiman|fix: corregir header y enlace 'Ver Usuarios'
+2	1	src/app/empresas/page.tsx
+23	1	src/app/globals.css
+13	1	src/components/layout/Header.tsx
+
+---
+7340eaa6e5577b82b7e8e4ec2e2d971e3afa991b|2025-09-19 12:58:32 -0300|Diego Andres Eiman|fix: corregir errores críticos de APIs, navegación y UI
+18	6	src/app/api/categories/route.ts
+21	6	src/app/api/clients/route.ts
+23	6	src/app/api/products/route.ts
+48	51	src/app/empresas/page.tsx
+89	0	src/app/globals.css
+10	2	src/app/layout.tsx
+96	82	src/app/usuarios/page.tsx
+94	103	src/components/layout/Header.tsx
+25	0	src/lib/utils/formatters.ts
+
+---
+3f4271a76255c4062f71992ae015afb21f2df6d1|2025-09-19 12:39:51 -0300|Diego Andres Eiman|fix: crear paginas faltantes y corregir problemas de estilos
+72	0	src/app/empresas/page.tsx
+5	25	src/app/globals.css
+107	0	src/app/usuarios/page.tsx
+6	0	src/lib/auth.ts
+
+---
+d13628e660db2339d6dd0f46000792518a942162|2025-09-19 12:33:47 -0300|Diego Andres Eiman|feat: configurar base de datos Prisma real y crear usuarios
+5	5	prisma/schema.prisma
+55	20	src/app/globals.css
+
+---
+052e91ade8d2ccd6c80bbee2770cd48c593c5684|2025-09-19 12:24:33 -0300|Diego Andres Eiman|fix: configurar SQLite local para desarrollo y testing
+5	5	prisma/schema.prisma
+
+---
+d17e97d2c01162eca77baee425f164aba36167e6|2025-09-19 12:17:51 -0300|Diego Andres Eiman|fix: restaurar PostgreSQL y corregir estilos de iconos
+5	5	prisma/schema.prisma
+5	5	src/app/auth/login/page.tsx
+15	47	src/app/globals.css
+
+---
+243235c751490c04a070a13caaa591437a0b45d5|2025-09-19 12:11:47 -0300|Diego Andres Eiman|fix: configurar SQLite local y corregir autenticacion
+-	-	prisma/dev.db
+120	0	prisma/migrations/20250919151112_init/migration.sql
+3	0	prisma/migrations/migration_lock.toml
+5	5	prisma/schema.prisma
+31	10	src/app/globals.css
+
+---
+37e8a7628c3329a56cb7b6636e80446476527cd0|2025-09-19 12:02:02 -0300|Diego Andres Eiman|fix: corregir tamaño de iconos SVG que se mostraban enormes
+1	1	src/app/auth/error/page.tsx
+5	5	src/app/auth/login/page.tsx
+43	0	src/app/globals.css
+
+---
+50535b07ba51b169151e7b7a39efef36ee9b91b2|2025-09-19 11:44:53 -0300|Diego Andres Eiman|feat: mejorar pantalla de login y corregir credenciales
+1	1	prisma/seed.ts
+86	30	src/app/auth/login/page.tsx
+
+---
+5fcbc091e78a1d175d8b84d3f24cf207b13ae713|2025-09-19 11:35:35 -0300|Diego Andres Eiman|fix: corregir errores de configuración de NextAuth y página de error
+62	0	VERCEL_SETUP.md
+87	0	src/app/auth/error/page.tsx
+10	2	src/app/auth/login/page.tsx
+45	28	src/lib/auth.ts
+
+---
+51edbe298b228d3aa4b9ebe52763b632366576c8|2025-09-19 11:29:48 -0300|Diego Andres Eiman|feat: implementar sistema completo de remitos con multi-empresa
+2	1	.gitignore
+1094	5	package-lock.json
+18	2	package.json
+133	0	prisma/schema.prisma
+150	0	prisma/seed.ts
+6	0	src/app/api/auth/[...nextauth]/route.ts
+62	0	src/app/api/categories/[id]/route.ts
+49	0	src/app/api/categories/route.ts
+62	0	src/app/api/clients/[id]/route.ts
+49	0	src/app/api/clients/route.ts
+62	0	src/app/api/products/[id]/route.ts
+49	0	src/app/api/products/route.ts
+49	0	src/app/api/remitos/[id]/route.ts
+38	0	src/app/api/remitos/[id]/status/route.ts
+50	0	src/app/api/remitos/route.ts
+121	0	src/app/auth/login/page.tsx
+251	77	src/app/categorias/page.tsx
+348	77	src/app/clientes/page.tsx
+116	0	src/app/dashboard/page.tsx
+5	4	src/app/layout.tsx
+1	1	src/app/page.tsx
+352	107	src/app/productos/page.tsx
+570	304	src/app/remitos/page.tsx
+113	0	src/components/layout/Header.tsx
+48	0	src/components/layout/Layout.tsx
+11	0	src/components/providers/SessionProvider.tsx
+83	0	src/lib/auth.ts
+9	0	src/lib/db.ts
+58	0	src/lib/services/categoryService.ts
+66	0	src/lib/services/clientService.ts
+66	0	src/lib/services/productService.ts
+71	0	src/lib/services/remitoService.ts
+58	0	src/lib/validations.ts
+62	0	src/middleware.ts
+34	0	src/types/next-auth.d.ts
+
+---
+8a6093cb69ca5ea0bc6ba59fe243bc420a2a29be|2025-09-19 00:12:13 -0300|Diego Andres Eiman|feat: aplicar estilo Hotmail clásico con diseño de correo electrónico
+32	22	src/app/categorias/page.tsx
+32	22	src/app/clientes/page.tsx
+328	3	src/app/globals.css
+3	1	src/app/layout.tsx
+55	43	src/app/productos/page.tsx
+69	52	src/app/remitos/page.tsx
+
+---
+4f493e8e0ef50ecc218823f4c7901b8b45fdfe01|2025-09-19 00:03:19 -0300|Diego Andres Eiman|refactor: eliminar todos los estilos y dejar HTML crudo con Times New Roman
+47	55	src/app/categorias/page.tsx
+47	55	src/app/clientes/page.tsx
+80	340	src/app/globals.css
+1	1	src/app/layout.tsx
+73	113	src/app/productos/page.tsx
+135	247	src/app/remitos/page.tsx
+
+---
+b82ff60f89d81027ccd41224366cdfcb3fb61edc|2025-09-18 23:42:12 -0300|Diego Andres Eiman|feat: rediseño completo con estética moderna similar a v0-postulador
+26	25	src/app/globals.css
+79	51	src/app/productos/page.tsx
+48	40	src/app/remitos/page.tsx
+
+---
+8278f7a54028bbac5389b5334b1cd8d6e9030eef|2025-09-18 23:34:39 -0300|Diego Andres Eiman|fix: corregir header negro y formularios compactos
+12	11	src/app/categorias/page.tsx
+12	11	src/app/clientes/page.tsx
+25	24	src/app/productos/page.tsx
+12	11	src/app/remitos/page.tsx
+
+---
+3b9a3fb42ce06023ec22b9245a38797002052798|2025-09-18 23:31:40 -0300|Diego Andres Eiman|fix: corregir diseño UI para coincidir exactamente con captura
+12	13	src/app/categorias/page.tsx
+12	13	src/app/clientes/page.tsx
+1	1	src/app/layout.tsx
+12	13	src/app/productos/page.tsx
+30	29	src/app/remitos/page.tsx
+
+---
+3c4f76ef9572496619108d02b76a3281127593ea|2025-09-18 22:59:09 -0300|Diego Andres Eiman|feat: sistema de gestión funcional con persistencia local y UI moderna
+86	0	src/app/categorias/page.tsx
+86	0	src/app/clientes/page.tsx
+10	18	src/app/layout.tsx
+3	86	src/app/page.tsx
+118	0	src/app/productos/page.tsx
+427	0	src/app/remitos/page.tsx
+8	0	src/components/providers.tsx
+117	0	src/lib/db.tsx
+52	0	src/lib/types.ts
+
+---
+72c42f69425f24603f7796fb6900c1b64f995689|2025-09-18 16:59:36 -0300|Diego Andres Eiman|Ajustar diseño para coincidir exactamente con captura de referencia
+4	3	src/app/globals.css
+13	15	src/components/Navigation.tsx
+81	89	src/components/RemitosSection.tsx
+
+---
+ddce19aee9793b067493fea85e659123115dde82|2025-09-18 16:54:39 -0300|Diego Andres Eiman|Fix: Corregir errores de React y imports faltantes
+1	1	src/components/ProductosSection.tsx
+23	12	src/components/ui/popover.tsx
+
+---
+de6c6fd80ce375aabf1d486f7a889588abd6999b|2025-09-18 16:29:13 -0300|Diego Andres Eiman|Implementar interfaz moderna tipo SaaS con combobox buscable
+17	0	components.json
+25	0	src/app/globals.css
+13	6	src/components/CategoriasSection.tsx
+15	3	src/components/ClientesSection.tsx
+14	9	src/components/Navigation.tsx
+15	3	src/components/ProductosSection.tsx
+151	130	src/components/RemitosSection.tsx
+112	0	src/components/ui/Combobox.tsx
+88	0	src/components/ui/command.tsx
+88	0	src/components/ui/popover.tsx
+
+---
+7079431185ef4384267cfc4540f5fb6a1caba90b|2025-09-18 15:23:43 -0300|Diego Andres Eiman|Rediseño completo con estilo moderno tipo Vercel
+144	42	src/app/globals.css
+22	23	src/components/CategoriasSection.tsx
+6	6	src/components/ClientesSection.tsx
+11	14	src/components/Navigation.tsx
+6	6	src/components/ProductosSection.tsx
+6	6	src/components/RemitosSection.tsx
+7	7	src/components/ui/Button.tsx
+
+---
+4292fbae613b97e8965b1a2f9c78d9f96979d9fc|2025-09-18 15:11:42 -0300|Diego Andres Eiman|Mejorar anchos de campos: quitar w-full y aplicar anchos específicos
+3	1	src/components/CategoriasSection.tsx
+6	1	src/components/ClientesSection.tsx
+8	1	src/components/ProductosSection.tsx
+6	1	src/components/RemitosSection.tsx
+1	1	src/components/ui/Input.tsx
+1	1	src/components/ui/Select.tsx
+1	1	src/components/ui/Textarea.tsx
+
+---
+f09c09c156dacf602d66efc25ed9b1dc4f027bad|2025-09-18 14:42:54 -0300|Diego Andres Eiman|Rediseño completo de la interfaz con estilo moderno y atractivo
+73	4	src/app/globals.css
+3	3	src/app/page.tsx
+66	42	src/components/CategoriasSection.tsx
+18	10	src/components/Navigation.tsx
+6	6	src/components/ui/Button.tsx
+1	1	src/components/ui/Input.tsx
+1	1	src/components/ui/Label.tsx
+1	1	src/components/ui/Select.tsx
+1	1	src/components/ui/Textarea.tsx
+
+---
+4d0d984c7dd6841553532fe47986e9c67da2e7ab|2025-09-18 14:00:32 -0300|Diego Andres Eiman|Mejoras significativas en look & feel y funcionalidades
+116	50	src/app/globals.css
+5	2	src/app/page.tsx
+57	4	src/components/ClientesSection.tsx
+12	11	src/components/Navigation.tsx
+36	5	src/components/ProductosSection.tsx
+162	94	src/components/RemitosSection.tsx
+2	0	src/types/index.ts
+
+---
+649c1a1c75744e35f68baab92a08de142d051eb6|2025-09-18 13:46:25 -0300|Diego Andres Eiman|Merge: Integrar sistema Next.js con versión anterior
+---
+79893cecfa45bb118576391747b16f351c65f26f|2025-09-18 13:45:40 -0300|Diego Andres Eiman|Sistema completo de gestión con Next.js
+8	0	.eslintrc.json
+185	20	README.md
+11	0	next.config.js
+32	1	package-lock.json
+8	5	package.json
+92	17	src/app/globals.css
+17	25	src/app/layout.tsx
+76	95	src/app/page.tsx
+171	0	src/components/CategoriasSection.tsx
+200	0	src/components/ClientesSection.tsx
+58	0	src/components/Navigation.tsx
+246	0	src/components/ProductosSection.tsx
+555	0	src/components/RemitosSection.tsx
+39	0	src/components/ui/Button.tsx
+21	0	src/components/ui/Input.tsx
+20	0	src/components/ui/Label.tsx
+22	0	src/components/ui/Select.tsx
+20	0	src/components/ui/Textarea.tsx
+152	0	src/hooks/useLocalStorage.ts
+85	0	src/lib/storage.ts
+6	0	src/lib/utils.ts
+58	0	src/types/index.ts
+7	0	vercel.json
+
+---
+2aa80126df69600f0ce7aede7f91852dd7faa2da|2025-09-18 13:35:27 -0300|Diego Andres Eiman|Initial commit from Create Next App
+41	0	.gitignore
+36	0	README.md
+25	0	eslint.config.mjs
+7	0	next.config.ts
+6107	0	package-lock.json
+27	0	package.json
+5	0	postcss.config.mjs
+1	0	public/file.svg
+1	0	public/globe.svg
+1	0	public/next.svg
+1	0	public/vercel.svg
+1	0	public/window.svg
+-	-	src/app/favicon.ico
+26	0	src/app/globals.css
+34	0	src/app/layout.tsx
+103	0	src/app/page.tsx
+27	0	tsconfig.json
+
+---
+6a07554db8ff4187f5de7c3ea7729ae625ee74e6|2025-09-18 13:21:44 -0300|Diego Andres Eiman|Sistema completo de gestión de productos y remitos
+37	0	.gitignore
+119	0	README.md
+203	0	index.html
+615	0	script.js
+451	0	styles.css
