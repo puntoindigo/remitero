@@ -34,13 +34,7 @@ export async function POST(request: NextRequest) {
     
     const existingProduct = await withPrisma(async (prisma) => {
       return await prisma.product.findUnique({
-        where: { id: productId },
-        select: {
-          id: true,
-          name: true,
-          companyId: true,
-          stock: true
-        }
+        where: { id: productId }
       });
     });
     
