@@ -89,7 +89,7 @@ export async function PUT(
       return await prisma.product.update({
         where: whereCondition,
         data: updateData,
-        include: { Category: true }
+        include: { category: true }
       });
     });
 
