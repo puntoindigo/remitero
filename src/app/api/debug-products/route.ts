@@ -33,7 +33,6 @@ export async function GET(request: NextRequest) {
           id: true,
           name: true,
           companyId: true,
-          stock: true,
           Company: {
             select: {
               id: true,
