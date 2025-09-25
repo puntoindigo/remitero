@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { prisma } from "@/lib/db";
+import { withPrisma } from "@/lib/prisma";
 import { z } from "zod";
 
 const clientSchema = z.object({
@@ -25,21 +25,23 @@ export async function PUT(
     const body = await request.json();
     const validatedData = clientSchema.parse(body);
 
-    // Verificar que el cliente pertenece a la empresa
-    const existingClient = await prisma.client.findFirst({
-      where: {
-        id: params.id,
-        companyId: session.user.companyId
+    const client = await withPrisma(async (prisma) => {
+      // Verificar que el cliente pertenece a la empresa
+      const existingClient = await prisma.client.findFirst({
+        where: {
+          id: params.id,
+          companyId: session.user.companyId
+        }
+      });
+
+      if (!existingClient) {
+        throw new Error("Cliente no encontrado");
       }
-    });
 
-    if (!existingClient) {
-      return NextResponse.json({ error: "Cliente no encontrado" }, { status: 404 });
-    }
-
-    const client = await prisma.client.update({
-      where: { id: params.id },
-      data: validatedData
+      return await prisma.client.update({
+        where: { id: params.id },
+        data: validatedData
+      });
     });
 
     return NextResponse.json(client);
@@ -48,6 +50,10 @@ export async function PUT(
     
     if (error.name === "ZodError") {
       return NextResponse.json({ error: "Datos inválidos", details: error.errors }, { status: 400 });
+    }
+
+    if (error.message === "Cliente no encontrado") {
+      return NextResponse.json({ error: error.message }, { status: 404 });
     }
 
     return NextResponse.json({ error: "Error interno del servidor" }, { status: 500 });
@@ -65,37 +71,45 @@ export async function DELETE(
       return NextResponse.json({ error: "No autorizado" }, { status: 401 });
     }
 
-    // Verificar que el cliente pertenece a la empresa
-    const existingClient = await prisma.client.findFirst({
-      where: {
-        id: params.id,
-        companyId: session.user.companyId
-      },
-      include: {
-        remitos: {
-          select: { id: true }
+    await withPrisma(async (prisma) => {
+      // Verificar que el cliente pertenece a la empresa
+      const existingClient = await prisma.client.findFirst({
+        where: {
+          id: params.id,
+          companyId: session.user.companyId
+        },
+        include: {
+          remitos: {
+            select: { id: true }
+          }
         }
+      });
+
+      if (!existingClient) {
+        throw new Error("Cliente no encontrado");
       }
-    });
 
-    if (!existingClient) {
-      return NextResponse.json({ error: "Cliente no encontrado" }, { status: 404 });
-    }
+      // Verificar si tiene remitos asociados
+      if (existingClient.remitos.length > 0) {
+        throw new Error("No se puede eliminar el cliente porque tiene remitos asociados");
+      }
 
-    // Verificar si tiene remitos asociados
-    if (existingClient.remitos.length > 0) {
-      return NextResponse.json({ 
-        error: "No se puede eliminar el cliente porque tiene remitos asociados" 
-      }, { status: 400 });
-    }
-
-    await prisma.client.delete({
-      where: { id: params.id }
+      await prisma.client.delete({
+        where: { id: params.id }
+      });
     });
     
     return NextResponse.json({ message: "Cliente eliminado correctamente" });
   } catch (error: any) {
     console.error("Error deleting client:", error);
+    
+    if (error.message === "Cliente no encontrado") {
+      return NextResponse.json({ error: error.message }, { status: 404 });
+    }
+
+    if (error.message === "No se puede eliminar el cliente porque tiene remitos asociados") {
+      return NextResponse.json({ error: error.message }, { status: 400 });
+    }
     
     return NextResponse.json({ error: "Error interno del servidor" }, { status: 500 });
   }

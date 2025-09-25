@@ -84,12 +84,14 @@ export async function PUT(request: NextRequest) {
 
     const validatedData = categorySchema.parse(updateData);
 
-    const category = await prisma.category.update({
-      where: { 
-        id: id,
-        companyId: session.user.companyId 
-      },
-      data: validatedData
+    const category = await withPrisma(async (prisma) => {
+      return await prisma.category.update({
+        where: { 
+          id: id,
+          companyId: session.user.companyId 
+        },
+        data: validatedData
+      });
     });
 
     return NextResponse.json(category);
@@ -98,6 +100,58 @@ export async function PUT(request: NextRequest) {
     
     if (error.name === "ZodError") {
       return NextResponse.json({ error: "Datos inválidos", details: error.errors }, { status: 400 });
+    }
+
+    if (error.code === "P2025") {
+      return NextResponse.json({ error: "Categoría no encontrada" }, { status: 404 });
+    }
+
+    return NextResponse.json({ error: "Error interno del servidor" }, { status: 500 });
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions);
+    
+    if (!session?.user?.companyId) {
+      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+    
+    if (!id) {
+      return NextResponse.json({ error: "ID de categoría requerido" }, { status: 400 });
+    }
+
+    await withPrisma(async (prisma) => {
+      // Verificar si hay productos asociados
+      const productsCount = await prisma.product.count({
+        where: { 
+          categoryId: id,
+          companyId: session.user.companyId 
+        }
+      });
+
+      if (productsCount > 0) {
+        throw new Error(`No se puede eliminar la categoría porque tiene ${productsCount} productos asociados`);
+      }
+
+      await prisma.category.delete({
+        where: { 
+          id: id,
+          companyId: session.user.companyId 
+        }
+      });
+    });
+
+    return NextResponse.json({ message: "Categoría eliminada correctamente" });
+  } catch (error: any) {
+    console.error("Error deleting category:", error);
+    
+    if (error.message && error.message.includes("No se puede eliminar la categoría porque tiene")) {
+      return NextResponse.json({ error: error.message }, { status: 400 });
     }
 
     if (error.code === "P2025") {

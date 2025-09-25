@@ -102,13 +102,15 @@ export async function PUT(request: NextRequest) {
         return obj;
       }, {});
 
-    const product = await prisma.product.update({
-      where: { 
-        id: id,
-        companyId: session.user.companyId 
-      },
-      data: filteredData,
-      include: { category: true }
+    const product = await withPrisma(async (prisma) => {
+      return await prisma.product.update({
+        where: { 
+          id: id,
+          companyId: session.user.companyId 
+        },
+        data: filteredData,
+        include: { category: true }
+      });
     });
 
     return NextResponse.json(product);
@@ -117,6 +119,57 @@ export async function PUT(request: NextRequest) {
     
     if (error.name === "ZodError") {
       return NextResponse.json({ error: "Datos inválidos", details: error.errors }, { status: 400 });
+    }
+
+    if (error.code === "P2025") {
+      return NextResponse.json({ error: "Producto no encontrado" }, { status: 404 });
+    }
+
+    return NextResponse.json({ error: "Error interno del servidor" }, { status: 500 });
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions);
+    
+    if (!session?.user?.companyId) {
+      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+    
+    if (!id) {
+      return NextResponse.json({ error: "ID de producto requerido" }, { status: 400 });
+    }
+
+    await withPrisma(async (prisma) => {
+      // Verificar si hay remitos asociados
+      const remitoItemsCount = await prisma.remitoItem.count({
+        where: { 
+          productId: id
+        }
+      });
+
+      if (remitoItemsCount > 0) {
+        throw new Error(`No se puede eliminar el producto porque tiene ${remitoItemsCount} remitos asociados`);
+      }
+
+      await prisma.product.delete({
+        where: { 
+          id: id,
+          companyId: session.user.companyId 
+        }
+      });
+    });
+
+    return NextResponse.json({ message: "Producto eliminado correctamente" });
+  } catch (error: any) {
+    console.error("Error deleting product:", error);
+    
+    if (error.message && error.message.includes("No se puede eliminar el producto porque tiene")) {
+      return NextResponse.json({ error: error.message }, { status: 400 });
     }
 
     if (error.code === "P2025") {

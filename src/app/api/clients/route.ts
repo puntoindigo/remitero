@@ -69,3 +69,98 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Error interno del servidor" }, { status: 500 });
   }
 }
+
+export async function PUT(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions);
+    
+    if (!session?.user?.companyId) {
+      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+    }
+
+    const body = await request.json();
+    const { id, ...updateData } = body;
+    
+    if (!id) {
+      return NextResponse.json({ error: "ID de cliente requerido" }, { status: 400 });
+    }
+
+    const validatedData = clientSchema.parse(updateData);
+
+    const client = await withPrisma(async (prisma) => {
+      return await prisma.client.update({
+        where: { 
+          id: id,
+          companyId: session.user.companyId 
+        },
+        data: validatedData
+      });
+    });
+
+    return NextResponse.json(client);
+  } catch (error: any) {
+    console.error("Error updating client:", error);
+    
+    if (error.name === "ZodError") {
+      return NextResponse.json({ error: "Datos inválidos", details: error.errors }, { status: 400 });
+    }
+
+    if (error.code === "P2025") {
+      return NextResponse.json({ error: "Cliente no encontrado" }, { status: 404 });
+    }
+
+    return NextResponse.json({ error: "Error interno del servidor" }, { status: 500 });
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions);
+    
+    if (!session?.user?.companyId) {
+      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+    
+    if (!id) {
+      return NextResponse.json({ error: "ID de cliente requerido" }, { status: 400 });
+    }
+
+    await withPrisma(async (prisma) => {
+      // Verificar si hay remitos asociados
+      const remitosCount = await prisma.remito.count({
+        where: { 
+          clientId: id,
+          companyId: session.user.companyId 
+        }
+      });
+
+      if (remitosCount > 0) {
+        throw new Error(`No se puede eliminar el cliente porque tiene ${remitosCount} remitos asociados`);
+      }
+
+      await prisma.client.delete({
+        where: { 
+          id: id,
+          companyId: session.user.companyId 
+        }
+      });
+    });
+
+    return NextResponse.json({ message: "Cliente eliminado correctamente" });
+  } catch (error: any) {
+    console.error("Error deleting client:", error);
+    
+    if (error.message && error.message.includes("No se puede eliminar el cliente porque tiene")) {
+      return NextResponse.json({ error: error.message }, { status: 400 });
+    }
+
+    if (error.code === "P2025") {
+      return NextResponse.json({ error: "Cliente no encontrado" }, { status: 404 });
+    }
+
+    return NextResponse.json({ error: "Error interno del servidor" }, { status: 500 });
+  }
+}
