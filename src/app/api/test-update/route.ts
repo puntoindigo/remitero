@@ -19,19 +19,52 @@ export async function POST(request: NextRequest) {
     
     const { productId, stock } = body;
     
-    // Solo devolver información básica sin tocar la base de datos
+    // Paso 1: Verificar que withPrisma funciona
+    console.log("Testing withPrisma connection...");
+    
+    const testConnection = await withPrisma(async (prisma) => {
+      console.log("Prisma client created successfully");
+      return { connected: true };
+    });
+    
+    console.log("withPrisma test result:", testConnection);
+    
+    // Paso 2: Buscar el producto
+    console.log("Searching for product...");
+    
+    const existingProduct = await withPrisma(async (prisma) => {
+      return await prisma.product.findUnique({
+        where: { id: productId },
+        select: {
+          id: true,
+          name: true,
+          companyId: true,
+          stock: true
+        }
+      });
+    });
+    
+    console.log("Product found:", existingProduct);
+    
+    if (!existingProduct) {
+      return NextResponse.json({ error: "Product not found" }, { status: 404 });
+    }
+    
+    // Verificar autorización
+    if (session.user.role !== 'SUPERADMIN' && existingProduct.companyId !== session.user.companyId) {
+      return NextResponse.json({ error: "Not authorized" }, { status: 401 });
+    }
+    
     return NextResponse.json({
       success: true,
-      message: "Session and request OK",
+      message: "Product found and authorized",
       session: {
         userId: session.user.id,
         userRole: session.user.role,
         companyId: session.user.companyId
       },
-      request: {
-        productId: productId,
-        stock: stock
-      }
+      product: existingProduct,
+      requestedStock: stock
     });
     
   } catch (error: any) {
