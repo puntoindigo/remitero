@@ -16,15 +16,7 @@ export async function GET(request: NextRequest) {
       }, { status: 401 });
     }
 
-    // Solo SUPERADMIN puede ver todos los usuarios
-    if (session.user.role !== 'SUPERADMIN') {
-      return NextResponse.json({ 
-        error: "No autorizado", 
-        message: "No tienes permisos para ver todos los usuarios." 
-      }, { status: 403 });
-    }
-
-    const { data: users, error } = await supabaseAdmin
+    let query = supabaseAdmin
       .from('users')
       .select(`
         id,
@@ -42,6 +34,19 @@ export async function GET(request: NextRequest) {
         )
       `)
       .order('created_at', { ascending: false });
+
+    // Solo SUPERADMIN puede ver todos los usuarios
+    if (session.user.role !== 'SUPERADMIN') {
+      if (!session.user.companyId) {
+        return NextResponse.json({ 
+          error: "No autorizado", 
+          message: "Usuario no asociado a una empresa." 
+        }, { status: 401 });
+      }
+      query = query.eq('company_id', session.user.companyId);
+    }
+
+    const { data: users, error } = await query;
 
     if (error) {
       console.error('Error fetching users:', error);

@@ -454,8 +454,9 @@ function RemitosContent() {
       const remitoData = remito;
       
       // Calcular el total correctamente
-      const calculatedTotal = remitoData.items.reduce((sum: number, item: any) => {
-        return sum + Number(item.lineTotal || 0);
+      const items = remitoData.remitoItems || remitoData.items || [];
+      const calculatedTotal = items.reduce((sum: number, item: any) => {
+        return sum + Number(item.line_total || item.lineTotal || 0);
       }, 0);
 
       // Generar el HTML de impresión
@@ -554,12 +555,12 @@ function RemitosContent() {
                   </tr>
                 </thead>
                 <tbody>
-                  ${remitoData.items.map((item: any) => `
+                  ${items.map((item: any) => `
                     <tr>
                       <td>${item.quantity}</td>
-                      <td>${item.productName}</td>
-                      <td>$${Number(item.unitPrice).toFixed(2)}</td>
-                      <td>$${Number(item.lineTotal).toFixed(2)}</td>
+                      <td>${item.product_name || item.productName}</td>
+                      <td>$${Number(item.unit_price || item.unitPrice).toFixed(2)}</td>
+                      <td>$${Number(item.line_total || item.lineTotal).toFixed(2)}</td>
                     </tr>
                   `).join('')}
                 </tbody>
@@ -588,12 +589,12 @@ function RemitosContent() {
                   </tr>
                 </thead>
                 <tbody>
-                  ${remitoData.items.map((item: any) => `
+                  ${items.map((item: any) => `
                     <tr>
                       <td>${item.quantity}</td>
-                      <td>${item.productName}</td>
-                      <td>$${Number(item.unitPrice).toFixed(2)}</td>
-                      <td>$${Number(item.lineTotal).toFixed(2)}</td>
+                      <td>${item.product_name || item.productName}</td>
+                      <td>$${Number(item.unit_price || item.unitPrice).toFixed(2)}</td>
+                      <td>$${Number(item.line_total || item.lineTotal).toFixed(2)}</td>
                     </tr>
                   `).join('')}
                 </tbody>
