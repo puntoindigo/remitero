@@ -38,6 +38,18 @@ export async function GET(request: NextRequest) {
           id,
           name,
           email
+        ),
+        remito_items (
+          id,
+          quantity,
+          product_name,
+          product_desc,
+          unit_price,
+          line_total,
+          products (
+            id,
+            name
+          )
         )
       `)
       .order('created_at', { ascending: false });

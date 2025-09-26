@@ -66,6 +66,14 @@ export function transformCompany(company: any) {
 export function transformRemito(remito: any) {
   if (!remito) return null;
   
+  // Calcular el total de manera segura
+  let total = 0;
+  if (remito.remito_items && Array.isArray(remito.remito_items)) {
+    total = remito.remito_items.reduce((sum: number, item: any) => {
+      return sum + (item.line_total || 0);
+    }, 0);
+  }
+  
   return {
     ...remito,
     createdAt: remito.created_at,
@@ -76,9 +84,9 @@ export function transformRemito(remito: any) {
     statusAt: remito.status_at,
     client: remito.clients,
     user: remito.users,
-    total: remito.remito_items?.reduce((sum: number, item: any) => sum + (item.line_total || 0), 0) || 0,
-    remitoItems: remito.remito_items,
-    statusHistory: remito.status_history
+    total: total,
+    remitoItems: remito.remito_items || [],
+    statusHistory: remito.status_history || []
   };
 }
 
