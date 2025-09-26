@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
+import { transformCompany } from "@/lib/utils/supabase-transform";
 
 export async function PUT(
   request: NextRequest,
@@ -88,7 +89,7 @@ export async function PUT(
       }, { status: 500 });
     }
 
-    return NextResponse.json(updatedCompany);
+    return NextResponse.json(transformCompany(updatedCompany));
   } catch (error: any) {
     console.error('Error in companies PUT:', error);
     return NextResponse.json({ 

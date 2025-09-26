@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
+import { transformUsers, transformUser } from "@/lib/utils/supabase-transform";
 import bcrypt from "bcryptjs";
 
 export async function GET(request: NextRequest) {
@@ -50,7 +51,7 @@ export async function GET(request: NextRequest) {
       }, { status: 500 });
     }
 
-    return NextResponse.json(users);
+    return NextResponse.json(transformUsers(users));
   } catch (error: any) {
     console.error('Error in users GET:', error);
     return NextResponse.json({ 
@@ -155,7 +156,7 @@ export async function POST(request: NextRequest) {
       }, { status: 500 });
     }
 
-    return NextResponse.json(newUser, { status: 201 });
+    return NextResponse.json(transformUser(newUser), { status: 201 });
   } catch (error: any) {
     console.error('Error in users POST:', error);
     return NextResponse.json({ 

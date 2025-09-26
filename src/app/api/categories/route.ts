@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
+import { transformCategories, transformCategory } from "@/lib/utils/supabase-transform";
 
 export async function GET(request: NextRequest) {
   try {
@@ -25,6 +26,9 @@ export async function GET(request: NextRequest) {
         companies (
           id,
           name
+        ),
+        products (
+          id
         )
       `)
       .order('created_at', { ascending: false });
@@ -50,7 +54,7 @@ export async function GET(request: NextRequest) {
       }, { status: 500 });
     }
 
-    return NextResponse.json(categories);
+    return NextResponse.json(transformCategories(categories));
   } catch (error: any) {
     console.error('Error in categories GET:', error);
     return NextResponse.json({ 
@@ -138,7 +142,7 @@ export async function POST(request: NextRequest) {
       }, { status: 500 });
     }
 
-    return NextResponse.json(newCategory, { status: 201 });
+    return NextResponse.json(transformCategory(newCategory), { status: 201 });
   } catch (error: any) {
     console.error('Error in categories POST:', error);
     return NextResponse.json({ 

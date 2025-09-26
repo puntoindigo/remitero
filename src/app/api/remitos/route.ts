@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
+import { transformRemitos, transformRemito } from "@/lib/utils/supabase-transform";
 
 export async function GET(request: NextRequest) {
   try {
@@ -62,7 +63,7 @@ export async function GET(request: NextRequest) {
       }, { status: 500 });
     }
 
-    return NextResponse.json(remitos);
+    return NextResponse.json(transformRemitos(remitos));
   } catch (error: any) {
     console.error('Error in remitos GET:', error);
     return NextResponse.json({ 
@@ -257,7 +258,7 @@ export async function POST(request: NextRequest) {
       }, { status: 500 });
     }
 
-    return NextResponse.json(completeRemito, { status: 201 });
+    return NextResponse.json(transformRemito(completeRemito), { status: 201 });
   } catch (error: any) {
     console.error('Error in remitos POST:', error);
     return NextResponse.json({ 

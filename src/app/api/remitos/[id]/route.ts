@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
+import { transformRemito } from "@/lib/utils/supabase-transform";
 
 export async function GET(
   request: NextRequest,
@@ -88,7 +89,7 @@ export async function GET(
       }, { status: 404 });
     }
 
-    return NextResponse.json(remito);
+    return NextResponse.json(transformRemito(remito));
   } catch (error: any) {
     console.error('Error in remitos GET by ID:', error);
     return NextResponse.json({ 
@@ -213,7 +214,7 @@ export async function PUT(
       }
     }
 
-    return NextResponse.json(updatedRemito);
+    return NextResponse.json(transformRemito(updatedRemito));
   } catch (error: any) {
     console.error('Error in remitos PUT:', error);
     return NextResponse.json({ 

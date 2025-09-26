@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
+import { transformProduct } from "@/lib/utils/supabase-transform";
 
 export async function PUT(
   request: NextRequest,
@@ -133,7 +134,7 @@ export async function PUT(
       }, { status: 500 });
     }
 
-    return NextResponse.json(updatedProduct);
+    return NextResponse.json(transformProduct(updatedProduct));
   } catch (error: any) {
     console.error('Error in products PUT:', error);
     return NextResponse.json({ 

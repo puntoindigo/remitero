@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
+import { transformClient } from "@/lib/utils/supabase-transform";
 
 export async function PUT(
   request: NextRequest,
@@ -105,7 +106,7 @@ export async function PUT(
       }, { status: 500 });
     }
 
-    return NextResponse.json(updatedClient);
+    return NextResponse.json(transformClient(updatedClient));
   } catch (error: any) {
     console.error('Error in clients PUT:', error);
     return NextResponse.json({ 

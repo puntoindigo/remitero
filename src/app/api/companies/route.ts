@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
+import { transformCompanies, transformCompany } from "@/lib/utils/supabase-transform";
 
 export async function GET(request: NextRequest) {
   try {
@@ -40,7 +41,7 @@ export async function GET(request: NextRequest) {
       }, { status: 500 });
     }
 
-    return NextResponse.json(companies);
+    return NextResponse.json(transformCompanies(companies));
   } catch (error: any) {
     console.error('Error in companies GET:', error);
     return NextResponse.json({ 
@@ -113,7 +114,7 @@ export async function POST(request: NextRequest) {
       }, { status: 500 });
     }
 
-    return NextResponse.json(newCompany, { status: 201 });
+    return NextResponse.json(transformCompany(newCompany), { status: 201 });
   } catch (error: any) {
     console.error('Error in companies POST:', error);
     return NextResponse.json({ 

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
+import { transformClients, transformClient } from "@/lib/utils/supabase-transform";
 
 export async function GET(request: NextRequest) {
   try {
@@ -28,6 +29,9 @@ export async function GET(request: NextRequest) {
         companies (
           id,
           name
+        ),
+        remitos (
+          id
         )
       `)
       .order('created_at', { ascending: false });
@@ -53,7 +57,7 @@ export async function GET(request: NextRequest) {
       }, { status: 500 });
     }
 
-    return NextResponse.json(clients);
+    return NextResponse.json(transformClients(clients));
   } catch (error: any) {
     console.error('Error in clients GET:', error);
     return NextResponse.json({ 
@@ -147,7 +151,7 @@ export async function POST(request: NextRequest) {
       }, { status: 500 });
     }
 
-    return NextResponse.json(newClient, { status: 201 });
+    return NextResponse.json(transformClient(newClient), { status: 201 });
   } catch (error: any) {
     console.error('Error in clients POST:', error);
     return NextResponse.json({ 

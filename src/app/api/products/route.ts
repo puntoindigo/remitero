@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
+import { transformProducts, transformProduct } from "@/lib/utils/supabase-transform";
 
 export async function GET(request: NextRequest) {
   try {
@@ -54,7 +55,7 @@ export async function GET(request: NextRequest) {
       }, { status: 500 });
     }
 
-    return NextResponse.json(products);
+    return NextResponse.json(transformProducts(products));
   } catch (error: any) {
     console.error('Error in products GET:', error);
     return NextResponse.json({ 
@@ -157,7 +158,7 @@ export async function POST(request: NextRequest) {
       }, { status: 500 });
     }
 
-    return NextResponse.json(newProduct, { status: 201 });
+    return NextResponse.json(transformProduct(newProduct), { status: 201 });
   } catch (error: any) {
     console.error('Error in products POST:', error);
     return NextResponse.json({ 
