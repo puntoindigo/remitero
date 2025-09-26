@@ -112,9 +112,10 @@ function ClientesContent() {
       setEditingClient(null);
       setShowForm(false);
       await loadClients();
-    } catch (error) {
+      showSuccess("Cliente guardado correctamente");
+    } catch (error: any) {
       console.error("Error saving client:", error);
-      alert(error instanceof Error ? error.message : 'Error al guardar el cliente');
+      showError("Error al guardar el cliente", error.message);
     }
   };
 
@@ -154,8 +155,9 @@ function ClientesContent() {
 
       await loadClients();
       setShowDeleteConfirm(null);
+      showSuccess("Cliente eliminado correctamente");
     } catch (error: any) {
-      alert(error.message || "Error al eliminar el cliente");
+      showError("Error al eliminar el cliente", error.message);
       setShowDeleteConfirm(null); // Cerrar el modal después del error
     }
   };

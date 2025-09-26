@@ -10,6 +10,8 @@ import { formatDate } from "@/lib/utils/formatters";
 import { useSearchParams } from "next/navigation";
 import SearchAndPagination from "@/components/common/SearchAndPagination";
 import { useSearchAndPagination } from "@/hooks/useSearchAndPagination";
+import { MessageModal } from "@/components/common/MessageModal";
+import { useMessageModal } from "@/hooks/useMessageModal";
 
 const userSchema = z.object({
   name: z.string().min(1, "El nombre es requerido"),
@@ -53,6 +55,9 @@ function UsuariosContent() {
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
+  
+  // Hook para manejar modales de mensajes
+  const { modalState, showSuccess, showError, closeModal } = useMessageModal();
 
   // Hook para búsqueda y paginación
   const {
@@ -137,9 +142,10 @@ function UsuariosContent() {
       setEditingUser(null);
       setShowForm(false);
       await loadData();
+      showSuccess("Usuario guardado correctamente");
     } catch (error: any) {
       console.error("Error saving user:", error);
-      alert(error.message || 'Error al guardar el usuario');
+      showError("Error al guardar el usuario", error.message);
     }
   };
 
@@ -179,8 +185,9 @@ function UsuariosContent() {
 
       await loadData();
       setShowDeleteConfirm(null);
+      showSuccess("Usuario eliminado correctamente");
     } catch (error: any) {
-      alert(error.message || "Error al eliminar el usuario");
+      showError("Error al eliminar el usuario", error.message);
       setShowDeleteConfirm(null); // Cerrar el modal después del error
     }
   };
@@ -454,6 +461,16 @@ function UsuariosContent() {
             </div>
           </div>
         )}
+
+        {/* Modal de mensajes */}
+        <MessageModal
+          isOpen={modalState.isOpen}
+          onClose={closeModal}
+          type={modalState.type}
+          title={modalState.title}
+          message={modalState.message}
+          details={modalState.details}
+        />
       </section>
     </main>
   );

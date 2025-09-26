@@ -188,9 +188,10 @@ function ProductosContent() {
 
       await loadData();
       setShowDeleteConfirm(null);
+      showSuccess("Producto eliminado correctamente");
     } catch (error: any) {
       console.error('Error deleting product:', error);
-      alert(error.message || "Error al eliminar el producto");
+      showError("Error al eliminar el producto", error.message);
       setShowDeleteConfirm(null); // Cerrar el modal después del error
     }
   };

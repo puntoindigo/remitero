@@ -164,7 +164,7 @@ function RemitosContent() {
     }
 
     if (items.length === 0) {
-      alert('Debe agregar al menos un producto');
+      showError("Error de validación", "Debe agregar al menos un producto");
       return;
     }
 
@@ -252,7 +252,7 @@ function RemitosContent() {
       }
     } catch (error) {
       console.error("Error saving remito:", error);
-      alert('Error al guardar el remito: ' + error.message);
+      showError("Error al guardar el remito", error.message);
     }
   };
 
@@ -411,7 +411,7 @@ function RemitosContent() {
       await loadData();
       setShowDeleteConfirm(null);
     } catch (error: any) {
-      alert(error.message || "Error al eliminar el remito");
+      showError("Error al eliminar el remito", error.message);
       setShowDeleteConfirm(null); // Cerrar el modal después del error
     }
   };
@@ -434,7 +434,7 @@ function RemitosContent() {
 
       await loadData();
     } catch (error: any) {
-      alert(error.message || "Error al actualizar el estado");
+      showError("Error al actualizar el estado", error.message);
     }
   };
 
@@ -446,7 +446,7 @@ function RemitosContent() {
       // Crear una nueva ventana para imprimir
       const printWindow = window.open('', '_blank');
       if (!printWindow) {
-        alert('No se pudo abrir la ventana de impresión. Verifica que los pop-ups estén permitidos.');
+        showError("Error de impresión", "No se pudo abrir la ventana de impresión. Verifica que los pop-ups estén permitidos.");
         return;
       }
 
@@ -625,7 +625,7 @@ function RemitosContent() {
 
     } catch (error) {
       console.error('Error al imprimir:', error);
-      alert(`Error al imprimir el remito: ${error.message}`);
+      showError("Error al imprimir el remito", error.message);
     }
   };
 
@@ -690,7 +690,7 @@ function RemitosContent() {
             
             <form onSubmit={handleSubmit(onSubmit, (errors) => {
               console.log('Validation errors:', errors);
-              alert('Por favor complete todos los campos requeridos');
+              showError("Error de validación", "Por favor complete todos los campos requeridos");
             })}>
               <div className="form-row">
                 <div className="form-group">
@@ -850,12 +850,12 @@ function RemitosContent() {
                     
                     // Validar manualmente
                     if (!formData.clientId) {
-                      alert('Debe seleccionar un cliente');
+                      showError("Error de validación", "Debe seleccionar un cliente");
                       return;
                     }
                     
                     if (items.length === 0) {
-                      alert('Debe agregar al menos un producto');
+                      showError("Error de validación", "Debe agregar al menos un producto");
                       return;
                     }
                     

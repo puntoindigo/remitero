@@ -111,9 +111,10 @@ function CategoriasContent() {
       setEditingCategory(null);
       setShowForm(false);
       await loadCategories();
+      showSuccess("Categoría guardada correctamente");
     } catch (error: any) {
       console.error("Error saving category:", error);
-      alert(error.message);
+      showError("Error al guardar la categoría", error.message);
     }
   };
 
@@ -150,8 +151,9 @@ function CategoriasContent() {
 
       await loadCategories();
       setShowDeleteConfirm(null);
+      showSuccess("Categoría eliminada correctamente");
     } catch (error: any) {
-      alert(error.message || "Error al eliminar la categoría");
+      showError("Error al eliminar la categoría", error.message);
       setShowDeleteConfirm(null); // Cerrar el modal después del error
     }
   };

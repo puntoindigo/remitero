@@ -78,9 +78,10 @@ export default function EmpresasPage() {
       reset();
       setEditingCompany(null);
       await loadCompanies();
+      showSuccess("Empresa guardada correctamente");
     } catch (error: any) {
       console.error("Error saving company:", error);
-      alert(error.message || 'Error al guardar la empresa');
+      showError("Error al guardar la empresa", error.message);
     }
   };
 
@@ -107,8 +108,9 @@ export default function EmpresasPage() {
 
       await loadCompanies();
       setShowDeleteConfirm(null);
+      showSuccess("Empresa eliminada correctamente");
     } catch (error: any) {
-      alert(error.message || "Error al eliminar la empresa");
+      showError("Error al eliminar la empresa", error.message);
     }
   };
 
