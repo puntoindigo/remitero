@@ -429,7 +429,7 @@ function RemitosContent() {
     }
   };
 
-  const handleStatusChange = async (id: string, status: "PENDIENTE" | "EN_TRANSITO" | "ENTREGADO" | "CANCELADO") => {
+  const handleStatusChange = async (id: string, status: "PENDIENTE" | "PREPARADO" | "ENTREGADO" | "CANCELADO") => {
     if (!session?.user?.companyId || !session?.user?.id) return;
 
     try {
@@ -671,7 +671,7 @@ function RemitosContent() {
     switch (status) {
       case "PENDIENTE":
         return "bg-yellow-100 text-yellow-800";
-      case "EN_TRANSITO":
+      case "PREPARADO":
         return "bg-blue-100 text-blue-800";
       case "ENTREGADO":
         return "bg-green-100 text-green-800";
@@ -992,7 +992,7 @@ function RemitosContent() {
                           className={`status-select ${getStatusColor(remito.status)}`}
                         >
                           <option value="PENDIENTE">🕐 Pendiente</option>
-                          <option value="EN_TRANSITO">🚛 En Tránsito</option>
+                          <option value="PREPARADO">✅ Preparado</option>
                           <option value="ENTREGADO">🚚 Entregado</option>
                           <option value="CANCELADO">❌ Cancelado</option>
                         </select>

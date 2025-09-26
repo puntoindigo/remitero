@@ -38,10 +38,10 @@ export async function PUT(
       }, { status: 400 });
     }
 
-    if (!['PENDIENTE', 'EN_TRANSITO', 'ENTREGADO', 'CANCELADO'].includes(status)) {
+    if (!['PENDIENTE', 'PREPARADO', 'ENTREGADO', 'CANCELADO'].includes(status)) {
       return NextResponse.json({ 
         error: "Estado inválido", 
-        message: "El estado debe ser: PENDIENTE, EN_TRANSITO, ENTREGADO o CANCELADO." 
+        message: "El estado debe ser: PENDIENTE, PREPARADO, ENTREGADO o CANCELADO." 
       }, { status: 400 });
     }
 
