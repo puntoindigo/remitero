@@ -253,7 +253,6 @@ function RemitosContent() {
       
       // Mostrar mensaje de éxito y opción de imprimir
       const action = isEditing ? 'actualizado' : 'guardado';
-      showSuccess(`Remito ${action} exitosamente.`, `¿Desea imprimirlo?`);
       setShowPrintConfirm(result);
     } catch (error) {
       console.error("Error saving remito:", error);
@@ -1192,23 +1191,24 @@ function RemitosContent() {
           <div className="modal-overlay">
             <div className="modal">
               <div className="modal-header">
-                <h3>Confirmar impresión</h3>
+                <h3>✅ Remito guardado exitosamente</h3>
               </div>
               <div className="modal-body">
-                <p>¿Desea imprimir el remito guardado?</p>
+                <p>El remito ha sido guardado correctamente.</p>
+                <p><strong>¿Desea imprimirlo ahora?</strong></p>
               </div>
               <div className="modal-footer">
                 <button
                   onClick={handlePrintCancel}
                   className="btn-secondary"
                 >
-                  Cancelar
+                  No, gracias
                 </button>
                 <button
                   onClick={handlePrintConfirm}
                   className="btn-primary"
                 >
-                  Imprimir
+                  Sí, imprimir
                 </button>
               </div>
             </div>

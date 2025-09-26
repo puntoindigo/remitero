@@ -318,7 +318,7 @@ export function RemitosSection({
     `;
   };
 
-  const total = remitoItems.reduce((sum, item) => sum + item.subtotal, 0);
+  const total = (remitoItems || []).reduce((sum, item) => sum + item.subtotal, 0);
 
   // Preparar opciones para los combobox
   const clienteOptions = clientes.map(cliente => ({
