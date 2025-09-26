@@ -88,8 +88,7 @@ export async function PUT(
     const product = await withPrisma(async (prisma) => {
       return await prisma.product.update({
         where: whereCondition,
-        data: updateData,
-        include: { Category: true }
+        data: updateData
       });
     });
 
