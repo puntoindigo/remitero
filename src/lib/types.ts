@@ -24,12 +24,13 @@ export interface Cliente {
 }
 
 export interface RemitoItem {
-  productId?: string;
-  productName: string;
-  productDesc?: string;
+  id?: string;
+  product_id?: string;
+  product_name: string;
+  product_desc?: string;
   quantity: number;
-  unitPrice: number;
-  lineTotal: number;
+  unit_price: number;
+  line_total: number;
 }
 
 export interface Remito {
@@ -43,7 +44,8 @@ export interface Remito {
     phone?: string;
     email?: string;
   };
-  items: RemitoItem[];
+  items?: RemitoItem[];
+  remitoItems: RemitoItem[];
   notes?: string;
   status: string;
   total: number;

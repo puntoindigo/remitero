@@ -263,7 +263,7 @@ function RemitosContent() {
       setShowPrintConfirm(result);
     } catch (error) {
       console.error("Error saving remito:", error);
-      showError("Error al guardar el remito", error.message);
+      showError("Error al guardar el remito", (error as Error).message);
     }
   };
 
@@ -284,7 +284,7 @@ function RemitosContent() {
     const newItem: RemitoItem = {
       product_id: product.id,
       product_name: product.name,
-      product_desc: getCleanDescription(product.description),
+      product_desc: getCleanDescription(product.description || ''),
       quantity: Number(quantity),
       unit_price: Number(unitPrice),
       line_total: Number(lineTotal)
@@ -514,8 +514,8 @@ function RemitosContent() {
       
       // Calcular el total correctamente
       const items = remitoData.remitoItems || remitoData.items || [];
-      const calculatedTotal = items.reduce((sum: number, item: any) => {
-        return sum + Number(item.line_total || item.lineTotal || 0);
+      const calculatedTotal = items.reduce((sum: number, item: RemitoItem) => {
+        return sum + Number(item.line_total || 0);
       }, 0);
 
       // Generar el HTML de impresión
@@ -617,9 +617,9 @@ function RemitosContent() {
                   ${items.map((item: any) => `
                     <tr>
                       <td>${item.quantity}</td>
-                      <td>${item.product_name || item.productName}</td>
-                      <td>$${Number(item.unit_price || item.unitPrice).toFixed(2)}</td>
-                      <td>$${Number(item.line_total || item.lineTotal).toFixed(2)}</td>
+                      <td>${item.product_name}</td>
+                      <td>$${Number(item.unit_price).toFixed(2)}</td>
+                      <td>$${Number(item.line_total).toFixed(2)}</td>
                     </tr>
                   `).join('')}
                 </tbody>
@@ -651,9 +651,9 @@ function RemitosContent() {
                   ${items.map((item: any) => `
                     <tr>
                       <td>${item.quantity}</td>
-                      <td>${item.product_name || item.productName}</td>
-                      <td>$${Number(item.unit_price || item.unitPrice).toFixed(2)}</td>
-                      <td>$${Number(item.line_total || item.lineTotal).toFixed(2)}</td>
+                      <td>${item.product_name}</td>
+                      <td>$${Number(item.unit_price).toFixed(2)}</td>
+                      <td>$${Number(item.line_total).toFixed(2)}</td>
                     </tr>
                   `).join('')}
                 </tbody>
@@ -685,7 +685,7 @@ function RemitosContent() {
 
     } catch (error) {
       console.error('Error al imprimir:', error);
-      showError("Error al imprimir el remito", error.message);
+      showError("Error al imprimir el remito", (error as Error).message);
     }
   };
 
@@ -1139,8 +1139,8 @@ function RemitosContent() {
               <div className="print-client">
                 <h3>CLIENTE:</h3>
                 <p><strong>{printRemito.client.name}</strong></p>
-                {printRemito.client.address && <p>{printRemito.client.address}</p>}
-                {printRemito.client.phone && <p>Tel: {printRemito.client.phone}</p>}
+                {(printRemito.client as any).address && <p>{(printRemito.client as any).address}</p>}
+                {(printRemito.client as any).phone && <p>Tel: {(printRemito.client as any).phone}</p>}
               </div>
 
               <div className="print-items">
@@ -1157,9 +1157,9 @@ function RemitosContent() {
                     {printRemito.items.map((item, index) => (
                       <tr key={index}>
                         <td>{item.quantity}</td>
-                        <td>{item.productName}</td>
-                        <td>${(Number(item.unitPrice) || 0).toFixed(2)}</td>
-                        <td>${(Number(item.lineTotal) || 0).toFixed(2)}</td>
+                        <td>{item.product_name}</td>
+                        <td>${(Number(item.unit_price) || 0).toFixed(2)}</td>
+                        <td>${(Number(item.line_total) || 0).toFixed(2)}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -1167,7 +1167,7 @@ function RemitosContent() {
               </div>
 
               <div className="print-total">
-                <p><strong>TOTAL: ${((printRemito.remitoItems || printRemito.items || []).reduce((sum, item) => sum + (Number(item.line_total || item.lineTotal) || 0), 0)).toFixed(2)}</strong></p>
+                <p><strong>TOTAL: ${((printRemito.remitoItems || printRemito.items || []).reduce((sum: number, item: RemitoItem) => sum + (Number(item.line_total) || 0), 0)).toFixed(2)}</strong></p>
               </div>
 
               {printRemito.notes && (
@@ -1192,8 +1192,8 @@ function RemitosContent() {
               <div className="print-client">
                 <h3>CLIENTE:</h3>
                 <p><strong>{printRemito.client.name}</strong></p>
-                {printRemito.client.address && <p>{printRemito.client.address}</p>}
-                {printRemito.client.phone && <p>Tel: {printRemito.client.phone}</p>}
+                {(printRemito.client as any).address && <p>{(printRemito.client as any).address}</p>}
+                {(printRemito.client as any).phone && <p>Tel: {(printRemito.client as any).phone}</p>}
               </div>
 
               <div className="print-items">
@@ -1210,9 +1210,9 @@ function RemitosContent() {
                     {printRemito.items.map((item, index) => (
                       <tr key={index}>
                         <td>{item.quantity}</td>
-                        <td>{item.productName}</td>
-                        <td>${(Number(item.unitPrice) || 0).toFixed(2)}</td>
-                        <td>${(Number(item.lineTotal) || 0).toFixed(2)}</td>
+                        <td>{item.product_name}</td>
+                        <td>${(Number(item.unit_price) || 0).toFixed(2)}</td>
+                        <td>${(Number(item.line_total) || 0).toFixed(2)}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -1220,7 +1220,7 @@ function RemitosContent() {
               </div>
 
               <div className="print-total">
-                <p><strong>TOTAL: ${((printRemito.remitoItems || printRemito.items || []).reduce((sum, item) => sum + (Number(item.line_total || item.lineTotal) || 0), 0)).toFixed(2)}</strong></p>
+                <p><strong>TOTAL: ${((printRemito.remitoItems || printRemito.items || []).reduce((sum: number, item: RemitoItem) => sum + (Number(item.line_total) || 0), 0)).toFixed(2)}</strong></p>
               </div>
 
               {printRemito.notes && (
@@ -1247,7 +1247,7 @@ function RemitosContent() {
               <div className="modal-footer" style={{ 
                 display: 'flex', 
                 justifyContent: 'center', 
-                gap: '40%',
+                gap: '16px',
                 padding: '20px 0'
               }}>
                 <button
