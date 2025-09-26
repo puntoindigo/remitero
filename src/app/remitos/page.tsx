@@ -1240,20 +1240,27 @@ function RemitosContent() {
               <div className="modal-header">
                 <h3>✅ Remito guardado exitosamente</h3>
               </div>
-              <div className="modal-body">
+              <div className="modal-body" style={{ textAlign: 'center' }}>
                 <p>El remito ha sido guardado correctamente.</p>
                 <p><strong>¿Desea imprimirlo ahora?</strong></p>
               </div>
-              <div className="modal-footer" style={{ gap: '16px', justifyContent: 'space-between' }}>
+              <div className="modal-footer" style={{ 
+                display: 'flex', 
+                justifyContent: 'center', 
+                gap: '40%',
+                padding: '20px 0'
+              }}>
                 <button
                   onClick={handlePrintCancel}
                   className="btn-secondary"
+                  style={{ minWidth: '120px' }}
                 >
                   No, gracias
                 </button>
                 <button
                   onClick={handlePrintConfirm}
                   className="btn-primary"
+                  style={{ minWidth: '120px' }}
                 >
                   Sí, imprimir
                 </button>
