@@ -429,36 +429,10 @@ function RemitosContent() {
     }
   };
 
-  const handleStatusChange = async (id: string, status: "PENDIENTE" | "PREPARADO" | "ENTREGADO") => {
+  const handleStatusChange = async (id: string, status: "PENDIENTE" | "EN_TRANSITO" | "ENTREGADO" | "CANCELADO") => {
     if (!session?.user?.companyId || !session?.user?.id) return;
 
     try {
-      // Debug: Primero verificar qué estamos enviando
-      console.log('=== FRONTEND DEBUG ===');
-      console.log('Remito ID:', id);
-      console.log('Status:', status);
-      console.log('Status type:', typeof status);
-      console.log('=====================');
-
-      const debugResponse = await fetch('/api/debug-status', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ remitoId: id, status }),
-      });
-
-      const debugData = await debugResponse.json();
-      console.log('Debug response:', debugData);
-
-      // Temporal: usar endpoint de debug en lugar del real
-      const debugUrl = `/api/debug-logs?remitoId=${id}&status=${status}`;
-      console.log('Testing with debug URL:', debugUrl);
-      
-      const debugResponse2 = await fetch(debugUrl);
-      const debugData2 = await debugResponse2.json();
-      console.log('Debug logs response:', debugData2);
-
       const response = await fetch(`/api/remitos/${id}/status`, {
         method: 'PUT',
         headers: {
@@ -697,10 +671,12 @@ function RemitosContent() {
     switch (status) {
       case "PENDIENTE":
         return "bg-yellow-100 text-yellow-800";
-      case "PREPARADO":
+      case "EN_TRANSITO":
         return "bg-blue-100 text-blue-800";
       case "ENTREGADO":
         return "bg-green-100 text-green-800";
+      case "CANCELADO":
+        return "bg-red-100 text-red-800";
       default:
         return "bg-gray-100 text-gray-800";
     }
@@ -1016,8 +992,9 @@ function RemitosContent() {
                           className={`status-select ${getStatusColor(remito.status)}`}
                         >
                           <option value="PENDIENTE">🕐 Pendiente</option>
-                          <option value="PREPARADO">✅ Preparado</option>
+                          <option value="EN_TRANSITO">🚛 En Tránsito</option>
                           <option value="ENTREGADO">🚚 Entregado</option>
+                          <option value="CANCELADO">❌ Cancelado</option>
                         </select>
                       </td>
                       <td>{(Number(remito.total) || 0).toLocaleString('es-AR', { style: 'currency', currency: 'ARS' })}</td>

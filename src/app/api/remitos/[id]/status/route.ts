@@ -30,44 +30,29 @@ export async function PUT(
     const body = await request.json();
     const { status } = body;
 
-    console.log('=== STATUS ENDPOINT DEBUG ===');
-    console.log('Remito ID:', remitoId);
-    console.log('Status:', status);
-    console.log('Status type:', typeof status);
-    console.log('Body:', body);
-    console.log('Session user:', session.user);
-    console.log('==============================');
-
     // Validaciones básicas
     if (!status) {
-      console.log('Error: No status provided');
       return NextResponse.json({ 
         error: "Datos faltantes", 
         message: "El estado es requerido." 
       }, { status: 400 });
     }
 
-    const validStatuses = ['PENDIENTE', 'EN_TRANSITO', 'ENTREGADO', 'CANCELADO'];
-    if (!validStatuses.includes(status)) {
-      console.log('Error: Invalid status:', status, 'Valid statuses:', validStatuses);
+    if (!['PENDIENTE', 'EN_TRANSITO', 'ENTREGADO', 'CANCELADO'].includes(status)) {
       return NextResponse.json({ 
         error: "Estado inválido", 
-        message: `El estado debe ser: ${validStatuses.join(', ')}.` 
+        message: "El estado debe ser: PENDIENTE, EN_TRANSITO, ENTREGADO o CANCELADO." 
       }, { status: 400 });
     }
 
     // Verificar que el remito existe y el usuario tiene acceso
-    console.log('Fetching remito from database...');
     const { data: existingRemito, error: fetchError } = await supabaseAdmin
       .from('remitos')
       .select('id, status, company_id')
       .eq('id', remitoId)
       .single();
 
-    console.log('Remito fetch result:', { existingRemito, fetchError });
-
     if (fetchError || !existingRemito) {
-      console.log('Error: Remito not found or access denied');
       return NextResponse.json({ 
         error: "Remito no encontrado",
         message: "El remito solicitado no existe o no tienes permisos para acceder a él."
@@ -75,13 +60,7 @@ export async function PUT(
     }
 
     // Verificar autorización para usuarios no SUPERADMIN
-    console.log('Checking authorization...');
-    console.log('User role:', session.user.role);
-    console.log('User companyId:', session.user.companyId);
-    console.log('Remito company_id:', existingRemito.company_id);
-    
     if (session.user.role !== 'SUPERADMIN' && existingRemito.company_id !== session.user.companyId) {
-      console.log('Error: Authorization failed');
       return NextResponse.json({ 
         error: "No autorizado",
         message: "No tienes permisos para acceder a este remito."
