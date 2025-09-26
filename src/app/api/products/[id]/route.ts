@@ -15,6 +15,7 @@ export async function PUT(
     console.log("Product ID:", params.id);
     console.log("Request URL:", request.url);
     console.log("Request method:", request.method);
+    console.log("TEST COMMIT - Deploy trigger");
     
     logger.info("PUT /api/products/[id] - Starting", { productId: params.id });
     
