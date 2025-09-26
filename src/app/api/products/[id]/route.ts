@@ -11,9 +11,20 @@ export async function PUT(
   let session: any = null;
   
   try {
+    console.log("=== PUT /api/products/[id] START ===");
+    console.log("Product ID:", params.id);
+    console.log("Request URL:", request.url);
+    console.log("Request method:", request.method);
+    
     logger.info("PUT /api/products/[id] - Starting", { productId: params.id });
     
     session = await getServerSession(authOptions);
+    console.log("Session retrieved:", session);
+    console.log("Has session:", !!session);
+    console.log("User ID:", session?.user?.id);
+    console.log("User role:", session?.user?.role);
+    console.log("Company ID:", session?.user?.companyId);
+    
     logger.debug("Session retrieved", { 
       hasSession: !!session, 
       userId: session?.user?.id,
@@ -46,6 +57,10 @@ export async function PUT(
     const productId = params.id;
     const body = await request.json();
     
+    console.log("Request body:", body);
+    console.log("Product ID from params:", productId);
+    console.log("User ID from session:", session.user.id);
+    
     logger.debug("Request details", { 
       productId, 
       requestBody: body,
@@ -55,10 +70,16 @@ export async function PUT(
     // Validar datos de entrada
     const updateData: any = {};
     
+    console.log("Validating input data...");
+    console.log("Body.stock:", body.stock);
+    console.log("Type of body.stock:", typeof body.stock);
+    
     if (body.stock) {
       if (body.stock === 'IN_STOCK' || body.stock === 'OUT_OF_STOCK') {
         updateData.stock = body.stock;
+        console.log("Stock value validated:", updateData.stock);
       } else {
+        console.log("Invalid stock value:", body.stock);
         logger.error("Invalid stock value", { 
           stockValue: body.stock,
           productId,
@@ -70,14 +91,24 @@ export async function PUT(
         }, { status: 400 });
       }
     }
+    
+    console.log("Update data:", updateData);
 
     // Construir condición WHERE según el rol del usuario
     const whereCondition: any = { id: productId };
     
+    console.log("Building WHERE condition...");
+    console.log("User role:", session.user.role);
+    console.log("Is SUPERADMIN:", session.user.role === 'SUPERADMIN');
+    
     // Solo SUPERADMIN puede acceder a productos de cualquier empresa
     if (session.user.role !== 'SUPERADMIN') {
       whereCondition.companyId = session.user.companyId;
+      console.log("Added companyId to WHERE condition:", session.user.companyId);
     }
+
+    console.log("Final WHERE condition:", whereCondition);
+    console.log("Update data:", updateData);
 
     logger.debug("Database query", { 
       whereCondition,
@@ -85,21 +116,43 @@ export async function PUT(
       userRole: session.user.role 
     });
 
+    console.log("About to execute withPrisma...");
+    
     const product = await withPrisma(async (prisma) => {
-      return await prisma.product.update({
+      console.log("Inside withPrisma callback, executing update...");
+      const result = await prisma.product.update({
         where: whereCondition,
         data: updateData
       });
+      console.log("Update successful, result:", result);
+      return result;
     });
+    
+    console.log("withPrisma completed, product:", product);
 
+    console.log("Product updated successfully!");
+    console.log("Updated fields:", Object.keys(updateData));
+    
     logger.info("Product updated successfully", { 
       productId,
       updatedFields: Object.keys(updateData),
       userId: session.user.id 
     });
     
+    console.log("Returning response with product:", product);
     return NextResponse.json(product);
   } catch (error: any) {
+    console.log("=== ERROR CAUGHT ===");
+    console.log("Error message:", error.message);
+    console.log("Error code:", error.code);
+    console.log("Error meta:", error.meta);
+    console.log("Error stack:", error.stack);
+    console.log("Product ID:", params.id);
+    console.log("User ID:", session?.user?.id);
+    console.log("User role:", session?.user?.role);
+    console.log("Company ID:", session?.user?.companyId);
+    console.log("=== END ERROR ===");
+    
     logger.error("Error updating product", {
       error: error.message,
       code: error.code,
