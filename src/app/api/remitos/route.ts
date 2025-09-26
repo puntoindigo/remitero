@@ -32,7 +32,8 @@ export async function GET(request: NextRequest) {
           id,
           name,
           email,
-          phone
+          phone,
+          address
         ),
         users (
           id,
@@ -198,12 +199,12 @@ export async function POST(request: NextRequest) {
     // Crear los items del remito
     const remitoItems = items.map((item: any) => ({
       remito_id: newRemito.id,
-      product_id: item.productId || null,
+      product_id: item.product_id || null,
       quantity: item.quantity,
-      product_name: item.productName,
-      product_desc: item.productDesc || null,
-      unit_price: parseFloat(item.unitPrice),
-      line_total: parseFloat(item.unitPrice) * item.quantity
+      product_name: item.product_name,
+      product_desc: item.product_desc || null,
+      unit_price: parseFloat(item.unit_price),
+      line_total: parseFloat(item.line_total)
     }));
 
     const { error: itemsError } = await supabaseAdmin
@@ -252,7 +253,8 @@ export async function POST(request: NextRequest) {
           id,
           name,
           email,
-          phone
+          phone,
+          address
         ),
         users (
           id,

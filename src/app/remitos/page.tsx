@@ -986,7 +986,8 @@ function RemitosContent() {
                     { id: "", name: "Todos los estados" },
                     { id: "PENDIENTE", name: "🕐 Pendiente" },
                     { id: "PREPARADO", name: "✅ Preparado" },
-                    { id: "ENTREGADO", name: "🚚 Entregado" }
+                    { id: "ENTREGADO", name: "🚚 Entregado" },
+                    { id: "CANCELADO", name: "❌ Cancelado" }
                   ]}
                   value={selectedStatus}
                   onChange={handleStatusFilterChange}
@@ -1154,7 +1155,7 @@ function RemitosContent() {
                     </tr>
                   </thead>
                   <tbody>
-                    {printRemito.items.map((item, index) => (
+                    {(printRemito.remitoItems || printRemito.items || []).map((item, index) => (
                       <tr key={index}>
                         <td>{item.quantity}</td>
                         <td>{item.product_name}</td>
@@ -1207,7 +1208,7 @@ function RemitosContent() {
                     </tr>
                   </thead>
                   <tbody>
-                    {printRemito.items.map((item, index) => (
+                    {(printRemito.remitoItems || printRemito.items || []).map((item, index) => (
                       <tr key={index}>
                         <td>{item.quantity}</td>
                         <td>{item.product_name}</td>
