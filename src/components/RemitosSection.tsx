@@ -57,7 +57,7 @@ export function RemitosSection({
     const cliente = clientes.find(c => c.id === formData.clienteId);
     if (!cliente) return;
 
-    const total = remitoItems.reduce((sum, item) => sum + item.subtotal, 0);
+    const total = (remitoItems || []).reduce((sum, item) => sum + item.subtotal, 0);
 
     if (editingId) {
       onUpdate(editingId, {
