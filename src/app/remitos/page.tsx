@@ -410,7 +410,19 @@ function RemitosContent() {
       setEditingRemito(completeRemito);
       setValue("clientId", completeRemito.client.id);
       setValue("notes", completeRemito.notes || "");
-      setItems(completeRemito.remitoItems || []);
+      
+      // Transformar los remitoItems para que coincidan con el formato esperado
+      const transformedItems = (completeRemito.remitoItems || []).map((item: any) => ({
+        productId: item.product_id || item.products?.id,
+        productName: item.product_name,
+        productDesc: item.product_desc,
+        quantity: item.quantity,
+        unitPrice: item.unit_price,
+        lineTotal: item.line_total
+      }));
+      
+      console.log('transformedItems:', transformedItems);
+      setItems(transformedItems);
       setShowForm(true);
     } catch (error) {
       console.error('Error loading remito for edit:', error);
