@@ -10,6 +10,8 @@ import { Plus, Edit, Trash2, Users, Mail, Phone, MapPin } from "lucide-react";
 import { formatDate } from "@/lib/utils/formatters";
 import SearchAndPagination from "@/components/common/SearchAndPagination";
 import { useSearchAndPagination } from "@/hooks/useSearchAndPagination";
+import { MessageModal } from "@/components/common/MessageModal";
+import { useMessageModal } from "@/hooks/useMessageModal";
 
 interface Client {
   id: string;
@@ -30,6 +32,9 @@ function ClientesContent() {
   const [editingClient, setEditingClient] = useState<Client | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
+  
+  // Hook para manejar modales de mensajes
+  const { modalState, showSuccess, showError, closeModal } = useMessageModal();
 
   // Hook para búsqueda y paginación
   const {
@@ -396,6 +401,16 @@ function ClientesContent() {
             </div>
           </div>
         )}
+
+        {/* Modal de mensajes */}
+        <MessageModal
+          isOpen={modalState.isOpen}
+          onClose={closeModal}
+          type={modalState.type}
+          title={modalState.title}
+          message={modalState.message}
+          details={modalState.details}
+        />
       </div>
     </main>
   );

@@ -8,6 +8,8 @@ import { z } from "zod";
 import { Plus, Edit, Trash2, Building2, Users } from "lucide-react";
 import { formatDate } from "@/lib/utils/formatters";
 import Link from "next/link";
+import { MessageModal } from "@/components/common/MessageModal";
+import { useMessageModal } from "@/hooks/useMessageModal";
 
 const companySchema = z.object({
   name: z.string().min(1, "El nombre es requerido"),
@@ -27,6 +29,9 @@ export default function EmpresasPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [editingCompany, setEditingCompany] = useState<Company | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
+  
+  // Hook para manejar modales de mensajes
+  const { modalState, showSuccess, showError, closeModal } = useMessageModal();
 
   const {
     register,
@@ -261,6 +266,16 @@ export default function EmpresasPage() {
             </div>
           </div>
         )}
+
+        {/* Modal de mensajes */}
+        <MessageModal
+          isOpen={modalState.isOpen}
+          onClose={closeModal}
+          type={modalState.type}
+          title={modalState.title}
+          message={modalState.message}
+          details={modalState.details}
+        />
       </section>
     </main>
   );

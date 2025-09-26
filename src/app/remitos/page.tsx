@@ -1105,7 +1105,7 @@ function RemitosContent() {
               </div>
 
               <div className="print-total">
-                <p><strong>TOTAL: ${(printRemito.items.reduce((sum, item) => sum + (Number(item.lineTotal) || 0), 0)).toFixed(2)}</strong></p>
+                <p><strong>TOTAL: ${((printRemito.remitoItems || printRemito.items || []).reduce((sum, item) => sum + (Number(item.line_total || item.lineTotal) || 0), 0)).toFixed(2)}</strong></p>
               </div>
 
               {printRemito.notes && (
@@ -1158,7 +1158,7 @@ function RemitosContent() {
               </div>
 
               <div className="print-total">
-                <p><strong>TOTAL: ${(printRemito.items.reduce((sum, item) => sum + (Number(item.lineTotal) || 0), 0)).toFixed(2)}</strong></p>
+                <p><strong>TOTAL: ${((printRemito.remitoItems || printRemito.items || []).reduce((sum, item) => sum + (Number(item.line_total || item.lineTotal) || 0), 0)).toFixed(2)}</strong></p>
               </div>
 
               {printRemito.notes && (

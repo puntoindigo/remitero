@@ -51,7 +51,7 @@ export default function PrintRemito() {
     return <div className="error">Remito no encontrado</div>;
   }
 
-  const total = remito.items.reduce((sum, item) => sum + (Number(item.lineTotal) || 0), 0);
+  const total = (remito.remitoItems || remito.items || []).reduce((sum, item) => sum + (Number(item.line_total || item.lineTotal) || 0), 0);
 
   return (
     <div className="print-container">
@@ -84,12 +84,12 @@ export default function PrintRemito() {
               </tr>
             </thead>
             <tbody>
-              {remito.items.map((item, index) => (
+              {(remito.remitoItems || remito.items || []).map((item, index) => (
                 <tr key={index}>
                   <td>{item.quantity}</td>
-                  <td>{item.productName}</td>
-                  <td>${(Number(item.unitPrice) || 0).toFixed(2)}</td>
-                  <td>${(Number(item.lineTotal) || 0).toFixed(2)}</td>
+                  <td>{item.product_name || item.productName}</td>
+                  <td>${(Number(item.unit_price || item.unitPrice) || 0).toFixed(2)}</td>
+                  <td>${(Number(item.line_total || item.lineTotal) || 0).toFixed(2)}</td>
                 </tr>
               ))}
             </tbody>
@@ -137,12 +137,12 @@ export default function PrintRemito() {
               </tr>
             </thead>
             <tbody>
-              {remito.items.map((item, index) => (
+              {(remito.remitoItems || remito.items || []).map((item, index) => (
                 <tr key={index}>
                   <td>{item.quantity}</td>
-                  <td>{item.productName}</td>
-                  <td>${(Number(item.unitPrice) || 0).toFixed(2)}</td>
-                  <td>${(Number(item.lineTotal) || 0).toFixed(2)}</td>
+                  <td>{item.product_name || item.productName}</td>
+                  <td>${(Number(item.unit_price || item.unitPrice) || 0).toFixed(2)}</td>
+                  <td>${(Number(item.line_total || item.lineTotal) || 0).toFixed(2)}</td>
                 </tr>
               ))}
             </tbody>
