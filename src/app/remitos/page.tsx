@@ -26,12 +26,12 @@ import { MessageModal } from "@/components/common/MessageModal";
 import { useMessageModal } from "@/hooks/useMessageModal";
 
 interface RemitoItem {
-  productId?: string;
-  productName: string;
-  productDesc?: string;
+  product_id?: string;
+  product_name: string;
+  product_desc?: string;
   quantity: number;
-  unitPrice: number;
-  lineTotal: number;
+  unit_price: number;
+  line_total: number;
 }
 
 interface Remito {
@@ -186,20 +186,20 @@ function RemitosContent() {
         ...data,
         items: items.map(item => ({
           ...item,
-          unitPrice: Number(item.unitPrice),
-          lineTotal: Number(item.lineTotal)
+          unit_price: Number(item.unit_price),
+          line_total: Number(item.line_total)
         }))
       };
 
       console.log('Sending remito data:', remitoData);
       console.log('Items details:', remitoData.items.map(item => ({
-        productId: item.productId,
-        productName: item.productName,
+        product_id: item.product_id,
+        product_name: item.product_name,
         quantity: item.quantity,
-        unitPrice: item.unitPrice,
-        lineTotal: item.lineTotal,
-        unitPriceType: typeof item.unitPrice,
-        lineTotalType: typeof item.lineTotal
+        unit_price: item.unit_price,
+        line_total: item.line_total,
+        unit_price_type: typeof item.unit_price,
+        line_total_type: typeof item.line_total
       })));
 
       // Skip validation test - proceed directly to save
@@ -209,11 +209,11 @@ function RemitosContent() {
         notes: remitoData.notes,
         itemsCount: remitoData.items.length,
         items: remitoData.items.map(item => ({
-          productId: item.productId,
-          productName: item.productName,
+          product_id: item.product_id,
+          product_name: item.product_name,
           quantity: item.quantity,
-          unitPrice: item.unitPrice,
-          lineTotal: item.lineTotal
+          unit_price: item.unit_price,
+          line_total: item.line_total
         }))
       });
       
@@ -282,12 +282,12 @@ function RemitosContent() {
     const unitPrice = Number(product.price);
     const lineTotal = Number(unitPrice * quantity);
     const newItem: RemitoItem = {
-      productId: product.id,
-      productName: product.name,
-      productDesc: getCleanDescription(product.description),
+      product_id: product.id,
+      product_name: product.name,
+      product_desc: getCleanDescription(product.description),
       quantity: Number(quantity),
-      unitPrice: Number(unitPrice),
-      lineTotal: Number(lineTotal)
+      unit_price: Number(unitPrice),
+      line_total: Number(lineTotal)
     };
 
     setItems(prev => [...prev, newItem]);
@@ -304,20 +304,20 @@ function RemitosContent() {
     
     setItems(prev => prev.map((item, i) => {
       if (i === index) {
-        const unitPrice = Number(item.unitPrice);
+        const unitPrice = Number(item.unit_price);
         const lineTotal = Number(unitPrice * newQuantity);
         return { 
           ...item, 
           quantity: Number(newQuantity), 
-          unitPrice: Number(unitPrice), 
-          lineTotal: Number(lineTotal) 
+          unit_price: Number(unitPrice), 
+          line_total: Number(lineTotal) 
         };
       }
       return item;
     }));
   };
 
-  const total = (items || []).reduce((sum, item) => sum + Number(item.lineTotal || 0), 0);
+  const total = (items || []).reduce((sum, item) => sum + Number(item.line_total || 0), 0);
 
   // Lógica de filtrado y paginación
   const filteredRemitos = (remitos || []).filter(remito => {
@@ -402,27 +402,10 @@ function RemitosContent() {
       }
       const completeRemito = await response.json();
       
-      console.log('=== DEBUG handleEdit ===');
-      console.log('completeRemito:', completeRemito);
-      console.log('completeRemito.remitoItems:', completeRemito.remitoItems);
-      console.log('completeRemito.items:', completeRemito.items);
-      
       setEditingRemito(completeRemito);
       setValue("clientId", completeRemito.client.id);
       setValue("notes", completeRemito.notes || "");
-      
-      // Transformar los remitoItems para que coincidan con el formato esperado
-      const transformedItems = (completeRemito.remitoItems || []).map((item: any) => ({
-        productId: item.product_id || item.products?.id,
-        productName: item.product_name,
-        productDesc: item.product_desc,
-        quantity: item.quantity,
-        unitPrice: item.unit_price,
-        lineTotal: item.line_total
-      }));
-      
-      console.log('transformedItems:', transformedItems);
-      setItems(transformedItems);
+      setItems(completeRemito.remitoItems || []);
       setShowForm(true);
     } catch (error) {
       console.error('Error loading remito for edit:', error);
@@ -496,10 +479,6 @@ function RemitosContent() {
 
   const handlePrint = async (remito: Remito) => {
     try {
-      console.log('=== DEBUG handlePrint ===');
-      console.log('remito from list:', remito);
-      console.log('remito.remitoItems:', remito.remitoItems);
-      console.log('remito.items:', remito.items);
       
       // Crear una nueva ventana para imprimir
       const printWindow = window.open('', '_blank');
@@ -852,9 +831,9 @@ function RemitosContent() {
                         <tr key={index}>
                           <td>
                             <div>
-                              <div className="font-medium">{item.productName}</div>
-                              {item.productDesc && (
-                                <div className="text-sm text-gray-500">{item.productDesc}</div>
+                              <div className="font-medium">{item.product_name}</div>
+                              {item.product_desc && (
+                                <div className="text-sm text-gray-500">{item.product_desc}</div>
                               )}
                             </div>
                           </td>
@@ -867,8 +846,8 @@ function RemitosContent() {
                               className="w-20"
                             />
                           </td>
-                          <td>{(Number(item.unitPrice) || 0).toLocaleString('es-AR', { style: 'currency', currency: 'ARS' })}</td>
-                          <td>{(Number(item.lineTotal) || 0).toLocaleString('es-AR', { style: 'currency', currency: 'ARS' })}</td>
+                          <td>{(Number(item.unit_price) || 0).toLocaleString('es-AR', { style: 'currency', currency: 'ARS' })}</td>
+                          <td>{(Number(item.line_total) || 0).toLocaleString('es-AR', { style: 'currency', currency: 'ARS' })}</td>
                           <td>
                             <button
                               type="button"
@@ -929,14 +908,14 @@ function RemitosContent() {
       console.log('items length:', items.length);
       items.forEach((item, index) => {
         console.log(`Item ${index}:`, {
-          productId: item.productId,
-          productName: item.productName,
+          product_id: item.product_id,
+          product_name: item.product_name,
           quantity: item.quantity,
-          unitPrice: item.unitPrice,
-          lineTotal: item.lineTotal,
-          quantityType: typeof item.quantity,
-          unitPriceType: typeof item.unitPrice,
-          lineTotalType: typeof item.lineTotal
+          unit_price: item.unit_price,
+          line_total: item.line_total,
+          quantity_type: typeof item.quantity,
+          unit_price_type: typeof item.unit_price,
+          line_total_type: typeof item.line_total
         });
       });
       
