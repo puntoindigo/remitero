@@ -405,7 +405,18 @@ function RemitosContent() {
       setEditingRemito(completeRemito);
       setValue("clientId", completeRemito.client.id);
       setValue("notes", completeRemito.notes || "");
-      setItems(completeRemito.remitoItems || []);
+      
+      // Mapear los remitoItems para asegurar que product_id esté correctamente asignado
+      const mappedItems = (completeRemito.remitoItems || []).map((item: any) => ({
+        ...item,
+        product_id: item.product_id || item.products?.id
+      }));
+      
+      console.log('=== DEBUG handleEdit items ===');
+      console.log('original remitoItems:', completeRemito.remitoItems);
+      console.log('mapped items:', mappedItems);
+      
+      setItems(mappedItems);
       setShowForm(true);
     } catch (error) {
       console.error('Error loading remito for edit:', error);
