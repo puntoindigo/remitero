@@ -6,6 +6,7 @@ import { withPrisma } from "@/lib/prisma";
 export async function GET(request: NextRequest) {
   try {
     console.log("=== DEBUG PRISMA START ===");
+    console.log("TEST COMMIT - Force deploy");
     
     // Verificar variables de entorno
     console.log("Environment variables:");
