@@ -394,17 +394,10 @@ function RemitosContent() {
   }, []);
 
   const handleEdit = (remito: Remito) => {
-    console.log('=== DEBUG handleEdit ===');
-    console.log('remito:', remito);
-    console.log('remito.items:', remito.items);
-    console.log('remito.remitoItems:', remito.remitoItems);
-    console.log('typeof remito.items:', typeof remito.items);
-    console.log('Array.isArray(remito.items):', Array.isArray(remito.items));
-    
     setEditingRemito(remito);
     setValue("clientId", remito.client.id);
     setValue("notes", remito.notes || "");
-    setItems(remito.items);
+    setItems(remito.remitoItems || []);
     setShowForm(true);
   };
 
