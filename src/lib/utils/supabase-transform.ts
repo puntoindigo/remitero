@@ -70,7 +70,8 @@ export function transformRemito(remito: any) {
   let total = 0;
   if (remito.remito_items && Array.isArray(remito.remito_items)) {
     total = remito.remito_items.reduce((sum: number, item: any) => {
-      return sum + (item.line_total || 0);
+      const lineTotal = item.line_total || item.lineTotal || 0;
+      return sum + (typeof lineTotal === 'number' ? lineTotal : 0);
     }, 0);
   }
   
@@ -112,5 +113,9 @@ export function transformCompanies(companies: any[]) {
 }
 
 export function transformRemitos(remitos: any[]) {
+  if (!Array.isArray(remitos)) {
+    console.warn('transformRemitos: remitos is not an array:', remitos);
+    return [];
+  }
   return remitos.map(transformRemito).filter(Boolean);
 }

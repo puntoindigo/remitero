@@ -75,7 +75,20 @@ export async function GET(request: NextRequest) {
       }, { status: 500 });
     }
 
-    return NextResponse.json(transformRemitos(remitos));
+    console.log('Raw remitos from database:', remitos?.length || 0, 'remitos');
+    if (remitos && remitos.length > 0) {
+      console.log('First remito structure:', {
+        id: remitos[0].id,
+        hasRemitoItems: !!remitos[0].remito_items,
+        remitoItemsType: typeof remitos[0].remito_items,
+        remitoItemsLength: remitos[0].remito_items?.length || 0
+      });
+    }
+
+    const transformedRemitos = transformRemitos(remitos);
+    console.log('Transformed remitos:', transformedRemitos?.length || 0, 'remitos');
+    
+    return NextResponse.json(transformedRemitos);
   } catch (error: any) {
     console.error('Error in remitos GET:', error);
     return NextResponse.json({ 
