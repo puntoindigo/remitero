@@ -128,14 +128,6 @@ function RemitosContent() {
         productsResponse.json()
       ]);
 
-      console.log('=== DEBUG loadData ===');
-      console.log('remitosData length:', remitosData?.length);
-      if (remitosData && remitosData.length > 0) {
-        console.log('First remito:', remitosData[0]);
-        console.log('First remito remitoItems:', remitosData[0].remitoItems);
-        console.log('First remito items:', remitosData[0].items);
-      }
-
       // Filtrar productos con stock en el frontend
       const productsWithStock = productsData.filter((product: any) => {
         return product.stock === 'IN_STOCK';
@@ -410,6 +402,11 @@ function RemitosContent() {
       }
       const completeRemito = await response.json();
       
+      console.log('=== DEBUG handleEdit ===');
+      console.log('completeRemito:', completeRemito);
+      console.log('completeRemito.remitoItems:', completeRemito.remitoItems);
+      console.log('completeRemito.items:', completeRemito.items);
+      
       setEditingRemito(completeRemito);
       setValue("clientId", completeRemito.client.id);
       setValue("notes", completeRemito.notes || "");
@@ -487,6 +484,11 @@ function RemitosContent() {
 
   const handlePrint = async (remito: Remito) => {
     try {
+      console.log('=== DEBUG handlePrint ===');
+      console.log('remito from list:', remito);
+      console.log('remito.remitoItems:', remito.remitoItems);
+      console.log('remito.items:', remito.items);
+      
       // Crear una nueva ventana para imprimir
       const printWindow = window.open('', '_blank');
       if (!printWindow) {
