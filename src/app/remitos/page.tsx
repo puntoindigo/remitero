@@ -751,8 +751,8 @@ function RemitosContent() {
                   <div className="form-group-step">
                     <label>Producto</label>
                     <FilterableSelect
-                      options={products
-                        .filter(p => !items.some(item => item.productId === p.id))
+                      options={(products || [])
+                        .filter(p => !(items || []).some(item => item.productId === p.id))
                         .map(product => ({ 
                           id: product.id, 
                           name: product.name

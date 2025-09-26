@@ -327,8 +327,8 @@ export function RemitosSection({
     description: cliente.email ? cliente.email : cliente.telefono || ''
   }));
 
-  const productoOptions = productos
-    .filter(p => !remitoItems.some(item => item.productoId === p.id))
+  const productoOptions = (productos || [])
+    .filter(p => !(remitoItems || []).some(item => item.productoId === p.id))
     .map(producto => ({
       value: producto.id,
       label: producto.nombre,
