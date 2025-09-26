@@ -604,6 +604,8 @@ function RemitosContent() {
                 <div>Fecha: ${new Date(remitoData.createdAt).toLocaleDateString('es-AR')}</div>
               </div>
               <div><strong>CLIENTE:</strong> ${remitoData.client.name}</div>
+              ${remitoData.client.address ? `<div>${remitoData.client.address}</div>` : ''}
+              ${remitoData.client.phone ? `<div>Tel: ${remitoData.client.phone}</div>` : ''}
               <table class="print-table">
                 <thead>
                   <tr>
@@ -638,6 +640,8 @@ function RemitosContent() {
                 <div>Fecha: ${new Date(remitoData.createdAt).toLocaleDateString('es-AR')}</div>
               </div>
               <div><strong>CLIENTE:</strong> ${remitoData.client.name}</div>
+              ${remitoData.client.address ? `<div>${remitoData.client.address}</div>` : ''}
+              ${remitoData.client.phone ? `<div>Tel: ${remitoData.client.phone}</div>` : ''}
               <table class="print-table">
                 <thead>
                   <tr>
