@@ -1084,7 +1084,7 @@ function RemitosContent() {
               padding: '10px', 
               zIndex: 10000 
             }}>
-              DEBUG: IMPRIMIENDO REMITO #{printRemito.number} - {printRemito.items.length} items
+              DEBUG: IMPRIMIENDO REMITO #{printRemito.number} - {(printRemito.items || printRemito.remitoItems || []).length} items
             </div>
             
             {/* Original Copy - Left Half */}
