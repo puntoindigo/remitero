@@ -393,12 +393,24 @@ function RemitosContent() {
     }
   }, []);
 
-  const handleEdit = (remito: Remito) => {
-    setEditingRemito(remito);
-    setValue("clientId", remito.client.id);
-    setValue("notes", remito.notes || "");
-    setItems(remito.remitoItems || []);
-    setShowForm(true);
+  const handleEdit = async (remito: Remito) => {
+    try {
+      // Obtener el remito completo con todos los items
+      const response = await fetch(`/api/remitos/${remito.id}`);
+      if (!response.ok) {
+        throw new Error('Error al cargar el remito');
+      }
+      const completeRemito = await response.json();
+      
+      setEditingRemito(completeRemito);
+      setValue("clientId", completeRemito.client.id);
+      setValue("notes", completeRemito.notes || "");
+      setItems(completeRemito.remitoItems || []);
+      setShowForm(true);
+    } catch (error) {
+      console.error('Error loading remito for edit:', error);
+      showError("Error", "No se pudo cargar el remito para editar");
+    }
   };
 
   const handleCancel = () => {
