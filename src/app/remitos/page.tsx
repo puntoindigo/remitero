@@ -451,6 +451,14 @@ function RemitosContent() {
       const debugData = await debugResponse.json();
       console.log('Debug response:', debugData);
 
+      // Temporal: usar endpoint de debug en lugar del real
+      const debugUrl = `/api/debug-logs?remitoId=${id}&status=${status}`;
+      console.log('Testing with debug URL:', debugUrl);
+      
+      const debugResponse2 = await fetch(debugUrl);
+      const debugData2 = await debugResponse2.json();
+      console.log('Debug logs response:', debugData2);
+
       const response = await fetch(`/api/remitos/${id}/status`, {
         method: 'PUT',
         headers: {
