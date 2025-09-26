@@ -123,7 +123,7 @@ export async function PUT(
 
     const remitoId = params.id;
     const body = await request.json();
-    const { status, notes } = body;
+    const { status, notes, items } = body;
 
     // Verificar que el remito existe y el usuario tiene acceso
     const { data: existingRemito, error: fetchError } = await supabaseAdmin
@@ -211,6 +211,46 @@ export async function PUT(
       if (historyError) {
         console.error('Error creating status history:', historyError);
         // No es crítico, continuar
+      }
+    }
+
+    // Si se enviaron items, actualizar los items del remito
+    if (items && Array.isArray(items)) {
+      // Eliminar items existentes
+      const { error: deleteError } = await supabaseAdmin
+        .from('remito_items')
+        .delete()
+        .eq('remito_id', remitoId);
+
+      if (deleteError) {
+        console.error('Error deleting existing remito items:', deleteError);
+        return NextResponse.json({ 
+          error: "Error interno del servidor",
+          message: "No se pudieron eliminar los items existentes."
+        }, { status: 500 });
+      }
+
+      // Crear nuevos items
+      const remitoItems = items.map((item: any) => ({
+        remito_id: remitoId,
+        product_id: item.product_id || null,
+        quantity: item.quantity,
+        product_name: item.product_name,
+        product_desc: item.product_desc || null,
+        unit_price: parseFloat(item.unit_price),
+        line_total: parseFloat(item.line_total)
+      }));
+
+      const { error: itemsError } = await supabaseAdmin
+        .from('remito_items')
+        .insert(remitoItems);
+
+      if (itemsError) {
+        console.error('Error creating new remito items:', itemsError);
+        return NextResponse.json({ 
+          error: "Error interno del servidor",
+          message: "No se pudieron crear los nuevos items."
+        }, { status: 500 });
       }
     }
 
