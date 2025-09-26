@@ -9,9 +9,12 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
+    console.log('=== STATUS ENDPOINT START ===');
     const session = await getServerSession(authOptions);
+    console.log('Session:', session?.user ? 'User found' : 'No user');
     
     if (!session?.user) {
+      console.log('No session, returning 401');
       return NextResponse.json({ 
         error: "No autorizado", 
         message: "Sesión no encontrada. Por favor, inicia sesión." 
@@ -27,11 +30,15 @@ export async function PUT(
     }
 
     const remitoId = params.id;
+    console.log('Remito ID:', remitoId);
+    
     const body = await request.json();
     const { status } = body;
+    console.log('Status received:', status);
 
     // Validaciones básicas
     if (!status) {
+      console.log('No status provided');
       return NextResponse.json({ 
         error: "Datos faltantes", 
         message: "El estado es requerido." 
@@ -46,13 +53,17 @@ export async function PUT(
     }
 
     // Verificar que el remito existe y el usuario tiene acceso
+    console.log('Fetching remito from database...');
     const { data: existingRemito, error: fetchError } = await supabaseAdmin
       .from('remitos')
       .select('id, status, company_id')
       .eq('id', remitoId)
       .single();
 
+    console.log('Remito fetch result:', { existingRemito, fetchError });
+
     if (fetchError || !existingRemito) {
+      console.log('Remito not found or access denied');
       return NextResponse.json({ 
         error: "Remito no encontrado",
         message: "El remito solicitado no existe o no tienes permisos para acceder a él."
@@ -68,6 +79,7 @@ export async function PUT(
     }
 
     // Actualizar el estado del remito
+    console.log('Updating remito status...');
     const { data: updatedRemito, error } = await supabaseAdmin
       .from('remitos')
       .update({ 
@@ -100,6 +112,8 @@ export async function PUT(
       `)
       .single();
 
+    console.log('Update result:', { updatedRemito, error });
+
     if (error) {
       console.error('Error updating remito status:', error);
       return NextResponse.json({ 
@@ -109,6 +123,7 @@ export async function PUT(
     }
 
     // Crear un registro en el historial de estados
+    console.log('Creating status history...');
     const { error: historyError } = await supabaseAdmin
       .from('status_history')
       .insert([{
@@ -122,9 +137,10 @@ export async function PUT(
       // No es crítico, continuar
     }
 
+    console.log('=== STATUS ENDPOINT SUCCESS ===');
     return NextResponse.json(transformRemito(updatedRemito));
   } catch (error: any) {
-    console.error('Error in remitos status PUT:', error);
+    console.error('=== STATUS ENDPOINT ERROR ===', error);
     return NextResponse.json({ 
       error: "Error interno del servidor",
       message: "Ocurrió un error inesperado."
