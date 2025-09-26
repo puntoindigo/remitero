@@ -1,27 +1,7 @@
 import { NextAuthOptions } from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
 import bcrypt from "bcryptjs"
-import { PrismaClient } from "@prisma/client"
-
-// Crear una instancia de Prisma específica para NextAuth
-const createPrismaClient = () => {
-  const isPreview = process.env.VERCEL_ENV === 'preview' || process.env.NODE_ENV === 'development'
-  const databaseUrl = isPreview 
-    ? process.env.DATABASE_URL || process.env.dev_PRISMA_DATABASE_URL || process.env.dev_POSTGRES_URL
-    : process.env.DATABASE_URL || process.env.prod_PRISMA_DATABASE_URL || process.env.prod_POSTGRES_URL
-  
-  if (!databaseUrl) {
-    throw new Error('DATABASE_URL is not configured')
-  }
-  
-  return new PrismaClient({
-    datasources: {
-      db: {
-        url: databaseUrl
-      }
-    }
-  })
-}
+import { supabaseAdmin } from "./supabase"
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -40,20 +20,15 @@ export const authOptions: NextAuthOptions = {
             throw new Error("Credenciales requeridas")
           }
 
-          console.log("🔍 Creando cliente Prisma...")
-          const prisma = createPrismaClient()
-          console.log("✅ Cliente Prisma creado")
+          console.log("🔍 Buscando usuario en Supabase...")
+          const { data: user, error } = await supabaseAdmin
+            .from('users')
+            .select('*')
+            .eq('email', credentials.email)
+            .single()
 
-          console.log("🔍 Buscando usuario en base de datos...")
-          const user = await prisma.user.findUnique({
-            where: {
-              email: credentials.email
-            }
-          })
-
-          if (!user) {
+          if (error || !user) {
             console.log("❌ Usuario no encontrado:", credentials.email)
-            await prisma.$disconnect()
             throw new Error("Usuario no encontrado")
           }
 
@@ -66,21 +41,19 @@ export const authOptions: NextAuthOptions = {
 
           if (!isPasswordValid) {
             console.log("❌ Contraseña incorrecta para:", credentials.email)
-            await prisma.$disconnect()
             throw new Error("Contraseña incorrecta")
           }
 
           console.log("✅ Autenticación exitosa para:", credentials.email)
-          await prisma.$disconnect()
 
           return {
             id: user.id,
             email: user.email,
             name: user.name,
             role: user.role,
-            companyId: user.companyId,
+            companyId: user.company_id,
             companyName: null, // Se puede obtener después si es necesario
-            impersonatingUserId: user.impersonatingUserId
+            impersonatingUserId: null
           }
         } catch (error) {
           console.error("❌ Auth error:", error)
