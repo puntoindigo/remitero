@@ -407,10 +407,21 @@ function RemitosContent() {
       setValue("notes", completeRemito.notes || "");
       
       // Mapear los remitoItems para asegurar que product_id esté correctamente asignado
-      const mappedItems = (completeRemito.remitoItems || []).map((item: any) => ({
-        ...item,
-        product_id: item.product_id || item.products?.id
-      }));
+      const mappedItems = (completeRemito.remitoItems || []).map((item: any) => {
+        // Si no hay product_id, intentar encontrarlo en la lista de productos
+        let productId = item.product_id || item.products?.id;
+        
+        if (!productId && item.product_name) {
+          // Buscar el producto por nombre en la lista de productos disponibles
+          const matchingProduct = products.find(p => p.name === item.product_name);
+          productId = matchingProduct?.id;
+        }
+        
+        return {
+          ...item,
+          product_id: productId
+        };
+      });
       
       console.log('=== DEBUG handleEdit items ===');
       console.log('original remitoItems:', completeRemito.remitoItems);
