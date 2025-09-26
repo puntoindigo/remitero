@@ -128,6 +128,14 @@ function RemitosContent() {
         productsResponse.json()
       ]);
 
+      console.log('=== DEBUG loadData ===');
+      console.log('remitosData length:', remitosData?.length);
+      if (remitosData && remitosData.length > 0) {
+        console.log('First remito:', remitosData[0]);
+        console.log('First remito remitoItems:', remitosData[0].remitoItems);
+        console.log('First remito items:', remitosData[0].items);
+      }
+
       // Filtrar productos con stock en el frontend
       const productsWithStock = productsData.filter((product: any) => {
         return product.stock === 'IN_STOCK';
