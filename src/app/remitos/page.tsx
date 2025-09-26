@@ -133,7 +133,14 @@ function RemitosContent() {
         return product.stock === 'IN_STOCK';
       });
 
-      setRemitos(remitosData);
+      // Validar que remitosData sea un array válido
+      const validRemitos = Array.isArray(remitosData) ? remitosData.filter(remito => 
+        remito && 
+        typeof remito === 'object' && 
+        Array.isArray(remito.remitoItems || remito.items)
+      ) : [];
+      
+      setRemitos(validRemitos);
       setClients(clientsData);
       setProducts(productsWithStock);
     } catch (error) {
@@ -310,17 +317,19 @@ function RemitosContent() {
     }));
   };
 
-  const total = items.reduce((sum, item) => sum + Number(item.lineTotal), 0);
+  const total = (items || []).reduce((sum, item) => sum + Number(item.lineTotal || 0), 0);
 
   // Lógica de filtrado y paginación
-  const filteredRemitos = remitos.filter(remito => {
-    const matchesSearch = !searchTerm || 
-      remito.client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      remito.number.toString().includes(searchTerm) ||
-      remito.status.toLowerCase().includes(searchTerm.toLowerCase());
+  const filteredRemitos = (remitos || []).filter(remito => {
+    if (!remito || !remito.client) return false;
     
-    const matchesClient = !selectedClient || remito.client.id === selectedClient;
-    const matchesStatus = !selectedStatus || remito.status === selectedStatus;
+    const matchesSearch = !searchTerm || 
+      (remito.client.name && remito.client.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (remito.number && remito.number.toString().includes(searchTerm)) ||
+      (remito.status && remito.status.toLowerCase().includes(searchTerm.toLowerCase()));
+    
+    const matchesClient = !selectedClient || (remito.client.id === selectedClient);
+    const matchesStatus = !selectedStatus || (remito.status === selectedStatus);
     
     return matchesSearch && matchesClient && matchesStatus;
   });
@@ -1197,7 +1206,7 @@ function RemitosContent() {
                 <p>El remito ha sido guardado correctamente.</p>
                 <p><strong>¿Desea imprimirlo ahora?</strong></p>
               </div>
-              <div className="modal-footer">
+              <div className="modal-footer" style={{ gap: '16px', justifyContent: 'space-between' }}>
                 <button
                   onClick={handlePrintCancel}
                   className="btn-secondary"
