@@ -767,7 +767,7 @@ function RemitosContent() {
                     <label>Producto</label>
                     <FilterableSelect
                       options={(products || [])
-                        .filter(p => !(items || []).some(item => item.productId === p.id))
+                        .filter(p => !(items || []).some(item => item.product_id === p.id))
                         .map(product => ({ 
                           id: product.id, 
                           name: product.name
