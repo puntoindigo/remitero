@@ -255,7 +255,7 @@ export async function PUT(
     }
 
     // Obtener el remito completo con todas las relaciones actualizadas
-    const { data: completeRemito, error: fetchError } = await supabaseAdmin
+    const { data: completeRemito, error: completeFetchError } = await supabaseAdmin
       .from('remitos')
       .select(`
         id,
@@ -296,8 +296,8 @@ export async function PUT(
       .eq('id', remitoId)
       .single();
 
-    if (fetchError) {
-      console.error('Error fetching complete remito after update:', fetchError);
+    if (completeFetchError) {
+      console.error('Error fetching complete remito after update:', completeFetchError);
       return NextResponse.json({ 
         error: "Error interno del servidor",
         message: "Remito actualizado pero no se pudo obtener la información completa."
