@@ -433,6 +433,24 @@ function RemitosContent() {
     if (!session?.user?.companyId || !session?.user?.id) return;
 
     try {
+      // Debug: Primero verificar qué estamos enviando
+      console.log('=== FRONTEND DEBUG ===');
+      console.log('Remito ID:', id);
+      console.log('Status:', status);
+      console.log('Status type:', typeof status);
+      console.log('=====================');
+
+      const debugResponse = await fetch('/api/debug-status', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ remitoId: id, status }),
+      });
+
+      const debugData = await debugResponse.json();
+      console.log('Debug response:', debugData);
+
       const response = await fetch(`/api/remitos/${id}/status`, {
         method: 'PUT',
         headers: {
