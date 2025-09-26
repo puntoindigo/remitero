@@ -22,6 +22,8 @@ import {
 import { formatDate } from "@/lib/utils/formatters";
 import FilterableSelect from "@/components/common/FilterableSelect";
 import SearchAndPagination from "@/components/common/SearchAndPagination";
+import { MessageModal } from "@/components/common/MessageModal";
+import { useMessageModal } from "@/hooks/useMessageModal";
 
 interface RemitoItem {
   productId?: string;
@@ -89,6 +91,10 @@ function RemitosContent() {
   const [totalPages, setTotalPages] = useState<number>(1);
   const [totalItems, setTotalItems] = useState<number>(0);
   const [itemsPerPage] = useState<number>(10);
+  const [showPrintConfirm, setShowPrintConfirm] = useState<Remito | null>(null);
+  
+  // Hook para manejar modales de mensajes
+  const { modalState, showSuccess, showError, closeModal } = useMessageModal();
 
   const {
     register,
@@ -247,9 +253,8 @@ function RemitosContent() {
       
       // Mostrar mensaje de éxito y opción de imprimir
       const action = isEditing ? 'actualizado' : 'guardado';
-      if (confirm(`Remito ${action} exitosamente. ¿Desea imprimirlo?`)) {
-        handlePrint(result);
-      }
+      showSuccess(`Remito ${action} exitosamente.`, `¿Desea imprimirlo?`);
+      setShowPrintConfirm(result);
     } catch (error) {
       console.error("Error saving remito:", error);
       showError("Error al guardar el remito", error.message);
@@ -440,6 +445,17 @@ function RemitosContent() {
 
   const [printRemito, setPrintRemito] = useState<Remito | null>(null);
   const [isPrinting, setIsPrinting] = useState(false);
+
+  const handlePrintConfirm = () => {
+    if (showPrintConfirm) {
+      handlePrint(showPrintConfirm);
+      setShowPrintConfirm(null);
+    }
+  };
+
+  const handlePrintCancel = () => {
+    setShowPrintConfirm(null);
+  };
 
   const handlePrint = async (remito: Remito) => {
     try {
@@ -1170,6 +1186,44 @@ function RemitosContent() {
             </div>
           </div>
         )}
+
+        {/* Modal de confirmación de impresión */}
+        {showPrintConfirm && (
+          <div className="modal-overlay">
+            <div className="modal">
+              <div className="modal-header">
+                <h3>Confirmar impresión</h3>
+              </div>
+              <div className="modal-body">
+                <p>¿Desea imprimir el remito guardado?</p>
+              </div>
+              <div className="modal-footer">
+                <button
+                  onClick={handlePrintCancel}
+                  className="btn-secondary"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={handlePrintConfirm}
+                  className="btn-primary"
+                >
+                  Imprimir
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Modal de mensajes */}
+        <MessageModal
+          isOpen={modalState.isOpen}
+          onClose={closeModal}
+          type={modalState.type}
+          title={modalState.title}
+          message={modalState.message}
+          details={modalState.details}
+        />
 
       </section>
     </main>
