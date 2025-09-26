@@ -41,7 +41,7 @@ interface Remito {
     id: string;
     name: string;
   };
-  status: "PENDIENTE" | "PREPARADO" | "ENTREGADO";
+  status: "PENDIENTE" | "PREPARADO" | "ENTREGADO" | "CANCELADO";
   statusAt: string;
   items: RemitoItem[];
   notes?: string;
