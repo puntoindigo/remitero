@@ -254,7 +254,57 @@ export async function PUT(
       }
     }
 
-    return NextResponse.json(transformRemito(updatedRemito));
+    // Obtener el remito completo con todas las relaciones actualizadas
+    const { data: completeRemito, error: fetchError } = await supabaseAdmin
+      .from('remitos')
+      .select(`
+        id,
+        number,
+        status,
+        status_at,
+        notes,
+        created_at,
+        updated_at,
+        company_id,
+        client_id,
+        created_by_id,
+        clients (
+          id,
+          name,
+          email,
+          phone,
+          address
+        ),
+        users (
+          id,
+          name,
+          email
+        ),
+        remito_items (
+          id,
+          quantity,
+          product_name,
+          product_desc,
+          unit_price,
+          line_total,
+          products (
+            id,
+            name
+          )
+        )
+      `)
+      .eq('id', remitoId)
+      .single();
+
+    if (fetchError) {
+      console.error('Error fetching complete remito after update:', fetchError);
+      return NextResponse.json({ 
+        error: "Error interno del servidor",
+        message: "Remito actualizado pero no se pudo obtener la información completa."
+      }, { status: 500 });
+    }
+
+    return NextResponse.json(transformRemito(completeRemito));
   } catch (error: any) {
     console.error('Error in remitos PUT:', error);
     return NextResponse.json({ 
