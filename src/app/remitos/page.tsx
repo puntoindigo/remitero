@@ -1,5 +1,8 @@
 "use client";
 
+// Constante para controlar mensajes de debug
+const DEBUG = false;
+
 import React, { useState, useEffect, Suspense } from "react";
 import { useSession } from "next-auth/react";
 import { useForm } from "react-hook-form";
@@ -166,10 +169,12 @@ function RemitosContent() {
   }, [searchParams, reset]);
 
   const onSubmit = async (data: RemitoForm) => {
-    console.log('=== REMITO SUBMIT DEBUG ===');
-    console.log('onSubmit called with data:', data);
-    console.log('items:', items);
-    console.log('session:', session?.user);
+    if (DEBUG) {
+      console.log('=== REMITO SUBMIT DEBUG ===');
+      console.log('onSubmit called with data:', data);
+      console.log('items:', items);
+      console.log('session:', session?.user);
+    }
     
     if (!session?.user?.companyId || !session?.user?.id) {
       console.log('Missing session data');
@@ -203,8 +208,9 @@ function RemitosContent() {
       })));
 
       // Skip validation test - proceed directly to save
-      console.log('=== PROCEEDING DIRECTLY TO SAVE ===');
-      console.log('remitoData structure:', {
+      if (DEBUG) {
+        console.log('=== PROCEEDING DIRECTLY TO SAVE ===');
+        console.log('remitoData structure:', {
         clientId: remitoData.clientId,
         notes: remitoData.notes,
         itemsCount: remitoData.items.length,
@@ -216,6 +222,7 @@ function RemitosContent() {
           line_total: item.line_total
         }))
       });
+      }
       
       // Validation fixed - proceed directly to save
       
@@ -224,9 +231,11 @@ function RemitosContent() {
       const url = isEditing ? `/api/remitos/${editingRemito.id}` : '/api/remitos';
       const method = isEditing ? 'PUT' : 'POST';
       
-      console.log(`=== ${isEditing ? 'UPDATING' : 'CREATING'} REMITO ===`);
-      console.log('URL:', url);
-      console.log('Method:', method);
+      if (DEBUG) {
+        console.log(`=== ${isEditing ? 'UPDATING' : 'CREATING'} REMITO ===`);
+        console.log('URL:', url);
+        console.log('Method:', method);
+      }
       
       const response = await fetch(url, {
         method,
@@ -423,9 +432,11 @@ function RemitosContent() {
         };
       });
       
-      console.log('=== DEBUG handleEdit items ===');
-      console.log('original remitoItems:', completeRemito.remitoItems);
-      console.log('mapped items:', mappedItems);
+      if (DEBUG) {
+        console.log('=== DEBUG handleEdit items ===');
+        console.log('original remitoItems:', completeRemito.remitoItems);
+        console.log('mapped items:', mappedItems);
+      }
       
       setItems(mappedItems);
       setShowForm(true);
@@ -926,24 +937,26 @@ function RemitosContent() {
                     }
                     
       // Llamar directamente a onSubmit
-      console.log('Calling onSubmit directly...');
-      
-      // Test de validación manual
-      console.log('=== VALIDATION TEST ===');
-      console.log('clientId:', formData.clientId, typeof formData.clientId);
-      console.log('items length:', items.length);
-      items.forEach((item, index) => {
-        console.log(`Item ${index}:`, {
-          product_id: item.product_id,
-          product_name: item.product_name,
-          quantity: item.quantity,
-          unit_price: item.unit_price,
-          line_total: item.line_total,
-          quantity_type: typeof item.quantity,
-          unit_price_type: typeof item.unit_price,
-          line_total_type: typeof item.line_total
+      if (DEBUG) {
+        console.log('Calling onSubmit directly...');
+        
+        // Test de validación manual
+        console.log('=== VALIDATION TEST ===');
+        console.log('clientId:', formData.clientId, typeof formData.clientId);
+        console.log('items length:', items.length);
+        items.forEach((item, index) => {
+          console.log(`Item ${index}:`, {
+            product_id: item.product_id,
+            product_name: item.product_name,
+            quantity: item.quantity,
+            unit_price: item.unit_price,
+            line_total: item.line_total,
+            quantity_type: typeof item.quantity,
+            unit_price_type: typeof item.unit_price,
+            line_total_type: typeof item.line_total
+          });
         });
-      });
+      }
       
       await onSubmit(formData);
                   }}
