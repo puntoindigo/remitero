@@ -250,8 +250,7 @@ function ProductosContent() {
       const stockText = newStock === 'IN_STOCK' ? 'en stock' : 'sin stock';
       showSuccess(
         'Stock actualizado',
-        `El producto ahora está ${stockText}.`,
-        `Producto ID: ${productId}`
+        `El producto ahora está ${stockText}.`
       );
 
       await loadData();
