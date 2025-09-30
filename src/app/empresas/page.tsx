@@ -9,6 +9,7 @@ import { Plus, Edit, Trash2, Building2, Users } from "lucide-react";
 import { formatDate } from "@/lib/utils/formatters";
 import Link from "next/link";
 import { MessageModal } from "@/components/common/MessageModal";
+import { FormModal } from "@/components/common/FormModal";
 import { useMessageModal } from "@/hooks/useMessageModal";
 
 const companySchema = z.object({
@@ -166,36 +167,26 @@ export default function EmpresasPage() {
       <section className="form-section">
         <h2>Gestión de Empresas</h2>
         
-        {showForm && (
-          <div className="form-section">
-            <h3>{editingCompany ? "Editar Empresa" : "Nueva Empresa"}</h3>
-            
-            <form onSubmit={handleSubmit(onSubmit)}>
-            <div className="form-row">
-              <div className="form-group">
-                <label>Nombre de la Empresa</label>
-                <input
-                  {...register("name")}
-                  type="text"
-                  placeholder="Nombre de la empresa"
-                />
-                {errors.name && (
-                  <p className="error-message">{errors.name.message}</p>
-                )}
-              </div>
-            </div>
-
-            <div className="form-actions">
-              <button type="button" onClick={handleCancel} className="secondary">
-                Cancelar
-              </button>
-              <button type="submit" disabled={isSubmitting} className="primary">
-                {isSubmitting ? "Guardando..." : editingCompany ? "Actualizar" : "Crear"}
-              </button>
-            </div>
-          </form>
-        </div>
-        )}
+        <FormModal
+          isOpen={showForm}
+          onClose={handleCancel}
+          title={editingCompany ? "Editar Empresa" : "Nueva Empresa"}
+          onSubmit={handleSubmit(onSubmit)}
+          submitText={editingCompany ? "Actualizar" : "Crear"}
+          isSubmitting={isSubmitting}
+        >
+          <div className="form-group">
+            <label>Nombre de la Empresa</label>
+            <input
+              {...register("name")}
+              type="text"
+              placeholder="Nombre de la empresa"
+            />
+            {errors.name && (
+              <p className="error-message">{errors.name.message}</p>
+            )}
+          </div>
+        </FormModal>
         
         {!showForm && (
           <div className="form-actions">

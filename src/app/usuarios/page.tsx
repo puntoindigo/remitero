@@ -11,6 +11,7 @@ import { useSearchParams } from "next/navigation";
 import SearchAndPagination from "@/components/common/SearchAndPagination";
 import { useSearchAndPagination } from "@/hooks/useSearchAndPagination";
 import { MessageModal } from "@/components/common/MessageModal";
+import { FormModal } from "@/components/common/FormModal";
 import { useMessageModal } from "@/hooks/useMessageModal";
 
 const userSchema = z.object({
@@ -246,120 +247,111 @@ function UsuariosContent() {
           </div>
         )}
 
-        {/* Formulario */}
-        {showForm && (
-          <div className="form-section">
-            <h3>{editingUser ? "Editar Usuario" : "Nuevo Usuario"}</h3>
-          
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <div className="form-row">
-              <div className="form-group">
-                <label>Nombre</label>
-                <input
-                  {...register("name")}
-                  type="text"
-                  placeholder="Nombre del usuario"
-                />
-                {errors.name && (
-                  <p className="error-message">{errors.name.message}</p>
-                )}
-              </div>
-
-              <div className="form-group">
-                <label>Email</label>
-                <input
-                  {...register("email")}
-                  type="email"
-                  placeholder="email@ejemplo.com"
-                />
-                {errors.email && (
-                  <p className="error-message">{errors.email.message}</p>
-                )}
-              </div>
+        <FormModal
+          isOpen={showForm}
+          onClose={handleCancel}
+          title={editingUser ? "Editar Usuario" : "Nuevo Usuario"}
+          onSubmit={handleSubmit(onSubmit)}
+          submitText={editingUser ? "Actualizar" : "Crear"}
+          isSubmitting={isSubmitting}
+        >
+          <div className="form-row">
+            <div className="form-group">
+              <label>Nombre</label>
+              <input
+                {...register("name")}
+                type="text"
+                placeholder="Nombre del usuario"
+              />
+              {errors.name && (
+                <p className="error-message">{errors.name.message}</p>
+              )}
             </div>
 
+            <div className="form-group">
+              <label>Email</label>
+              <input
+                {...register("email")}
+                type="email"
+                placeholder="email@ejemplo.com"
+              />
+              {errors.email && (
+                <p className="error-message">{errors.email.message}</p>
+              )}
+            </div>
+          </div>
+
+          <div className="form-row">
+            <div className="form-group">
+              <label>Contraseña {!editingUser && "*"}</label>
+              <input
+                {...register("password")}
+                type="password"
+                placeholder={editingUser ? "Dejar vacío para mantener la actual" : "Contraseña"}
+              />
+              {errors.password && (
+                <p className="error-message">{errors.password.message}</p>
+              )}
+            </div>
+
+            <div className="form-group">
+              <label>Rol</label>
+              <select {...register("role")}>
+                <option value="USER">Usuario</option>
+                <option value="ADMIN">Administrador</option>
+                {session?.user?.role === "SUPERADMIN" && <option value="SUPERADMIN">Super Admin</option>}
+              </select>
+              {errors.role && (
+                <p className="error-message">{errors.role.message}</p>
+              )}
+            </div>
+          </div>
+
+          <div className="form-row">
+            <div className="form-group">
+              <label>Teléfono</label>
+              <input
+                {...register("phone")}
+                type="tel"
+                placeholder="+54 11 1234-5678"
+              />
+              {errors.phone && (
+                <p className="error-message">{errors.phone.message}</p>
+              )}
+            </div>
+
+            <div className="form-group">
+              <label>Dirección</label>
+              <input
+                {...register("address")}
+                type="text"
+                placeholder="Av. Corrientes 1234, CABA"
+              />
+              {errors.address && (
+                <p className="error-message">{errors.address.message}</p>
+              )}
+            </div>
+          </div>
+
+          {session?.user?.role === "SUPERADMIN" && (
             <div className="form-row">
               <div className="form-group">
-                <label>Contraseña {!editingUser && "*"}</label>
-                <input
-                  {...register("password")}
-                  type="password"
-                  placeholder={editingUser ? "Dejar vacío para mantener la actual" : "Contraseña"}
-                />
-                {errors.password && (
-                  <p className="error-message">{errors.password.message}</p>
-                )}
-              </div>
-
-              <div className="form-group">
-                <label>Rol</label>
-                <select {...register("role")}>
-                  <option value="USER">Usuario</option>
-                  <option value="ADMIN">Administrador</option>
-                  {session?.user?.role === "SUPERADMIN" && <option value="SUPERADMIN">Super Admin</option>}
+                <label>Empresa</label>
+                <select {...register("companyId")} defaultValue={companyId || ""}>
+                  <option value="">Seleccionar Empresa</option>
+                  {Array.isArray(companies) && companies.map((company) => (
+                    <option key={company.id} value={company.id}>
+                      {company.name}
+                    </option>
+                  ))}
                 </select>
-                {errors.role && (
-                  <p className="error-message">{errors.role.message}</p>
+                {errors.companyId && (
+                  <p className="error-message">{errors.companyId.message}</p>
                 )}
               </div>
             </div>
-
-            <div className="form-row">
-              <div className="form-group">
-                <label>Teléfono</label>
-                <input
-                  {...register("phone")}
-                  type="tel"
-                  placeholder="+54 11 1234-5678"
-                />
-                {errors.phone && (
-                  <p className="error-message">{errors.phone.message}</p>
-                )}
-              </div>
-
-              <div className="form-group">
-                <label>Dirección</label>
-                <input
-                  {...register("address")}
-                  type="text"
-                  placeholder="Av. Corrientes 1234, CABA"
-                />
-                {errors.address && (
-                  <p className="error-message">{errors.address.message}</p>
-                )}
-              </div>
-            </div>
-
-            {session?.user?.role === "SUPERADMIN" && (
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Empresa</label>
-                  <select {...register("companyId")} defaultValue={companyId || ""}>
-                    <option value="">Seleccionar Empresa</option>
-                    {Array.isArray(companies) && companies.map((company) => (
-                      <option key={company.id} value={company.id}>
-                        {company.name}
-                      </option>
-                    ))}
-                  </select>
-                  {errors.companyId && (
-                    <p className="error-message">{errors.companyId.message}</p>
-                  )}
-                </div>
-              </div>
-            )}
-
-            <div className="form-actions">
-              <button type="button" onClick={handleCancel} className="secondary">
-                Cancelar
-              </button>
-              <button type="submit" disabled={isSubmitting} className="primary">
-                {isSubmitting ? "Guardando..." : editingUser ? "Actualizar" : "Crear"}
-              </button>
-            </div>
-          </form>
-        </div>
-        )}
+          )}
+        </FormModal>
 
         <div className="form-section">
           <h3>Lista de Usuarios</h3>
