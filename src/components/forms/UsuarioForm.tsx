@@ -128,6 +128,7 @@ export function UsuarioForm({
             {...register("email")}
             type="email"
             placeholder="email@ejemplo.com"
+            autoComplete="email"
           />
           {errors.email && (
             <p className="error-message">{errors.email.message}</p>
