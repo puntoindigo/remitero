@@ -43,13 +43,11 @@ function UsuariosContent() {
     itemsPerPage,
     handleSearchChange,
     handlePageChange,
-    filteredData: filteredUsuarios
-  } = useSearchAndPagination(usuarios, searchTerm => 
-    usuarios.filter(user => 
-      user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-  );
+    paginatedData: filteredUsuarios
+  } = useSearchAndPagination({
+    data: usuarios,
+    searchFields: ['name', 'email']
+  });
 
   const handleNew = () => {
     setEditingUser(null);
