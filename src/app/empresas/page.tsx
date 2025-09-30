@@ -151,7 +151,7 @@ function EmpresasContent() {
                       <td>
                         <Link 
                           href={`/usuarios?companyId=${company.id}`}
-                          className="flex items-center text-blue-600 hover:text-blue-800 underline hover:no-underline transition-colors duration-200"
+                          className="view-users-link"
                         >
                           <Users className="h-4 w-4 mr-1" />
                           Ver Usuarios
