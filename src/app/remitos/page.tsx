@@ -26,6 +26,7 @@ import { formatDate } from "@/lib/utils/formatters";
 import FilterableSelect from "@/components/common/FilterableSelect";
 import SearchAndPagination from "@/components/common/SearchAndPagination";
 import { MessageModal } from "@/components/common/MessageModal";
+import { FormModal } from "@/components/common/FormModal";
 import { useMessageModal } from "@/hooks/useMessageModal";
 
 interface RemitoItem {
