@@ -29,6 +29,7 @@ export default function EmpresasPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [editingCompany, setEditingCompany] = useState<Company | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
+  const [showForm, setShowForm] = useState(false);
   
   // Hook para manejar modales de mensajes
   const { modalState, showSuccess, showError, closeModal } = useMessageModal();
@@ -80,8 +81,9 @@ export default function EmpresasPage() {
         throw new Error(errorData.error || 'Error al guardar la empresa');
       }
 
-      reset();
+      setShowForm(false);
       setEditingCompany(null);
+      reset();
       await loadCompanies();
       showSuccess("Empresa guardada correctamente");
     } catch (error: any) {
@@ -93,9 +95,17 @@ export default function EmpresasPage() {
   const handleEdit = (company: Company) => {
     setEditingCompany(company);
     setValue("name", company.name);
+    setShowForm(true);
+  };
+
+  const handleNew = () => {
+    setEditingCompany(null);
+    reset();
+    setShowForm(true);
   };
 
   const handleCancel = () => {
+    setShowForm(false);
     setEditingCompany(null);
     reset();
   };
@@ -156,10 +166,11 @@ export default function EmpresasPage() {
       <section className="form-section">
         <h2>Gestión de Empresas</h2>
         
-        <div className="form-section">
-          <h3>{editingCompany ? "Editar Empresa" : "Nueva Empresa"}</h3>
-          
-          <form onSubmit={handleSubmit(onSubmit)}>
+        {showForm && (
+          <div className="form-section">
+            <h3>{editingCompany ? "Editar Empresa" : "Nueva Empresa"}</h3>
+            
+            <form onSubmit={handleSubmit(onSubmit)}>
             <div className="form-row">
               <div className="form-group">
                 <label>Nombre de la Empresa</label>
@@ -184,6 +195,16 @@ export default function EmpresasPage() {
             </div>
           </form>
         </div>
+        )}
+        
+        {!showForm && (
+          <div className="form-actions">
+            <button onClick={handleNew} className="primary">
+              <Plus className="h-4 w-4" />
+              Nueva Empresa
+            </button>
+          </div>
+        )}
 
         <div className="form-section">
           <h3>Lista de Empresas</h3>

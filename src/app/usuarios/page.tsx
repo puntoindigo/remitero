@@ -17,7 +17,7 @@ const userSchema = z.object({
   name: z.string().min(1, "El nombre es requerido"),
   email: z.string().email("Email inválido"),
   password: z.string().min(6, "La contraseña debe tener al menos 6 caracteres").optional().or(z.literal("")),
-  role: z.enum(["ADMIN", "USER"]),
+  role: z.enum(["SUPERADMIN", "ADMIN", "USER"]),
   address: z.string().optional(),
   phone: z.string().optional(),
   companyId: z.string().optional()
@@ -90,8 +90,9 @@ function UsuariosContent() {
 
   const loadData = async () => {
     try {
+      const usersUrl = companyId ? `/api/users?companyId=${companyId}` : '/api/users';
       const [usersResponse, companiesResponse] = await Promise.all([
-        fetch('/api/users'),
+        fetch(usersUrl),
         session?.user?.role === "SUPERADMIN" ? fetch('/api/companies') : Promise.resolve(null)
       ]);
 
@@ -118,7 +119,7 @@ function UsuariosContent() {
 
   useEffect(() => {
     loadData();
-  }, [session?.user?.role]);
+  }, [session?.user?.role, companyId]);
 
   const onSubmit = async (data: UserForm) => {
     try {
@@ -159,7 +160,7 @@ function UsuariosContent() {
     setEditingUser(user);
     setValue("name", user.name);
     setValue("email", user.email);
-    setValue("role", user.role as "ADMIN" | "USER");
+    setValue("role", user.role as "SUPERADMIN" | "ADMIN" | "USER");
     setValue("address", user.address || "");
     setValue("phone", user.phone || "");
     setValue("companyId", user.company?.id || "");
