@@ -40,10 +40,19 @@ export async function GET(request: NextRequest) {
       .order('created_at', { ascending: false });
 
     // Aplicar filtros según el rol y parámetros
+    console.log('Filtering logic:', {
+      userRole: session.user.role,
+      companyId,
+      userCompanyId: session.user.companyId
+    });
+
     if (session.user.role === 'SUPERADMIN') {
       // SUPERADMIN puede ver todos los usuarios o filtrar por empresa
       if (companyId) {
+        console.log('SUPERADMIN filtering by company:', companyId);
         query = query.eq('company_id', companyId);
+      } else {
+        console.log('SUPERADMIN showing all users');
       }
     } else {
       // ADMIN y USER solo pueden ver usuarios de su empresa
@@ -53,6 +62,7 @@ export async function GET(request: NextRequest) {
           message: "Usuario no asociado a una empresa." 
         }, { status: 401 });
       }
+      console.log('Non-SUPERADMIN filtering by user company:', session.user.companyId);
       query = query.eq('company_id', session.user.companyId);
     }
 
