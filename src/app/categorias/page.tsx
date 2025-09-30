@@ -11,6 +11,7 @@ import { formatDate } from "@/lib/utils/formatters";
 import SearchAndPagination from "@/components/common/SearchAndPagination";
 import { useSearchAndPagination } from "@/hooks/useSearchAndPagination";
 import { MessageModal } from "@/components/common/MessageModal";
+import { FormModal } from "@/components/common/FormModal";
 import { useMessageModal } from "@/hooks/useMessageModal";
 
 interface Category {
@@ -189,46 +190,26 @@ function CategoriasContent() {
             </button>
           </div>
 
-          {/* Formulario */}
-          {showForm && (
-          <div className="form-section">
-            <h3>{editingCategory ? "Editar Categoría" : "Nueva Categoría"}</h3>
-            
-            <form onSubmit={handleSubmit(onSubmit)}>
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Nombre de la categoría</label>
-                  <input
-                    {...register("name")}
-                    type="text"
-                    placeholder="Ingresa el nombre de la categoría"
-                  />
-                  {errors.name && (
-                    <p className="error-message">{errors.name.message}</p>
-                  )}
-                </div>
-              </div>
-
-              <div className="form-actions">
-                <button
-                  type="button"
-                  onClick={handleCancel}
-                  className="secondary"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="primary"
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  {isSubmitting ? "Guardando..." : editingCategory ? "Actualizar" : "Crear"}
-                </button>
-              </div>
-            </form>
-          </div>
-          )}
+          <FormModal
+            isOpen={showForm}
+            onClose={handleCancel}
+            title={editingCategory ? "Editar Categoría" : "Nueva Categoría"}
+            onSubmit={handleSubmit(onSubmit)}
+            submitText={editingCategory ? "Actualizar" : "Crear"}
+            isSubmitting={isSubmitting}
+          >
+            <div className="form-group">
+              <label>Nombre de la categoría</label>
+              <input
+                {...register("name")}
+                type="text"
+                placeholder="Ingresa el nombre de la categoría"
+              />
+              {errors.name && (
+                <p className="error-message">{errors.name.message}</p>
+              )}
+            </div>
+          </FormModal>
 
           <div className="form-section">
           <h3>Lista de Categorías</h3>

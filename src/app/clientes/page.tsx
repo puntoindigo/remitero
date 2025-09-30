@@ -11,6 +11,7 @@ import { formatDate } from "@/lib/utils/formatters";
 import SearchAndPagination from "@/components/common/SearchAndPagination";
 import { useSearchAndPagination } from "@/hooks/useSearchAndPagination";
 import { MessageModal } from "@/components/common/MessageModal";
+import { FormModal } from "@/components/common/FormModal";
 import { useMessageModal } from "@/hooks/useMessageModal";
 
 interface Client {
@@ -181,88 +182,66 @@ function ClientesContent() {
     <main className="main-content">
       <div className="px-4 py-6 sm:px-0">
 
-        {/* Formulario */}
-        {showForm && (
-          <div className="bg-white shadow rounded-lg mb-8">
-          <div className="px-4 py-5 sm:p-6">
-            <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
-              {editingClient ? "Editar Cliente" : "Nuevo Cliente"}
-            </h3>
-            
-            <form onSubmit={handleSubmit(onSubmit)}>
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Nombre del cliente *</label>
-                  <input
-                    {...register("name")}
-                    type="text"
-                    placeholder="Ingresa el nombre del cliente"
-                  />
-                  {errors.name && (
-                    <p className="error-message">{errors.name.message}</p>
-                  )}
-                </div>
+        <FormModal
+          isOpen={showForm}
+          onClose={handleCancel}
+          title={editingClient ? "Editar Cliente" : "Nuevo Cliente"}
+          onSubmit={handleSubmit(onSubmit)}
+          submitText={editingClient ? "Actualizar" : "Crear"}
+          isSubmitting={isSubmitting}
+        >
+          <div className="form-row">
+            <div className="form-group">
+              <label>Nombre del cliente *</label>
+              <input
+                {...register("name")}
+                type="text"
+                placeholder="Ingresa el nombre del cliente"
+              />
+              {errors.name && (
+                <p className="error-message">{errors.name.message}</p>
+              )}
+            </div>
 
-                <div className="form-group">
-                  <label>Email</label>
-                  <input
-                    {...register("email")}
-                    type="email"
-                    placeholder="cliente@email.com"
-                  />
-                  {errors.email && (
-                    <p className="error-message">{errors.email.message}</p>
-                  )}
-                </div>
-              </div>
-
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Teléfono</label>
-                  <input
-                    {...register("phone")}
-                    type="tel"
-                    placeholder="+54 11 1234-5678"
-                  />
-                  {errors.phone && (
-                    <p className="error-message">{errors.phone.message}</p>
-                  )}
-                </div>
-
-                <div className="form-group">
-                  <label>Dirección</label>
-                  <input
-                    {...register("address")}
-                    type="text"
-                    placeholder="Av. Corrientes 1234, CABA"
-                  />
-                  {errors.address && (
-                    <p className="error-message">{errors.address.message}</p>
-                  )}
-                </div>
-              </div>
-
-              <div className="form-actions">
-                <button
-                  type="button"
-                  onClick={handleCancel}
-                  className="secondary"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="primary"
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  {isSubmitting ? "Guardando..." : editingClient ? "Actualizar" : "Crear"}
-                </button>
-              </div>
-            </form>
+            <div className="form-group">
+              <label>Email</label>
+              <input
+                {...register("email")}
+                type="email"
+                placeholder="cliente@email.com"
+              />
+              {errors.email && (
+                <p className="error-message">{errors.email.message}</p>
+              )}
+            </div>
           </div>
-        </div>
-        )}
+
+          <div className="form-row">
+            <div className="form-group">
+              <label>Teléfono</label>
+              <input
+                {...register("phone")}
+                type="tel"
+                placeholder="+54 11 1234-5678"
+              />
+              {errors.phone && (
+                <p className="error-message">{errors.phone.message}</p>
+              )}
+            </div>
+
+            <div className="form-group">
+              <label>Dirección</label>
+              <input
+                {...register("address")}
+                type="text"
+                placeholder="Av. Corrientes 1234, CABA"
+              />
+              {errors.address && (
+                <p className="error-message">{errors.address.message}</p>
+              )}
+            </div>
+          </div>
+        </FormModal>
 
         <div className="form-section">
           <h2>Gestión de Clientes</h2>
