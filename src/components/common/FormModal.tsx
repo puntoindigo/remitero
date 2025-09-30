@@ -13,6 +13,7 @@ interface FormModalProps {
   isSubmitting?: boolean;
   showCancel?: boolean;
   cancelText?: string;
+  modalClassName?: string;
 }
 
 export function FormModal({
@@ -24,7 +25,8 @@ export function FormModal({
   submitText = "Guardar",
   isSubmitting = false,
   showCancel = true,
-  cancelText = "Cancelar"
+  cancelText = "Cancelar",
+  modalClassName = ""
 }: FormModalProps) {
   if (!isOpen) return null;
 
@@ -36,7 +38,7 @@ export function FormModal({
 
   return (
     <div className="modal-overlay" onClick={handleOverlayClick}>
-      <div className="modal form-modal">
+      <div className={`modal form-modal ${modalClassName}`}>
         <div className="modal-header">
           <h3>{title}</h3>
           <button
