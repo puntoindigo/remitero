@@ -142,6 +142,7 @@ export function UsuarioForm({
             {...register("password")}
             type="password"
             placeholder={editingUser ? "Dejar vacío para mantener la actual" : "Contraseña"}
+            autoComplete={editingUser ? "new-password" : "new-password"}
           />
           {errors.password && (
             <p className="error-message">{errors.password.message}</p>

@@ -16,6 +16,10 @@ export async function GET(request: NextRequest) {
       }, { status: 401 });
     }
 
+    // Obtener companyId de los query parameters
+    const { searchParams } = new URL(request.url);
+    const companyId = searchParams.get('companyId');
+
     let query = supabaseAdmin
       .from('users')
       .select(`
@@ -35,8 +39,14 @@ export async function GET(request: NextRequest) {
       `)
       .order('created_at', { ascending: false });
 
-    // Solo SUPERADMIN puede ver todos los usuarios
-    if (session.user.role !== 'SUPERADMIN') {
+    // Aplicar filtros según el rol y parámetros
+    if (session.user.role === 'SUPERADMIN') {
+      // SUPERADMIN puede ver todos los usuarios o filtrar por empresa
+      if (companyId) {
+        query = query.eq('company_id', companyId);
+      }
+    } else {
+      // ADMIN y USER solo pueden ver usuarios de su empresa
       if (!session.user.companyId) {
         return NextResponse.json({ 
           error: "No autorizado", 

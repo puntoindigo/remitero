@@ -45,7 +45,10 @@ export function useCategorias() {
       const response = await fetch("/api/categories", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name }),
+        body: JSON.stringify({ 
+          name,
+          companyId: session?.user?.companyId
+        }),
       });
 
       if (!response.ok) {
@@ -68,7 +71,10 @@ export function useCategorias() {
       const response = await fetch(`/api/categories/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name }),
+        body: JSON.stringify({ 
+          name,
+          companyId: session?.user?.companyId
+        }),
       });
 
       if (!response.ok) {

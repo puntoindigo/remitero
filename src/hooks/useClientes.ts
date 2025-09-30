@@ -50,7 +50,10 @@ export function useClientes() {
       const response = await fetch("/api/clients", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(clienteData),
+        body: JSON.stringify({
+          ...clienteData,
+          companyId: session?.user?.companyId
+        }),
       });
 
       if (!response.ok) {
@@ -73,7 +76,10 @@ export function useClientes() {
       const response = await fetch(`/api/clients/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(clienteData),
+        body: JSON.stringify({
+          ...clienteData,
+          companyId: session?.user?.companyId
+        }),
       });
 
       if (!response.ok) {
