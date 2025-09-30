@@ -171,7 +171,7 @@ function CategoriasContent() {
                       </td>
                       <td>{formatDate(categoria.createdAt)}</td>
                       <td>
-                        <div className="flex gap-2">
+                        <div className="flex gap-3">
                           <button
                             onClick={() => handleEdit(categoria)}
                             className="small primary"

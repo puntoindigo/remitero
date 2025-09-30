@@ -151,7 +151,7 @@ function EmpresasContent() {
                       <td>
                         <Link 
                           href={`/usuarios?companyId=${company.id}`}
-                          className="flex items-center text-blue-600 hover:text-blue-800"
+                          className="flex items-center text-blue-600 hover:text-blue-800 underline hover:no-underline transition-colors duration-200"
                         >
                           <Users className="h-4 w-4 mr-1" />
                           Ver Usuarios
@@ -159,7 +159,7 @@ function EmpresasContent() {
                       </td>
                       <td>{formatDate(company.createdAt)}</td>
                       <td>
-                        <div className="flex gap-2">
+                        <div className="flex gap-3">
                           <button
                             onClick={() => handleEdit(company)}
                             className="small primary"

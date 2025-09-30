@@ -201,7 +201,7 @@ function ClientesContent() {
                       </td>
                       <td>{formatDate(cliente.createdAt)}</td>
                       <td>
-                        <div className="flex gap-2">
+                        <div className="flex gap-3">
                           <button
                             onClick={() => handleEdit(cliente)}
                             className="small primary"

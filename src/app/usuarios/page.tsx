@@ -130,7 +130,7 @@ function UsuariosContent() {
         {session?.user?.role === "SUPERADMIN" && (
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Filtrar por Empresa
+              Mostrando usuarios de:
             </label>
             <select
               value={selectedCompanyId}
@@ -149,10 +149,6 @@ function UsuariosContent() {
         
         {companyId && !selectedCompanyId && (
           <p>Mostrando usuarios de la empresa seleccionada</p>
-        )}
-        
-        {selectedCompanyId && (
-          <p>Mostrando usuarios de: {empresas.find(e => e.id === selectedCompanyId)?.name || 'Empresa seleccionada'}</p>
         )}
         
         <UsuarioForm
@@ -238,7 +234,7 @@ function UsuariosContent() {
                       <td>{user.phone || "-"}</td>
                       <td>{formatDate(user.createdAt)}</td>
                       <td>
-                        <div className="flex gap-2">
+                        <div className="flex gap-3">
                           <button
                             onClick={() => handleEdit(user)}
                             className="small primary"
