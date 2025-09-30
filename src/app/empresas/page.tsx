@@ -1,152 +1,84 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, Suspense } from "react";
 import { useSession } from "next-auth/react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import { Plus, Edit, Trash2, Building2, Users } from "lucide-react";
 import { formatDate } from "@/lib/utils/formatters";
 import Link from "next/link";
 import { MessageModal } from "@/components/common/MessageModal";
-import { FormModal } from "@/components/common/FormModal";
+import { EmpresaForm } from "@/components/forms/EmpresaForm";
 import { useMessageModal } from "@/hooks/useMessageModal";
+import { useEmpresas, type Empresa } from "@/hooks/useEmpresas";
 
-const companySchema = z.object({
-  name: z.string().min(1, "El nombre es requerido"),
-});
-
-type CompanyForm = z.infer<typeof companySchema>;
-
-interface Company {
-  id: string;
-  name: string;
-  createdAt: Date;
-}
-
-export default function EmpresasPage() {
+function EmpresasContent() {
   const { data: session } = useSession();
-  const [companies, setCompanies] = useState<Company[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [editingCompany, setEditingCompany] = useState<Company | null>(null);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
+  const [editingCompany, setEditingCompany] = useState<Empresa | null>(null);
   const [showForm, setShowForm] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { showSuccess, showError, hideModal, isModalOpen, modalContent } = useMessageModal();
   
-  // Hook para manejar modales de mensajes
-  const { modalState, showSuccess, showError, closeModal } = useMessageModal();
-
-  const {
-    register,
-    handleSubmit,
-    reset,
-    setValue,
-    formState: { errors, isSubmitting }
-  } = useForm<CompanyForm>({
-    resolver: zodResolver(companySchema)
-  });
-
-  const loadCompanies = async () => {
-    try {
-      const response = await fetch('/api/companies');
-      if (!response.ok) {
-        throw new Error('Error al cargar las empresas');
-      }
-      const data = await response.json();
-      setCompanies(data);
-    } catch (error) {
-      console.error("Error loading companies:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    loadCompanies();
-  }, []);
-
-  const onSubmit = async (data: CompanyForm) => {
-    try {
-      const url = editingCompany ? `/api/companies/${editingCompany.id}` : '/api/companies';
-      const method = editingCompany ? 'PUT' : 'POST';
-
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Error al guardar la empresa');
-      }
-
-      setShowForm(false);
-      setEditingCompany(null);
-      reset();
-      await loadCompanies();
-      showSuccess("Empresa guardada correctamente");
-    } catch (error: any) {
-      console.error("Error saving company:", error);
-      showError("Error al guardar la empresa", error.message);
-    }
-  };
-
-  const handleEdit = (company: Company) => {
-    setEditingCompany(company);
-    setValue("name", company.name);
-    setShowForm(true);
-  };
+  const { 
+    empresas, 
+    isLoading, 
+    error, 
+    createEmpresa, 
+    updateEmpresa, 
+    deleteEmpresa 
+  } = useEmpresas();
 
   const handleNew = () => {
     setEditingCompany(null);
-    reset();
+    setShowForm(true);
+  };
+
+  const handleEdit = (company: Empresa) => {
+    setEditingCompany(company);
     setShowForm(true);
   };
 
   const handleCancel = () => {
     setShowForm(false);
     setEditingCompany(null);
-    reset();
+  };
+
+  const onSubmit = async (data: { name: string }) => {
+    try {
+      setIsSubmitting(true);
+      
+      if (editingCompany) {
+        await updateEmpresa(editingCompany.id, data.name);
+        showSuccess("Éxito", "Empresa actualizada correctamente");
+      } else {
+        await createEmpresa(data.name);
+        showSuccess("Éxito", "Empresa creada correctamente");
+      }
+      
+      setShowForm(false);
+      setEditingCompany(null);
+    } catch (error) {
+      console.error("Error saving company:", error);
+      showError("Error", error instanceof Error ? error.message : "Error al guardar empresa");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleDelete = async (id: string) => {
     try {
-      const response = await fetch(`/api/companies/${id}`, {
-        method: 'DELETE',
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Error al eliminar la empresa');
-      }
-
-      await loadCompanies();
-      setShowDeleteConfirm(null);
-      showSuccess("Empresa eliminada correctamente");
-    } catch (error: any) {
-      showError("Error al eliminar la empresa", error.message);
+      await deleteEmpresa(id);
+      showSuccess("Éxito", "Empresa eliminada correctamente");
+    } catch (error) {
+      console.error("Error deleting company:", error);
+      showError("Error", error instanceof Error ? error.message : "Error al eliminar empresa");
     }
   };
 
-  // Verificar permisos
-  if (!session) {
+  if (session?.user?.role !== "SUPERADMIN") {
     return (
       <main className="main-content">
-        <div className="empty-state">
-          <h3>Cargando...</h3>
-        </div>
-      </main>
-    );
-  }
-
-  if (session.user.role !== "SUPERADMIN") {
-    return (
-      <main className="main-content">
-        <div className="empty-state">
-          <h3>No tienes permisos para acceder a esta página</h3>
-          <p>Solo los Super Administradores pueden gestionar empresas.</p>
+        <div className="form-section">
+          <h2>Acceso Denegado</h2>
+          <p>No tienes permisos para acceder a esta sección.</p>
         </div>
       </main>
     );
@@ -155,8 +87,9 @@ export default function EmpresasPage() {
   if (isLoading) {
     return (
       <main className="main-content">
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+        <div className="form-section">
+          <h2>Gestión de Empresas</h2>
+          <p>Cargando...</p>
         </div>
       </main>
     );
@@ -167,26 +100,13 @@ export default function EmpresasPage() {
       <section className="form-section">
         <h2>Gestión de Empresas</h2>
         
-        <FormModal
+        <EmpresaForm
           isOpen={showForm}
           onClose={handleCancel}
-          title={editingCompany ? "Editar Empresa" : "Nueva Empresa"}
-          onSubmit={handleSubmit(onSubmit)}
-          submitText={editingCompany ? "Actualizar" : "Crear"}
+          onSubmit={onSubmit}
           isSubmitting={isSubmitting}
-        >
-          <div className="form-group">
-            <label>Nombre de la Empresa</label>
-            <input
-              {...register("name")}
-              type="text"
-              placeholder="Nombre de la empresa"
-            />
-            {errors.name && (
-              <p className="error-message">{errors.name.message}</p>
-            )}
-          </div>
-        </FormModal>
+          editingEmpresa={editingCompany}
+        />
         
         {!showForm && (
           <div className="form-actions">
@@ -200,95 +120,86 @@ export default function EmpresasPage() {
         <div className="form-section">
           <h3>Lista de Empresas</h3>
           
-          {!Array.isArray(companies) || companies.length === 0 ? (
-            <div className="empty-state">
-              <Building2 className="h-12 w-12 text-gray-400" />
-              <h3>No hay empresas</h3>
-              <p>Comienza creando una nueva empresa.</p>
+          {error && (
+            <div className="error-message">
+              {error}
             </div>
+          )}
+          
+          {!Array.isArray(empresas) || empresas.length === 0 ? (
+            <p>No hay empresas registradas.</p>
           ) : (
-            <table>
-              <thead>
-                <tr>
-                  <th>Nombre</th>
-                  <th>Fecha de Creación</th>
-                  <th>Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {Array.isArray(companies) && companies.map((company) => (
-                  <tr key={company.id}>
-                    <td className="font-medium">{company.name}</td>
-                    <td>{formatDate(company.createdAt)}</td>
-                    <td>
-                      <div className="action-buttons">
-                        <button
-                          onClick={() => handleEdit(company)}
-                          className="small"
-                          title="Editar"
-                        >
-                          <Edit className="h-4 w-4" />
-                        </button>
-                        <button
-                          onClick={() => setShowDeleteConfirm(company.id)}
-                          className="small danger"
-                          title="Eliminar"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
+            <div className="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Nombre</th>
+                    <th>Usuarios</th>
+                    <th>Fecha de Creación</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {empresas.map((company) => (
+                    <tr key={company.id}>
+                      <td>
+                        <div className="flex items-center">
+                          <Building2 className="h-4 w-4 mr-2" />
+                          {company.name}
+                        </div>
+                      </td>
+                      <td>
                         <Link 
-                          href={`/usuarios?companyId=${company.id}`} 
-                          className="btn-link"
-                          title="Ver Usuarios"
+                          href={`/usuarios?companyId=${company.id}`}
+                          className="flex items-center text-blue-600 hover:text-blue-800"
                         >
-                          <Users className="h-4 w-4" />
+                          <Users className="h-4 w-4 mr-1" />
                           Ver Usuarios
                         </Link>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                      </td>
+                      <td>{formatDate(company.createdAt)}</td>
+                      <td>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => handleEdit(company)}
+                            className="small primary"
+                            title="Editar empresa"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(company.id)}
+                            className="small danger"
+                            title="Eliminar empresa"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
-
-        {/* Modal de confirmación de eliminación */}
-        {showDeleteConfirm && (
-          <div className="modal-overlay">
-            <div className="modal">
-              <div className="modal-content">
-                <h3>Confirmar eliminación</h3>
-                <p>¿Estás seguro de que quieres eliminar esta empresa? Esta acción no se puede deshacer.</p>
-                <div className="modal-actions">
-                  <button
-                    onClick={() => setShowDeleteConfirm(null)}
-                    className="secondary"
-                  >
-                    Cancelar
-                  </button>
-                  <button
-                    onClick={() => handleDelete(showDeleteConfirm)}
-                    className="danger"
-                  >
-                    Eliminar
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Modal de mensajes */}
-        <MessageModal
-          isOpen={modalState.isOpen}
-          onClose={closeModal}
-          type={modalState.type}
-          title={modalState.title}
-          message={modalState.message}
-          details={modalState.details}
-        />
       </section>
+
+      <MessageModal
+        isOpen={isModalOpen}
+        onClose={hideModal}
+        title={modalContent?.title || ""}
+        message={modalContent?.message || ""}
+        type={modalContent?.type || "info"}
+      />
     </main>
+  );
+}
+
+export default function EmpresasPage() {
+  return (
+    <Suspense fallback={<div>Cargando...</div>}>
+      <EmpresasContent />
+    </Suspense>
   );
 }

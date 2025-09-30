@@ -1,174 +1,100 @@
 "use client";
 
-import React, { useState, useEffect, Suspense } from "react";
+import React, { useState, Suspense } from "react";
 import { useSession } from "next-auth/react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useSearchParams, useRouter } from "next/navigation";
-import { CategoryForm, categorySchema } from "@/lib/validations";
 import { Plus, Edit, Trash2, Package } from "lucide-react";
 import { formatDate } from "@/lib/utils/formatters";
 import SearchAndPagination from "@/components/common/SearchAndPagination";
 import { useSearchAndPagination } from "@/hooks/useSearchAndPagination";
 import { MessageModal } from "@/components/common/MessageModal";
-import { FormModal } from "@/components/common/FormModal";
+import { CategoriaForm } from "@/components/forms/CategoriaForm";
 import { useMessageModal } from "@/hooks/useMessageModal";
-
-interface Category {
-  id: string;
-  name: string;
-  products: { id: string }[];
-  createdAt: Date;
-}
+import { useCategorias, type Categoria } from "@/hooks/useCategorias";
 
 function CategoriasContent() {
   const { data: session } = useSession();
-  const searchParams = useSearchParams();
-  const router = useRouter();
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
+  const [editingCategoria, setEditingCategoria] = useState<Categoria | null>(null);
   const [showForm, setShowForm] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { showSuccess, showError, hideModal, isModalOpen, modalContent } = useMessageModal();
   
-  // Hook para manejar modales de mensajes
-  const { modalState, showSuccess, showError, closeModal } = useMessageModal();
+  const { 
+    categorias, 
+    isLoading, 
+    error, 
+    createCategoria, 
+    updateCategoria, 
+    deleteCategoria 
+  } = useCategorias();
 
-  // Hook para búsqueda y paginación
   const {
     searchTerm,
     currentPage,
     totalPages,
     totalItems,
     itemsPerPage,
-    paginatedData,
     handleSearchChange,
-    handlePageChange
-  } = useSearchAndPagination({
-    data: categories,
-    searchFields: ['name'],
-    itemsPerPage: 10
-  });
-
-  const {
-    register,
-    handleSubmit,
-    reset,
-    setValue,
-    formState: { errors, isSubmitting }
-  } = useForm<CategoryForm>({
-    resolver: zodResolver(categorySchema)
-  });
-
-  const loadCategories = async () => {
-    if (!session?.user?.companyId) return;
-    
-    try {
-      const response = await fetch('/api/categories');
-      if (!response.ok) throw new Error('Failed to fetch categories');
-      const data = await response.json();
-      setCategories(data);
-    } catch (error) {
-      console.error("Error loading categories:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    loadCategories();
-  }, [session?.user?.companyId]);
-
-  // Detectar parámetro ?new=true para abrir formulario automáticamente
-  useEffect(() => {
-    const newParam = searchParams?.get('new');
-    if (newParam === 'true') {
-      setShowForm(true);
-      setEditingCategory(null);
-      reset();
-    }
-  }, [searchParams, reset]);
-
-  const onSubmit = async (data: CategoryForm) => {
-    if (!session?.user?.companyId) return;
-
-    try {
-      let response;
-      if (editingCategory) {
-        response = await fetch(`/api/categories/${editingCategory.id}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data),
-        });
-      } else {
-        response = await fetch("/api/categories", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data),
-        });
-      }
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Error al guardar la categoría");
-      }
-      
-      reset();
-      setEditingCategory(null);
-      setShowForm(false);
-      await loadCategories();
-      showSuccess("Categoría guardada correctamente");
-    } catch (error: any) {
-      console.error("Error saving category:", error);
-      showError("Error al guardar la categoría", error.message);
-    }
-  };
+    handlePageChange,
+    filteredData: filteredCategorias
+  } = useSearchAndPagination(categorias, searchTerm => 
+    categorias.filter(categoria => 
+      categoria.name.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+  );
 
   const handleNew = () => {
-    setEditingCategory(null);
-    reset();
+    setEditingCategoria(null);
     setShowForm(true);
   };
 
-  const handleEdit = (category: Category) => {
-    setEditingCategory(category);
-    setValue("name", category.name);
+  const handleEdit = (categoria: Categoria) => {
+    setEditingCategoria(categoria);
     setShowForm(true);
   };
 
   const handleCancel = () => {
-    setEditingCategory(null);
-    reset();
     setShowForm(false);
+    setEditingCategoria(null);
+  };
+
+  const onSubmit = async (data: { name: string }) => {
+    try {
+      setIsSubmitting(true);
+      
+      if (editingCategoria) {
+        await updateCategoria(editingCategoria.id, data.name);
+        showSuccess("Éxito", "Categoría actualizada correctamente");
+      } else {
+        await createCategoria(data.name);
+        showSuccess("Éxito", "Categoría creada correctamente");
+      }
+      
+      setShowForm(false);
+      setEditingCategoria(null);
+    } catch (error) {
+      console.error("Error saving categoria:", error);
+      showError("Error", error instanceof Error ? error.message : "Error al guardar categoría");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleDelete = async (id: string) => {
-    if (!session?.user?.companyId) return;
-
     try {
-      const response = await fetch(`/api/categories/${id}`, {
-        method: 'DELETE',
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Error al eliminar la categoría');
-      }
-
-      await loadCategories();
-      setShowDeleteConfirm(null);
-      showSuccess("Categoría eliminada correctamente");
-    } catch (error: any) {
-      showError("Error al eliminar la categoría", error.message);
-      setShowDeleteConfirm(null); // Cerrar el modal después del error
+      await deleteCategoria(id);
+      showSuccess("Éxito", "Categoría eliminada correctamente");
+    } catch (error) {
+      console.error("Error deleting categoria:", error);
+      showError("Error", error instanceof Error ? error.message : "Error al eliminar categoría");
     }
   };
 
   if (isLoading) {
     return (
       <main className="main-content">
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+        <div className="form-section">
+          <h2>Gestión de Categorías</h2>
+          <p>Cargando...</p>
         </div>
       </main>
     );
@@ -176,42 +102,27 @@ function CategoriasContent() {
 
   return (
     <main className="main-content">
-      <div className="px-4 py-6 sm:px-0">
-        <div className="form-section">
-          <h2>Gestión de Categorías</h2>
-          
+      <section className="form-section">
+        <h2>Gestión de Categorías</h2>
+        
+        <CategoriaForm
+          isOpen={showForm}
+          onClose={handleCancel}
+          onSubmit={onSubmit}
+          isSubmitting={isSubmitting}
+          editingCategoria={editingCategoria}
+        />
+        
+        {!showForm && (
           <div className="form-actions">
-            <button
-              onClick={handleNew}
-              className="primary"
-            >
+            <button onClick={handleNew} className="primary">
               <Plus className="h-4 w-4 mr-2" />
               Nueva Categoría
             </button>
           </div>
+        )}
 
-          <FormModal
-            isOpen={showForm}
-            onClose={handleCancel}
-            title={editingCategory ? "Editar Categoría" : "Nueva Categoría"}
-            onSubmit={handleSubmit(onSubmit)}
-            submitText={editingCategory ? "Actualizar" : "Crear"}
-            isSubmitting={isSubmitting}
-          >
-            <div className="form-group">
-              <label>Nombre de la categoría</label>
-              <input
-                {...register("name")}
-                type="text"
-                placeholder="Ingresa el nombre de la categoría"
-              />
-              {errors.name && (
-                <p className="error-message">{errors.name.message}</p>
-              )}
-            </div>
-          </FormModal>
-
-          <div className="form-section">
+        <div className="form-section">
           <h3>Lista de Categorías</h3>
           
           <SearchAndPagination
@@ -225,117 +136,81 @@ function CategoriasContent() {
             placeholder="Buscar categorías..."
           />
           
-          {!Array.isArray(categories) || categories.length === 0 ? (
-            <div className="empty-state">
-              <Package className="empty-icon" />
-              <p className="empty-text">No hay categorías</p>
-              <p className="empty-subtext">Comienza creando una nueva categoría.</p>
+          {error && (
+            <div className="error-message">
+              {error}
             </div>
+          )}
+          
+          {!Array.isArray(filteredCategorias) || filteredCategorias.length === 0 ? (
+            <p>No hay categorías registradas.</p>
           ) : (
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>Nombre</th>
-                  <th>Productos</th>
-                  <th>Registrado</th>
-                  <th>Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {Array.isArray(paginatedData) && paginatedData.map((category) => (
-                  <tr key={category.id}>
-                    <td className="font-medium">{category.name}</td>
-                    <td>
-                      <button
-                        onClick={() => router.push(`/productos?category=${category.id}`)}
-                        className="text-blue-600 hover:text-blue-800 underline"
-                      >
-                        {category._count?.products || 0} productos
-                      </button>
-                    </td>
-                    <td>{new Date(category.createdAt).toLocaleString('es-AR', {
-                      year: 'numeric',
-                      month: '2-digit',
-                      day: '2-digit',
-                      hour: '2-digit',
-                      minute: '2-digit',
-                      hour12: false
-                    })}</td>
-                    <td>
-                      <div className="action-buttons">
-                        <button
-                          onClick={() => handleEdit(category)}
-                          className="action-btn edit"
-                          title="Editar"
-                        >
-                          <Edit className="h-4 w-4" />
-                        </button>
-                        <button
-                          onClick={() => setShowDeleteConfirm(category.id)}
-                          className="action-btn delete"
-                          title="Eliminar"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </div>
-                    </td>
+            <div className="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Nombre</th>
+                    <th>Productos</th>
+                    <th>Fecha de Creación</th>
+                    <th>Acciones</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {filteredCategorias.map((categoria) => (
+                    <tr key={categoria.id}>
+                      <td>
+                        <div className="flex items-center">
+                          <Package className="h-4 w-4 mr-2" />
+                          {categoria.name}
+                        </div>
+                      </td>
+                      <td>
+                        <span className="badge">
+                          {categoria.products?.length || 0} productos
+                        </span>
+                      </td>
+                      <td>{formatDate(categoria.createdAt)}</td>
+                      <td>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => handleEdit(categoria)}
+                            className="small primary"
+                            title="Editar categoría"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(categoria.id)}
+                            className="small danger"
+                            title="Eliminar categoría"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
+      </section>
 
-        {/* Modal de confirmación de eliminación */}
-        {showDeleteConfirm && (
-          <div className="modal-overlay">
-            <div className="modal">
-              <div className="modal-content">
-                <h3>Confirmar eliminación</h3>
-                <p>¿Estás seguro de que quieres eliminar esta categoría? Esta acción no se puede deshacer.</p>
-                <div className="modal-actions">
-                  <button
-                    onClick={() => setShowDeleteConfirm(null)}
-                    className="secondary"
-                  >
-                    Cancelar
-                  </button>
-                  <button
-                    onClick={() => handleDelete(showDeleteConfirm)}
-                    className="danger"
-                  >
-                    Eliminar
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Modal de mensajes */}
-        <MessageModal
-          isOpen={modalState.isOpen}
-          onClose={closeModal}
-          type={modalState.type}
-          title={modalState.title}
-          message={modalState.message}
-          details={modalState.details}
-        />
-          </div>
-        </div>
-      </main>
+      <MessageModal
+        isOpen={isModalOpen}
+        onClose={hideModal}
+        title={modalContent?.title || ""}
+        message={modalContent?.message || ""}
+        type={modalContent?.type || "info"}
+      />
+    </main>
   );
 }
 
 export default function CategoriasPage() {
   return (
-    <Suspense fallback={
-      <main className="main-content">
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
-        </div>
-      </main>
-    }>
+    <Suspense fallback={<div>Cargando...</div>}>
       <CategoriasContent />
     </Suspense>
   );

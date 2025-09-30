@@ -1,178 +1,107 @@
 "use client";
 
-import React, { useState, useEffect, Suspense } from "react";
+import React, { useState, Suspense } from "react";
 import { useSession } from "next-auth/react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useSearchParams, useRouter } from "next/navigation";
-import { ClientForm, clientSchema } from "@/lib/validations";
 import { Plus, Edit, Trash2, Users, Mail, Phone, MapPin } from "lucide-react";
 import { formatDate } from "@/lib/utils/formatters";
 import SearchAndPagination from "@/components/common/SearchAndPagination";
 import { useSearchAndPagination } from "@/hooks/useSearchAndPagination";
 import { MessageModal } from "@/components/common/MessageModal";
-import { FormModal } from "@/components/common/FormModal";
+import { ClienteForm } from "@/components/forms/ClienteForm";
 import { useMessageModal } from "@/hooks/useMessageModal";
-
-interface Client {
-  id: string;
-  name: string;
-  address?: string;
-  phone?: string;
-  email?: string;
-  remitos: { id: string }[];
-  createdAt: Date;
-}
+import { useClientes, type Cliente } from "@/hooks/useClientes";
 
 function ClientesContent() {
   const { data: session } = useSession();
-  const searchParams = useSearchParams();
-  const router = useRouter();
-  const [clients, setClients] = useState<Client[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [editingClient, setEditingClient] = useState<Client | null>(null);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
+  const [editingCliente, setEditingCliente] = useState<Cliente | null>(null);
   const [showForm, setShowForm] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { showSuccess, showError, hideModal, isModalOpen, modalContent } = useMessageModal();
   
-  // Hook para manejar modales de mensajes
-  const { modalState, showSuccess, showError, closeModal } = useMessageModal();
+  const { 
+    clientes, 
+    isLoading, 
+    error, 
+    createCliente, 
+    updateCliente, 
+    deleteCliente 
+  } = useClientes();
 
-  // Hook para búsqueda y paginación
   const {
     searchTerm,
     currentPage,
     totalPages,
     totalItems,
     itemsPerPage,
-    paginatedData,
     handleSearchChange,
-    handlePageChange
-  } = useSearchAndPagination({
-    data: clients,
-    searchFields: ['name', 'email', 'phone'],
-    itemsPerPage: 10
-  });
-
-  const {
-    register,
-    handleSubmit,
-    reset,
-    setValue,
-    formState: { errors, isSubmitting }
-  } = useForm<ClientForm>({
-    resolver: zodResolver(clientSchema)
-  });
-
-  const loadClients = async () => {
-    if (!session?.user?.companyId) return;
-    
-    try {
-      const response = await fetch('/api/clients');
-      if (!response.ok) {
-        throw new Error('Error al cargar los clientes');
-      }
-      const data = await response.json();
-      setClients(data);
-    } catch (error) {
-      console.error("Error loading clients:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    loadClients();
-  }, [session?.user?.companyId]);
-
-  // Detectar parámetro ?new=true para abrir formulario automáticamente
-  useEffect(() => {
-    const newParam = searchParams?.get('new');
-    if (newParam === 'true') {
-      setShowForm(true);
-      setEditingClient(null);
-      reset();
-    }
-  }, [searchParams, reset]);
-
-  const onSubmit = async (data: ClientForm) => {
-    if (!session?.user?.companyId) return;
-
-    try {
-      const url = editingClient ? `/api/clients/${editingClient.id}` : '/api/clients';
-      const method = editingClient ? 'PUT' : 'POST';
-
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Error al guardar el cliente');
-      }
-      
-      reset();
-      setEditingClient(null);
-      setShowForm(false);
-      await loadClients();
-      showSuccess("Cliente guardado correctamente");
-    } catch (error: any) {
-      console.error("Error saving client:", error);
-      showError("Error al guardar el cliente", error.message);
-    }
-  };
+    handlePageChange,
+    filteredData: filteredClientes
+  } = useSearchAndPagination(clientes, searchTerm => 
+    clientes.filter(cliente => 
+      cliente.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (cliente.email && cliente.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (cliente.phone && cliente.phone.includes(searchTerm))
+    )
+  );
 
   const handleNew = () => {
-    setEditingClient(null);
-    reset();
+    setEditingCliente(null);
     setShowForm(true);
   };
 
-  const handleEdit = (client: Client) => {
-    setEditingClient(client);
-    setValue("name", client.name);
-    setValue("address", client.address || "");
-    setValue("phone", client.phone || "");
-    setValue("email", client.email || "");
+  const handleEdit = (cliente: Cliente) => {
+    setEditingCliente(cliente);
     setShowForm(true);
   };
 
   const handleCancel = () => {
-    setEditingClient(null);
-    reset();
     setShowForm(false);
+    setEditingCliente(null);
+  };
+
+  const onSubmit = async (data: {
+    name: string;
+    email?: string;
+    phone?: string;
+    address?: string;
+  }) => {
+    try {
+      setIsSubmitting(true);
+      
+      if (editingCliente) {
+        await updateCliente(editingCliente.id, data);
+        showSuccess("Éxito", "Cliente actualizado correctamente");
+      } else {
+        await createCliente(data);
+        showSuccess("Éxito", "Cliente creado correctamente");
+      }
+      
+      setShowForm(false);
+      setEditingCliente(null);
+    } catch (error) {
+      console.error("Error saving cliente:", error);
+      showError("Error", error instanceof Error ? error.message : "Error al guardar cliente");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleDelete = async (id: string) => {
-    if (!session?.user?.companyId) return;
-
     try {
-      const response = await fetch(`/api/clients/${id}`, {
-        method: 'DELETE',
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Error al eliminar el cliente');
-      }
-
-      await loadClients();
-      setShowDeleteConfirm(null);
-      showSuccess("Cliente eliminado correctamente");
-    } catch (error: any) {
-      showError("Error al eliminar el cliente", error.message);
-      setShowDeleteConfirm(null); // Cerrar el modal después del error
+      await deleteCliente(id);
+      showSuccess("Éxito", "Cliente eliminado correctamente");
+    } catch (error) {
+      console.error("Error deleting cliente:", error);
+      showError("Error", error instanceof Error ? error.message : "Error al eliminar cliente");
     }
   };
 
   if (isLoading) {
     return (
       <main className="main-content">
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+        <div className="form-section">
+          <h2>Gestión de Clientes</h2>
+          <p>Cargando...</p>
         </div>
       </main>
     );
@@ -181,83 +110,24 @@ function ClientesContent() {
   return (
     <main className="main-content">
       <div className="px-4 py-6 sm:px-0">
-
-        <FormModal
+        <ClienteForm
           isOpen={showForm}
           onClose={handleCancel}
-          title={editingClient ? "Editar Cliente" : "Nuevo Cliente"}
-          onSubmit={handleSubmit(onSubmit)}
-          submitText={editingClient ? "Actualizar" : "Crear"}
+          onSubmit={onSubmit}
           isSubmitting={isSubmitting}
-        >
-          <div className="form-row">
-            <div className="form-group">
-              <label>Nombre del cliente *</label>
-              <input
-                {...register("name")}
-                type="text"
-                placeholder="Ingresa el nombre del cliente"
-              />
-              {errors.name && (
-                <p className="error-message">{errors.name.message}</p>
-              )}
-            </div>
-
-            <div className="form-group">
-              <label>Email</label>
-              <input
-                {...register("email")}
-                type="email"
-                placeholder="cliente@email.com"
-              />
-              {errors.email && (
-                <p className="error-message">{errors.email.message}</p>
-              )}
-            </div>
-          </div>
-
-          <div className="form-row">
-            <div className="form-group">
-              <label>Teléfono</label>
-              <input
-                {...register("phone")}
-                type="tel"
-                placeholder="+54 11 1234-5678"
-              />
-              {errors.phone && (
-                <p className="error-message">{errors.phone.message}</p>
-              )}
-            </div>
-
-            <div className="form-group">
-              <label>Dirección</label>
-              <input
-                {...register("address")}
-                type="text"
-                placeholder="Av. Corrientes 1234, CABA"
-              />
-              {errors.address && (
-                <p className="error-message">{errors.address.message}</p>
-              )}
-            </div>
-          </div>
-        </FormModal>
+          editingCliente={editingCliente}
+        />
 
         <div className="form-section">
           <h2>Gestión de Clientes</h2>
           
           <div className="form-actions">
-            <button
-              onClick={() => setShowForm(true)}
-              className="primary"
-            >
+            <button onClick={handleNew} className="primary">
               <Plus className="h-4 w-4 mr-2" />
               Nuevo Cliente
             </button>
           </div>
-          
-          <h3>Lista de Clientes</h3>
-          
+
           <SearchAndPagination
             searchTerm={searchTerm}
             onSearchChange={handleSearchChange}
@@ -269,141 +139,108 @@ function ClientesContent() {
             placeholder="Buscar clientes..."
           />
           
-          {!Array.isArray(clients) || clients.length === 0 ? (
-            <div className="empty-state">
-              <Users className="empty-icon" />
-              <p className="empty-text">No hay clientes</p>
-              <p className="empty-subtext">Comienza creando un nuevo cliente.</p>
+          {error && (
+            <div className="error-message">
+              {error}
             </div>
+          )}
+          
+          {!Array.isArray(filteredClientes) || filteredClientes.length === 0 ? (
+            <p>No hay clientes registrados.</p>
           ) : (
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>Cliente</th>
-                  <th>Contacto</th>
-                  <th>Remitos</th>
-                  <th>Registrado</th>
-                  <th>Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {Array.isArray(paginatedData) && paginatedData.map((client) => (
-                  <tr key={client.id}>
-                    <td>
-                      <div className="font-medium">{client.name}</div>
-                      {client.address && (
-                        <div className="text-sm text-gray-500 flex items-center">
-                          <MapPin className="h-3 w-3 mr-1" />
-                          {client.address}
-                        </div>
-                      )}
-                    </td>
-                    <td>
-                      <div className="space-y-1">
-                        {client.email && (
-                          <div className="text-sm text-gray-500 flex items-center">
-                            <Mail className="h-3 w-3 mr-1" />
-                            {client.email}
-                          </div>
-                        )}
-                        {client.phone && (
-                          <div className="text-sm text-gray-500 flex items-center">
-                            <Phone className="h-3 w-3 mr-1" />
-                            {client.phone}
-                          </div>
-                        )}
-                      </div>
-                    </td>
-                    <td>
-                      <button
-                        onClick={() => router.push(`/remitos?client=${client.id}`)}
-                        className="text-blue-600 hover:text-blue-800 underline"
-                      >
-                        {client.remitos?.length || 0} remitos
-                      </button>
-                    </td>
-                    <td>{new Date(client.createdAt).toLocaleString('es-AR', {
-                      year: 'numeric',
-                      month: '2-digit',
-                      day: '2-digit',
-                      hour: '2-digit',
-                      minute: '2-digit',
-                      hour12: false
-                    })}</td>
-                    <td>
-                      <div className="action-buttons-spaced">
-                        <button
-                          onClick={() => handleEdit(client)}
-                          className="action-btn edit"
-                          title="Editar"
-                        >
-                          <Edit className="h-4 w-4" />
-                        </button>
-                        <button
-                          onClick={() => setShowDeleteConfirm(client.id)}
-                          className="action-btn delete"
-                          title="Eliminar"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </div>
-                    </td>
+            <div className="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Nombre</th>
+                    <th>Email</th>
+                    <th>Teléfono</th>
+                    <th>Dirección</th>
+                    <th>Fecha de Creación</th>
+                    <th>Acciones</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {filteredClientes.map((cliente) => (
+                    <tr key={cliente.id}>
+                      <td>
+                        <div className="flex items-center">
+                          <Users className="h-4 w-4 mr-2" />
+                          {cliente.name}
+                        </div>
+                      </td>
+                      <td>
+                        {cliente.email ? (
+                          <div className="flex items-center">
+                            <Mail className="h-4 w-4 mr-1" />
+                            {cliente.email}
+                          </div>
+                        ) : (
+                          <span className="text-gray-500">-</span>
+                        )}
+                      </td>
+                      <td>
+                        {cliente.phone ? (
+                          <div className="flex items-center">
+                            <Phone className="h-4 w-4 mr-1" />
+                            {cliente.phone}
+                          </div>
+                        ) : (
+                          <span className="text-gray-500">-</span>
+                        )}
+                      </td>
+                      <td>
+                        {cliente.address ? (
+                          <div className="flex items-center">
+                            <MapPin className="h-4 w-4 mr-1" />
+                            {cliente.address}
+                          </div>
+                        ) : (
+                          <span className="text-gray-500">-</span>
+                        )}
+                      </td>
+                      <td>{formatDate(cliente.createdAt)}</td>
+                      <td>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => handleEdit(cliente)}
+                            className="small primary"
+                            title="Editar cliente"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(cliente.id)}
+                            className="small danger"
+                            title="Eliminar cliente"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
-
-        {/* Modal de confirmación de eliminación */}
-        {showDeleteConfirm && (
-          <div className="modal-overlay">
-            <div className="modal">
-              <div className="modal-content">
-                <h3>Confirmar eliminación</h3>
-                <p>¿Estás seguro de que quieres eliminar este cliente? Esta acción no se puede deshacer.</p>
-                <div className="modal-actions">
-                  <button
-                    onClick={() => setShowDeleteConfirm(null)}
-                    className="secondary"
-                  >
-                    Cancelar
-                  </button>
-                  <button
-                    onClick={() => handleDelete(showDeleteConfirm)}
-                    className="danger"
-                  >
-                    Eliminar
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Modal de mensajes */}
-        <MessageModal
-          isOpen={modalState.isOpen}
-          onClose={closeModal}
-          type={modalState.type}
-          title={modalState.title}
-          message={modalState.message}
-          details={modalState.details}
-        />
       </div>
+
+      <MessageModal
+        isOpen={isModalOpen}
+        onClose={hideModal}
+        title={modalContent?.title || ""}
+        message={modalContent?.message || ""}
+        type={modalContent?.type || "info"}
+      />
     </main>
   );
 }
 
 export default function ClientesPage() {
   return (
-    <Suspense fallback={
-      <main className="main-content">
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
-        </div>
-      </main>
-    }>
+    <Suspense fallback={<div>Cargando...</div>}>
       <ClientesContent />
     </Suspense>
   );
