@@ -21,6 +21,7 @@ function UsuariosContent() {
   const [editingUser, setEditingUser] = useState<Usuario | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedCompanyId, setSelectedCompanyId] = useState<string>(companyId || "");
   const { showSuccess, showError, hideModal, isModalOpen, modalContent } = useMessageModal();
   
   const { 
@@ -30,7 +31,7 @@ function UsuariosContent() {
     createUsuario, 
     updateUsuario, 
     deleteUsuario 
-  } = useUsuarios(companyId || undefined);
+  } = useUsuarios(selectedCompanyId || undefined);
   
   const { empresas } = useEmpresas();
 
@@ -105,6 +106,13 @@ function UsuariosContent() {
     }
   };
 
+  // Recargar usuarios cuando cambie la empresa seleccionada
+  React.useEffect(() => {
+    if (session?.user?.role === "SUPERADMIN") {
+      // No hacer nada, el hook ya maneja esto
+    }
+  }, [selectedCompanyId, session?.user?.role]);
+
   if (isLoading) {
     return (
       <main className="main-content">
@@ -121,8 +129,32 @@ function UsuariosContent() {
       <section className="form-section">
         <h2>Gestión de Usuarios</h2>
         
-        {companyId && (
+        {session?.user?.role === "SUPERADMIN" && (
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Filtrar por Empresa
+            </label>
+            <select
+              value={selectedCompanyId}
+              onChange={(e) => setSelectedCompanyId(e.target.value)}
+              className="block w-full max-w-xs px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            >
+              <option value="">Todas las empresas</option>
+              {empresas.map((empresa) => (
+                <option key={empresa.id} value={empresa.id}>
+                  {empresa.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+        
+        {companyId && !selectedCompanyId && (
           <p>Mostrando usuarios de la empresa seleccionada</p>
+        )}
+        
+        {selectedCompanyId && (
+          <p>Mostrando usuarios de: {empresas.find(e => e.id === selectedCompanyId)?.name || 'Empresa seleccionada'}</p>
         )}
         
         <UsuarioForm

@@ -66,6 +66,13 @@ export async function GET(request: NextRequest) {
       }, { status: 500 });
     }
 
+    console.log('Users fetched:', { 
+      count: users?.length || 0, 
+      companyId, 
+      userRole: session.user.role,
+      users: users?.map(u => ({ id: u.id, name: u.name, company_id: u.company_id }))
+    });
+
     return NextResponse.json(transformUsers(users));
   } catch (error: any) {
     console.error('Error in users GET:', error);
@@ -170,6 +177,14 @@ export async function POST(request: NextRequest) {
         message: "No se pudo crear el usuario."
       }, { status: 500 });
     }
+
+    console.log('User created successfully:', { 
+      id: newUser.id, 
+      name: newUser.name, 
+      email: newUser.email,
+      company_id: newUser.company_id,
+      role: newUser.role
+    });
 
     return NextResponse.json(transformUser(newUser), { status: 201 });
   } catch (error: any) {
