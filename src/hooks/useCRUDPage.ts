@@ -75,6 +75,7 @@ export function useCRUDPage<T extends { id: string }>() {
     handleEdit,
     handleCloseForm,
     setIsSubmitting,
+    setEditingItem,
     
     // Estado de eliminación
     showDeleteConfirm,

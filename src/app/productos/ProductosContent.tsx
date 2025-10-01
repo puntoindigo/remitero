@@ -49,7 +49,8 @@ function ProductosContent() {
     setIsSubmitting,
     showDeleteConfirm,
     handleDeleteRequest,
-    handleCancelDelete
+    handleCancelDelete,
+    setEditingItem: setEditingProduct
   } = useCRUDPage<Product>();
   
   const [products, setProducts] = useState<Product[]>([]);
@@ -60,6 +61,11 @@ function ProductosContent() {
   
   // Hook para manejar modales de mensajes
   const { modalState, showSuccess, showError, closeModal } = useMessageModal();
+
+  // Función para obtener el stock del producto
+  const getStockFromProduct = (product: any) => {
+    return product.stock || 'OUT_OF_STOCK';
+  };
 
   // Filtrar productos por categoría y stock
   const filteredProducts = products.filter(product => {
@@ -250,10 +256,6 @@ function ProductosContent() {
         (error as Error).message
       );
     }
-  };
-
-  const getStockFromProduct = (product: any) => {
-    return product.stock || 'OUT_OF_STOCK';
   };
 
   const getStockColor = (stock: string) => {
