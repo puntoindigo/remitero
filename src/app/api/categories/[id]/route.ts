@@ -91,6 +91,10 @@ export async function PUT(
         companies (
           id,
           name
+        ),
+        products (
+          id,
+          name
         )
       `)
       .single();

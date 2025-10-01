@@ -1845,6 +1845,12 @@ form svg {
   padding: 20px;
 }
 
+/* Modal de confirmación específico */
+.confirm-modal {
+  z-index: 1001;
+  position: relative;
+}
+
 .modal {
   background: white;
   border-radius: 8px;
