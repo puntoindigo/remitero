@@ -3,9 +3,7 @@
 import React, { useState, useEffect, Suspense } from "react";
 import { useSession } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { ProductForm, productSchema } from "@/lib/validations";
+import { ProductForm } from "@/lib/validations";
 import { Plus, Package, Tag, DollarSign, Search } from "lucide-react";
 import ActionButtons from "@/components/common/ActionButtons";
 import { formatDate } from "@/lib/utils/formatters";
@@ -14,6 +12,7 @@ import { useSearchAndPagination } from "@/hooks/useSearchAndPagination";
 import FilterableSelect from "@/components/common/FilterableSelect";
 import { MessageModal } from "@/components/common/MessageModal";
 import { useMessageModal } from "@/hooks/useMessageModal";
+import { ProductoForm } from "@/components/forms/ProductoForm";
 
 interface Product {
   id: string;
@@ -77,16 +76,7 @@ function ProductosContent() {
     itemsPerPage: 10
   });
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    setValue,
-    watch,
-    formState: { errors, isSubmitting }
-  } = useForm<ProductForm>({
-    resolver: zodResolver(productSchema)
-  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const loadData = async () => {
     if (!session?.user?.companyId) return;
@@ -124,9 +114,8 @@ function ProductosContent() {
     if (newParam === 'true') {
       setShowForm(true);
       setEditingProduct(null);
-      reset();
     }
-  }, [searchParams, reset]);
+  }, [searchParams]);
 
   // Leer parámetro de categoría de la URL
   useEffect(() => {
@@ -139,6 +128,7 @@ function ProductosContent() {
   const onSubmit = async (data: ProductForm) => {
     if (!session?.user?.companyId) return;
 
+    setIsSubmitting(true);
     try {
       const url = editingProduct ? `/api/products/${editingProduct.id}` : '/api/products';
       const method = editingProduct ? 'PUT' : 'POST';
@@ -159,20 +149,19 @@ function ProductosContent() {
       }
 
       await loadData();
-      reset();
       setEditingProduct(null);
       setShowForm(false);
-    } catch (error) {
+      showSuccess(editingProduct ? "Producto actualizado correctamente" : "Producto creado correctamente");
+    } catch (error: any) {
       console.error('Error saving product:', error);
+      showError("Error al guardar el producto", error.message);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleEdit = (product: Product) => {
     setEditingProduct(product);
-    setValue("name", product.name);
-    setValue("description", product.description || "");
-    setValue("price", product.price);
-    setValue("categoryId", product.category?.id || "");
     setShowForm(true);
   };
 
@@ -199,13 +188,11 @@ function ProductosContent() {
 
   const handleNew = () => {
     setEditingProduct(null);
-    reset();
     setShowForm(true);
   };
 
   const handleCancel = () => {
     setEditingProduct(null);
-    reset();
     setShowForm(false);
   };
 
@@ -299,93 +286,21 @@ function ProductosContent() {
       <div className="px-4 py-6 sm:px-0">
 
         {/* Formulario */}
-        {showForm && (
-          <div className="form-section">
-            <h3>{editingProduct ? "Editar Producto" : "Nuevo Producto"}</h3>
-            
-            <form onSubmit={handleSubmit(onSubmit)}>
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Nombre del producto</label>
-                  <input
-                    {...register("name")}
-                    type="text"
-                    placeholder="Ingresa el nombre del producto"
-                  />
-                  {errors.name && (
-                    <p className="error-message">{errors.name.message}</p>
-                  )}
-                </div>
-
-                <div className="form-group">
-                  <label>Precio</label>
-                  <div className="price-input">
-                    <span className="price-symbol">$</span>
-                    <input
-                      {...register("price", { valueAsNumber: true })}
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      placeholder="0.00"
-                    />
-                  </div>
-                  {errors.price && (
-                    <p className="error-message">{errors.price.message}</p>
-                  )}
-                </div>
-              </div>
-
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Categoría</label>
-                  <FilterableSelect
-                    options={[
-                      { id: "", name: "Sin categoría" },
-                      ...categories.map(cat => ({ id: cat.id, name: cat.name }))
-                    ]}
-                    value={watch("categoryId") || ""}
-                    onChange={(value) => setValue("categoryId", value)}
-                    placeholder="Seleccionar categoría"
-                    searchFields={["name"]}
-                  />
-                  {errors.categoryId && (
-                    <p className="error-message">{errors.categoryId.message}</p>
-                  )}
-                </div>
-
-                <div className="form-group">
-                  <label>Descripción</label>
-                  <textarea
-                    {...register("description")}
-                    rows={3}
-                    placeholder="Descripción del producto (opcional)"
-                  />
-                  {errors.description && (
-                    <p className="error-message">{errors.description.message}</p>
-                  )}
-                </div>
-              </div>
-
-              <div className="form-actions">
-                <button
-                  type="button"
-                  onClick={handleCancel}
-                  className="secondary"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="primary"
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  {isSubmitting ? "Guardando..." : editingProduct ? "Actualizar" : "Crear"}
-                </button>
-              </div>
-            </form>
-          </div>
-        )}
+        <ProductoForm
+          isOpen={showForm}
+          onClose={handleCancel}
+          onSubmit={onSubmit}
+          isSubmitting={isSubmitting}
+          editingProduct={editingProduct ? {
+            id: editingProduct.id,
+            name: editingProduct.name,
+            description: editingProduct.description,
+            price: editingProduct.price,
+            stock: editingProduct.stock,
+            categoryId: editingProduct.category?.id
+          } : null}
+          categories={categories}
+        />
 
         <div className="form-section">
           <h2>Gestión de Productos</h2>
