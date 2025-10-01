@@ -791,9 +791,6 @@ function RemitosContent() {
           </div>
 
           {/* Tabla de productos */}
-          <div className="form-section">
-            <h4>Productos</h4>
-            
             <table>
               <thead>
                 <tr>
@@ -870,7 +867,7 @@ function RemitosContent() {
                           }
                         }
                       }}
-                      placeholder="Seleccionar producto..."
+                      placeholder="Agregar producto..."
                       searchFields={["name"]}
                       disabled={!watch("clientId")}
                     />
@@ -902,7 +899,6 @@ function RemitosContent() {
                 <strong>Total: {(Number(total) || 0).toLocaleString('es-AR', { style: 'currency', currency: 'ARS' })}</strong>
               </div>
             )}
-          </div>
 
           {/* Observaciones colapsables */}
           <div className="form-group" style={{ marginTop: '1.5rem' }}>
@@ -915,6 +911,7 @@ function RemitosContent() {
                 color: '#2563eb', 
                 cursor: 'pointer',
                 fontSize: '14px',
+                fontWeight: 'normal',
                 padding: '4px 0',
                 textDecoration: 'underline'
               }}
