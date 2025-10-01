@@ -60,10 +60,16 @@ export function useUsuarios(companyId?: string) {
 
   const createUsuario = async (userData: UsuarioFormData) => {
     try {
+      // Agregar companyId si no está presente y el usuario es ADMIN
+      const userDataWithCompany = {
+        ...userData,
+        companyId: userData.companyId || (session?.user?.role === 'ADMIN' ? session.user.companyId : undefined)
+      };
+      
       const response = await fetch("/api/users", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(userData),
+        body: JSON.stringify(userDataWithCompany),
       });
 
       if (!response.ok) {
@@ -83,10 +89,16 @@ export function useUsuarios(companyId?: string) {
 
   const updateUsuario = async (id: string, userData: UsuarioFormData) => {
     try {
+      // Agregar companyId si no está presente y el usuario es ADMIN
+      const userDataWithCompany = {
+        ...userData,
+        companyId: userData.companyId || (session?.user?.role === 'ADMIN' ? session.user.companyId : undefined)
+      };
+      
       const response = await fetch(`/api/users/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(userData),
+        body: JSON.stringify(userDataWithCompany),
       });
 
       if (!response.ok) {

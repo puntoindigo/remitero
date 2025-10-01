@@ -8,7 +8,9 @@ import { FormModal } from "@/components/common/FormModal";
 
 const clienteSchema = z.object({
   name: z.string().min(1, "El nombre es requerido"),
-  email: z.string().email("Email inválido").optional().or(z.literal("")),
+  email: z.string().optional().refine((val) => !val || z.string().email().safeParse(val).success, {
+    message: "Email inválido"
+  }),
   phone: z.string().optional(),
   address: z.string().optional(),
 });
