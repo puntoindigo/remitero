@@ -2109,3 +2109,55 @@ form svg {
   color: white;
   border: 1px solid rgba(5, 150, 105, 0.3);
 }
+
+/* Simple Select Component */
+.simple-select-container {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
+.simple-select {
+  width: 100%;
+  padding: 8px 32px 8px 12px;
+  background-color: white;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  line-height: 20px;
+  color: #111827;
+  appearance: none;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+}
+
+.simple-select:hover {
+  border-color: #9ca3af;
+}
+
+.simple-select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.simple-select:disabled {
+  background-color: #f3f4f6;
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.simple-select-chevron {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  color: #6b7280;
+  pointer-events: none;
+}
+
+.simple-select:disabled + .simple-select-chevron {
+  color: #d1d5db;
+}

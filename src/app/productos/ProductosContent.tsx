@@ -10,6 +10,7 @@ import { formatDate } from "@/lib/utils/formatters";
 import SearchAndPagination from "@/components/common/SearchAndPagination";
 import { useSearchAndPagination } from "@/hooks/useSearchAndPagination";
 import FilterableSelect from "@/components/common/FilterableSelect";
+import SimpleSelect from "@/components/common/SimpleSelect";
 import { MessageModal } from "@/components/common/MessageModal";
 import { useMessageModal } from "@/hooks/useMessageModal";
 import { ProductoForm } from "@/components/forms/ProductoForm";
@@ -391,14 +392,15 @@ function ProductosContent() {
                     </td>
                     <td>${(Number(product.price) || 0).toFixed(2)}</td>
                     <td>
-                      <select
+                      <SimpleSelect
                         value={getStockFromProduct(product)}
-                        onChange={(e) => handleStockChange(product.id, e.target.value as 'IN_STOCK' | 'OUT_OF_STOCK')}
-                        className={`stock-select ${getStockColor(getStockFromProduct(product))}`}
-                      >
-                        <option value="IN_STOCK">✅ Hay stock</option>
-                        <option value="OUT_OF_STOCK">❌ Sin stock</option>
-                      </select>
+                        onChange={(value) => handleStockChange(product.id, value as 'IN_STOCK' | 'OUT_OF_STOCK')}
+                        options={[
+                          { id: 'IN_STOCK', name: 'Hay stock', icon: '✅' },
+                          { id: 'OUT_OF_STOCK', name: 'Sin stock', icon: '❌' }
+                        ]}
+                        className={getStockColor(getStockFromProduct(product))}
+                      />
                     </td>
                     <td>{new Date(product.createdAt).toLocaleString('es-AR', {
                       year: 'numeric',

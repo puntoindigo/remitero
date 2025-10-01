@@ -23,6 +23,7 @@ import {
 import RemitoActionButtons from "@/components/common/RemitoActionButtons";
 import { formatDate } from "@/lib/utils/formatters";
 import FilterableSelect from "@/components/common/FilterableSelect";
+import SimpleSelect from "@/components/common/SimpleSelect";
 import SearchAndPagination from "@/components/common/SearchAndPagination";
 import { MessageModal } from "@/components/common/MessageModal";
 import { FormModal } from "@/components/common/FormModal";
@@ -188,9 +189,13 @@ function RemitosContent() {
 
     try {
       const remitoData = {
-        ...data,
+        clientId: data.clientId,
+        notes: data.notes || '',
         items: items.map(item => ({
-          ...item,
+          product_id: item.product_id,
+          product_name: item.product_name,
+          product_desc: item.product_desc || null,
+          quantity: Number(item.quantity),
           unit_price: Number(item.unit_price),
           line_total: Number(item.line_total)
         }))
@@ -746,19 +751,6 @@ function RemitosContent() {
     <main className="main-content">
       <section className="form-section">
         <h2>Gestión de Remitos</h2>
-        
-        {/* Botón para nuevo remito */}
-        {!showForm && (
-          <div className="form-actions">
-            <button
-              onClick={() => setShowForm(true)}
-              className="primary"
-            >
-              <Plus className="h-4 w-4" />
-              Nuevo Remito
-            </button>
-          </div>
-        )}
 
         <FormModal
           isOpen={showForm}
@@ -914,8 +906,17 @@ function RemitosContent() {
 
         {/* Lista de remitos */}
         {!showForm && (
-          <div className="form-section">
-            <h3>Lista de Remitos</h3>
+          <>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+              <h3>Lista de Remitos</h3>
+              <button
+                onClick={() => setShowForm(true)}
+                className="primary"
+              >
+                <Plus className="h-4 w-4" />
+                Nuevo Remito
+              </button>
+            </div>
             
             <SearchAndPagination
               searchTerm={searchTerm}
@@ -980,16 +981,17 @@ function RemitosContent() {
                       <td className="font-medium">#{remito.number}</td>
                       <td>{remito.client.name}</td>
                       <td>
-                        <select
+                        <SimpleSelect
                           value={remito.status}
-                          onChange={(e) => handleStatusChange(remito.id, e.target.value as any)}
-                          className={`status-select ${getStatusColor(remito.status)}`}
-                        >
-                          <option value="PENDIENTE">🕐 Pendiente</option>
-                          <option value="PREPARADO">✅ Preparado</option>
-                          <option value="ENTREGADO">🚚 Entregado</option>
-                          <option value="CANCELADO">❌ Cancelado</option>
-                        </select>
+                          onChange={(value) => handleStatusChange(remito.id, value as any)}
+                          options={[
+                            { id: 'PENDIENTE', name: 'Pendiente', icon: '🕐' },
+                            { id: 'PREPARADO', name: 'Preparado', icon: '✅' },
+                            { id: 'ENTREGADO', name: 'Entregado', icon: '🚚' },
+                            { id: 'CANCELADO', name: 'Cancelado', icon: '❌' }
+                          ]}
+                          className={getStatusColor(remito.status)}
+                        />
                       </td>
                       <td>{(Number(remito.total) || 0).toLocaleString('es-AR', { style: 'currency', currency: 'ARS' })}</td>
                       <td>{new Date(remito.createdAt).toLocaleString('es-AR', {
@@ -1012,7 +1014,7 @@ function RemitosContent() {
                 </tbody>
               </table>
             )}
-          </div>
+          </>
         )}
 
         {/* Modal de confirmación de eliminación */}
