@@ -62,20 +62,20 @@ export default function PrintRemito() {
           <h2>REMITO DE ENTREGA</h2>
         </div>
 
-        <div className="print-info-section">
-          <div className="print-client-info">
+        <div className="print-info-section" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
+          <div className="print-client-info" style={{ flex: 1 }}>
             <h3>CLIENTE:</h3>
             <p><strong>{remito.client.name}</strong></p>
             {remito.client.address && <p>{remito.client.address}</p>}
             {remito.client.phone && <p>Tel: {remito.client.phone}</p>}
           </div>
-          <div className="print-number-date">
+          <div className="print-number-date" style={{ textAlign: 'right', flexShrink: 0 }}>
             <p><strong>N°:</strong> {remito.number}</p>
             <p><strong>Fecha:</strong> {new Date(remito.createdAt).toLocaleDateString('es-AR')}</p>
           </div>
         </div>
 
-        <div className="print-spacer"></div>
+        <div className="print-spacer" style={{ height: '20px' }}></div>
 
         <div className="print-items">
           <table className="print-table">
@@ -90,10 +90,10 @@ export default function PrintRemito() {
             <tbody>
               {(remito.remitoItems || remito.items || []).map((item, index) => (
                 <tr key={index}>
-                  <td className="text-center">{item.quantity}</td>
+                  <td style={{ textAlign: 'center' }}>{item.quantity}</td>
                   <td>{item.product_name || item.productName}</td>
-                  <td className="text-right">${(Number(item.unit_price || item.unitPrice) || 0).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                  <td className="text-right">${(Number(item.line_total || item.lineTotal) || 0).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                  <td style={{ textAlign: 'right' }}>${(Number(item.unit_price || item.unitPrice) || 0).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                  <td style={{ textAlign: 'right' }}>${(Number(item.line_total || item.lineTotal) || 0).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                 </tr>
               ))}
             </tbody>
@@ -105,7 +105,7 @@ export default function PrintRemito() {
         </div>
 
         {remito.notes && (
-          <div className="print-notes">
+          <div className="print-notes" style={{ marginTop: '20px', paddingTop: '10px', borderTop: '1px solid #ccc' }}>
             <p><strong>Observaciones:</strong></p>
             <p>{remito.notes}</p>
           </div>
@@ -119,20 +119,20 @@ export default function PrintRemito() {
           <h2>REMITO DE ENTREGA</h2>
         </div>
 
-        <div className="print-info-section">
-          <div className="print-client-info">
+        <div className="print-info-section" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
+          <div className="print-client-info" style={{ flex: 1 }}>
             <h3>CLIENTE:</h3>
             <p><strong>{remito.client.name}</strong></p>
             {remito.client.address && <p>{remito.client.address}</p>}
             {remito.client.phone && <p>Tel: {remito.client.phone}</p>}
           </div>
-          <div className="print-number-date">
+          <div className="print-number-date" style={{ textAlign: 'right', flexShrink: 0 }}>
             <p><strong>N°:</strong> {remito.number}</p>
             <p><strong>Fecha:</strong> {new Date(remito.createdAt).toLocaleDateString('es-AR')}</p>
           </div>
         </div>
 
-        <div className="print-spacer"></div>
+        <div className="print-spacer" style={{ height: '20px' }}></div>
 
         <div className="print-items">
           <table className="print-table">
@@ -147,10 +147,10 @@ export default function PrintRemito() {
             <tbody>
               {(remito.remitoItems || remito.items || []).map((item, index) => (
                 <tr key={index}>
-                  <td className="text-center">{item.quantity}</td>
+                  <td style={{ textAlign: 'center' }}>{item.quantity}</td>
                   <td>{item.product_name || item.productName}</td>
-                  <td className="text-right">${(Number(item.unit_price || item.unitPrice) || 0).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                  <td className="text-right">${(Number(item.line_total || item.lineTotal) || 0).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                  <td style={{ textAlign: 'right' }}>${(Number(item.unit_price || item.unitPrice) || 0).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                  <td style={{ textAlign: 'right' }}>${(Number(item.line_total || item.lineTotal) || 0).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                 </tr>
               ))}
             </tbody>
@@ -162,7 +162,7 @@ export default function PrintRemito() {
         </div>
 
         {remito.notes && (
-          <div className="print-notes">
+          <div className="print-notes" style={{ marginTop: '20px', paddingTop: '10px', borderTop: '1px solid #ccc' }}>
             <p><strong>Observaciones:</strong></p>
             <p>{remito.notes}</p>
           </div>
