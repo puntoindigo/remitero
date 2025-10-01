@@ -148,17 +148,16 @@ function UsuariosContent() {
           companyId={companyId || undefined}
         />
         
-        {!showForm && (
-          <div className="form-actions">
-            <button onClick={handleNew} className="primary">
-              <Plus className="h-4 w-4 mr-2" />
-              Nuevo Usuario
-            </button>
-          </div>
-        )}
-
         <div className="form-section">
-          <h3>Lista de Usuarios</h3>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+            <h3 style={{ margin: 0 }}>Lista de Usuarios</h3>
+            {!showForm && (
+              <button onClick={handleNew} className="primary">
+                <Plus className="h-4 w-4 mr-2" />
+                Nuevo Usuario
+              </button>
+            )}
+          </div>
           
           <SearchAndPagination
             searchTerm={searchTerm}

@@ -305,7 +305,8 @@ function ProductosContent() {
         <div className="form-section">
           <h2>Gestión de Productos</h2>
           
-          <div className="form-actions">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+            <h3 style={{ margin: 0 }}>Lista de Productos</h3>
             <button
               onClick={() => setShowForm(true)}
               className="primary"
@@ -314,8 +315,6 @@ function ProductosContent() {
               Nuevo Producto
             </button>
           </div>
-          
-          <h3>Lista de Productos</h3>
           
           <SearchAndPagination
             searchTerm={searchTerm}

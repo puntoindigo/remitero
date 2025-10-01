@@ -125,7 +125,8 @@ function ClientesContent() {
         <div className="form-section">
           <h2>Gestión de Clientes</h2>
           
-          <div className="form-actions">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+            <h3 style={{ margin: 0 }}>Lista de Clientes</h3>
             <button onClick={handleNew} className="primary">
               <Plus className="h-4 w-4 mr-2" />
               Nuevo Cliente

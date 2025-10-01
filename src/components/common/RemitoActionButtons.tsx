@@ -17,7 +17,7 @@ export default function RemitoActionButtons({
   isLoading = false
 }: RemitoActionButtonsProps) {
   return (
-    <div className="flex gap-3">
+    <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
       <button
         onClick={onPrint}
         className="small primary"

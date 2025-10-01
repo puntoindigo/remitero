@@ -19,7 +19,7 @@ export default function ActionButtons({
   deleteTitle = "Eliminar"
 }: ActionButtonsProps) {
   return (
-    <div className="flex gap-3">
+    <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
       <button
         onClick={onEdit}
         className="small primary"

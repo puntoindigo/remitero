@@ -115,17 +115,16 @@ function EmpresasContent() {
           editingEmpresa={editingCompany}
         />
         
-        {!showForm && (
-          <div className="form-actions">
-            <button onClick={handleNew} className="primary">
-              <Plus className="h-4 w-4" />
-              Nueva Empresa
-            </button>
-          </div>
-        )}
-
         <div className="form-section">
-          <h3>Lista de Empresas</h3>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+            <h3 style={{ margin: 0 }}>Lista de Empresas</h3>
+            {!showForm && (
+              <button onClick={handleNew} className="primary">
+                <Plus className="h-4 w-4 mr-2" />
+                Nueva Empresa
+              </button>
+            )}
+          </div>
           
           {error && (
             <div className="error-message">
