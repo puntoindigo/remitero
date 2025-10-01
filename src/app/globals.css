@@ -2171,9 +2171,8 @@ form svg {
 .modal.form-modal.remito-modal .modal-body {
   max-height: calc(90vh - 140px);
   overflow-y: auto;
+  overflow-x: visible !important;
   padding-right: 8px;
-  /* Permitir que los elementos hijos se desborden */
-  overflow-x: visible;
 }
 
 .modal.form-modal.remito-modal table {
@@ -2193,11 +2192,22 @@ form svg {
 }
 
 /* Aumentar z-index de los dropdowns dentro de tablas */
-table .vercel-select-container {
-  position: static;
+.modal.form-modal.remito-modal table .vercel-select-container {
+  position: relative;
+  z-index: 100;
 }
 
-table .vercel-select-dropdown {
+.modal.form-modal.remito-modal table .vercel-select-dropdown {
   z-index: 10001 !important;
   position: absolute !important;
+  min-width: 100%;
+}
+
+/* Asegurar que el dropdown sea visible */
+.modal.form-modal.remito-modal .form-section {
+  overflow: visible !important;
+}
+
+.modal.form-modal.remito-modal .form-section > * {
+  overflow: visible !important;
 }
