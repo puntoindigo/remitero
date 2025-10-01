@@ -46,3 +46,4 @@ scripts/*-seed.js
 scripts/*-migrate.js
 scripts/*-create.js
 scripts/*-data.js
+.env*.local
