@@ -17,7 +17,8 @@ import {
   DollarSign,
   Clock,
   CheckCircle,
-  Truck
+  Truck,
+  Trash2
 } from "lucide-react";
 import RemitoActionButtons from "@/components/common/RemitoActionButtons";
 import { formatDate } from "@/lib/utils/formatters";
