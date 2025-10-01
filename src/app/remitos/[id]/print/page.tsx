@@ -60,18 +60,22 @@ export default function PrintRemito() {
         <div className="print-header">
           <h1>DISTRIBUIDORA RUBEN</h1>
           <h2>REMITO DE ENTREGA</h2>
-          <div className="print-info">
+        </div>
+
+        <div className="print-info-section">
+          <div className="print-client-info">
+            <h3>CLIENTE:</h3>
+            <p><strong>{remito.client.name}</strong></p>
+            {remito.client.address && <p>{remito.client.address}</p>}
+            {remito.client.phone && <p>Tel: {remito.client.phone}</p>}
+          </div>
+          <div className="print-number-date">
             <p><strong>N°:</strong> {remito.number}</p>
             <p><strong>Fecha:</strong> {new Date(remito.createdAt).toLocaleDateString('es-AR')}</p>
           </div>
         </div>
 
-        <div className="print-client">
-          <h3>CLIENTE:</h3>
-          <p><strong>{remito.client.name}</strong></p>
-          {remito.client.address && <p>{remito.client.address}</p>}
-          {remito.client.phone && <p>Tel: {remito.client.phone}</p>}
-        </div>
+        <div className="print-spacer"></div>
 
         <div className="print-items">
           <table className="print-table">
@@ -86,10 +90,10 @@ export default function PrintRemito() {
             <tbody>
               {(remito.remitoItems || remito.items || []).map((item, index) => (
                 <tr key={index}>
-                  <td>{item.quantity}</td>
+                  <td className="text-center">{item.quantity}</td>
                   <td>{item.product_name || item.productName}</td>
-                  <td>${(Number(item.unit_price || item.unitPrice) || 0).toFixed(2)}</td>
-                  <td>${(Number(item.line_total || item.lineTotal) || 0).toFixed(2)}</td>
+                  <td className="text-right">${(Number(item.unit_price || item.unitPrice) || 0).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                  <td className="text-right">${(Number(item.line_total || item.lineTotal) || 0).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                 </tr>
               ))}
             </tbody>
@@ -97,7 +101,7 @@ export default function PrintRemito() {
         </div>
 
         <div className="print-total">
-          <p><strong>TOTAL: ${total.toFixed(2)}</strong></p>
+          <p><strong>TOTAL: ${total.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong></p>
         </div>
 
         {remito.notes && (
@@ -113,18 +117,22 @@ export default function PrintRemito() {
         <div className="print-header">
           <h1>DISTRIBUIDORA RUBEN</h1>
           <h2>REMITO DE ENTREGA</h2>
-          <div className="print-info">
+        </div>
+
+        <div className="print-info-section">
+          <div className="print-client-info">
+            <h3>CLIENTE:</h3>
+            <p><strong>{remito.client.name}</strong></p>
+            {remito.client.address && <p>{remito.client.address}</p>}
+            {remito.client.phone && <p>Tel: {remito.client.phone}</p>}
+          </div>
+          <div className="print-number-date">
             <p><strong>N°:</strong> {remito.number}</p>
             <p><strong>Fecha:</strong> {new Date(remito.createdAt).toLocaleDateString('es-AR')}</p>
           </div>
         </div>
 
-        <div className="print-client">
-          <h3>CLIENTE:</h3>
-          <p><strong>{remito.client.name}</strong></p>
-          {remito.client.address && <p>{remito.client.address}</p>}
-          {remito.client.phone && <p>Tel: {remito.client.phone}</p>}
-        </div>
+        <div className="print-spacer"></div>
 
         <div className="print-items">
           <table className="print-table">
@@ -139,10 +147,10 @@ export default function PrintRemito() {
             <tbody>
               {(remito.remitoItems || remito.items || []).map((item, index) => (
                 <tr key={index}>
-                  <td>{item.quantity}</td>
+                  <td className="text-center">{item.quantity}</td>
                   <td>{item.product_name || item.productName}</td>
-                  <td>${(Number(item.unit_price || item.unitPrice) || 0).toFixed(2)}</td>
-                  <td>${(Number(item.line_total || item.lineTotal) || 0).toFixed(2)}</td>
+                  <td className="text-right">${(Number(item.unit_price || item.unitPrice) || 0).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                  <td className="text-right">${(Number(item.line_total || item.lineTotal) || 0).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                 </tr>
               ))}
             </tbody>
@@ -150,7 +158,7 @@ export default function PrintRemito() {
         </div>
 
         <div className="print-total">
-          <p><strong>TOTAL: ${total.toFixed(2)}</strong></p>
+          <p><strong>TOTAL: ${total.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong></p>
         </div>
 
         {remito.notes && (
@@ -160,6 +168,42 @@ export default function PrintRemito() {
           </div>
         )}
       </div>
+
+      <style jsx>{`
+        .print-info-section {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          margin-bottom: 20px;
+        }
+
+        .print-client-info {
+          flex: 1;
+        }
+
+        .print-number-date {
+          text-align: right;
+          flex-shrink: 0;
+        }
+
+        .print-spacer {
+          height: 20px;
+        }
+
+        .text-center {
+          text-align: center;
+        }
+
+        .text-right {
+          text-align: right;
+        }
+
+        .print-notes {
+          margin-top: 20px;
+          padding-top: 10px;
+          border-top: 1px solid #ccc;
+        }
+      `}</style>
     </div>
   );
 }
