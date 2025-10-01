@@ -2161,3 +2161,27 @@ form svg {
 .simple-select:disabled + .simple-select-chevron {
   color: #d1d5db;
 }
+
+/* Modal Remitos - Permitir overflow para dropdowns */
+.modal.form-modal.remito-modal {
+  max-height: 90vh;
+}
+
+.modal.form-modal.remito-modal .modal-body {
+  max-height: calc(90vh - 140px);
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+.modal.form-modal.remito-modal table {
+  position: relative;
+}
+
+/* Aumentar z-index de los dropdowns dentro de tablas */
+table .vercel-select-container {
+  position: relative;
+}
+
+table .vercel-select-dropdown {
+  z-index: 1001 !important;
+}
