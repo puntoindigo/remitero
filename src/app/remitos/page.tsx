@@ -96,6 +96,7 @@ function RemitosContent() {
   const [totalItems, setTotalItems] = useState<number>(0);
   const [itemsPerPage] = useState<number>(10);
   const [showPrintConfirm, setShowPrintConfirm] = useState<Remito | null>(null);
+  const [showNotes, setShowNotes] = useState<boolean>(false);
   
   // Hook para manejar modales de mensajes
   const { modalState, showSuccess, showError, closeModal } = useMessageModal();
@@ -420,6 +421,11 @@ function RemitosContent() {
       setValue("clientId", completeRemito.client.id);
       setValue("notes", completeRemito.notes || "");
       
+      // Mostrar observaciones si existen
+      if (completeRemito.notes) {
+        setShowNotes(true);
+      }
+      
       // Mapear los remitoItems para asegurar que product_id esté correctamente asignado
       const mappedItems = (completeRemito.remitoItems || []).map((item: any) => {
         // Si no hay product_id, intentar encontrarlo en la lista de productos
@@ -455,6 +461,7 @@ function RemitosContent() {
     setEditingRemito(null);
     setShowForm(false);
     setItems([]);
+    setShowNotes(false);
     reset();
   };
 
@@ -764,142 +771,163 @@ function RemitosContent() {
           isSubmitting={isSubmitting}
           modalClassName="remito-modal"
         >
-          <div className="form-row">
-            <div className="form-group">
-              <label className="label-aligned">Cliente *</label>
-              <FilterableSelect
-                options={clients.map(client => ({ id: client.id, name: client.name }))}
-                value={watch("clientId") || ""}
-                onChange={(value) => setValue("clientId", value)}
-                placeholder="Seleccionar cliente"
-                searchFields={["name"]}
-              />
-              {errors.clientId && (
-                <p className="error-message">{errors.clientId.message}</p>
-              )}
-            </div>
-
-            <div className="form-group">
-              <label className="label-aligned">Observaciones</label>
-              <textarea
-                {...register("notes")}
-                rows={3}
-                placeholder="Notas adicionales (opcional)"
-                className="resize-none"
-              />
+          {/* Cliente en línea horizontal */}
+          <div className="form-group" style={{ marginBottom: '1.5rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+              <label style={{ minWidth: '80px', marginBottom: 0 }}>Cliente *</label>
+              <div style={{ flex: 1 }}>
+                <FilterableSelect
+                  options={clients.map(client => ({ id: client.id, name: client.name }))}
+                  value={watch("clientId") || ""}
+                  onChange={(value) => setValue("clientId", value)}
+                  placeholder="Seleccionar cliente"
+                  searchFields={["name"]}
+                />
+                {errors.clientId && (
+                  <p className="error-message">{errors.clientId.message}</p>
+                )}
+              </div>
             </div>
           </div>
 
-          {/* Agregar productos */}
+          {/* Tabla de productos */}
           <div className="form-section">
             <h4>Productos</h4>
             
-            <div className="form-row">
-              <div className="form-group-step">
-                <label>Producto</label>
-                <FilterableSelect
-                  options={(products || [])
-                    .filter(p => !(items || []).some(item => item.product_id === p.id))
-                    .map(product => ({ 
-                      id: product.id, 
-                      name: product.name
-                    }))}
-                  value={selectedProduct}
-                  onChange={(value) => {
-                    setSelectedProduct(value);
-                    // Focus en cantidad después de seleccionar producto
-                    setTimeout(() => {
-                      const quantityInput = document.querySelector('input[type="number"]') as HTMLInputElement;
-                      if (quantityInput) {
-                        quantityInput.focus();
-                        quantityInput.select();
-                      }
-                    }, 100);
-                  }}
-                  placeholder="Seleccionar producto"
-                  searchFields={["name"]}
-                  disabled={!watch("clientId")}
-                />
-              </div>
-
-              <div className="form-group-step">
-                <label>Cantidad</label>
-                <input
-                  type="number"
-                  min="1"
-                  value={quantity}
-                  onChange={(e) => setQuantity(parseInt(e.target.value) || 1)}
-                  disabled={!watch("clientId") || !selectedProduct}
-                />
-              </div>
-
-              <div className="form-group-step">
-                <button
-                  type="button"
-                  onClick={handleAddItem}
-                  className={`primary add-button ${!watch("clientId") || !selectedProduct || quantity <= 0 ? 'disabled' : ''}`}
-                  disabled={!watch("clientId") || !selectedProduct || quantity <= 0}
-                >
-                  <Plus className="h-4 w-4" />
-                  Agregar
-                </button>
-              </div>
-            </div>
-
-            {/* Lista de productos agregados */}
-            {items.length > 0 && (
-              <table>
-                <thead>
-                  <tr>
-                    <th>Producto</th>
-                    <th>Cantidad</th>
-                    <th>Precio Unit.</th>
-                    <th>Total</th>
-                    <th>Acciones</th>
+            <table>
+              <thead>
+                <tr>
+                  <th>Producto</th>
+                  <th style={{ width: '100px' }}>Cantidad</th>
+                  <th style={{ width: '120px' }}>Precio Unit.</th>
+                  <th style={{ width: '120px' }}>Total</th>
+                  <th style={{ width: '80px' }}>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {items.map((item, index) => (
+                  <tr key={index}>
+                    <td>
+                      <div>
+                        <div className="font-medium">{item.product_name}</div>
+                        {item.product_desc && (
+                          <div className="text-sm text-gray-500">{item.product_desc}</div>
+                        )}
+                      </div>
+                    </td>
+                    <td>
+                      <input
+                        type="number"
+                        min="1"
+                        value={item.quantity}
+                        onChange={(e) => handleUpdateQuantity(index, parseInt(e.target.value) || 1)}
+                        className="w-20"
+                      />
+                    </td>
+                    <td>{(Number(item.unit_price) || 0).toLocaleString('es-AR', { style: 'currency', currency: 'ARS' })}</td>
+                    <td>{(Number(item.line_total) || 0).toLocaleString('es-AR', { style: 'currency', currency: 'ARS' })}</td>
+                    <td>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveItem(index)}
+                        className="small danger"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {items.map((item, index) => (
-                    <tr key={index}>
-                      <td>
-                        <div>
-                          <div className="font-medium">{item.product_name}</div>
-                          {item.product_desc && (
-                            <div className="text-sm text-gray-500">{item.product_desc}</div>
-                          )}
-                        </div>
-                      </td>
-                      <td>
-                        <input
-                          type="number"
-                          min="1"
-                          value={item.quantity}
-                          onChange={(e) => handleUpdateQuantity(index, parseInt(e.target.value) || 1)}
-                          className="w-20"
-                        />
-                      </td>
-                      <td>{(Number(item.unit_price) || 0).toLocaleString('es-AR', { style: 'currency', currency: 'ARS' })}</td>
-                      <td>{(Number(item.line_total) || 0).toLocaleString('es-AR', { style: 'currency', currency: 'ARS' })}</td>
-                      <td>
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveItem(index)}
-                          className="small danger"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
+                ))}
+                {/* Fila para agregar nuevo producto */}
+                <tr style={{ backgroundColor: '#f9fafb' }}>
+                  <td>
+                    <FilterableSelect
+                      options={(products || [])
+                        .filter(p => !(items || []).some(item => item.product_id === p.id))
+                        .map(product => ({ 
+                          id: product.id, 
+                          name: product.name
+                        }))}
+                      value={selectedProduct}
+                      onChange={(value) => {
+                        setSelectedProduct(value);
+                        setTimeout(() => {
+                          const quantityInput = document.querySelector('tr[style*="backgroundColor"] input[type="number"]') as HTMLInputElement;
+                          if (quantityInput) {
+                            quantityInput.focus();
+                            quantityInput.select();
+                          }
+                        }, 100);
+                      }}
+                      placeholder="Seleccionar producto..."
+                      searchFields={["name"]}
+                      disabled={!watch("clientId")}
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="number"
+                      min="1"
+                      value={quantity}
+                      onChange={(e) => setQuantity(parseInt(e.target.value) || 1)}
+                      disabled={!watch("clientId") || !selectedProduct}
+                      style={{ width: '80px' }}
+                    />
+                  </td>
+                  <td colSpan={2}>
+                    {selectedProduct && products.find(p => p.id === selectedProduct) && (
+                      <span className="text-sm text-gray-600">
+                        {(Number(products.find(p => p.id === selectedProduct)?.price || 0) * quantity).toLocaleString('es-AR', { style: 'currency', currency: 'ARS' })}
+                      </span>
+                    )}
+                  </td>
+                  <td>
+                    <button
+                      type="button"
+                      onClick={handleAddItem}
+                      className={`primary small ${!watch("clientId") || !selectedProduct || quantity <= 0 ? 'disabled' : ''}`}
+                      disabled={!watch("clientId") || !selectedProduct || quantity <= 0}
+                      title="Agregar producto"
+                    >
+                      <Plus className="h-4 w-4" />
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
 
             {/* Total */}
             {items.length > 0 && (
               <div className="total-display">
                 <strong>Total: {(Number(total) || 0).toLocaleString('es-AR', { style: 'currency', currency: 'ARS' })}</strong>
               </div>
+            )}
+          </div>
+
+          {/* Observaciones colapsables */}
+          <div className="form-group" style={{ marginTop: '1.5rem' }}>
+            <button
+              type="button"
+              onClick={() => setShowNotes(!showNotes)}
+              style={{ 
+                background: 'none', 
+                border: 'none', 
+                color: '#2563eb', 
+                cursor: 'pointer',
+                fontSize: '14px',
+                padding: '4px 0',
+                textDecoration: 'underline'
+              }}
+            >
+              {showNotes ? '− Ocultar observaciones' : '+ Agregar observaciones'}
+            </button>
+            {showNotes && (
+              <textarea
+                {...register("notes")}
+                rows={3}
+                placeholder="Notas adicionales (opcional)"
+                className="resize-none"
+                style={{ marginTop: '0.5rem' }}
+              />
             )}
           </div>
         </FormModal>
