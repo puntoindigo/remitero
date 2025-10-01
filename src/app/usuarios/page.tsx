@@ -3,7 +3,8 @@
 import React, { useState, Suspense } from "react";
 import { useSession } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
-import { Plus, Edit, Trash2, Users, Building2 } from "lucide-react";
+import { Plus, Users, Building2 } from "lucide-react";
+import ActionButtons from "@/components/common/ActionButtons";
 import { formatDate } from "@/lib/utils/formatters";
 import SearchAndPagination from "@/components/common/SearchAndPagination";
 import { useSearchAndPagination } from "@/hooks/useSearchAndPagination";
@@ -229,22 +230,12 @@ function UsuariosContent() {
                       <td>{user.phone || "-"}</td>
                       <td>{formatDate(user.createdAt)}</td>
                       <td>
-                        <div className="flex gap-3">
-                          <button
-                            onClick={() => handleEdit(user)}
-                            className="small primary"
-                            title="Editar usuario"
-                          >
-                            <Edit className="h-4 w-4" />
-                          </button>
-                          <button
-                            onClick={() => handleDelete(user.id)}
-                            className="small danger"
-                            title="Eliminar usuario"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
-                        </div>
+                        <ActionButtons
+                          onEdit={() => handleEdit(user)}
+                          onDelete={() => handleDelete(user.id)}
+                          editTitle="Editar usuario"
+                          deleteTitle="Eliminar usuario"
+                        />
                       </td>
                     </tr>
                   ))}

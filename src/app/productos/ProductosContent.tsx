@@ -6,7 +6,8 @@ import { useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ProductForm, productSchema } from "@/lib/validations";
-import { Plus, Edit, Trash2, Package, Tag, DollarSign, Search } from "lucide-react";
+import { Plus, Package, Tag, DollarSign, Search } from "lucide-react";
+import ActionButtons from "@/components/common/ActionButtons";
 import { formatDate } from "@/lib/utils/formatters";
 import SearchAndPagination from "@/components/common/SearchAndPagination";
 import { useSearchAndPagination } from "@/hooks/useSearchAndPagination";
@@ -494,22 +495,12 @@ function ProductosContent() {
                       hour12: false
                     })}</td>
                     <td>
-                      <div className="action-buttons-spaced">
-                        <button
-                          onClick={() => handleEdit(product)}
-                          className="action-btn edit"
-                          title="Editar"
-                        >
-                          <Edit className="h-4 w-4" />
-                        </button>
-                        <button
-                          onClick={() => setShowDeleteConfirm(product.id)}
-                          className="action-btn delete"
-                          title="Eliminar"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </div>
+                      <ActionButtons
+                        onEdit={() => handleEdit(product)}
+                        onDelete={() => setShowDeleteConfirm(product.id)}
+                        editTitle="Editar producto"
+                        deleteTitle="Eliminar producto"
+                      />
                     </td>
                   </tr>
                 ))}

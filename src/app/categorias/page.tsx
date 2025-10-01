@@ -2,7 +2,8 @@
 
 import React, { useState, Suspense } from "react";
 import { useSession } from "next-auth/react";
-import { Plus, Edit, Trash2, Package } from "lucide-react";
+import { Plus, Package } from "lucide-react";
+import ActionButtons from "@/components/common/ActionButtons";
 import { formatDate } from "@/lib/utils/formatters";
 import SearchAndPagination from "@/components/common/SearchAndPagination";
 import { useSearchAndPagination } from "@/hooks/useSearchAndPagination";
@@ -35,12 +36,11 @@ function CategoriasContent() {
     itemsPerPage,
     handleSearchChange,
     handlePageChange,
-    filteredData: filteredCategorias
-  } = useSearchAndPagination(categorias, searchTerm => 
-    categorias.filter(categoria => 
-      categoria.name.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-  );
+    paginatedData: filteredCategorias
+  } = useSearchAndPagination({
+    data: categorias,
+    searchFields: ['name']
+  });
 
   const handleNew = () => {
     setEditingCategoria(null);
@@ -171,22 +171,12 @@ function CategoriasContent() {
                       </td>
                       <td>{formatDate(categoria.createdAt)}</td>
                       <td>
-                        <div className="flex gap-3">
-                          <button
-                            onClick={() => handleEdit(categoria)}
-                            className="small primary"
-                            title="Editar categoría"
-                          >
-                            <Edit className="h-4 w-4" />
-                          </button>
-                          <button
-                            onClick={() => handleDelete(categoria.id)}
-                            className="small danger"
-                            title="Eliminar categoría"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
-                        </div>
+                        <ActionButtons
+                          onEdit={() => handleEdit(categoria)}
+                          onDelete={() => handleDelete(categoria.id)}
+                          editTitle="Editar categoría"
+                          deleteTitle="Eliminar categoría"
+                        />
                       </td>
                     </tr>
                   ))}

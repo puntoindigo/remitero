@@ -2,7 +2,8 @@
 
 import React, { useState, Suspense } from "react";
 import { useSession } from "next-auth/react";
-import { Plus, Edit, Trash2, Building2, Users } from "lucide-react";
+import { Plus, Building2, Users } from "lucide-react";
+import ActionButtons from "@/components/common/ActionButtons";
 import { formatDate } from "@/lib/utils/formatters";
 import Link from "next/link";
 import { MessageModal } from "@/components/common/MessageModal";
@@ -159,22 +160,12 @@ function EmpresasContent() {
                       </td>
                       <td>{formatDate(company.createdAt)}</td>
                       <td>
-                        <div className="flex gap-3">
-                          <button
-                            onClick={() => handleEdit(company)}
-                            className="small primary"
-                            title="Editar empresa"
-                          >
-                            <Edit className="h-4 w-4" />
-                          </button>
-                          <button
-                            onClick={() => handleDelete(company.id)}
-                            className="small danger"
-                            title="Eliminar empresa"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
-                        </div>
+                        <ActionButtons
+                          onEdit={() => handleEdit(company)}
+                          onDelete={() => handleDelete(company.id)}
+                          editTitle="Editar empresa"
+                          deleteTitle="Eliminar empresa"
+                        />
                       </td>
                     </tr>
                   ))}

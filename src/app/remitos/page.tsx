@@ -11,17 +11,15 @@ import { useSearchParams } from "next/navigation";
 import { RemitoForm, remitoSchema } from "@/lib/validations";
 import { 
   Plus, 
-  Edit, 
-  Trash2, 
   FileText, 
   Users, 
   Package, 
   DollarSign,
-  Printer,
   Clock,
   CheckCircle,
   Truck
 } from "lucide-react";
+import RemitoActionButtons from "@/components/common/RemitoActionButtons";
 import { formatDate } from "@/lib/utils/formatters";
 import FilterableSelect from "@/components/common/FilterableSelect";
 import SearchAndPagination from "@/components/common/SearchAndPagination";
@@ -1002,29 +1000,11 @@ function RemitosContent() {
                         hour12: false
                       })}</td>
                       <td>
-                        <div className="action-buttons-spaced">
-                          <button
-                            onClick={() => handlePrint(remito)}
-                            className="small"
-                            title="Imprimir"
-                          >
-                            <Printer className="h-4 w-4" />
-                          </button>
-                          <button
-                            onClick={() => handleEdit(remito)}
-                            className="small"
-                            title="Editar"
-                          >
-                            <Edit className="h-4 w-4" />
-                          </button>
-                          <button
-                            onClick={() => setShowDeleteConfirm(remito.id)}
-                            className="small"
-                            title="Eliminar"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
-                        </div>
+                        <RemitoActionButtons
+                          onPrint={() => handlePrint(remito)}
+                          onEdit={() => handleEdit(remito)}
+                          onDelete={() => setShowDeleteConfirm(remito.id)}
+                        />
                       </td>
                     </tr>
                   ))}

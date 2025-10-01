@@ -2,7 +2,8 @@
 
 import React, { useState, Suspense } from "react";
 import { useSession } from "next-auth/react";
-import { Plus, Edit, Trash2, Users, Mail, Phone, MapPin } from "lucide-react";
+import { Plus, Users, Mail, Phone, MapPin } from "lucide-react";
+import ActionButtons from "@/components/common/ActionButtons";
 import { formatDate } from "@/lib/utils/formatters";
 import SearchAndPagination from "@/components/common/SearchAndPagination";
 import { useSearchAndPagination } from "@/hooks/useSearchAndPagination";
@@ -35,14 +36,11 @@ function ClientesContent() {
     itemsPerPage,
     handleSearchChange,
     handlePageChange,
-    filteredData: filteredClientes
-  } = useSearchAndPagination(clientes, searchTerm => 
-    clientes.filter(cliente => 
-      cliente.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (cliente.email && cliente.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (cliente.phone && cliente.phone.includes(searchTerm))
-    )
-  );
+    paginatedData: filteredClientes
+  } = useSearchAndPagination({
+    data: clientes,
+    searchFields: ['name', 'email', 'phone']
+  });
 
   const handleNew = () => {
     setEditingCliente(null);
@@ -201,22 +199,12 @@ function ClientesContent() {
                       </td>
                       <td>{formatDate(cliente.createdAt)}</td>
                       <td>
-                        <div className="flex gap-3">
-                          <button
-                            onClick={() => handleEdit(cliente)}
-                            className="small primary"
-                            title="Editar cliente"
-                          >
-                            <Edit className="h-4 w-4" />
-                          </button>
-                          <button
-                            onClick={() => handleDelete(cliente.id)}
-                            className="small danger"
-                            title="Eliminar cliente"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
-                        </div>
+                        <ActionButtons
+                          onEdit={() => handleEdit(cliente)}
+                          onDelete={() => handleDelete(cliente.id)}
+                          editTitle="Editar cliente"
+                          deleteTitle="Eliminar cliente"
+                        />
                       </td>
                     </tr>
                   ))}
