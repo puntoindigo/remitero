@@ -169,41 +169,6 @@ export default function PrintRemito() {
         )}
       </div>
 
-      <style jsx>{`
-        .print-info-section {
-          display: flex;
-          justify-content: space-between;
-          align-items: flex-start;
-          margin-bottom: 20px;
-        }
-
-        .print-client-info {
-          flex: 1;
-        }
-
-        .print-number-date {
-          text-align: right;
-          flex-shrink: 0;
-        }
-
-        .print-spacer {
-          height: 20px;
-        }
-
-        .text-center {
-          text-align: center;
-        }
-
-        .text-right {
-          text-align: right;
-        }
-
-        .print-notes {
-          margin-top: 20px;
-          padding-top: 10px;
-          border-top: 1px solid #ccc;
-        }
-      `}</style>
     </div>
   );
 }
