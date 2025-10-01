@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { ChevronDown, X, Search } from "lucide-react";
 
 interface FilterableSelectProps {
@@ -25,8 +26,10 @@ export default function FilterableSelect({
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredOptions, setFilteredOptions] = useState(options);
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0, width: 0 });
   const inputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
 
   // Filtrar opciones basado en el término de búsqueda
   useEffect(() => {
@@ -51,13 +54,41 @@ export default function FilterableSelect({
   const selectedOption = options.find(option => option.id === value);
   const displayText = selectedOption ? selectedOption.name : placeholder;
 
+  const updateDropdownPosition = () => {
+    if (triggerRef.current) {
+      const rect = triggerRef.current.getBoundingClientRect();
+      setDropdownPosition({
+        top: rect.bottom + window.scrollY + 4,
+        left: rect.left + window.scrollX,
+        width: rect.width
+      });
+    }
+  };
+
   const handleToggle = () => {
     if (disabled) return;
+    if (!isOpen) {
+      updateDropdownPosition();
+    }
     setIsOpen(!isOpen);
     if (!isOpen) {
       setTimeout(() => inputRef.current?.focus(), 0);
     }
   };
+
+  // Actualizar posición cuando se abre el dropdown o cuando hay scroll
+  useEffect(() => {
+    if (isOpen) {
+      updateDropdownPosition();
+      window.addEventListener('scroll', updateDropdownPosition, true);
+      window.addEventListener('resize', updateDropdownPosition);
+      
+      return () => {
+        window.removeEventListener('scroll', updateDropdownPosition, true);
+        window.removeEventListener('resize', updateDropdownPosition);
+      };
+    }
+  }, [isOpen]);
 
   const handleSelect = (optionId: string) => {
     onChange(optionId);
@@ -84,9 +115,59 @@ export default function FilterableSelect({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  const renderDropdown = () => {
+    if (!isOpen || typeof window === 'undefined') return null;
+
+    return createPortal(
+      <div 
+        ref={dropdownRef}
+        className="vercel-select-dropdown"
+        style={{
+          position: 'fixed',
+          top: `${dropdownPosition.top}px`,
+          left: `${dropdownPosition.left}px`,
+          width: `${dropdownPosition.width}px`,
+          zIndex: 99999
+        }}
+      >
+        <div className="vercel-select-search">
+          <Search className="vercel-select-search-icon" />
+          <input
+            ref={inputRef}
+            type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Buscar..."
+            className="vercel-select-search-input"
+          />
+        </div>
+        <div className="vercel-select-options">
+          {filteredOptions.length === 0 ? (
+            <div className="vercel-select-empty">
+              No se encontraron opciones
+            </div>
+          ) : (
+            filteredOptions.map((option) => (
+              <button
+                key={option.id}
+                type="button"
+                onClick={() => handleSelect(option.id)}
+                className={`vercel-select-option ${value === option.id ? 'vercel-select-option-selected' : ''}`}
+              >
+                {option.name}
+              </button>
+            ))
+          )}
+        </div>
+      </div>,
+      document.body
+    );
+  };
+
   return (
-    <div className={`vercel-select-container ${className}`} ref={dropdownRef}>
+    <div className={`vercel-select-container ${className}`}>
       <button
+        ref={triggerRef}
         type="button"
         onClick={handleToggle}
         disabled={disabled}
@@ -109,39 +190,7 @@ export default function FilterableSelect({
         </div>
       </button>
 
-      {isOpen && (
-        <div className="vercel-select-dropdown">
-          <div className="vercel-select-search">
-            <Search className="vercel-select-search-icon" />
-            <input
-              ref={inputRef}
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Buscar..."
-              className="vercel-select-search-input"
-            />
-          </div>
-          <div className="vercel-select-options">
-            {filteredOptions.length === 0 ? (
-              <div className="vercel-select-empty">
-                No se encontraron opciones
-              </div>
-            ) : (
-              filteredOptions.map((option) => (
-                <button
-                  key={option.id}
-                  type="button"
-                  onClick={() => handleSelect(option.id)}
-                  className={`vercel-select-option ${value === option.id ? 'vercel-select-option-selected' : ''}`}
-                >
-                  {option.name}
-                </button>
-              ))
-            )}
-          </div>
-        </div>
-      )}
+      {renderDropdown()}
     </div>
   );
 }
