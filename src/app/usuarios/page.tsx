@@ -9,6 +9,7 @@ import { formatDate } from "@/lib/utils/formatters";
 import SearchAndPagination from "@/components/common/SearchAndPagination";
 import { useSearchAndPagination } from "@/hooks/useSearchAndPagination";
 import { MessageModal } from "@/components/common/MessageModal";
+import DeleteConfirmModal from "@/components/common/DeleteConfirmModal";
 import { UsuarioForm } from "@/components/forms/UsuarioForm";
 import { useMessageModal } from "@/hooks/useMessageModal";
 import { useUsuarios, type Usuario } from "@/hooks/useUsuarios";
@@ -23,6 +24,7 @@ function UsuariosContent() {
   const [showForm, setShowForm] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedCompanyId, setSelectedCompanyId] = useState<string>(companyId || "");
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState<{ id: string; name: string } | null>(null);
   const { showSuccess, showError, hideModal, isModalOpen, modalContent } = useMessageModal();
   
   const { 
@@ -95,12 +97,16 @@ function UsuariosContent() {
     }
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async () => {
+    if (!showDeleteConfirm) return;
+    
     try {
-      await deleteUsuario(id);
+      await deleteUsuario(showDeleteConfirm.id);
+      setShowDeleteConfirm(null);
       showSuccess("Éxito", "Usuario eliminado correctamente");
     } catch (error) {
       console.error("Error deleting user:", error);
+      setShowDeleteConfirm(null);
       showError("Error", error instanceof Error ? error.message : "Error al eliminar usuario");
     }
   };
@@ -232,7 +238,7 @@ function UsuariosContent() {
                       <td>
                         <ActionButtons
                           onEdit={() => handleEdit(user)}
-                          onDelete={() => handleDelete(user.id)}
+                          onDelete={() => setShowDeleteConfirm({ id: user.id, name: user.name })}
                           editTitle="Editar usuario"
                           deleteTitle="Eliminar usuario"
                         />
@@ -252,6 +258,15 @@ function UsuariosContent() {
         title={modalContent?.title || ""}
         message={modalContent?.message || ""}
         type={modalContent?.type || "info"}
+      />
+      
+      <DeleteConfirmModal
+        isOpen={!!showDeleteConfirm}
+        onConfirm={handleDelete}
+        onCancel={() => setShowDeleteConfirm(null)}
+        title="Eliminar usuario"
+        message="¿Estás seguro de que deseas eliminar este usuario?"
+        itemName={showDeleteConfirm?.name}
       />
     </main>
   );

@@ -8,6 +8,7 @@ import { formatDate } from "@/lib/utils/formatters";
 import SearchAndPagination from "@/components/common/SearchAndPagination";
 import { useSearchAndPagination } from "@/hooks/useSearchAndPagination";
 import { MessageModal } from "@/components/common/MessageModal";
+import DeleteConfirmModal from "@/components/common/DeleteConfirmModal";
 import { CategoriaForm } from "@/components/forms/CategoriaForm";
 import { useMessageModal } from "@/hooks/useMessageModal";
 import { useCategorias, type Categoria } from "@/hooks/useCategorias";
@@ -17,6 +18,7 @@ function CategoriasContent() {
   const [editingCategoria, setEditingCategoria] = useState<Categoria | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState<{ id: string; name: string } | null>(null);
   const { showSuccess, showError, hideModal, isModalOpen, modalContent } = useMessageModal();
   
   const { 
@@ -79,12 +81,16 @@ function CategoriasContent() {
     }
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async () => {
+    if (!showDeleteConfirm) return;
+    
     try {
-      await deleteCategoria(id);
+      await deleteCategoria(showDeleteConfirm.id);
+      setShowDeleteConfirm(null);
       showSuccess("Éxito", "Categoría eliminada correctamente");
     } catch (error) {
       console.error("Error deleting categoria:", error);
+      setShowDeleteConfirm(null);
       showError("Error", error instanceof Error ? error.message : "Error al eliminar categoría");
     }
   };
@@ -173,7 +179,7 @@ function CategoriasContent() {
                       <td>
                         <ActionButtons
                           onEdit={() => handleEdit(categoria)}
-                          onDelete={() => handleDelete(categoria.id)}
+                          onDelete={() => setShowDeleteConfirm({ id: categoria.id, name: categoria.name })}
                           editTitle="Editar categoría"
                           deleteTitle="Eliminar categoría"
                         />
@@ -193,6 +199,15 @@ function CategoriasContent() {
         title={modalContent?.title || ""}
         message={modalContent?.message || ""}
         type={modalContent?.type || "info"}
+      />
+      
+      <DeleteConfirmModal
+        isOpen={!!showDeleteConfirm}
+        onConfirm={handleDelete}
+        onCancel={() => setShowDeleteConfirm(null)}
+        title="Eliminar categoría"
+        message="¿Estás seguro de que deseas eliminar esta categoría?"
+        itemName={showDeleteConfirm?.name}
       />
     </main>
   );

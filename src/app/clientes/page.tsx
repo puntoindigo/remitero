@@ -8,6 +8,7 @@ import { formatDate } from "@/lib/utils/formatters";
 import SearchAndPagination from "@/components/common/SearchAndPagination";
 import { useSearchAndPagination } from "@/hooks/useSearchAndPagination";
 import { MessageModal } from "@/components/common/MessageModal";
+import DeleteConfirmModal from "@/components/common/DeleteConfirmModal";
 import { ClienteForm } from "@/components/forms/ClienteForm";
 import { useMessageModal } from "@/hooks/useMessageModal";
 import { useClientes, type Cliente } from "@/hooks/useClientes";
@@ -17,6 +18,7 @@ function ClientesContent() {
   const [editingCliente, setEditingCliente] = useState<Cliente | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState<{ id: string; name: string } | null>(null);
   const { showSuccess, showError, hideModal, isModalOpen, modalContent } = useMessageModal();
   
   const { 
@@ -84,12 +86,16 @@ function ClientesContent() {
     }
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async () => {
+    if (!showDeleteConfirm) return;
+    
     try {
-      await deleteCliente(id);
+      await deleteCliente(showDeleteConfirm.id);
+      setShowDeleteConfirm(null);
       showSuccess("Éxito", "Cliente eliminado correctamente");
     } catch (error) {
       console.error("Error deleting cliente:", error);
+      setShowDeleteConfirm(null);
       showError("Error", error instanceof Error ? error.message : "Error al eliminar cliente");
     }
   };
@@ -201,7 +207,7 @@ function ClientesContent() {
                       <td>
                         <ActionButtons
                           onEdit={() => handleEdit(cliente)}
-                          onDelete={() => handleDelete(cliente.id)}
+                          onDelete={() => setShowDeleteConfirm({ id: cliente.id, name: cliente.name })}
                           editTitle="Editar cliente"
                           deleteTitle="Eliminar cliente"
                         />
@@ -221,6 +227,15 @@ function ClientesContent() {
         title={modalContent?.title || ""}
         message={modalContent?.message || ""}
         type={modalContent?.type || "info"}
+      />
+      
+      <DeleteConfirmModal
+        isOpen={!!showDeleteConfirm}
+        onConfirm={handleDelete}
+        onCancel={() => setShowDeleteConfirm(null)}
+        title="Eliminar cliente"
+        message="¿Estás seguro de que deseas eliminar este cliente?"
+        itemName={showDeleteConfirm?.name}
       />
     </main>
   );

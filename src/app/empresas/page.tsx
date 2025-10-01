@@ -7,6 +7,7 @@ import ActionButtons from "@/components/common/ActionButtons";
 import { formatDate } from "@/lib/utils/formatters";
 import Link from "next/link";
 import { MessageModal } from "@/components/common/MessageModal";
+import DeleteConfirmModal from "@/components/common/DeleteConfirmModal";
 import { EmpresaForm } from "@/components/forms/EmpresaForm";
 import { useMessageModal } from "@/hooks/useMessageModal";
 import { useEmpresas, type Empresa } from "@/hooks/useEmpresas";
@@ -16,6 +17,7 @@ function EmpresasContent() {
   const [editingCompany, setEditingCompany] = useState<Empresa | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState<{ id: string; name: string } | null>(null);
   const { showSuccess, showError, hideModal, isModalOpen, modalContent } = useMessageModal();
   
   const { 
@@ -64,12 +66,16 @@ function EmpresasContent() {
     }
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async () => {
+    if (!showDeleteConfirm) return;
+    
     try {
-      await deleteEmpresa(id);
+      await deleteEmpresa(showDeleteConfirm.id);
+      setShowDeleteConfirm(null);
       showSuccess("Éxito", "Empresa eliminada correctamente");
     } catch (error) {
       console.error("Error deleting company:", error);
+      setShowDeleteConfirm(null);
       showError("Error", error instanceof Error ? error.message : "Error al eliminar empresa");
     }
   };
@@ -162,7 +168,7 @@ function EmpresasContent() {
                       <td>
                         <ActionButtons
                           onEdit={() => handleEdit(company)}
-                          onDelete={() => handleDelete(company.id)}
+                          onDelete={() => setShowDeleteConfirm({ id: company.id, name: company.name })}
                           editTitle="Editar empresa"
                           deleteTitle="Eliminar empresa"
                         />
@@ -182,6 +188,15 @@ function EmpresasContent() {
         title={modalContent?.title || ""}
         message={modalContent?.message || ""}
         type={modalContent?.type || "info"}
+      />
+      
+      <DeleteConfirmModal
+        isOpen={!!showDeleteConfirm}
+        onConfirm={handleDelete}
+        onCancel={() => setShowDeleteConfirm(null)}
+        title="Eliminar empresa"
+        message="¿Estás seguro de que deseas eliminar esta empresa?"
+        itemName={showDeleteConfirm?.name}
       />
     </main>
   );
