@@ -14,17 +14,28 @@ import { UsuarioForm } from "@/components/forms/UsuarioForm";
 import { useMessageModal } from "@/hooks/useMessageModal";
 import { useUsuarios, type Usuario } from "@/hooks/useUsuarios";
 import { useEmpresas, type Empresa } from "@/hooks/useEmpresas";
+import { useCRUDPage } from "@/hooks/useCRUDPage";
 
 function UsuariosContent() {
   const { data: session } = useSession();
   const searchParams = useSearchParams();
   const companyId = searchParams.get("companyId");
   
-  const [editingUser, setEditingUser] = useState<Usuario | null>(null);
-  const [showForm, setShowForm] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  // Hook para manejar estado del formulario modal
+  const {
+    editingItem: editingUser,
+    showForm,
+    isSubmitting,
+    handleNew,
+    handleEdit,
+    handleCloseForm,
+    setIsSubmitting,
+    showDeleteConfirm,
+    handleDeleteRequest,
+    handleCancelDelete
+  } = useCRUDPage<Usuario>();
+  
   const [selectedCompanyId, setSelectedCompanyId] = useState<string>(companyId || "");
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState<{ id: string; name: string } | null>(null);
   const { showSuccess, showError, hideModal, isModalOpen, modalContent } = useMessageModal();
   
   const { 
@@ -52,21 +63,6 @@ function UsuariosContent() {
     searchFields: ['name', 'email']
   });
 
-  const handleNew = () => {
-    setEditingUser(null);
-    setShowForm(true);
-  };
-
-  const handleEdit = (user: Usuario) => {
-    setEditingUser(user);
-    setShowForm(true);
-  };
-
-  const handleCancel = () => {
-    setShowForm(false);
-    setEditingUser(null);
-  };
-
   const onSubmit = async (data: {
     name: string;
     email: string;
@@ -87,8 +83,7 @@ function UsuariosContent() {
         showSuccess("Éxito", "Usuario creado correctamente");
       }
       
-      setShowForm(false);
-      setEditingUser(null);
+      handleCloseForm();
     } catch (error) {
       console.error("Error saving user:", error);
       showError("Error", error instanceof Error ? error.message : "Error al guardar usuario");
@@ -102,11 +97,11 @@ function UsuariosContent() {
     
     try {
       await deleteUsuario(showDeleteConfirm.id);
-      setShowDeleteConfirm(null);
+      handleCancelDelete();
       showSuccess("Éxito", "Usuario eliminado correctamente");
     } catch (error) {
       console.error("Error deleting user:", error);
-      setShowDeleteConfirm(null);
+      handleCancelDelete();
       showError("Error", error instanceof Error ? error.message : "Error al eliminar usuario");
     }
   };
@@ -140,7 +135,7 @@ function UsuariosContent() {
         
         <UsuarioForm
           isOpen={showForm}
-          onClose={handleCancel}
+          onClose={handleCloseForm}
           onSubmit={onSubmit}
           isSubmitting={isSubmitting}
           editingUser={editingUser}
@@ -237,7 +232,7 @@ function UsuariosContent() {
                       <td>
                         <ActionButtons
                           onEdit={() => handleEdit(user)}
-                          onDelete={() => setShowDeleteConfirm({ id: user.id, name: user.name })}
+                          onDelete={() => handleDeleteRequest(user.id, user.name)}
                           editTitle="Editar usuario"
                           deleteTitle="Eliminar usuario"
                         />
@@ -262,7 +257,7 @@ function UsuariosContent() {
       <DeleteConfirmModal
         isOpen={!!showDeleteConfirm}
         onConfirm={handleDelete}
-        onCancel={() => setShowDeleteConfirm(null)}
+        onCancel={handleCancelDelete}
         title="Eliminar usuario"
         message="¿Estás seguro de que deseas eliminar este usuario?"
         itemName={showDeleteConfirm?.name}

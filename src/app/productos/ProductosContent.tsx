@@ -12,8 +12,10 @@ import { useSearchAndPagination } from "@/hooks/useSearchAndPagination";
 import FilterableSelect from "@/components/common/FilterableSelect";
 import SimpleSelect from "@/components/common/SimpleSelect";
 import { MessageModal } from "@/components/common/MessageModal";
+import DeleteConfirmModal from "@/components/common/DeleteConfirmModal";
 import { useMessageModal } from "@/hooks/useMessageModal";
 import { ProductoForm } from "@/components/forms/ProductoForm";
+import { useCRUDPage } from "@/hooks/useCRUDPage";
 
 interface Product {
   id: string;
@@ -36,12 +38,23 @@ interface Category {
 function ProductosContent() {
   const { data: session } = useSession();
   const searchParams = useSearchParams();
+  // CRUD State Management
+  const {
+    editingItem: editingProduct,
+    showForm,
+    isSubmitting,
+    handleNew: handleNewProduct,
+    handleEdit: handleEditProduct,
+    handleCloseForm,
+    setIsSubmitting,
+    showDeleteConfirm,
+    handleDeleteRequest,
+    handleCancelDelete
+  } = useCRUDPage<Product>();
+  
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
-  const [showForm, setShowForm] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedStock, setSelectedStock] = useState("");
   
@@ -77,7 +90,6 @@ function ProductosContent() {
     itemsPerPage: 10
   });
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const loadData = async () => {
     if (!session?.user?.companyId) return;
@@ -151,7 +163,7 @@ function ProductosContent() {
 
       await loadData();
       setEditingProduct(null);
-      setShowForm(false);
+      handleCloseForm();
       showSuccess(editingProduct ? "Producto actualizado correctamente" : "Producto creado correctamente");
     } catch (error: any) {
       console.error('Error saving product:', error);
@@ -161,14 +173,11 @@ function ProductosContent() {
     }
   };
 
-  const handleEdit = (product: Product) => {
-    setEditingProduct(product);
-    setShowForm(true);
-  };
-
-  const handleDelete = async (id: string) => {
+  const handleDelete = async () => {
+    if (!showDeleteConfirm) return;
+    
     try {
-      const response = await fetch(`/api/products/${id}`, {
+      const response = await fetch(`/api/products/${showDeleteConfirm.id}`, {
         method: 'DELETE',
       });
 
@@ -178,23 +187,13 @@ function ProductosContent() {
       }
 
       await loadData();
-      setShowDeleteConfirm(null);
+      handleCancelDelete();
       showSuccess("Producto eliminado correctamente");
     } catch (error: any) {
       console.error('Error deleting product:', error);
+      handleCancelDelete();
       showError("Error al eliminar el producto", error.message);
-      setShowDeleteConfirm(null); // Cerrar el modal después del error
     }
-  };
-
-  const handleNew = () => {
-    setEditingProduct(null);
-    setShowForm(true);
-  };
-
-  const handleCancel = () => {
-    setEditingProduct(null);
-    setShowForm(false);
   };
 
   const handleStockChange = async (productId: string, newStock: 'IN_STOCK' | 'OUT_OF_STOCK') => {
@@ -289,7 +288,7 @@ function ProductosContent() {
         {/* Formulario */}
         <ProductoForm
           isOpen={showForm}
-          onClose={handleCancel}
+          onClose={handleCloseForm}
           onSubmit={onSubmit}
           isSubmitting={isSubmitting}
           editingProduct={editingProduct ? {
@@ -309,7 +308,7 @@ function ProductosContent() {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
             <h3 style={{ margin: 0 }}>Lista de Productos</h3>
             <button
-              onClick={() => setShowForm(true)}
+              onClick={handleNewProduct}
               className="primary"
             >
               <Plus className="h-4 w-4 mr-2" />
@@ -412,8 +411,8 @@ function ProductosContent() {
                     })}</td>
                     <td>
                       <ActionButtons
-                        onEdit={() => handleEdit(product)}
-                        onDelete={() => setShowDeleteConfirm(product.id)}
+                        onEdit={() => handleEditProduct(product)}
+                        onDelete={() => handleDeleteRequest(product.id, product.name)}
                         editTitle="Editar producto"
                         deleteTitle="Eliminar producto"
                       />
@@ -426,30 +425,14 @@ function ProductosContent() {
         </div>
 
         {/* Modal de confirmación de eliminación */}
-        {showDeleteConfirm && (
-          <div className="modal-overlay">
-            <div className="modal">
-              <div className="modal-content">
-                <h3>Confirmar eliminación</h3>
-                <p>¿Estás seguro de que quieres eliminar este producto? Esta acción no se puede deshacer.</p>
-                <div className="modal-actions">
-                  <button
-                    onClick={() => setShowDeleteConfirm(null)}
-                    className="secondary"
-                  >
-                    Cancelar
-                  </button>
-                  <button
-                    onClick={() => handleDelete(showDeleteConfirm)}
-                    className="danger"
-                  >
-                    Eliminar
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+        <DeleteConfirmModal
+          isOpen={!!showDeleteConfirm}
+          onConfirm={handleDelete}
+          onCancel={handleCancelDelete}
+          title="Eliminar producto"
+          message="¿Estás seguro de que deseas eliminar este producto?"
+          itemName={showDeleteConfirm?.name}
+        />
 
         {/* Modal de mensajes */}
         <MessageModal

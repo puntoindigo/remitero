@@ -11,13 +11,22 @@ import DeleteConfirmModal from "@/components/common/DeleteConfirmModal";
 import { EmpresaForm } from "@/components/forms/EmpresaForm";
 import { useMessageModal } from "@/hooks/useMessageModal";
 import { useEmpresas, type Empresa } from "@/hooks/useEmpresas";
+import { useCRUDPage } from "@/hooks/useCRUDPage";
 
 function EmpresasContent() {
   const { data: session } = useSession();
-  const [editingCompany, setEditingCompany] = useState<Empresa | null>(null);
-  const [showForm, setShowForm] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState<{ id: string; name: string } | null>(null);
+  const {
+    editingItem: editingCompany,
+    showForm,
+    isSubmitting,
+    handleNew,
+    handleEdit,
+    handleCloseForm,
+    setIsSubmitting,
+    showDeleteConfirm,
+    handleDeleteRequest,
+    handleCancelDelete
+  } = useCRUDPage<Empresa>();
   const { showSuccess, showError, hideModal, isModalOpen, modalContent } = useMessageModal();
   
   const { 
@@ -28,21 +37,6 @@ function EmpresasContent() {
     updateEmpresa, 
     deleteEmpresa 
   } = useEmpresas();
-
-  const handleNew = () => {
-    setEditingCompany(null);
-    setShowForm(true);
-  };
-
-  const handleEdit = (company: Empresa) => {
-    setEditingCompany(company);
-    setShowForm(true);
-  };
-
-  const handleCancel = () => {
-    setShowForm(false);
-    setEditingCompany(null);
-  };
 
   const onSubmit = async (data: { name: string }) => {
     try {
@@ -56,8 +50,7 @@ function EmpresasContent() {
         showSuccess("Éxito", "Empresa creada correctamente");
       }
       
-      setShowForm(false);
-      setEditingCompany(null);
+      handleCloseForm();
     } catch (error) {
       console.error("Error saving company:", error);
       showError("Error", error instanceof Error ? error.message : "Error al guardar empresa");
@@ -71,11 +64,11 @@ function EmpresasContent() {
     
     try {
       await deleteEmpresa(showDeleteConfirm.id);
-      setShowDeleteConfirm(null);
+      handleCancelDelete();
       showSuccess("Éxito", "Empresa eliminada correctamente");
     } catch (error) {
       console.error("Error deleting company:", error);
-      setShowDeleteConfirm(null);
+      handleCancelDelete();
       showError("Error", error instanceof Error ? error.message : "Error al eliminar empresa");
     }
   };
@@ -109,7 +102,7 @@ function EmpresasContent() {
         
         <EmpresaForm
           isOpen={showForm}
-          onClose={handleCancel}
+          onClose={handleCloseForm}
           onSubmit={onSubmit}
           isSubmitting={isSubmitting}
           editingEmpresa={editingCompany}
@@ -167,7 +160,7 @@ function EmpresasContent() {
                       <td>
                         <ActionButtons
                           onEdit={() => handleEdit(company)}
-                          onDelete={() => setShowDeleteConfirm({ id: company.id, name: company.name })}
+                          onDelete={() => handleDeleteRequest(company.id, company.name)}
                           editTitle="Editar empresa"
                           deleteTitle="Eliminar empresa"
                         />
@@ -192,7 +185,7 @@ function EmpresasContent() {
       <DeleteConfirmModal
         isOpen={!!showDeleteConfirm}
         onConfirm={handleDelete}
-        onCancel={() => setShowDeleteConfirm(null)}
+        onCancel={handleCancelDelete}
         title="Eliminar empresa"
         message="¿Estás seguro de que deseas eliminar esta empresa?"
         itemName={showDeleteConfirm?.name}

@@ -12,13 +12,22 @@ import DeleteConfirmModal from "@/components/common/DeleteConfirmModal";
 import { CategoriaForm } from "@/components/forms/CategoriaForm";
 import { useMessageModal } from "@/hooks/useMessageModal";
 import { useCategorias, type Categoria } from "@/hooks/useCategorias";
+import { useCRUDPage } from "@/hooks/useCRUDPage";
 
 function CategoriasContent() {
   const { data: session } = useSession();
-  const [editingCategoria, setEditingCategoria] = useState<Categoria | null>(null);
-  const [showForm, setShowForm] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState<{ id: string; name: string } | null>(null);
+  const {
+    editingItem: editingCategoria,
+    showForm,
+    isSubmitting,
+    handleNew,
+    handleEdit,
+    handleCloseForm,
+    setIsSubmitting,
+    showDeleteConfirm,
+    handleDeleteRequest,
+    handleCancelDelete
+  } = useCRUDPage<Categoria>();
   const { showSuccess, showError, hideModal, isModalOpen, modalContent } = useMessageModal();
   
   const { 
@@ -44,21 +53,6 @@ function CategoriasContent() {
     searchFields: ['name']
   });
 
-  const handleNew = () => {
-    setEditingCategoria(null);
-    setShowForm(true);
-  };
-
-  const handleEdit = (categoria: Categoria) => {
-    setEditingCategoria(categoria);
-    setShowForm(true);
-  };
-
-  const handleCancel = () => {
-    setShowForm(false);
-    setEditingCategoria(null);
-  };
-
   const onSubmit = async (data: { name: string }) => {
     try {
       setIsSubmitting(true);
@@ -71,8 +65,7 @@ function CategoriasContent() {
         showSuccess("Éxito", "Categoría creada correctamente");
       }
       
-      setShowForm(false);
-      setEditingCategoria(null);
+      handleCloseForm();
     } catch (error) {
       console.error("Error saving categoria:", error);
       showError("Error", error instanceof Error ? error.message : "Error al guardar categoría");
@@ -86,11 +79,11 @@ function CategoriasContent() {
     
     try {
       await deleteCategoria(showDeleteConfirm.id);
-      setShowDeleteConfirm(null);
+      handleCancelDelete();
       showSuccess("Éxito", "Categoría eliminada correctamente");
     } catch (error) {
       console.error("Error deleting categoria:", error);
-      setShowDeleteConfirm(null);
+      handleCancelDelete();
       showError("Error", error instanceof Error ? error.message : "Error al eliminar categoría");
     }
   };
@@ -113,7 +106,7 @@ function CategoriasContent() {
         
         <CategoriaForm
           isOpen={showForm}
-          onClose={handleCancel}
+          onClose={handleCloseForm}
           onSubmit={onSubmit}
           isSubmitting={isSubmitting}
           editingCategoria={editingCategoria}
@@ -178,7 +171,7 @@ function CategoriasContent() {
                       <td>
                         <ActionButtons
                           onEdit={() => handleEdit(categoria)}
-                          onDelete={() => setShowDeleteConfirm({ id: categoria.id, name: categoria.name })}
+                          onDelete={() => handleDeleteRequest(categoria.id, categoria.name)}
                           editTitle="Editar categoría"
                           deleteTitle="Eliminar categoría"
                         />
@@ -203,7 +196,7 @@ function CategoriasContent() {
       <DeleteConfirmModal
         isOpen={!!showDeleteConfirm}
         onConfirm={handleDelete}
-        onCancel={() => setShowDeleteConfirm(null)}
+        onCancel={handleCancelDelete}
         title="Eliminar categoría"
         message="¿Estás seguro de que deseas eliminar esta categoría?"
         itemName={showDeleteConfirm?.name}

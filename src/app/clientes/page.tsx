@@ -12,13 +12,22 @@ import DeleteConfirmModal from "@/components/common/DeleteConfirmModal";
 import { ClienteForm } from "@/components/forms/ClienteForm";
 import { useMessageModal } from "@/hooks/useMessageModal";
 import { useClientes, type Cliente } from "@/hooks/useClientes";
+import { useCRUDPage } from "@/hooks/useCRUDPage";
 
 function ClientesContent() {
   const { data: session } = useSession();
-  const [editingCliente, setEditingCliente] = useState<Cliente | null>(null);
-  const [showForm, setShowForm] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState<{ id: string; name: string } | null>(null);
+  const {
+    editingItem: editingCliente,
+    showForm,
+    isSubmitting,
+    handleNew,
+    handleEdit,
+    handleCloseForm,
+    setIsSubmitting,
+    showDeleteConfirm,
+    handleDeleteRequest,
+    handleCancelDelete
+  } = useCRUDPage<Cliente>();
   const { showSuccess, showError, hideModal, isModalOpen, modalContent } = useMessageModal();
   
   const { 
@@ -44,21 +53,6 @@ function ClientesContent() {
     searchFields: ['name', 'email', 'phone']
   });
 
-  const handleNew = () => {
-    setEditingCliente(null);
-    setShowForm(true);
-  };
-
-  const handleEdit = (cliente: Cliente) => {
-    setEditingCliente(cliente);
-    setShowForm(true);
-  };
-
-  const handleCancel = () => {
-    setShowForm(false);
-    setEditingCliente(null);
-  };
-
   const onSubmit = async (data: {
     name: string;
     email?: string;
@@ -76,8 +70,7 @@ function ClientesContent() {
         showSuccess("Éxito", "Cliente creado correctamente");
       }
       
-      setShowForm(false);
-      setEditingCliente(null);
+      handleCloseForm();
     } catch (error) {
       console.error("Error saving cliente:", error);
       showError("Error", error instanceof Error ? error.message : "Error al guardar cliente");
@@ -91,11 +84,11 @@ function ClientesContent() {
     
     try {
       await deleteCliente(showDeleteConfirm.id);
-      setShowDeleteConfirm(null);
+      handleCancelDelete();
       showSuccess("Éxito", "Cliente eliminado correctamente");
     } catch (error) {
       console.error("Error deleting cliente:", error);
-      setShowDeleteConfirm(null);
+      handleCancelDelete();
       showError("Error", error instanceof Error ? error.message : "Error al eliminar cliente");
     }
   };
@@ -116,7 +109,7 @@ function ClientesContent() {
       <div className="px-4 py-6 sm:px-0">
         <ClienteForm
           isOpen={showForm}
-          onClose={handleCancel}
+          onClose={handleCloseForm}
           onSubmit={onSubmit}
           isSubmitting={isSubmitting}
           editingCliente={editingCliente}
@@ -208,7 +201,7 @@ function ClientesContent() {
                       <td>
                         <ActionButtons
                           onEdit={() => handleEdit(cliente)}
-                          onDelete={() => setShowDeleteConfirm({ id: cliente.id, name: cliente.name })}
+                          onDelete={() => handleDeleteRequest(cliente.id, cliente.name)}
                           editTitle="Editar cliente"
                           deleteTitle="Eliminar cliente"
                         />
@@ -233,7 +226,7 @@ function ClientesContent() {
       <DeleteConfirmModal
         isOpen={!!showDeleteConfirm}
         onConfirm={handleDelete}
-        onCancel={() => setShowDeleteConfirm(null)}
+        onCancel={handleCancelDelete}
         title="Eliminar cliente"
         message="¿Estás seguro de que deseas eliminar este cliente?"
         itemName={showDeleteConfirm?.name}
