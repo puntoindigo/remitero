@@ -797,11 +797,11 @@ function RemitosContent() {
             <table>
               <thead>
                 <tr>
-                  <th>Producto</th>
-                  <th style={{ width: '100px' }}>Cantidad</th>
-                  <th style={{ width: '120px' }}>Precio Unit.</th>
-                  <th style={{ width: '120px' }}>Total</th>
-                  <th style={{ width: '80px' }}>Acciones</th>
+                  <th style={{ width: '50%' }}>Producto</th>
+                  <th style={{ width: '80px' }}>Cant.</th>
+                  <th style={{ width: '140px' }}>Precio Unit.</th>
+                  <th style={{ width: '140px' }}>Total</th>
+                  <th style={{ width: '60px' }}>Acciones</th>
                 </tr>
               </thead>
               <tbody>
@@ -809,9 +809,9 @@ function RemitosContent() {
                   <tr key={index}>
                     <td>
                       <div>
-                        <div className="font-medium">{item.product_name}</div>
+                        <div style={{ fontSize: '14px', fontWeight: 500 }}>{item.product_name}</div>
                         {item.product_desc && (
-                          <div className="text-sm text-gray-500">{item.product_desc}</div>
+                          <div style={{ fontSize: '12px', color: '#6b7280' }}>{item.product_desc}</div>
                         )}
                       </div>
                     </td>
@@ -821,11 +821,11 @@ function RemitosContent() {
                         min="1"
                         value={item.quantity}
                         onChange={(e) => handleUpdateQuantity(index, parseInt(e.target.value) || 1)}
-                        className="w-20"
+                        style={{ width: '60px', fontSize: '14px', padding: '4px 8px' }}
                       />
                     </td>
-                    <td>{(Number(item.unit_price) || 0).toLocaleString('es-AR', { style: 'currency', currency: 'ARS' })}</td>
-                    <td>{(Number(item.line_total) || 0).toLocaleString('es-AR', { style: 'currency', currency: 'ARS' })}</td>
+                    <td style={{ fontSize: '14px' }}>{(Number(item.unit_price) || 0).toLocaleString('es-AR', { style: 'currency', currency: 'ARS' })}</td>
+                    <td style={{ fontSize: '14px' }}>{(Number(item.line_total) || 0).toLocaleString('es-AR', { style: 'currency', currency: 'ARS' })}</td>
                     <td>
                       <button
                         type="button"
@@ -850,13 +850,25 @@ function RemitosContent() {
                       value={selectedProduct}
                       onChange={(value) => {
                         setSelectedProduct(value);
-                        setTimeout(() => {
-                          const quantityInput = document.querySelector('tr[style*="backgroundColor"] input[type="number"]') as HTMLInputElement;
-                          if (quantityInput) {
-                            quantityInput.focus();
-                            quantityInput.select();
+                        // Auto-agregar producto al seleccionar
+                        if (value && quantity > 0) {
+                          const product = products.find(p => p.id === value);
+                          if (product) {
+                            const unitPrice = Number(product.price);
+                            const lineTotal = Number(unitPrice * quantity);
+                            const newItem: RemitoItem = {
+                              product_id: product.id,
+                              product_name: product.name,
+                              product_desc: product.description || '',
+                              quantity: Number(quantity),
+                              unit_price: Number(unitPrice),
+                              line_total: Number(lineTotal)
+                            };
+                            setItems(prev => [...prev, newItem]);
+                            setSelectedProduct("");
+                            setQuantity(1);
                           }
-                        }, 100);
+                        }
                       }}
                       placeholder="Seleccionar producto..."
                       searchFields={["name"]}
@@ -869,27 +881,16 @@ function RemitosContent() {
                       min="1"
                       value={quantity}
                       onChange={(e) => setQuantity(parseInt(e.target.value) || 1)}
-                      disabled={!watch("clientId") || !selectedProduct}
-                      style={{ width: '80px' }}
+                      disabled={!watch("clientId")}
+                      style={{ width: '60px', fontSize: '14px', padding: '8px' }}
                     />
                   </td>
-                  <td colSpan={2}>
+                  <td colSpan={3} style={{ fontSize: '14px', color: '#6b7280' }}>
                     {selectedProduct && products.find(p => p.id === selectedProduct) && (
-                      <span className="text-sm text-gray-600">
-                        {(Number(products.find(p => p.id === selectedProduct)?.price || 0) * quantity).toLocaleString('es-AR', { style: 'currency', currency: 'ARS' })}
+                      <span>
+                        Vista previa: {(Number(products.find(p => p.id === selectedProduct)?.price || 0) * quantity).toLocaleString('es-AR', { style: 'currency', currency: 'ARS' })}
                       </span>
                     )}
-                  </td>
-                  <td>
-                    <button
-                      type="button"
-                      onClick={handleAddItem}
-                      className={`primary small ${!watch("clientId") || !selectedProduct || quantity <= 0 ? 'disabled' : ''}`}
-                      disabled={!watch("clientId") || !selectedProduct || quantity <= 0}
-                      title="Agregar producto"
-                    >
-                      <Plus className="h-4 w-4" />
-                    </button>
                   </td>
                 </tr>
               </tbody>
