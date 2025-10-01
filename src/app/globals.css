@@ -331,7 +331,7 @@ form, .form-section {
   top: 100%;
   left: 0;
   right: 0;
-  z-index: 50;
+  z-index: 9999;
   margin-top: 4px;
   background: #ffffff;
   border: 1px solid #e5e7eb;
@@ -2165,23 +2165,39 @@ form svg {
 /* Modal Remitos - Permitir overflow para dropdowns */
 .modal.form-modal.remito-modal {
   max-height: 90vh;
+  z-index: 1000;
 }
 
 .modal.form-modal.remito-modal .modal-body {
   max-height: calc(90vh - 140px);
   overflow-y: auto;
   padding-right: 8px;
+  /* Permitir que los elementos hijos se desborden */
+  overflow-x: visible;
 }
 
 .modal.form-modal.remito-modal table {
   position: relative;
+  /* No crear nuevo stacking context */
+  z-index: auto;
+}
+
+.modal.form-modal.remito-modal tbody {
+  position: relative;
+  z-index: auto;
+}
+
+.modal.form-modal.remito-modal td {
+  position: relative;
+  overflow: visible;
 }
 
 /* Aumentar z-index de los dropdowns dentro de tablas */
 table .vercel-select-container {
-  position: relative;
+  position: static;
 }
 
 table .vercel-select-dropdown {
-  z-index: 1001 !important;
+  z-index: 10001 !important;
+  position: absolute !important;
 }
