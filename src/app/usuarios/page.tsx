@@ -198,7 +198,7 @@ function UsuariosContent() {
                     <th>Rol</th>
                     <th>Empresa</th>
                     <th>Teléfono</th>
-                    <th>Fecha de Creación</th>
+                    <th>Registrado</th>
                     <th>Acciones</th>
                   </tr>
                 </thead>
@@ -228,7 +228,13 @@ function UsuariosContent() {
                         )}
                       </td>
                       <td>{user.phone || "-"}</td>
-                      <td>{formatDate(user.createdAt)}</td>
+                      <td>{new Date(user.createdAt).toLocaleString('es-AR', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}</td>
                       <td>
                         <ActionButtons
                           onEdit={() => handleEdit(user)}

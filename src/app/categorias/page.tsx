@@ -149,7 +149,7 @@ function CategoriasContent() {
                   <tr>
                     <th>Nombre</th>
                     <th>Productos</th>
-                    <th>Fecha de Creación</th>
+                    <th>Registrado</th>
                     <th>Acciones</th>
                   </tr>
                 </thead>
@@ -167,7 +167,13 @@ function CategoriasContent() {
                           {categoria.products?.length || 0} productos
                         </span>
                       </td>
-                      <td>{formatDate(categoria.createdAt)}</td>
+                      <td>{new Date(categoria.createdAt).toLocaleString('es-AR', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}</td>
                       <td>
                         <ActionButtons
                           onEdit={() => handleEdit(categoria)}
