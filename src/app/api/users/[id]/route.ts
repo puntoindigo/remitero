@@ -21,11 +21,17 @@ export async function GET(
 
     const userId = params.id;
 
-    // Solo SUPERADMIN puede ver cualquier usuario
-    if (session.user.role !== 'SUPERADMIN') {
+    // Verificar permisos de visualización
+    if (session.user.role === 'SUPERADMIN') {
+      // SUPERADMIN puede ver cualquier usuario
+    } else if (session.user.role === 'ADMIN') {
+      // ADMIN solo puede ver usuarios de su propia empresa
+      // Verificaremos esto después de obtener el usuario
+    } else {
+      // USER no puede ver otros usuarios
       return NextResponse.json({ 
         error: "No autorizado", 
-        message: "No tienes permisos para ver este usuario." 
+        message: "No tienes permisos para ver usuarios." 
       }, { status: 403 });
     }
 
@@ -56,6 +62,17 @@ export async function GET(
       }, { status: 404 });
     }
 
+    // Verificar permisos específicos para ADMIN
+    if (session.user.role === 'ADMIN') {
+      // ADMIN solo puede ver usuarios de su propia empresa
+      if (user.company_id !== session.user.companyId) {
+        return NextResponse.json({ 
+          error: "No autorizado", 
+          message: "No tienes permisos para ver usuarios de otras empresas." 
+        }, { status: 403 });
+      }
+    }
+
     return NextResponse.json(transformUser(user));
   } catch (error: any) {
     console.error('Error in users GET by ID:', error);
@@ -84,18 +101,24 @@ export async function PUT(
     const body = await request.json();
     const { name, email, password, role, address, phone, companyId } = body;
 
-    // Solo SUPERADMIN puede editar cualquier usuario
-    if (session.user.role !== 'SUPERADMIN') {
+    // Verificar permisos de edición
+    if (session.user.role === 'SUPERADMIN') {
+      // SUPERADMIN puede editar cualquier usuario
+    } else if (session.user.role === 'ADMIN') {
+      // ADMIN solo puede editar usuarios de su propia empresa
+      // Verificaremos esto después de obtener el usuario
+    } else {
+      // USER no puede editar usuarios
       return NextResponse.json({ 
         error: "No autorizado", 
-        message: "No tienes permisos para editar este usuario." 
+        message: "No tienes permisos para editar usuarios." 
       }, { status: 403 });
     }
 
-    // Verificar que el usuario existe
+    // Verificar que el usuario existe y obtener su company_id
     const { data: existingUser, error: fetchError } = await supabaseAdmin
       .from('users')
-      .select('id, email')
+      .select('id, email, company_id')
       .eq('id', userId)
       .single();
 
@@ -104,6 +127,17 @@ export async function PUT(
         error: "Usuario no encontrado",
         message: "El usuario solicitado no existe."
       }, { status: 404 });
+    }
+
+    // Verificar permisos específicos para ADMIN
+    if (session.user.role === 'ADMIN') {
+      // ADMIN solo puede editar usuarios de su propia empresa
+      if (existingUser.company_id !== session.user.companyId) {
+        return NextResponse.json({ 
+          error: "No autorizado", 
+          message: "No tienes permisos para editar usuarios de otras empresas." 
+        }, { status: 403 });
+      }
     }
 
     // Verificar que el email no esté en uso por otro usuario
@@ -198,8 +232,14 @@ export async function DELETE(
 
     const userId = params.id;
 
-    // Solo SUPERADMIN puede eliminar usuarios
-    if (session.user.role !== 'SUPERADMIN') {
+    // Verificar permisos de eliminación
+    if (session.user.role === 'SUPERADMIN') {
+      // SUPERADMIN puede eliminar cualquier usuario
+    } else if (session.user.role === 'ADMIN') {
+      // ADMIN solo puede eliminar usuarios de su propia empresa
+      // Verificaremos esto después de obtener el usuario
+    } else {
+      // USER no puede eliminar usuarios
       return NextResponse.json({ 
         error: "No autorizado", 
         message: "No tienes permisos para eliminar usuarios." 
@@ -214,10 +254,10 @@ export async function DELETE(
       }, { status: 400 });
     }
 
-    // Verificar que el usuario existe
+    // Verificar que el usuario existe y obtener su company_id
     const { data: existingUser, error: fetchError } = await supabaseAdmin
       .from('users')
-      .select('id, role')
+      .select('id, role, company_id')
       .eq('id', userId)
       .single();
 
@@ -226,6 +266,17 @@ export async function DELETE(
         error: "Usuario no encontrado",
         message: "El usuario solicitado no existe."
       }, { status: 404 });
+    }
+
+    // Verificar permisos específicos para ADMIN
+    if (session.user.role === 'ADMIN') {
+      // ADMIN solo puede eliminar usuarios de su propia empresa
+      if (existingUser.company_id !== session.user.companyId) {
+        return NextResponse.json({ 
+          error: "No autorizado", 
+          message: "No tienes permisos para eliminar usuarios de otras empresas." 
+        }, { status: 403 });
+      }
     }
 
     const { error } = await supabaseAdmin
