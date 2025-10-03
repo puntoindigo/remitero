@@ -1882,6 +1882,85 @@ form svg {
   position: relative;
 }
 
+/* Impersonation banner */
+.impersonation-banner {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border-bottom: 2px solid #f59e0b;
+  padding: 12px 0;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.impersonation-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.impersonation-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.impersonation-icon {
+  font-size: 18px;
+}
+
+.impersonation-text {
+  font-weight: 500;
+  color: #92400e;
+}
+
+.impersonation-company {
+  color: #a16207;
+  font-weight: 400;
+}
+
+.impersonation-stop-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #dc2626;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  white-space: nowrap;
+}
+
+.impersonation-stop-btn:hover:not(:disabled) {
+  background: #b91c1c;
+}
+
+.impersonation-stop-btn:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .impersonation-content {
+    flex-direction: column;
+    gap: 8px;
+    text-align: center;
+  }
+  
+  .impersonation-info {
+    justify-content: center;
+  }
+}
+
 
 .modal {
   background: white;

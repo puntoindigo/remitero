@@ -4,7 +4,7 @@ import React, { useState, Suspense } from "react";
 import { useSession } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 import { Plus, Users, Building2 } from "lucide-react";
-import ActionButtons from "@/components/common/ActionButtons";
+import UserActionButtons from "@/components/common/UserActionButtons";
 import { formatDate } from "@/lib/utils/formatters";
 import SearchAndPagination from "@/components/common/SearchAndPagination";
 import { useSearchAndPagination } from "@/hooks/useSearchAndPagination";
@@ -15,6 +15,7 @@ import { useMessageModal } from "@/hooks/useMessageModal";
 import { useUsuarios, type Usuario } from "@/hooks/useUsuarios";
 import { useEmpresas, type Empresa } from "@/hooks/useEmpresas";
 import { useCRUDPage } from "@/hooks/useCRUDPage";
+import { useImpersonation } from "@/hooks/useImpersonation";
 
 function UsuariosContent() {
   const { data: session } = useSession();
@@ -37,6 +38,7 @@ function UsuariosContent() {
   
   const [selectedCompanyId, setSelectedCompanyId] = useState<string>(companyId || "");
   const { showSuccess, showError, hideModal, isModalOpen, modalContent } = useMessageModal();
+  const { startImpersonation, canImpersonate } = useImpersonation();
   
   const { 
     usuarios, 
@@ -106,6 +108,24 @@ function UsuariosContent() {
     }
   };
 
+  const handleImpersonate = async (usuario: Usuario) => {
+    if (usuario.id === session?.user?.id) {
+      showError("Error", "No puedes impersonar tu propia cuenta");
+      return;
+    }
+    
+    if (usuario.rol === 'ADMIN') {
+      showError("Error", "No puedes impersonar a otros administradores");
+      return;
+    }
+
+    try {
+      await startImpersonation(usuario.id);
+    } catch (error) {
+      console.error('Error al impersonar:', error);
+    }
+  };
+
   // Recargar usuarios cuando cambie la empresa seleccionada
   React.useEffect(() => {
     if (session?.user?.role === "SUPERADMIN") {
@@ -146,13 +166,13 @@ function UsuariosContent() {
         <div className="form-section">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
             <h3 style={{ margin: 0 }}>Lista de Usuarios</h3>
-            {!showForm && (
+        {!showForm && (
               <button onClick={handleNew} className="primary">
-                <Plus className="h-4 w-4 mr-2" />
-                Nuevo Usuario
-              </button>
+              <Plus className="h-4 w-4 mr-2" />
+              Nuevo Usuario
+            </button>
             )}
-          </div>
+        </div>
           
           <SearchAndPagination
             searchTerm={searchTerm}
@@ -190,33 +210,33 @@ function UsuariosContent() {
             <p>No hay usuarios registrados.</p>
           ) : (
             <div className="table-container">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Nombre</th>
-                    <th>Email</th>
-                    <th>Rol</th>
-                    <th>Empresa</th>
+            <table>
+              <thead>
+                <tr>
+                  <th>Nombre</th>
+                  <th>Email</th>
+                  <th>Rol</th>
+                  <th>Empresa</th>
                     <th>Teléfono</th>
-                    <th>Registrado</th>
-                    <th>Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
+                  <th>Registrado</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
                   {filteredUsuarios.map((user) => (
-                    <tr key={user.id}>
+                  <tr key={user.id}>
                       <td>
                         <div className="flex items-center">
                           <Users className="h-4 w-4 mr-2" />
                           {user.name}
                         </div>
                       </td>
-                      <td>{user.email}</td>
-                      <td>
+                    <td>{user.email}</td>
+                    <td>
                         <span className={`badge ${user.role.toLowerCase()}`}>
-                          {user.role}
-                        </span>
-                      </td>
+                        {user.role}
+                      </span>
+                    </td>
                       <td>
                         {user.company ? (
                           <div className="flex items-center">
@@ -228,25 +248,28 @@ function UsuariosContent() {
                         )}
                       </td>
                       <td>{user.phone || "-"}</td>
-                      <td>{new Date(user.createdAt).toLocaleString('es-AR', {
-                        year: 'numeric',
-                        month: '2-digit',
-                        day: '2-digit',
-                        hour: '2-digit',
+                    <td>{new Date(user.createdAt).toLocaleString('es-AR', {
+                      year: 'numeric',
+                      month: '2-digit',
+                      day: '2-digit',
+                      hour: '2-digit',
                         minute: '2-digit'
-                      })}</td>
-                      <td>
-                        <ActionButtons
+                    })}</td>
+                    <td>
+                        <UserActionButtons
                           onEdit={() => handleEdit(user)}
                           onDelete={() => handleDeleteRequest(user.id, user.name)}
+                          onImpersonate={() => handleImpersonate(user)}
+                          canImpersonate={canImpersonate}
                           editTitle="Editar usuario"
                           deleteTitle="Eliminar usuario"
+                          impersonateTitle="Entrar como este usuario"
                         />
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
             </div>
           )}
         </div>

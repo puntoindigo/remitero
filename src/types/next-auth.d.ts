@@ -9,7 +9,21 @@ declare module "next-auth" {
       role: string
       companyId?: string
       companyName?: string
-      impersonatingUserId?: string
+      originalAdmin?: {
+        id: string
+        name: string
+        email: string
+        role: string
+        companyId?: string
+        companyName?: string
+      }
+    }
+    impersonation?: {
+      isActive: boolean
+      originalUserId?: string
+      originalUserName?: string
+      originalUserEmail?: string
+      startedAt?: string
     }
   }
 
@@ -20,7 +34,14 @@ declare module "next-auth" {
     role: string
     companyId?: string
     companyName?: string
-    impersonatingUserId?: string
+    originalAdmin?: {
+      id: string
+      name: string
+      email: string
+      role: string
+      companyId?: string
+      companyName?: string
+    }
   }
 }
 
@@ -29,6 +50,20 @@ declare module "next-auth/jwt" {
     role: string
     companyId?: string
     companyName?: string
-    impersonatingUserId?: string
+    originalAdmin?: {
+      id: string
+      name: string
+      email: string
+      role: string
+      companyId?: string
+      companyName?: string
+    }
+    impersonation?: {
+      isActive: boolean
+      originalUserId?: string
+      originalUserName?: string
+      originalUserEmail?: string
+      startedAt?: string
+    }
   }
 }
