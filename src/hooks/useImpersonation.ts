@@ -9,6 +9,8 @@ export const useImpersonation = () => {
 
   const startImpersonation = async (targetUserId: string) => {
     try {
+      console.log('🚀 Iniciando impersonation para usuario:', targetUserId);
+      console.log('🔍 Sesión actual:', session);
       setIsImpersonating(true);
 
       const response = await fetch('/api/auth/impersonate', {
@@ -19,22 +21,26 @@ export const useImpersonation = () => {
         body: JSON.stringify({ targetUserId }),
       });
 
+      console.log('📡 Response status:', response.status);
       const data = await response.json();
+      console.log('📡 Response data:', data);
 
       if (!response.ok) {
         throw new Error(data.error || 'Error al impersonar usuario');
       }
 
+      console.log('✅ Impersonation exitosa, actualizando sesión...');
       // Actualizar la sesión con los nuevos datos
       await update(data.session);
       
       showSuccess(data.message);
       
       // Recargar la página para aplicar los cambios de sesión
+      console.log('🔄 Recargando página...');
       window.location.reload();
 
     } catch (error) {
-      console.error('Error al impersonar:', error);
+      console.error('❌ Error al impersonar:', error);
       showError(error instanceof Error ? error.message : 'Error al impersonar usuario');
     } finally {
       setIsImpersonating(false);

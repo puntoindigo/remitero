@@ -109,20 +109,26 @@ function UsuariosContent() {
   };
 
   const handleImpersonate = async (usuario: Usuario) => {
+    console.log('🎭 handleImpersonate llamado para:', usuario);
+    console.log('🔍 Usuario actual:', session?.user);
+    
     if (usuario.id === session?.user?.id) {
+      console.log('❌ Intentando impersonar cuenta propia');
       showError("Error", "No puedes impersonar tu propia cuenta");
       return;
     }
     
     if (usuario.role === 'ADMIN') {
+      console.log('❌ Intentando impersonar admin');
       showError("Error", "No puedes impersonar a otros administradores");
       return;
     }
 
+    console.log('✅ Validaciones pasadas, iniciando impersonation...');
     try {
       await startImpersonation(usuario.id);
     } catch (error) {
-      console.error('Error al impersonar:', error);
+      console.error('❌ Error al impersonar:', error);
     }
   };
 
@@ -261,6 +267,8 @@ function UsuariosContent() {
                           onDelete={() => handleDeleteRequest(user.id, user.name)}
                           onImpersonate={() => handleImpersonate(user)}
                           canImpersonate={canImpersonate}
+                          isCurrentUser={user.id === session?.user?.id}
+                          isAdmin={user.role === 'ADMIN'}
                           editTitle="Editar usuario"
                           deleteTitle="Eliminar usuario"
                           impersonateTitle="Entrar como este usuario"
