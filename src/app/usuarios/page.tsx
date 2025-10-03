@@ -114,7 +114,7 @@ function UsuariosContent() {
       return;
     }
     
-    if (usuario.rol === 'ADMIN') {
+    if (usuario.role === 'ADMIN') {
       showError("Error", "No puedes impersonar a otros administradores");
       return;
     }

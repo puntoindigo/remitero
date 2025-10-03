@@ -17,7 +17,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Solo ADMIN puede impersonar
-    if (session.user.rol !== 'ADMIN') {
+    console.log('🔍 Session user role:', session.user.role, 'Type:', typeof session.user.role);
+    if (session.user.role !== 'ADMIN') {
+      console.log('❌ User role is not ADMIN:', session.user.role);
       return NextResponse.json({ error: 'Solo administradores pueden impersonar usuarios' }, { status: 403 });
     }
 
@@ -35,7 +37,7 @@ export async function POST(request: NextRequest) {
     // Obtener datos del usuario objetivo
     const { data: targetUser, error: userError } = await supabase
       .from('users')
-      .select('id, name, email, rol, company_id, companies(name)')
+      .select('id, name, email, role, company_id, companies(name)')
       .eq('id', targetUserId)
       .single();
 
@@ -49,7 +51,7 @@ export async function POST(request: NextRequest) {
         id: targetUser.id,
         name: targetUser.name,
         email: targetUser.email,
-        rol: targetUser.rol,
+        role: targetUser.role,
         companyId: targetUser.company_id,
         companyName: targetUser.companies?.name || null,
         // Guardar datos del admin original
@@ -57,7 +59,7 @@ export async function POST(request: NextRequest) {
           id: session.user.id,
           name: session.user.name,
           email: session.user.email,
-          rol: session.user.rol,
+          role: session.user.role,
           companyId: session.user.companyId,
           companyName: session.user.companyName
         }
