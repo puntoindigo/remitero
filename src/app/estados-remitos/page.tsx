@@ -18,7 +18,7 @@ function EstadosRemitosContent() {
   const currentUser = useCurrentUser();
 
   // Verificar permisos - solo ADMIN puede ver esta página
-  if (!session?.user || session.user.role !== 'ADMIN') {
+  if (!currentUser || currentUser.role !== 'ADMIN') {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
