@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, Suspense } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { useSession } from "next-auth/react";
 import { Plus, Tag } from "lucide-react";
 import ActionButtons from "@/components/common/ActionButtons";
@@ -79,8 +79,15 @@ function EstadosRemitosContent() {
     handleCancelDelete
   } = useCRUDPage<EstadoRemito>();
 
-  const [estados, setEstados] = useState<EstadoRemito[]>(ESTADOS_PREDEFINIDOS);
+  const [estados, setEstados] = useState<EstadoRemito[]>([]);
   const { showSuccess, showError, hideModal, isModalOpen, modalContent } = useMessageModal();
+
+  // Inicializar estados en useEffect
+  React.useEffect(() => {
+    if (estados.length === 0) {
+      setEstados(ESTADOS_PREDEFINIDOS);
+    }
+  }, [estados.length]);
 
   // Debug logs
   console.log('Estados iniciales:', estados);
