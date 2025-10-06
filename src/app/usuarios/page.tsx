@@ -118,9 +118,16 @@ function UsuariosContent() {
       return;
     }
     
-    if (usuario.role === 'ADMIN' || usuario.role === 'SUPERADMIN') {
-      console.log('❌ Intentando impersonar admin/superadmin');
-      showError("Error", "No puedes impersonar a otros administradores");
+    // Solo SUPERADMIN puede impersonar, y solo a usuarios USER
+    if (session?.user?.role !== 'SUPERADMIN') {
+      console.log('❌ Solo SUPERADMIN puede impersonar');
+      showError("Error", "Solo los superadministradores pueden impersonar usuarios");
+      return;
+    }
+    
+    if (usuario.role !== 'USER') {
+      console.log('❌ Solo se puede impersonar a usuarios USER');
+      showError("Error", "Solo puedes impersonar a usuarios regulares");
       return;
     }
 

@@ -42,7 +42,7 @@ export default function UserActionButtons({
       {canImpersonate && onImpersonate && (
         <button
           onClick={onImpersonate}
-          className="small secondary"
+          className={`small secondary ${(isLoading || isCurrentUser || isAdmin) ? 'disabled' : ''}`}
           title={impersonateTitle}
           disabled={isLoading || isCurrentUser || isAdmin}
         >

@@ -24,6 +24,7 @@ import RemitoActionButtons from "@/components/common/RemitoActionButtons";
 import { formatDate } from "@/lib/utils/formatters";
 import FilterableSelect from "@/components/common/FilterableSelect";
 import SimpleSelect from "@/components/common/SimpleSelect";
+import { useEstadosRemitos } from "@/hooks/useEstadosRemitos";
 import SearchAndPagination from "@/components/common/SearchAndPagination";
 import { MessageModal } from "@/components/common/MessageModal";
 import { FormModal } from "@/components/common/FormModal";
@@ -79,6 +80,7 @@ function RemitosContent() {
   const { data: session } = useSession();
   const searchParams = useSearchParams();
   const [remitos, setRemitos] = useState<Remito[]>([]);
+  const { estadosActivos } = useEstadosRemitos();
   const [clients, setClients] = useState<Client[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -969,10 +971,10 @@ function RemitosContent() {
                 <FilterableSelect
                   options={[
                     { id: "", name: "Todos los estados" },
-                    { id: "PENDIENTE", name: "🕐 Pendiente" },
-                    { id: "PREPARADO", name: "✅ Preparado" },
-                    { id: "ENTREGADO", name: "🚚 Entregado" },
-                    { id: "CANCELADO", name: "❌ Cancelado" }
+                    ...estadosActivos.map(estado => ({
+                      id: estado.id.toUpperCase(),
+                      name: `${estado.icon} ${estado.name}`
+                    }))
                   ]}
                   value={selectedStatus}
                   onChange={handleStatusFilterChange}
@@ -1010,12 +1012,11 @@ function RemitosContent() {
                         <SimpleSelect
                           value={remito.status}
                           onChange={(value) => handleStatusChange(remito.id, value as any)}
-                          options={[
-                            { id: 'PENDIENTE', name: 'Pendiente', icon: '🕐' },
-                            { id: 'PREPARADO', name: 'Preparado', icon: '✅' },
-                            { id: 'ENTREGADO', name: 'Entregado', icon: '🚚' },
-                            { id: 'CANCELADO', name: 'Cancelado', icon: '❌' }
-                          ]}
+                          options={estadosActivos.map(estado => ({
+                            id: estado.id.toUpperCase(),
+                            name: estado.name,
+                            icon: estado.icon
+                          }))}
                           className={getStatusColor(remito.status)}
                         />
                       </td>
