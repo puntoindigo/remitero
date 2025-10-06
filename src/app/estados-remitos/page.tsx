@@ -79,15 +79,8 @@ function EstadosRemitosContent() {
     handleCancelDelete
   } = useCRUDPage<EstadoRemito>();
 
-  const [estados, setEstados] = useState<EstadoRemito[]>([]);
+  const [estados, setEstados] = useState<EstadoRemito[]>(ESTADOS_PREDEFINIDOS);
   const { showSuccess, showError, hideModal, isModalOpen, modalContent } = useMessageModal();
-
-  // Inicializar estados en useEffect
-  React.useEffect(() => {
-    if (estados.length === 0) {
-      setEstados(ESTADOS_PREDEFINIDOS);
-    }
-  }, [estados.length]);
 
   // Debug logs
   console.log('Estados iniciales:', estados);
@@ -115,19 +108,33 @@ function EstadosRemitosContent() {
     itemsPerPage
   });
 
+  // Debug adicional
+  console.log('Estados después del hook:', estados);
+  console.log('filteredEstados después del hook:', filteredEstados);
+
   const handleFormSubmit = async (data: any) => {
+    console.log('🚀 handleFormSubmit llamado con data:', data);
+    console.log('🔍 editingEstado:', editingEstado);
+    console.log('📊 Estados actuales antes del submit:', estados);
+    
     try {
       setIsSubmitting(true);
 
       if (editingEstado) {
+        console.log('✏️ Actualizando estado existente');
         // Actualizar estado existente
-        setEstados(prev => prev.map(estado => 
-          estado.id === editingEstado.id 
-            ? { ...estado, ...data, updatedAt: new Date().toISOString() }
-            : estado
-        ));
+        setEstados(prev => {
+          const updated = prev.map(estado => 
+            estado.id === editingEstado.id 
+              ? { ...estado, ...data, updatedAt: new Date().toISOString() }
+              : estado
+          );
+          console.log('📝 Estados después de actualizar:', updated);
+          return updated;
+        });
         showSuccess("Éxito", "Estado actualizado correctamente");
       } else {
+        console.log('➕ Creando nuevo estado');
         // Crear nuevo estado
         const newEstado: EstadoRemito = {
           id: data.name.toLowerCase().replace(/\s+/g, '-'),
@@ -135,7 +142,12 @@ function EstadosRemitosContent() {
           isActive: true,
           createdAt: new Date().toISOString()
         };
-        setEstados(prev => [...prev, newEstado]);
+        console.log('🆕 Nuevo estado creado:', newEstado);
+        setEstados(prev => {
+          const updated = [...prev, newEstado];
+          console.log('📝 Estados después de agregar:', updated);
+          return updated;
+        });
         showSuccess("Éxito", "Estado creado correctamente");
       }
       
