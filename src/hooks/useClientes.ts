@@ -56,7 +56,7 @@ export function useClientes() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...clienteData,
-          companyId: session?.user?.companyId
+          companyId: currentUser?.companyId
         }),
       });
 

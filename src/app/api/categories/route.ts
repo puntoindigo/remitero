@@ -86,6 +86,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Verificar que el usuario tenga companyId (excepto SUPERADMIN)
+    // Durante impersonation, SUPERADMIN puede crear categorías sin companyId en la sesión
     if (session.user.role !== 'SUPERADMIN' && !session.user.companyId) {
       return NextResponse.json({ 
         error: "No autorizado", 

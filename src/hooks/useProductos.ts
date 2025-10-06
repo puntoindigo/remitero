@@ -59,7 +59,10 @@ export function useProductos() {
       const response = await fetch("/api/products", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(productoData),
+        body: JSON.stringify({
+          ...productoData,
+          companyId: currentUser?.companyId
+        }),
       });
 
       if (!response.ok) {
