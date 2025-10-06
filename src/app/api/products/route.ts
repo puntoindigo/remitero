@@ -81,9 +81,10 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  console.log('POST /api/products - Starting');
   try {
-    console.log('POST /api/products - Starting');
     const session = await getServerSession(authOptions);
+    console.log('POST /api/products - Session obtained:', !!session);
     
     if (!session?.user) {
       return NextResponse.json({ 
@@ -100,6 +101,8 @@ export async function POST(request: NextRequest) {
         message: "Usuario no asociado a una empresa." 
       }, { status: 401 });
     }
+    
+    console.log('POST /api/products - Authorization passed, role:', session.user.role);
 
     let body;
     try {
