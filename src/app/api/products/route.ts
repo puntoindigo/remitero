@@ -122,7 +122,13 @@ export async function POST(request: NextRequest) {
 
     // Determinar companyId
     let finalCompanyId = companyId;
-    if (session.user.role !== 'SUPERADMIN' && !companyId) {
+    if (!companyId) {
+      if (session.user.role === 'SUPERADMIN') {
+        return NextResponse.json({ 
+          error: "Datos faltantes", 
+          message: "companyId es requerido para crear productos." 
+        }, { status: 400 });
+      }
       finalCompanyId = session.user.companyId;
     }
 
