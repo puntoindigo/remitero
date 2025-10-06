@@ -17,10 +17,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
     }
 
-    // Solo ADMIN puede impersonar
+    // Solo ADMIN y SUPERADMIN pueden impersonar
     console.log('🔍 Session user role:', session.user.role, 'Type:', typeof session.user.role);
-    if (session.user.role !== 'ADMIN') {
-      console.log('❌ User role is not ADMIN:', session.user.role);
+    if (!['ADMIN', 'SUPERADMIN'].includes(session.user.role)) {
+      console.log('❌ User role is not ADMIN or SUPERADMIN:', session.user.role);
       return NextResponse.json({ error: 'Solo administradores pueden impersonar usuarios' }, { status: 403 });
     }
 

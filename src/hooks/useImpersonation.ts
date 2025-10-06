@@ -95,7 +95,7 @@ export const useImpersonation = () => {
   };
 
   const impersonationData = getImpersonationData();
-  const canImpersonate = session?.user?.role === 'ADMIN' && !impersonationData?.isActive;
+  const canImpersonate = ['ADMIN', 'SUPERADMIN'].includes(session?.user?.role || '') && !impersonationData?.isActive;
   const isCurrentlyImpersonating = impersonationData?.isActive;
 
   return {
