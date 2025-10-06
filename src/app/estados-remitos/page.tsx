@@ -82,6 +82,10 @@ function EstadosRemitosContent() {
   const [estados, setEstados] = useState<EstadoRemito[]>(ESTADOS_PREDEFINIDOS);
   const { showSuccess, showError, hideModal, isModalOpen, modalContent } = useMessageModal();
 
+  // Debug logs
+  console.log('Estados iniciales:', estados);
+  console.log('ESTADOS_PREDEFINIDOS:', ESTADOS_PREDEFINIDOS);
+
   // Hook para búsqueda y paginación
   const {
     searchTerm,
@@ -93,6 +97,16 @@ function EstadosRemitosContent() {
     totalPages,
     totalItems
   } = useSearchAndPagination(estados, ['name', 'description']);
+
+  // Debug logs del hook
+  console.log('Hook useSearchAndPagination devuelve:', {
+    searchTerm,
+    currentPage,
+    totalPages,
+    totalItems,
+    filteredEstados,
+    itemsPerPage
+  });
 
   const handleFormSubmit = async (data: any) => {
     try {

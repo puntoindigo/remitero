@@ -118,8 +118,8 @@ function UsuariosContent() {
       return;
     }
     
-    if (usuario.role === 'ADMIN') {
-      console.log('❌ Intentando impersonar admin');
+    if (usuario.role === 'ADMIN' || usuario.role === 'SUPERADMIN') {
+      console.log('❌ Intentando impersonar admin/superadmin');
       showError("Error", "No puedes impersonar a otros administradores");
       return;
     }
