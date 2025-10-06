@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
+import { useCurrentUser } from "./useCurrentUser";
 
 export interface Categoria {
   id: string;
@@ -16,6 +17,7 @@ export interface CategoriaFormData {
 
 export function useCategorias() {
   const { data: session } = useSession();
+  const currentUser = useCurrentUser();
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -25,7 +27,9 @@ export function useCategorias() {
       setIsLoading(true);
       setError(null);
       
-      const response = await fetch("/api/categories");
+      // Pasar companyId del usuario actual (considerando impersonation)
+      const url = currentUser?.companyId ? `/api/categories?companyId=${currentUser.companyId}` : "/api/categories";
+      const response = await fetch(url);
       if (!response.ok) {
         throw new Error("Error al cargar categorías");
       }
@@ -117,7 +121,7 @@ export function useCategorias() {
 
   useEffect(() => {
     loadCategorias();
-  }, [session]);
+  }, [currentUser?.companyId]);
 
   return {
     categorias,

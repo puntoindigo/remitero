@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
+import { useCurrentUser } from "./useCurrentUser";
 
 export interface RemitoItem {
   product_id?: string;
@@ -40,6 +41,7 @@ export interface RemitoFormData {
 
 export function useRemitos() {
   const { data: session } = useSession();
+  const currentUser = useCurrentUser();
   const [remitos, setRemitos] = useState<Remito[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -49,7 +51,9 @@ export function useRemitos() {
       setIsLoading(true);
       setError(null);
       
-      const response = await fetch("/api/remitos");
+      // Pasar companyId del usuario actual (considerando impersonation)
+      const url = currentUser?.companyId ? `/api/remitos?companyId=${currentUser.companyId}` : "/api/remitos";
+      const response = await fetch(url);
       if (!response.ok) {
         throw new Error("Error al cargar remitos");
       }
@@ -175,7 +179,7 @@ export function useRemitos() {
 
   useEffect(() => {
     loadRemitos();
-  }, [session]);
+  }, [currentUser?.companyId]);
 
   return {
     remitos,

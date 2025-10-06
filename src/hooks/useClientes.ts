@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
+import { useCurrentUser } from "./useCurrentUser";
 
 export interface Cliente {
   id: string;
@@ -21,6 +22,7 @@ export interface ClienteFormData {
 
 export function useClientes() {
   const { data: session } = useSession();
+  const currentUser = useCurrentUser();
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -30,7 +32,9 @@ export function useClientes() {
       setIsLoading(true);
       setError(null);
       
-      const response = await fetch("/api/clients");
+      // Pasar companyId del usuario actual (considerando impersonation)
+      const url = currentUser?.companyId ? `/api/clients?companyId=${currentUser.companyId}` : "/api/clients";
+      const response = await fetch(url);
       if (!response.ok) {
         throw new Error("Error al cargar clientes");
       }
@@ -122,7 +126,7 @@ export function useClientes() {
 
   useEffect(() => {
     loadClientes();
-  }, [session]);
+  }, [currentUser?.companyId]);
 
   return {
     clientes,

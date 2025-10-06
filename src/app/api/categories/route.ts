@@ -15,6 +15,10 @@ export async function GET(request: NextRequest) {
       }, { status: 401 });
     }
 
+    // Obtener companyId de los query parameters (para impersonation)
+    const { searchParams } = new URL(request.url);
+    const companyId = searchParams.get('companyId');
+
     let query = supabaseAdmin
       .from('categories')
       .select(`
@@ -33,15 +37,21 @@ export async function GET(request: NextRequest) {
       `)
       .order('created_at', { ascending: false });
 
+    // Determinar qué companyId usar
+    const effectiveCompanyId = companyId || session.user.companyId;
+
     // Solo SUPERADMIN puede ver categorías de todas las empresas
     if (session.user.role !== 'SUPERADMIN') {
-      if (!session.user.companyId) {
+      if (!effectiveCompanyId) {
         return NextResponse.json({ 
           error: "No autorizado", 
           message: "Usuario no asociado a una empresa." 
         }, { status: 401 });
       }
-      query = query.eq('company_id', session.user.companyId);
+      query = query.eq('company_id', effectiveCompanyId);
+    } else if (effectiveCompanyId) {
+      // SUPERADMIN puede filtrar por empresa específica
+      query = query.eq('company_id', effectiveCompanyId);
     }
 
     const { data: categories, error } = await query;

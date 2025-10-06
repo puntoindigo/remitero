@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
+import { useCurrentUser } from "./useCurrentUser";
 
 export interface Producto {
   id: string;
@@ -24,6 +25,7 @@ export interface ProductoFormData {
 
 export function useProductos() {
   const { data: session } = useSession();
+  const currentUser = useCurrentUser();
   const [productos, setProductos] = useState<Producto[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -33,7 +35,9 @@ export function useProductos() {
       setIsLoading(true);
       setError(null);
       
-      const response = await fetch("/api/products");
+      // Pasar companyId del usuario actual (considerando impersonation)
+      const url = currentUser?.companyId ? `/api/products?companyId=${currentUser.companyId}` : "/api/products";
+      const response = await fetch(url);
       if (!response.ok) {
         throw new Error("Error al cargar productos");
       }
@@ -146,7 +150,7 @@ export function useProductos() {
 
   useEffect(() => {
     loadProductos();
-  }, [session]);
+  }, [currentUser?.companyId]);
 
   return {
     productos,
