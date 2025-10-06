@@ -1968,6 +1968,23 @@ form svg {
   font-size: 0.8em;
 }
 
+/* Botón de logout de impersonation */
+.impersonation-logout {
+  background: #f59e0b !important;
+  border-color: #f59e0b !important;
+}
+
+.impersonation-logout:hover:not(:disabled) {
+  background: #d97706 !important;
+  border-color: #d97706 !important;
+}
+
+.impersonation-logout:disabled {
+  background: #9ca3af !important;
+  border-color: #9ca3af !important;
+  cursor: not-allowed;
+}
+
 
 .modal {
   background: white;

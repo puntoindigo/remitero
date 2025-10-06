@@ -14,10 +14,12 @@ import {
   LogOut
 } from "lucide-react";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { useImpersonation } from "@/hooks/useImpersonation";
 
 export default function Header() {
   const { data: session } = useSession();
   const currentUser = useCurrentUser();
+  const { stopImpersonation, isImpersonating } = useImpersonation();
   const pathname = usePathname();
 
   if (!session) {
@@ -39,6 +41,14 @@ export default function Header() {
 
   const handleLogout = async () => {
     await signOut({ callbackUrl: "/auth/login" });
+  };
+
+  const handleStopImpersonation = async () => {
+    try {
+      await stopImpersonation();
+    } catch (error) {
+      console.error('Error al detener impersonation:', error);
+    }
   };
 
   const NavLink = ({ href, children, roles }: { 
@@ -106,10 +116,23 @@ export default function Header() {
             <span className="impersonation-indicator"> [IMPERSONANDO]</span>
           )}
         </span>
-        <button onClick={handleLogout} className="logout-button">
-          <LogOut className="h-4 w-4" />
-          Salir
-        </button>
+        
+        {currentUser.isImpersonating ? (
+          <button 
+            onClick={handleStopImpersonation} 
+            className="logout-button impersonation-logout"
+            disabled={isImpersonating}
+            title="Volver a mi cuenta de administrador"
+          >
+            <LogOut className="h-4 w-4" />
+            Volver a Admin
+          </button>
+        ) : (
+          <button onClick={handleLogout} className="logout-button">
+            <LogOut className="h-4 w-4" />
+            Salir
+          </button>
+        )}
       </div>
     </header>
   );
