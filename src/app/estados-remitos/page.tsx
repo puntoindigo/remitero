@@ -174,17 +174,17 @@ function EstadosRemitosContent() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-6">
+    <div className="estados-remitos-container">
+      <div className="estados-remitos-header">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Estados de Remitos</h1>
-          <p className="text-gray-600 mt-2">
+          <h1 className="estados-remitos-title">Estados de Remitos</h1>
+          <p className="estados-remitos-subtitle">
             Gestiona los estados disponibles para los remitos de tu empresa
           </p>
         </div>
         <button
           onClick={handleNew}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2"
+          className="estados-remitos-new-btn"
         >
           <Plus className="w-5 h-5" />
           Nuevo Estado
@@ -192,94 +192,86 @@ function EstadosRemitosContent() {
       </div>
 
       {/* Búsqueda y paginación */}
-      <SearchAndPagination
-        searchTerm={searchTerm}
-        onSearchChange={handleSearchChange}
-        currentPage={currentPage}
-        totalPages={totalPages}
-        totalItems={totalItems}
-        itemsPerPage={itemsPerPage}
-        onPageChange={handlePageChange}
-        placeholder="Buscar estados..."
-      />
+      <div className="estados-remitos-search">
+        <SearchAndPagination
+          searchTerm={searchTerm}
+          onSearchChange={handleSearchChange}
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalItems={totalItems}
+          itemsPerPage={itemsPerPage}
+          onPageChange={handlePageChange}
+          placeholder="Buscar estados..."
+        />
+      </div>
 
       {/* Tabla de estados */}
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+      <div className="estados-remitos-table-container">
+        <table className="estados-remitos-table">
+          <thead>
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Estado
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Descripción
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Color
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Activo
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Predefinido
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Acciones
-              </th>
+              <th>Estado</th>
+              <th>Descripción</th>
+              <th>Color</th>
+              <th>Activo</th>
+              <th>Predefinido</th>
+              <th>Acciones</th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody>
             {paginatedData.map((estado) => (
-              <tr key={estado.id} className="hover:bg-gray-50">
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="flex items-center">
-                    <span className="text-2xl mr-3">{estado.icon}</span>
+              <tr key={estado.id}>
+                <td>
+                  <div className="estado-cell">
+                    <span className="estado-icon">{estado.icon}</span>
                     <div>
-                      <div className="text-sm font-medium text-gray-900">
-                        {estado.name}
-                      </div>
+                      <div className="estado-name">{estado.name}</div>
                     </div>
                   </div>
                 </td>
-                <td className="px-6 py-4">
-                  <div className="text-sm text-gray-900">
+                <td>
+                  <div className="estado-description">
                     {estado.description || '-'}
                   </div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="flex items-center">
+                <td>
+                  <div className="color-preview">
                     <div 
-                      className="w-6 h-6 rounded-full border border-gray-300 mr-2"
+                      className="color-square"
                       style={{ backgroundColor: estado.color }}
                     ></div>
-                    <span className="text-sm text-gray-600">{estado.color}</span>
+                    <span className="color-code">{estado.color}</span>
                   </div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                    estado.is_active 
-                      ? 'bg-green-100 text-green-800' 
-                      : 'bg-red-100 text-red-800'
-                  }`}>
+                <td>
+                  <span className={`status-badge ${estado.is_active ? 'active' : 'inactive'}`}>
                     {estado.is_active ? 'Activo' : 'Inactivo'}
                   </span>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                    estado.is_default 
-                      ? 'bg-blue-100 text-blue-800' 
-                      : 'bg-gray-100 text-gray-800'
-                  }`}>
+                <td>
+                  <span className={`status-badge ${estado.is_default ? 'default' : 'custom'}`}>
                     {estado.is_default ? 'Sí' : 'No'}
                   </span>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  <ActionButtons
-                    onEdit={() => handleEdit(estado)}
-                    onDelete={() => handleDeleteRequest(estado.id)}
-                    canEdit={!estado.is_default} // No permitir editar estados predefinidos
-                    canDelete={!estado.is_default} // No permitir eliminar estados predefinidos
-                  />
+                <td>
+                  <div className="estados-remitos-actions">
+                    <button
+                      onClick={() => handleEdit(estado)}
+                      disabled={estado.is_default}
+                      className="edit"
+                      title="Editar estado"
+                    >
+                      <Edit className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => handleDeleteRequest(estado.id)}
+                      disabled={estado.is_default}
+                      className="delete"
+                      title="Eliminar estado"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
@@ -287,10 +279,10 @@ function EstadosRemitosContent() {
         </table>
 
         {paginatedData.length === 0 && (
-          <div className="text-center py-12">
-            <Tag className="mx-auto h-12 w-12 text-gray-400" />
-            <h3 className="mt-2 text-sm font-medium text-gray-900">No hay estados</h3>
-            <p className="mt-1 text-sm text-gray-500">
+          <div className="estados-remitos-empty">
+            <Tag className="mx-auto h-12 w-12" />
+            <h3>No hay estados</h3>
+            <p>
               {searchTerm ? 'No se encontraron estados que coincidan con la búsqueda.' : 'Comienza creando un nuevo estado de remito.'}
             </p>
           </div>
@@ -299,96 +291,81 @@ function EstadosRemitosContent() {
 
       {/* Modal de formulario */}
       {showForm && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-            <div className="mt-3">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">
-                {editingEstado ? 'Editar Estado' : 'Nuevo Estado'}
-              </h3>
+        <div className="estados-modal">
+          <div className="estados-modal-content">
+            <h3 className="estados-modal-title">
+              {editingEstado ? 'Editar Estado' : 'Nuevo Estado'}
+            </h3>
               
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Nombre *
-                  </label>
+            <form onSubmit={handleSubmit}>
+              <div className="estados-form-group">
+                <label>Nombre *</label>
+                <input
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  required
+                />
+              </div>
+
+              <div className="estados-form-group">
+                <label>Descripción</label>
+                <textarea
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  rows={3}
+                />
+              </div>
+
+              <div className="estados-form-row">
+                <div className="estados-form-group">
+                  <label>Color</label>
+                  <input
+                    type="color"
+                    value={formData.color}
+                    onChange={(e) => setFormData({ ...formData, color: e.target.value })}
+                  />
+                </div>
+
+                <div className="estados-form-group">
+                  <label>Icono</label>
                   <input
                     type="text"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                    required
+                    value={formData.icon}
+                    onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
+                    placeholder="📋"
                   />
                 </div>
+              </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Descripción
-                  </label>
-                  <textarea
-                    value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                    rows={3}
+              <div className="estados-form-group">
+                <div className="estados-form-checkbox">
+                  <input
+                    type="checkbox"
+                    checked={formData.is_active}
+                    onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
                   />
+                  <label>Estado activo</label>
                 </div>
+              </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">
-                      Color
-                    </label>
-                    <input
-                      type="color"
-                      value={formData.color}
-                      onChange={(e) => setFormData({ ...formData, color: e.target.value })}
-                      className="mt-1 block w-full h-10 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">
-                      Icono
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.icon}
-                      onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
-                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                      placeholder="📋"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="flex items-center">
-                    <input
-                      type="checkbox"
-                      checked={formData.is_active}
-                      onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
-                      className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                    />
-                    <span className="ml-2 text-sm text-gray-700">Estado activo</span>
-                  </label>
-                </div>
-
-                <div className="flex justify-end space-x-3 pt-4">
-                  <button
-                    type="button"
-                    onClick={handleCloseForm}
-                    className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
-                  >
-                    Cancelar
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="px-4 py-2 bg-blue-600 border border-transparent rounded-md text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
-                  >
-                    {isSubmitting ? 'Guardando...' : (editingEstado ? 'Actualizar' : 'Crear')}
-                  </button>
-                </div>
-              </form>
-            </div>
+              <div className="estados-modal-actions">
+                <button
+                  type="button"
+                  onClick={handleCloseForm}
+                  className="cancel"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="submit"
+                >
+                  {isSubmitting ? 'Guardando...' : (editingEstado ? 'Actualizar' : 'Crear')}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

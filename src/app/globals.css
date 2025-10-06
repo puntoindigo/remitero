@@ -2373,3 +2373,412 @@ form svg {
 .modal.form-modal.remito-modal .form-section > * {
   overflow: visible !important;
 }
+
+/* Estados de Remitos Page Styles */
+.estados-remitos-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  background: #f8f9fa;
+  min-height: calc(100vh - 60px);
+}
+
+.estados-remitos-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding: 20px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.estados-remitos-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0;
+}
+
+.estados-remitos-subtitle {
+  color: #6b7280;
+  margin-top: 4px;
+  font-size: 14px;
+}
+
+.estados-remitos-new-btn {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.2s;
+}
+
+.estados-remitos-new-btn:hover {
+  background: #2563eb;
+}
+
+.estados-remitos-search {
+  margin-bottom: 20px;
+  padding: 20px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.estados-remitos-search input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: border-color 0.2s;
+}
+
+.estados-remitos-search input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.estados-remitos-table-container {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.estados-remitos-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.estados-remitos-table th {
+  background: #f9fafb;
+  padding: 16px;
+  text-align: left;
+  font-weight: 600;
+  color: #374151;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 14px;
+}
+
+.estados-remitos-table td {
+  padding: 16px;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 14px;
+}
+
+.estados-remitos-table tbody tr:hover {
+  background: #f9fafb;
+}
+
+.estados-remitos-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.estado-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.estado-icon {
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+}
+
+.estado-name {
+  font-weight: 500;
+  color: #1f2937;
+}
+
+.estado-description {
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.color-preview {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.color-square {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  border: 1px solid #d1d5db;
+}
+
+.color-code {
+  font-family: monospace;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.status-badge.active {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.status-badge.inactive {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.status-badge.default {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.status-badge.custom {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.estados-remitos-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.estados-remitos-actions button {
+  padding: 8px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.estados-remitos-actions button.edit {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.estados-remitos-actions button.edit:hover {
+  background: #bfdbfe;
+}
+
+.estados-remitos-actions button.delete {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.estados-remitos-actions button.delete:hover {
+  background: #fecaca;
+}
+
+.estados-remitos-actions button:disabled {
+  background: #f3f4f6;
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.estados-remitos-empty {
+  text-align: center;
+  padding: 48px 20px;
+  color: #6b7280;
+}
+
+.estados-remitos-empty svg {
+  margin: 0 auto 16px;
+  color: #d1d5db;
+}
+
+.estados-remitos-empty h3 {
+  font-size: 18px;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 8px;
+}
+
+.estados-remitos-empty p {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+/* Modal de formulario de estados */
+.estados-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.estados-modal-content {
+  background: white;
+  border-radius: 8px;
+  padding: 24px;
+  width: 100%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.estados-modal-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 20px;
+}
+
+.estados-form-group {
+  margin-bottom: 20px;
+}
+
+.estados-form-group label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 6px;
+}
+
+.estados-form-group input,
+.estados-form-group textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: border-color 0.2s;
+}
+
+.estados-form-group input:focus,
+.estados-form-group textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.estados-form-group textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.estados-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.estados-form-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.estados-form-checkbox input[type="checkbox"] {
+  width: auto;
+  margin: 0;
+}
+
+.estados-form-checkbox label {
+  margin: 0;
+  font-size: 14px;
+  color: #374151;
+}
+
+.estados-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.estados-modal-actions button {
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.estados-modal-actions button.cancel {
+  background: white;
+  color: #374151;
+  border: 1px solid #d1d5db;
+}
+
+.estados-modal-actions button.cancel:hover {
+  background: #f9fafb;
+}
+
+.estados-modal-actions button.submit {
+  background: #3b82f6;
+  color: white;
+  border: none;
+}
+
+.estados-modal-actions button.submit:hover {
+  background: #2563eb;
+}
+
+.estados-modal-actions button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .estados-remitos-container {
+    padding: 16px;
+  }
+  
+  .estados-remitos-header {
+    flex-direction: column;
+    gap: 16px;
+    align-items: stretch;
+  }
+  
+  .estados-remitos-table-container {
+    overflow-x: auto;
+  }
+  
+  .estados-remitos-table {
+    min-width: 600px;
+  }
+  
+  .estados-form-row {
+    grid-template-columns: 1fr;
+  }
+  
+  .estados-modal {
+    padding: 16px;
+  }
+}
