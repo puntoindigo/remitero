@@ -204,6 +204,7 @@ function RemitosContent() {
       const remitoData = {
         clientId: data.clientId,
         notes: data.notes || '',
+        companyId: currentUser?.companyId, // Incluir companyId para impersonation
         items: items.map(item => ({
           product_id: item.product_id,
           product_name: item.product_name,
@@ -478,7 +479,7 @@ function RemitosContent() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!session?.user?.companyId) return;
+    if (!currentUser?.companyId) return;
 
     try {
       const response = await fetch(`/api/remitos/${id}`, {
@@ -499,7 +500,7 @@ function RemitosContent() {
   };
 
   const handleStatusChange = async (id: string, status: "PENDIENTE" | "PREPARADO" | "ENTREGADO" | "CANCELADO") => {
-    if (!session?.user?.companyId || !session?.user?.id) return;
+    if (!currentUser?.companyId || !currentUser?.id) return;
 
     try {
       const response = await fetch(`/api/remitos/${id}/status`, {
