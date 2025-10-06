@@ -25,6 +25,7 @@ import { formatDate } from "@/lib/utils/formatters";
 import FilterableSelect from "@/components/common/FilterableSelect";
 import SimpleSelect from "@/components/common/SimpleSelect";
 import { useEstadosRemitos } from "@/hooks/useEstadosRemitos";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 import SearchAndPagination from "@/components/common/SearchAndPagination";
 import { MessageModal } from "@/components/common/MessageModal";
 import { FormModal } from "@/components/common/FormModal";
@@ -78,6 +79,7 @@ interface Product {
 
 function RemitosContent() {
   const { data: session } = useSession();
+  const currentUser = useCurrentUser();
   const searchParams = useSearchParams();
   const [remitos, setRemitos] = useState<Remito[]>([]);
   const { estadosActivos } = useEstadosRemitos();
@@ -116,13 +118,21 @@ function RemitosContent() {
   });
 
   const loadData = async () => {
-    if (!session?.user?.companyId) return;
+    if (!currentUser?.companyId) return;
     
     try {
+      // Pasar companyId del usuario actual (considerando impersonation)
+      const remitosUrl = currentUser?.companyId ? `/api/remitos?companyId=${currentUser.companyId}` : "/api/remitos";
+      const clientsUrl = currentUser?.companyId ? `/api/clients?companyId=${currentUser.companyId}` : "/api/clients";
+      const productsUrl = currentUser?.companyId ? `/api/products?companyId=${currentUser.companyId}` : "/api/products";
+      
+      console.log('🔍 RemitosContent - currentUser:', currentUser);
+      console.log('🔍 RemitosContent - URLs:', { remitosUrl, clientsUrl, productsUrl });
+      
       const [remitosResponse, clientsResponse, productsResponse] = await Promise.all([
-        fetch('/api/remitos'),
-        fetch('/api/clients'),
-        fetch('/api/products')
+        fetch(remitosUrl),
+        fetch(clientsUrl),
+        fetch(productsUrl)
       ]);
 
       if (!remitosResponse.ok || !clientsResponse.ok || !productsResponse.ok) {
@@ -159,7 +169,7 @@ function RemitosContent() {
 
   useEffect(() => {
     loadData();
-  }, [session?.user?.companyId]);
+  }, [currentUser?.companyId]);
 
   // Detectar parámetro ?new=true para abrir formulario automáticamente
   useEffect(() => {

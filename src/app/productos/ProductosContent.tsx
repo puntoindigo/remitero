@@ -16,6 +16,7 @@ import DeleteConfirmModal from "@/components/common/DeleteConfirmModal";
 import { useMessageModal } from "@/hooks/useMessageModal";
 import { ProductoForm } from "@/components/forms/ProductoForm";
 import { useCRUDPage } from "@/hooks/useCRUDPage";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 interface Product {
   id: string;
@@ -37,6 +38,7 @@ interface Category {
 
 function ProductosContent() {
   const { data: session } = useSession();
+  const currentUser = useCurrentUser();
   const searchParams = useSearchParams();
   // CRUD State Management
   const {
@@ -98,13 +100,20 @@ function ProductosContent() {
 
 
   const loadData = async () => {
-    if (!session?.user?.companyId) return;
+    if (!currentUser?.companyId) return;
 
     try {
       setIsLoading(true);
+      // Pasar companyId del usuario actual (considerando impersonation)
+      const productsUrl = currentUser?.companyId ? `/api/products?companyId=${currentUser.companyId}` : "/api/products";
+      const categoriesUrl = currentUser?.companyId ? `/api/categories?companyId=${currentUser.companyId}` : "/api/categories";
+      
+      console.log('🔍 ProductosContent - currentUser:', currentUser);
+      console.log('🔍 ProductosContent - URLs:', { productsUrl, categoriesUrl });
+      
       const [productsRes, categoriesRes] = await Promise.all([
-        fetch('/api/products'),
-        fetch('/api/categories')
+        fetch(productsUrl),
+        fetch(categoriesUrl)
       ]);
 
       if (!productsRes.ok || !categoriesRes.ok) {
@@ -125,7 +134,7 @@ function ProductosContent() {
 
   useEffect(() => {
     loadData();
-  }, [session?.user?.companyId]);
+  }, [currentUser?.companyId]);
 
   // Detectar parámetro ?new=true para abrir formulario automáticamente
   useEffect(() => {
