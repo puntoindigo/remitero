@@ -9,8 +9,6 @@ export const useImpersonation = () => {
 
   const startImpersonation = async (targetUserId: string) => {
     try {
-      console.log('🚀 Iniciando impersonation para usuario:', targetUserId);
-      console.log('🔍 Sesión actual:', session);
       setIsImpersonating(true);
 
       const response = await fetch('/api/auth/impersonate', {
@@ -21,17 +19,12 @@ export const useImpersonation = () => {
         body: JSON.stringify({ targetUserId }),
       });
 
-      console.log('📡 Response status:', response.status);
       const data = await response.json();
-      console.log('📡 Response data:', data);
 
       if (!response.ok) {
         throw new Error(data.error || 'Error al impersonar usuario');
       }
 
-      console.log('✅ Impersonation exitosa, guardando en localStorage...');
-      console.log('🔍 data.session.user:', data.session.user);
-      
       // Guardar datos de impersonation en localStorage
       const impersonationData = {
         isActive: true,
@@ -39,13 +32,11 @@ export const useImpersonation = () => {
         originalAdmin: data.session.user.originalAdmin,
         startedAt: data.session.impersonation.startedAt
       };
-      console.log('🔍 impersonationData a guardar:', impersonationData);
       localStorage.setItem('impersonation', JSON.stringify(impersonationData));
       
       showSuccess(data.message);
       
       // Redirigir al dashboard después de impersonation
-      console.log('🔄 Redirigiendo al dashboard...');
       window.location.href = '/dashboard';
 
     } catch (error) {
@@ -58,7 +49,6 @@ export const useImpersonation = () => {
 
   const stopImpersonation = async () => {
     try {
-      console.log('🛑 Deteniendo impersonation...');
       setIsImpersonating(true);
 
       // Llamar al endpoint para detener impersonation en el servidor
@@ -70,7 +60,6 @@ export const useImpersonation = () => {
       });
 
       if (!response.ok) {
-        console.warn('⚠️ Error al detener impersonation en servidor:', response.status);
       }
 
       // Remover datos de impersonation del localStorage
@@ -79,7 +68,6 @@ export const useImpersonation = () => {
       showSuccess('Volviste a tu cuenta de administrador');
       
       // Redirigir al dashboard después de detener impersonation
-      console.log('🔄 Redirigiendo al dashboard...');
       window.location.href = '/dashboard';
 
     } catch (error) {
@@ -95,8 +83,6 @@ export const useImpersonation = () => {
     if (typeof window === 'undefined') return null;
     const data = localStorage.getItem('impersonation');
     const parsed = data ? JSON.parse(data) : null;
-    console.log('🔍 getImpersonationData - raw data:', data);
-    console.log('🔍 getImpersonationData - parsed:', parsed);
     return parsed;
   };
 

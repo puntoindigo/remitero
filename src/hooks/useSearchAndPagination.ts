@@ -19,24 +19,13 @@ export function useSearchAndPagination<T>({
   // Asegurar que data sea siempre un array
   const safeData = Array.isArray(data) ? data : [];
 
-  // Debug logs
-  console.log('🔍 useSearchAndPagination - data recibido:', data);
-  console.log('🔍 useSearchAndPagination - safeData:', safeData);
-  console.log('🔍 useSearchAndPagination - searchTerm:', searchTerm);
-  console.log('🔍 useSearchAndPagination - searchFields:', searchFields);
 
   // Filtrar datos basado en el término de búsqueda
   const filteredData = useMemo(() => {
-    console.log('🔍 useSearchAndPagination - filteredData useMemo ejecutándose');
-    console.log('🔍 useSearchAndPagination - safeData en useMemo:', safeData);
-    console.log('🔍 useSearchAndPagination - safeData.length:', safeData.length);
-    
     if (!Array.isArray(safeData) || safeData.length === 0) {
-      console.log('🔍 useSearchAndPagination - retornando array vacío por safeData');
       return [];
     }
     if (!searchTerm.trim()) {
-      console.log('🔍 useSearchAndPagination - retornando safeData completo');
       return safeData;
     }
 

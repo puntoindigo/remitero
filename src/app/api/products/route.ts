@@ -19,8 +19,6 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const companyId = searchParams.get('companyId');
     
-    console.log('🔍 /api/products - session.user:', session.user);
-    console.log('🔍 /api/products - companyId param:', companyId);
 
     let query = supabaseAdmin
       .from('products')
@@ -104,6 +102,13 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
     const { name, description, price, stock, categoryId, companyId } = body;
+    
+    console.error('🚨 POST /api/products - Error 400 Debug:', {
+      sessionUser: session.user,
+      body,
+      companyId,
+      sessionCompanyId: session.user.companyId
+    });
 
     // Validaciones básicas
     if (!name || !price) {

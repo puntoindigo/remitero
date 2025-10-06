@@ -110,8 +110,6 @@ function ProductosContent() {
       const productsUrl = currentUser?.companyId ? `/api/products?companyId=${currentUser.companyId}` : "/api/products";
       const categoriesUrl = currentUser?.companyId ? `/api/categories?companyId=${currentUser.companyId}` : "/api/categories";
       
-      console.log('🔍 ProductosContent - currentUser:', currentUser);
-      console.log('🔍 ProductosContent - URLs:', { productsUrl, categoriesUrl });
       
       const [productsRes, categoriesRes] = await Promise.all([
         fetch(productsUrl),
