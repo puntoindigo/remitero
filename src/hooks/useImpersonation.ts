@@ -58,14 +58,26 @@ export const useImpersonation = () => {
       console.log('🛑 Deteniendo impersonation...');
       setIsImpersonating(true);
 
+      // Llamar al endpoint para detener impersonation en el servidor
+      const response = await fetch('/api/auth/stop-impersonation', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        console.warn('⚠️ Error al detener impersonation en servidor:', response.status);
+      }
+
       // Remover datos de impersonation del localStorage
       localStorage.removeItem('impersonation');
       
       showSuccess('Volviste a tu cuenta de administrador');
       
-      // Recargar la página para aplicar los cambios
-      console.log('🔄 Recargando página...');
-      window.location.reload();
+      // Redirigir al dashboard después de detener impersonation
+      console.log('🔄 Redirigiendo al dashboard...');
+      window.location.href = '/dashboard';
 
     } catch (error) {
       console.error('❌ Error al detener impersonation:', error);
