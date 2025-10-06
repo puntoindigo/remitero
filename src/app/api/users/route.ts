@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
 import { transformUsers, transformUser } from "@/lib/utils/supabase-transform";
 import bcrypt from "bcryptjs";
+import { logger } from "@/lib/logger";
 
 export async function GET(request: NextRequest) {
   try {
@@ -195,6 +196,19 @@ export async function POST(request: NextRequest) {
       company_id: newUser.company_id,
       role: newUser.role
     });
+
+    // Log de creación de usuario
+    logger.logCreate(
+      {
+        id: session.user.id,
+        email: session.user.email,
+        name: session.user.name,
+        role: session.user.role
+      },
+      'Usuario',
+      newUser.id,
+      `Usuario: ${newUser.name} (${newUser.email}) - Rol: ${newUser.role}`
+    );
 
     return NextResponse.json(transformUser(newUser), { status: 201 });
   } catch (error: any) {

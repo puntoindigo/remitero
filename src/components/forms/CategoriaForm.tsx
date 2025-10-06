@@ -63,7 +63,7 @@ export function CategoriaForm({
       onClose={onClose}
       title={editingCategoria ? "Editar Categoría" : "Nueva Categoría"}
       onSubmit={handleSubmit(handleFormSubmit)}
-      submitText={editingCategoria ? "Actualizar" : "Crear"}
+      submitText={editingCategoria ? "Actualizar" : "Guardar"}
       isSubmitting={isSubmitting}
     >
       <div className="form-group">

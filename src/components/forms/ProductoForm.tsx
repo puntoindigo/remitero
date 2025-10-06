@@ -84,7 +84,7 @@ export function ProductoForm({
       title={editingProduct ? "Editar Producto" : "Nuevo Producto"}
       onSubmit={handleSubmit(handleFormSubmit)}
       isSubmitting={isSubmitting}
-      submitText={editingProduct ? "Actualizar" : "Crear"}
+      submitText={editingProduct ? "Actualizar" : "Guardar"}
     >
       <div className="form-row">
         <div className="form-group">

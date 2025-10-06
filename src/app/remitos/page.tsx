@@ -767,7 +767,7 @@ function RemitosContent() {
             console.log('Validation errors:', errors);
             showError("Error de validación", "Por favor complete todos los campos requeridos");
           })}
-          submitText={editingRemito ? "Actualizar" : "Crear"}
+          submitText={editingRemito ? "Actualizar" : "Guardar"}
           isSubmitting={isSubmitting}
           modalClassName="remito-modal"
         >

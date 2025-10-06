@@ -11,7 +11,8 @@ import {
   Tag, 
   Users, 
   Building2,
-  LogOut
+  LogOut,
+  FileText
 } from "lucide-react";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useImpersonation } from "@/hooks/useImpersonation";
@@ -48,6 +49,27 @@ export default function Header() {
       await stopImpersonation();
     } catch (error) {
       console.error('Error al detener impersonation:', error);
+    }
+  };
+
+  const handleDownloadLogs = async () => {
+    try {
+      const response = await fetch('/api/admin/logs');
+      if (response.ok) {
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `user-actions-${new Date().toISOString().split('T')[0]}.log`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+      } else {
+        console.error('Error al descargar logs');
+      }
+    } catch (error) {
+      console.error('Error al descargar logs:', error);
     }
   };
 
@@ -107,6 +129,18 @@ export default function Header() {
           <Building2 className="h-4 w-4" />
           Empresas
         </NavLink>
+        
+        {/* Enlace para descargar logs - solo SUPERADMIN */}
+        {currentUser.role === 'SUPERADMIN' && (
+          <button
+            onClick={handleDownloadLogs}
+            className="nav-link"
+            title="Descargar logs de actividad"
+          >
+            <FileText className="h-4 w-4" />
+            Logs
+          </button>
+        )}
       </nav>
       
       <div className="header-right">

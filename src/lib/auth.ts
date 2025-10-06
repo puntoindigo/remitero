@@ -2,6 +2,7 @@ import { NextAuthOptions } from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
 import bcrypt from "bcryptjs"
 import { supabaseAdmin } from "./supabase"
+import { logger } from "./logger"
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -45,6 +46,14 @@ export const authOptions: NextAuthOptions = {
           }
 
           console.log("✅ Autenticación exitosa para:", credentials.email)
+
+          // Log del login exitoso
+          logger.logLogin({
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            role: user.role
+          });
 
           return {
             id: user.id,

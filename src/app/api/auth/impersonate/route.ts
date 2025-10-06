@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { createClient } from '@supabase/supabase-js';
+import { logger } from '@/lib/logger';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -75,8 +76,23 @@ export async function POST(request: NextRequest) {
 
     console.log('🔍 Impersonation session creada:', JSON.stringify(impersonationSession, null, 2));
 
-    // Registrar en audit log (opcional, si tienes tabla de auditoría)
+    // Registrar en audit log
     console.log(`[IMPERSONATION] Admin ${session.user.name} (${session.user.email}) impersonando a ${targetUser.name} (${targetUser.email})`);
+    
+    // Log de impersonation
+    logger.logImpersonation(
+      {
+        id: session.user.id,
+        email: session.user.email,
+        name: session.user.name,
+        role: session.user.role
+      },
+      {
+        id: targetUser.id,
+        email: targetUser.email,
+        name: targetUser.name
+      }
+    );
 
     return NextResponse.json({ 
       success: true, 

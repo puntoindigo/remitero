@@ -17,7 +17,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="es">
       <body>
         <AuthSessionProvider>
-          <EnvironmentBannerWrapper />
+          {/* <EnvironmentBannerWrapper /> */}
           <Header />
           <div className="container">
             <Providers>{children}</Providers>

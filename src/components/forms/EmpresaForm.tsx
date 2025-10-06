@@ -63,7 +63,7 @@ export function EmpresaForm({
       onClose={onClose}
       title={editingEmpresa ? "Editar Empresa" : "Nueva Empresa"}
       onSubmit={handleSubmit(handleFormSubmit)}
-      submitText={editingEmpresa ? "Actualizar" : "Crear"}
+      submitText={editingEmpresa ? "Actualizar" : "Guardar"}
       isSubmitting={isSubmitting}
     >
       <div className="form-group">

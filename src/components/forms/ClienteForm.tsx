@@ -87,7 +87,7 @@ export function ClienteForm({
       onClose={onClose}
       title={editingCliente ? "Editar Cliente" : "Nuevo Cliente"}
       onSubmit={handleSubmit(handleFormSubmit)}
-      submitText={editingCliente ? "Actualizar" : "Crear"}
+      submitText={editingCliente ? "Actualizar" : "Guardar"}
       isSubmitting={isSubmitting}
     >
       <div className="form-row">

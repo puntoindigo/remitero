@@ -106,7 +106,7 @@ export function UsuarioForm({
       onClose={onClose}
       title={editingUser ? "Editar Usuario" : "Nuevo Usuario"}
       onSubmit={handleSubmit(handleFormSubmit)}
-      submitText={editingUser ? "Actualizar" : "Crear"}
+      submitText={editingUser ? "Actualizar" : "Guardar"}
       isSubmitting={isSubmitting}
     >
       <div className="form-row">
