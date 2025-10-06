@@ -140,10 +140,9 @@ function ProductosContent() {
   useEffect(() => {
     const newParam = searchParams?.get('new');
     if (newParam === 'true') {
-      setShowForm(true);
-      setEditingProduct(null);
+      handleNewProduct();
     }
-  }, [searchParams]);
+  }, [searchParams, handleNewProduct]);
 
   // Leer parámetro de categoría de la URL
   useEffect(() => {

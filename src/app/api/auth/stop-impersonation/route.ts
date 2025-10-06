@@ -10,32 +10,19 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
     }
 
-    // Verificar que hay una impersonation activa
-    if (!session.impersonation?.isActive) {
-      return NextResponse.json({ error: 'No hay impersonation activa' }, { status: 400 });
-    }
-
-    // Restaurar sesión original del admin
-    const originalSession = {
-      user: {
-        id: session.user.originalAdmin?.id,
-        name: session.user.originalAdmin?.name,
-        email: session.user.originalAdmin?.email,
-        rol: session.user.originalAdmin?.rol,
-        companyId: session.user.originalAdmin?.companyId,
-        companyName: session.user.originalAdmin?.companyName
-      },
-      impersonation: {
-        isActive: false
-      }
-    };
-
-    console.log(`[IMPERSONATION] Admin ${session.user.originalAdmin?.name} detuvo impersonation de ${session.user.name}`);
+    // Como usamos localStorage para impersonation, simplemente confirmamos que el admin puede detener
+    // La lógica real de detener impersonation se maneja en el frontend
+    console.log(`[IMPERSONATION] Admin ${session.user.name} solicitó detener impersonation`);
 
     return NextResponse.json({ 
       success: true, 
-      message: `Volviste a tu cuenta como ${session.user.originalAdmin?.name}`,
-      session: originalSession
+      message: `Impersonation detenida correctamente`,
+      session: {
+        user: session.user,
+        impersonation: {
+          isActive: false
+        }
+      }
     });
 
   } catch (error) {

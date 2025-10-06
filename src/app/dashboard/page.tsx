@@ -39,10 +39,10 @@ export default function DashboardPage() {
       
       try {
         const [remitosRes, productosRes, clientesRes, categoriasRes] = await Promise.all([
-          fetch('/api/remitos'),
-          fetch('/api/products'),
-          fetch('/api/clients'),
-          fetch('/api/categories')
+          fetch(`/api/remitos?companyId=${currentUser.companyId}`),
+          fetch(`/api/products?companyId=${currentUser.companyId}`),
+          fetch(`/api/clients?companyId=${currentUser.companyId}`),
+          fetch(`/api/categories?companyId=${currentUser.companyId}`)
         ])
 
         const [remitos, productos, clientes, categorias] = await Promise.all([
