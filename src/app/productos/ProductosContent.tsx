@@ -162,7 +162,7 @@ function ProductosContent() {
   }, [searchParams]);
 
   const onSubmit = async (data: ProductForm) => {
-    if (!session?.user?.companyId) return;
+    if (!currentUser?.companyId) return;
 
     setIsSubmitting(true);
     try {

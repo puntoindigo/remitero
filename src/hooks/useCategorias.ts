@@ -77,7 +77,7 @@ export function useCategorias() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
           name,
-          companyId: session?.user?.companyId
+          companyId: currentUser?.companyId
         }),
       });
 

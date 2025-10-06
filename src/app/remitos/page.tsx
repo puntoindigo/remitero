@@ -199,7 +199,7 @@ function RemitosContent() {
       console.log('session:', session?.user);
     }
     
-    if (!session?.user?.companyId || !session?.user?.id) {
+    if (!currentUser?.companyId || !currentUser?.id) {
       console.log('Missing session data');
       return;
     }
