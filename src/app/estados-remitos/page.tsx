@@ -65,18 +65,6 @@ const ESTADOS_PREDEFINIDOS: EstadoRemito[] = [
 function EstadosRemitosContent() {
   const { data: session } = useSession();
 
-  // Verificar permisos - solo SUPERADMIN puede acceder
-  if (!session?.user || session.user.role !== 'SUPERADMIN') {
-    return (
-      <main className="main-content">
-        <div className="form-section">
-          <h2>Acceso Denegado</h2>
-          <p>Solo los superadministradores pueden acceder a esta sección.</p>
-        </div>
-      </main>
-    );
-  }
-
   // Hook para manejar estado del formulario modal
   const {
     editingItem: editingEstado,
@@ -151,6 +139,18 @@ function EstadosRemitosContent() {
       showError("Error", error instanceof Error ? error.message : "Error al eliminar estado");
     }
   };
+
+  // Verificar permisos - solo SUPERADMIN puede acceder
+  if (!session?.user || session.user.role !== 'SUPERADMIN') {
+    return (
+      <main className="main-content">
+        <div className="form-section">
+          <h2>Acceso Denegado</h2>
+          <p>Solo los superadministradores pueden acceder a esta sección.</p>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="main-content">
