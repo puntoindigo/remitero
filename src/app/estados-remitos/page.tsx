@@ -96,7 +96,10 @@ function EstadosRemitosContent() {
     paginatedData: filteredEstados,
     totalPages,
     totalItems
-  } = useSearchAndPagination(estados, ['name', 'description']);
+  } = useSearchAndPagination({
+    data: estados,
+    searchFields: ['name', 'description']
+  });
 
   // Debug logs del hook
   console.log('Hook useSearchAndPagination devuelve:', {
