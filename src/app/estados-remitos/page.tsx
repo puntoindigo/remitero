@@ -89,8 +89,9 @@ function EstadosRemitosContent() {
     currentPage,
     setCurrentPage,
     itemsPerPage,
-    filteredItems: filteredEstados,
-    totalPages
+    paginatedData: filteredEstados,
+    totalPages,
+    totalItems
   } = useSearchAndPagination(estados, ['name', 'description']);
 
   const handleFormSubmit = async (data: any) => {
@@ -173,7 +174,7 @@ function EstadosRemitosContent() {
           currentPage={currentPage}
           totalPages={totalPages}
           onPageChange={setCurrentPage}
-          totalItems={filteredEstados.length}
+          totalItems={totalItems}
           itemsPerPage={itemsPerPage}
           placeholder="Buscar estados..."
         >
