@@ -73,6 +73,8 @@ export async function POST(request: NextRequest) {
       }
     };
 
+    console.log('🔍 Impersonation session creada:', JSON.stringify(impersonationSession, null, 2));
+
     // Registrar en audit log (opcional, si tienes tabla de auditoría)
     console.log(`[IMPERSONATION] Admin ${session.user.name} (${session.user.email}) impersonando a ${targetUser.name} (${targetUser.email})`);
 

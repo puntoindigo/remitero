@@ -1961,6 +1961,13 @@ form svg {
   }
 }
 
+/* Indicador de impersonation en header */
+.impersonation-indicator {
+  color: #f59e0b;
+  font-weight: bold;
+  font-size: 0.8em;
+}
+
 
 .modal {
   background: white;

@@ -13,9 +13,11 @@ import {
   Building2,
   LogOut
 } from "lucide-react";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 export default function Header() {
   const { data: session } = useSession();
+  const currentUser = useCurrentUser();
   const pathname = usePathname();
 
   if (!session) {
@@ -45,7 +47,7 @@ export default function Header() {
     roles?: string[] 
   }) => {
     const isActive = pathname === href;
-    const isAllowed = !roles || roles.includes(session.user.role);
+    const isAllowed = !roles || roles.includes(currentUser.role);
     
     if (!isAllowed) return null;
 
@@ -62,7 +64,7 @@ export default function Header() {
   return (
     <header className="header">
       <div className="header-left">
-        <h1>{session.user.companyName || 'Sistema de Remitos'}</h1>
+        <h1>{currentUser.companyName || 'Sistema de Remitos'}</h1>
         <span className="company-name">Sistema de Remitos</span>
       </div>
       
@@ -99,7 +101,10 @@ export default function Header() {
       
       <div className="header-right">
         <span className="user-info">
-          {session.user.name} ({session.user.role})
+          {currentUser.name} ({currentUser.role})
+          {currentUser.isImpersonating && (
+            <span className="impersonation-indicator"> [IMPERSONANDO]</span>
+          )}
         </span>
         <button onClick={handleLogout} className="logout-button">
           <LogOut className="h-4 w-4" />

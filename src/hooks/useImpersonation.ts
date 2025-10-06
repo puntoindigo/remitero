@@ -29,13 +29,19 @@ export const useImpersonation = () => {
         throw new Error(data.error || 'Error al impersonar usuario');
       }
 
-      console.log('✅ Impersonation exitosa, actualizando sesión...');
-      // Actualizar la sesión con los nuevos datos
-      await update(data.session);
+      console.log('✅ Impersonation exitosa, guardando en localStorage...');
+      
+      // Guardar datos de impersonation en localStorage
+      localStorage.setItem('impersonation', JSON.stringify({
+        isActive: true,
+        targetUser: data.session.user,
+        originalAdmin: data.session.user.originalAdmin,
+        startedAt: data.session.impersonation.startedAt
+      }));
       
       showSuccess(data.message);
       
-      // Recargar la página para aplicar los cambios de sesión
+      // Recargar la página para aplicar los cambios
       console.log('🔄 Recargando página...');
       window.location.reload();
 
@@ -49,39 +55,36 @@ export const useImpersonation = () => {
 
   const stopImpersonation = async () => {
     try {
+      console.log('🛑 Deteniendo impersonation...');
       setIsImpersonating(true);
 
-      const response = await fetch('/api/auth/stop-impersonation', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Error al detener impersonation');
-      }
-
-      // Actualizar la sesión con los datos originales
-      await update(data.session);
+      // Remover datos de impersonation del localStorage
+      localStorage.removeItem('impersonation');
       
-      showSuccess(data.message);
+      showSuccess('Volviste a tu cuenta de administrador');
       
-      // Recargar la página para aplicar los cambios de sesión
+      // Recargar la página para aplicar los cambios
+      console.log('🔄 Recargando página...');
       window.location.reload();
 
     } catch (error) {
-      console.error('Error al detener impersonation:', error);
+      console.error('❌ Error al detener impersonation:', error);
       showError(error instanceof Error ? error.message : 'Error al detener impersonation');
     } finally {
       setIsImpersonating(false);
     }
   };
 
-  const canImpersonate = session?.user?.role === 'ADMIN' && !session?.impersonation?.isActive;
-  const isCurrentlyImpersonating = session?.impersonation?.isActive;
+  // Obtener datos de impersonation del localStorage
+  const getImpersonationData = () => {
+    if (typeof window === 'undefined') return null;
+    const data = localStorage.getItem('impersonation');
+    return data ? JSON.parse(data) : null;
+  };
+
+  const impersonationData = getImpersonationData();
+  const canImpersonate = session?.user?.role === 'ADMIN' && !impersonationData?.isActive;
+  const isCurrentlyImpersonating = impersonationData?.isActive;
 
   return {
     startImpersonation,
@@ -89,7 +92,8 @@ export const useImpersonation = () => {
     isImpersonating,
     canImpersonate,
     isCurrentlyImpersonating,
-    impersonationData: session?.impersonation,
-    originalAdmin: session?.user?.originalAdmin
+    impersonationData,
+    originalAdmin: impersonationData?.originalAdmin,
+    targetUser: impersonationData?.targetUser
   };
 };

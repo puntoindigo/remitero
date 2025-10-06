@@ -6,11 +6,10 @@ import { useImpersonation } from "@/hooks/useImpersonation";
 import { ArrowLeft } from "lucide-react";
 
 export default function ImpersonationBanner() {
-  const { data: session } = useSession();
-  const { stopImpersonation, isImpersonating } = useImpersonation();
+  const { stopImpersonation, isImpersonating, isCurrentlyImpersonating, targetUser, originalAdmin } = useImpersonation();
 
   // Solo mostrar si hay impersonation activa
-  if (!session?.impersonation?.isActive) {
+  if (!isCurrentlyImpersonating) {
     return null;
   }
 
@@ -28,9 +27,9 @@ export default function ImpersonationBanner() {
         <div className="impersonation-info">
           <span className="impersonation-icon">⚠️</span>
           <span className="impersonation-text">
-            Entrando como: <strong>{session.user.name}</strong>
-            {session.user.companyName && (
-              <span className="impersonation-company"> ({session.user.companyName})</span>
+            Entrando como: <strong>{targetUser?.name}</strong>
+            {targetUser?.companyName && (
+              <span className="impersonation-company"> ({targetUser.companyName})</span>
             )}
           </span>
         </div>
@@ -41,7 +40,7 @@ export default function ImpersonationBanner() {
           disabled={isImpersonating}
         >
           <ArrowLeft className="h-4 w-4" />
-          Volver a {session.user.originalAdmin?.name}
+          Volver a {originalAdmin?.name}
         </button>
       </div>
     </div>
