@@ -135,7 +135,7 @@ export function ProductoForm({
         <div className="form-group">
           <label>Estado de stock</label>
           <select {...register("stock")}>
-            <option value="IN_STOCK">En stock</option>
+            <option value="IN_STOCK">Con stock</option>
             <option value="OUT_OF_STOCK">Sin stock</option>
           </select>
         </div>

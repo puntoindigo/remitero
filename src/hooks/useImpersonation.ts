@@ -41,9 +41,9 @@ export const useImpersonation = () => {
       
       showSuccess(data.message);
       
-      // Recargar la página para aplicar los cambios
-      console.log('🔄 Recargando página...');
-      window.location.reload();
+      // Redirigir al dashboard después de impersonation
+      console.log('🔄 Redirigiendo al dashboard...');
+      window.location.href = '/dashboard';
 
     } catch (error) {
       console.error('❌ Error al impersonar:', error);

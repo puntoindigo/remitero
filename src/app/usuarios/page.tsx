@@ -21,6 +21,18 @@ function UsuariosContent() {
   const { data: session } = useSession();
   const searchParams = useSearchParams();
   const companyId = searchParams.get("companyId");
+
+  // Verificar permisos - solo ADMIN y SUPERADMIN pueden acceder
+  if (!session?.user || !['ADMIN', 'SUPERADMIN'].includes(session.user.role)) {
+    return (
+      <main className="main-content">
+        <div className="form-section">
+          <h2>Acceso Denegado</h2>
+          <p>No tienes permisos para acceder a esta sección.</p>
+        </div>
+      </main>
+    );
+  }
   
   // Hook para manejar estado del formulario modal
   const {

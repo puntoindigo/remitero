@@ -116,6 +116,13 @@ export default function DashboardPage() {
     }
   };
 
+  const getNewText = (title: string) => {
+    switch (title) {
+      case "Categorías": return "Nueva";
+      default: return "Nuevo";
+    }
+  };
+
   const cards = [
     {
       title: "Remitos",
@@ -216,7 +223,7 @@ export default function DashboardPage() {
                   </Link>
                   <Link href={getNewLink(card.title)} className="dashboard-new-button">
                     <Plus className="h-4 w-4 mr-2" />
-                    Nuevo {getSingularName(card.title)}
+                    {getNewText(card.title)} {getSingularName(card.title)}
                   </Link>
                 </div>
               </div>

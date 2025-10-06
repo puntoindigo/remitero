@@ -343,8 +343,8 @@ function ProductosContent() {
               <FilterableSelect
                 options={[
                   { id: "", name: "Todos los estados" },
-                  { id: "IN_STOCK", name: "✅ Con Stock" },
-                  { id: "OUT_OF_STOCK", name: "❌ Sin Stock" }
+                  { id: "IN_STOCK", name: "✅ Con stock" },
+                  { id: "OUT_OF_STOCK", name: "❌ Sin stock" }
                 ]}
                 value={selectedStock}
                 onChange={setSelectedStock}
@@ -397,7 +397,7 @@ function ProductosContent() {
                         value={getStockFromProduct(product)}
                         onChange={(value) => handleStockChange(product.id, value as 'IN_STOCK' | 'OUT_OF_STOCK')}
                         options={[
-                          { id: 'IN_STOCK', name: 'Hay stock', icon: '✅' },
+                          { id: 'IN_STOCK', name: 'Con stock', icon: '✅' },
                           { id: 'OUT_OF_STOCK', name: 'Sin stock', icon: '❌' }
                         ]}
                         className={getStockColor(getStockFromProduct(product))}
