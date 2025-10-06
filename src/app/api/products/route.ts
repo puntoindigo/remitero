@@ -82,6 +82,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    console.log('POST /api/products - Starting');
     const session = await getServerSession(authOptions);
     
     if (!session?.user) {
@@ -100,7 +101,17 @@ export async function POST(request: NextRequest) {
       }, { status: 401 });
     }
 
-    const body = await request.json();
+    let body;
+    try {
+      body = await request.json();
+    } catch (error) {
+      console.error('Error parsing request body:', error);
+      return NextResponse.json({ 
+        error: "Error de datos", 
+        message: "Error al procesar los datos del formulario." 
+      }, { status: 400 });
+    }
+    
     const { name, description, price, stock, categoryId, companyId } = body;
 
     // Validaciones básicas
