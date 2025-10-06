@@ -103,11 +103,13 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { name, description, price, stock, categoryId, companyId } = body;
     
-    console.error('🚨 POST /api/products - Error 400 Debug:', {
-      sessionUser: session.user,
-      body,
-      companyId,
-      sessionCompanyId: session.user.companyId
+    // Debug log para investigar error
+    console.log('POST /api/products - Debug:', {
+      sessionRole: session.user.role,
+      sessionCompanyId: session.user.companyId,
+      bodyCompanyId: companyId,
+      name: name,
+      price: price
     });
 
     // Validaciones básicas
