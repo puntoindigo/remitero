@@ -466,6 +466,20 @@ button.small {
   font-size: 10px;
 }
 
+button.disabled,
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: #9ca3af !important;
+  color: #6b7280 !important;
+}
+
+button.disabled:hover,
+button:disabled:hover {
+  background: #9ca3af !important;
+  color: #6b7280 !important;
+}
+
 /* Link button styling */
 .btn-link {
   display: inline-flex;

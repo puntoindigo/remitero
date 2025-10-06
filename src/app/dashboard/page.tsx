@@ -4,6 +4,7 @@ import { useSession } from "next-auth/react"
 import { useState, useEffect } from "react"
 import { FileText, Package, Users, Building2, Tag, ShoppingBag, Plus, Eye } from "lucide-react"
 import Link from "next/link"
+import { useCurrentUser } from "@/hooks/useCurrentUser"
 
 interface DashboardStats {
   remitos: {
@@ -23,6 +24,7 @@ interface DashboardStats {
 
 export default function DashboardPage() {
   const { data: session } = useSession()
+  const currentUser = useCurrentUser()
   const [stats, setStats] = useState<DashboardStats>({
     remitos: { total: 0, pendientes: 0, preparados: 0, entregados: 0 },
     productos: { total: 0, conStock: 0, sinStock: 0 },
@@ -33,7 +35,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     const loadStats = async () => {
-      if (!session?.user?.companyId) return
+      if (!currentUser?.companyId) return
       
       try {
         const [remitosRes, productosRes, clientesRes, categoriasRes] = await Promise.all([
@@ -93,7 +95,7 @@ export default function DashboardPage() {
     }
 
     loadStats()
-  }, [session?.user?.companyId])
+  }, [currentUser?.companyId])
 
   // Funciones helper para generar enlaces y nombres
   const getNewLink = (title: string) => {
@@ -187,7 +189,7 @@ export default function DashboardPage() {
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
           <p className="mt-2 text-gray-600">
-            Bienvenido, {session?.user?.name}
+            Bienvenido, {currentUser?.name}
           </p>
         </div>
 
