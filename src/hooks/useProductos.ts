@@ -56,7 +56,7 @@ export function useProductos() {
 
   const createProducto = async (productoData: ProductoFormData) => {
     try {
-      const response = await fetch("/api/products", {
+      const response = await fetch("/api/test-products", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
