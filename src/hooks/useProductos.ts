@@ -37,6 +37,8 @@ export function useProductos() {
       
       // Pasar companyId del usuario actual (considerando impersonation)
       const url = currentUser?.companyId ? `/api/products?companyId=${currentUser.companyId}` : "/api/products";
+      console.log('🔍 useProductos - currentUser:', currentUser);
+      console.log('🔍 useProductos - URL:', url);
       const response = await fetch(url);
       if (!response.ok) {
         throw new Error("Error al cargar productos");

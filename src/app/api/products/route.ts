@@ -18,6 +18,9 @@ export async function GET(request: NextRequest) {
     // Obtener companyId de los query parameters (para impersonation)
     const { searchParams } = new URL(request.url);
     const companyId = searchParams.get('companyId');
+    
+    console.log('🔍 /api/products - session.user:', session.user);
+    console.log('🔍 /api/products - companyId param:', companyId);
 
     let query = supabaseAdmin
       .from('products')
@@ -56,6 +59,10 @@ export async function GET(request: NextRequest) {
     }
 
     const { data: products, error } = await query;
+    
+    console.log('🔍 /api/products - effectiveCompanyId:', effectiveCompanyId);
+    console.log('🔍 /api/products - products count:', products?.length || 0);
+    console.log('🔍 /api/products - error:', error);
 
     if (error) {
       console.error('Error fetching products:', error);
