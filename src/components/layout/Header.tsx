@@ -130,7 +130,7 @@ export default function Header() {
           Empresas
         </NavLink>
         
-        <NavLink href="/estados-remitos" roles={['ADMIN', 'USER']}>
+        <NavLink href="/estados-remitos" roles={['ADMIN']}>
           <Tag className="h-4 w-4" />
           Estados
         </NavLink>

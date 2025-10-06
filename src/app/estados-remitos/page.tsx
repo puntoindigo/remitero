@@ -17,8 +17,8 @@ function EstadosRemitosContent() {
   const { data: session } = useSession();
   const currentUser = useCurrentUser();
 
-  // Verificar permisos - solo ADMIN y USER pueden ver esta página
-  if (session?.user?.role === 'SUPERADMIN') {
+  // Verificar permisos - solo ADMIN puede ver esta página
+  if (!session?.user || session.user.role !== 'ADMIN') {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
@@ -26,7 +26,7 @@ function EstadosRemitosContent() {
             Acceso Restringido
           </h2>
           <p className="text-red-600">
-            Los SUPERADMIN solo pueden gestionar empresas y usuarios.
+            Solo los administradores de empresa pueden gestionar estados de remitos.
           </p>
         </div>
       </div>

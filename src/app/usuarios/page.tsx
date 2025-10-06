@@ -118,16 +118,16 @@ function UsuariosContent() {
       return;
     }
     
-    // Solo SUPERADMIN puede impersonar, y solo a usuarios USER
+    // Solo SUPERADMIN puede impersonar, y solo a usuarios USER y ADMIN
     if (session?.user?.role !== 'SUPERADMIN') {
       console.log('❌ Solo SUPERADMIN puede impersonar');
       showError("Error", "Solo los superadministradores pueden impersonar usuarios");
       return;
     }
     
-    if (usuario.role !== 'USER') {
-      console.log('❌ Solo se puede impersonar a usuarios USER');
-      showError("Error", "Solo puedes impersonar a usuarios regulares");
+    if (usuario.role !== 'USER' && usuario.role !== 'ADMIN') {
+      console.log('❌ Solo se puede impersonar a usuarios USER y ADMIN');
+      showError("Error", "Solo puedes impersonar a usuarios regulares y administradores");
       return;
     }
 
@@ -288,6 +288,7 @@ function UsuariosContent() {
                           canImpersonate={canImpersonate}
                           isCurrentUser={user.id === session?.user?.id}
                           isAdmin={user.role === 'ADMIN'}
+                          isSuperAdmin={user.role === 'SUPERADMIN'}
                           editTitle="Editar usuario"
                           deleteTitle="Eliminar usuario"
                           impersonateTitle="Entrar como este usuario"

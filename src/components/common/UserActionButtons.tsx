@@ -11,6 +11,7 @@ interface UserActionButtonsProps {
   canImpersonate?: boolean;
   isCurrentUser?: boolean;
   isAdmin?: boolean;
+  isSuperAdmin?: boolean;
   editTitle?: string;
   deleteTitle?: string;
   impersonateTitle?: string;
@@ -24,6 +25,7 @@ export default function UserActionButtons({
   canImpersonate = false,
   isCurrentUser = false,
   isAdmin = false,
+  isSuperAdmin = false,
   editTitle = "Editar",
   deleteTitle = "Eliminar",
   impersonateTitle = "Entrar como este usuario"
@@ -42,9 +44,9 @@ export default function UserActionButtons({
       {canImpersonate && onImpersonate && (
         <button
           onClick={onImpersonate}
-          className={`small secondary ${(isLoading || isCurrentUser || isAdmin) ? 'disabled' : ''}`}
+          className={`small secondary ${(isLoading || isCurrentUser || isSuperAdmin) ? 'disabled' : ''}`}
           title={impersonateTitle}
-          disabled={isLoading || isCurrentUser || isAdmin}
+          disabled={isLoading || isCurrentUser || isSuperAdmin}
         >
           <UserCheck className="h-4 w-4" />
         </button>
