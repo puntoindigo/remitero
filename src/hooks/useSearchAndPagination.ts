@@ -16,13 +16,16 @@ export function useSearchAndPagination<T>({
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
 
+  // Asegurar que data sea siempre un array
+  const safeData = Array.isArray(data) ? data : [];
+
   // Filtrar datos basado en el término de búsqueda
   const filteredData = useMemo(() => {
-    if (!Array.isArray(data) || data.length === 0) return [];
-    if (!searchTerm.trim()) return data;
+    if (!Array.isArray(safeData) || safeData.length === 0) return [];
+    if (!searchTerm.trim()) return safeData;
 
     const term = searchTerm.toLowerCase();
-    return data.filter((item) =>
+    return safeData.filter((item) =>
       searchFields.some((field) => {
         const value = item[field];
         if (typeof value === "string") {
@@ -37,7 +40,7 @@ export function useSearchAndPagination<T>({
         return false;
       })
     );
-  }, [data, searchTerm, searchFields]);
+  }, [safeData, searchTerm, searchFields]);
 
   // Calcular paginación
   const totalItems = filteredData.length;
