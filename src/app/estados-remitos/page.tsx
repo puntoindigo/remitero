@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, Suspense } from "react";
 import { useSession } from "next-auth/react";
-import { Plus, Tag } from "lucide-react";
+import { Plus, Tag, Edit, Trash2 } from "lucide-react";
 import ActionButtons from "@/components/common/ActionButtons";
 import SearchAndPagination from "@/components/common/SearchAndPagination";
 import { useSearchAndPagination } from "@/hooks/useSearchAndPagination";
@@ -10,400 +10,408 @@ import { MessageModal } from "@/components/common/MessageModal";
 import DeleteConfirmModal from "@/components/common/DeleteConfirmModal";
 import { useMessageModal } from "@/hooks/useMessageModal";
 import { useCRUDPage } from "@/hooks/useCRUDPage";
-
-// Tipos para estados de remitos
-interface EstadoRemito {
-  id: string;
-  name: string;
-  description?: string;
-  color: string;
-  icon: string;
-  isActive: boolean;
-  createdAt: string;
-}
-
-// Estados predefinidos
-const ESTADOS_PREDEFINIDOS: EstadoRemito[] = [
-  {
-    id: 'pendiente',
-    name: 'Pendiente',
-    description: 'Remito creado, esperando procesamiento',
-    color: '#f59e0b',
-    icon: '⏰',
-    isActive: true,
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 'preparado',
-    name: 'Preparado',
-    description: 'Remito preparado para entrega',
-    color: '#10b981',
-    icon: '✅',
-    isActive: true,
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 'entregado',
-    name: 'Entregado',
-    description: 'Remito entregado al cliente',
-    color: '#3b82f6',
-    icon: '🚚',
-    isActive: true,
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 'cancelado',
-    name: 'Cancelado',
-    description: 'Remito cancelado',
-    color: '#ef4444',
-    icon: '❌',
-    isActive: true,
-    createdAt: new Date().toISOString()
-  }
-];
+import { useEstadosRemitos, EstadoRemito, EstadoRemitoFormData } from "@/hooks/useEstadosRemitos";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 function EstadosRemitosContent() {
   const { data: session } = useSession();
+  const currentUser = useCurrentUser();
+
+  // Verificar permisos - solo ADMIN y USER pueden ver esta página
+  if (session?.user?.role === 'SUPERADMIN') {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
+          <h2 className="text-xl font-semibold text-red-800 mb-2">
+            Acceso Restringido
+          </h2>
+          <p className="text-red-600">
+            Los SUPERADMIN solo pueden gestionar empresas y usuarios.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   // Hook para manejar estado del formulario modal
   const {
     editingItem: editingEstado,
     showForm,
     isSubmitting,
-    handleNew,
-    handleEdit,
+    handleNew: handleNewEstado,
+    handleEdit: handleEditEstado,
     handleCloseForm,
     setIsSubmitting,
     showDeleteConfirm,
     handleDeleteRequest,
-    handleCancelDelete
+    handleCancelDelete,
+    setEditingItem: setEditingEstado
   } = useCRUDPage<EstadoRemito>();
 
-  const [estados, setEstados] = useState<EstadoRemito[]>(ESTADOS_PREDEFINIDOS);
-  const { showSuccess, showError, hideModal, isModalOpen, modalContent } = useMessageModal();
+  // Hook para manejar modales de mensajes
+  const { modalState, showSuccess, showError, closeModal } = useMessageModal();
 
-  // Debug logs
-  console.log('Estados iniciales:', estados);
-  console.log('ESTADOS_PREDEFINIDOS:', ESTADOS_PREDEFINIDOS);
+  // Hook para manejar estados de remitos
+  const {
+    estados,
+    isLoading: estadosLoading,
+    error: estadosError,
+    createEstado,
+    updateEstado,
+    deleteEstado,
+    loadEstados
+  } = useEstadosRemitos();
 
   // Hook para búsqueda y paginación
   const {
     searchTerm,
-    setSearchTerm,
-    currentPage,
-    setCurrentPage,
-    itemsPerPage,
-    paginatedData: filteredEstados,
-    totalPages,
-    totalItems
-  } = useSearchAndPagination({
-    data: estados,
-    searchFields: ['name', 'description']
-  });
-
-  // Debug logs del hook
-  console.log('Hook useSearchAndPagination devuelve:', {
-    searchTerm,
     currentPage,
     totalPages,
     totalItems,
-    filteredEstados,
-    itemsPerPage
+    itemsPerPage,
+    paginatedData,
+    handleSearchChange,
+    handlePageChange
+  } = useSearchAndPagination({
+    data: estados,
+    searchFields: ['name', 'description'],
+    itemsPerPage: 10
   });
 
-  // Debug adicional
-  console.log('Estados después del hook:', estados);
-  console.log('filteredEstados después del hook:', filteredEstados);
+  // Formulario para crear/editar estados
+  const [formData, setFormData] = useState<EstadoRemitoFormData>({
+    name: '',
+    description: '',
+    color: '#6b7280',
+    icon: '📋',
+    is_active: true,
+    sort_order: 0
+  });
 
-  const handleFormSubmit = async (data: any) => {
-    console.log('🚀 handleFormSubmit llamado con data:', data);
-    console.log('🔍 editingEstado:', editingEstado);
-    console.log('📊 Estados actuales antes del submit:', estados);
+  // Manejar envío del formulario
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     
-    try {
-      setIsSubmitting(true);
+    if (!formData.name.trim()) {
+      showError("Error de validación", "El nombre del estado es requerido");
+      return;
+    }
 
+    setIsSubmitting(true);
+    try {
       if (editingEstado) {
-        console.log('✏️ Actualizando estado existente');
-        // Actualizar estado existente
-        setEstados(prev => {
-          const updated = prev.map(estado => 
-            estado.id === editingEstado.id 
-              ? { ...estado, ...data, updatedAt: new Date().toISOString() }
-              : estado
-          );
-          console.log('📝 Estados después de actualizar:', updated);
-          return updated;
-        });
-        showSuccess("Éxito", "Estado actualizado correctamente");
+        await updateEstado(editingEstado.id, formData);
+        showSuccess("Estado actualizado", "El estado de remito se ha actualizado correctamente");
       } else {
-        console.log('➕ Creando nuevo estado');
-        // Crear nuevo estado
-        const newEstado: EstadoRemito = {
-          id: data.name.toLowerCase().replace(/\s+/g, '-'),
-          ...data,
-          isActive: true,
-          createdAt: new Date().toISOString()
-        };
-        console.log('🆕 Nuevo estado creado:', newEstado);
-        setEstados(prev => {
-          const updated = [...prev, newEstado];
-          console.log('📝 Estados después de agregar:', updated);
-          return updated;
-        });
-        showSuccess("Éxito", "Estado creado correctamente");
+        await createEstado(formData);
+        showSuccess("Estado creado", "El estado de remito se ha creado correctamente");
       }
       
       handleCloseForm();
+      resetForm();
     } catch (error) {
-      console.error("Error saving estado:", error);
-      showError("Error", error instanceof Error ? error.message : "Error al guardar estado");
+      showError("Error", error instanceof Error ? error.message : "Error al guardar el estado");
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  // Manejar eliminación
   const handleDelete = async () => {
     if (!showDeleteConfirm) return;
     
+    setIsSubmitting(true);
     try {
-      setEstados(prev => prev.filter(estado => estado.id !== showDeleteConfirm.id));
+      await deleteEstado(showDeleteConfirm);
+      showSuccess("Estado eliminado", "El estado de remito se ha eliminado correctamente");
       handleCancelDelete();
-      showSuccess("Éxito", "Estado eliminado correctamente");
     } catch (error) {
-      console.error("Error deleting estado:", error);
-      handleCancelDelete();
-      showError("Error", error instanceof Error ? error.message : "Error al eliminar estado");
+      showError("Error", error instanceof Error ? error.message : "Error al eliminar el estado");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  // Verificar permisos - solo SUPERADMIN puede acceder
-  if (!session?.user || session.user.role !== 'SUPERADMIN') {
+  // Resetear formulario
+  const resetForm = () => {
+    setFormData({
+      name: '',
+      description: '',
+      color: '#6b7280',
+      icon: '📋',
+      is_active: true,
+      sort_order: 0
+    });
+  };
+
+  // Manejar edición
+  const handleEdit = (estado: EstadoRemito) => {
+    setFormData({
+      name: estado.name,
+      description: estado.description || '',
+      color: estado.color,
+      icon: estado.icon,
+      is_active: estado.is_active,
+      sort_order: estado.sort_order
+    });
+    handleEditEstado(estado);
+  };
+
+  // Manejar nuevo estado
+  const handleNew = () => {
+    resetForm();
+    handleNewEstado();
+  };
+
+  if (estadosLoading) {
     return (
-      <main className="main-content">
-        <div className="form-section">
-          <h2>Acceso Denegado</h2>
-          <p>Solo los superadministradores pueden acceder a esta sección.</p>
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex justify-center items-center h-64">
+          <div className="text-lg">Cargando estados de remitos...</div>
         </div>
-      </main>
+      </div>
     );
   }
 
   return (
-    <main className="main-content">
-      <section className="form-section">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-          <h2>Gestión de Estados de Remitos</h2>
-          <button
-            onClick={handleNew}
-            className="btn primary"
-            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
-          >
-            <Plus className="h-4 w-4" />
-            Nuevo Estado
-          </button>
+    <div className="container mx-auto px-4 py-8">
+      <div className="flex justify-between items-center mb-6">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Estados de Remitos</h1>
+          <p className="text-gray-600 mt-2">
+            Gestiona los estados disponibles para los remitos de tu empresa
+          </p>
         </div>
-
-        <SearchAndPagination
-          searchTerm={searchTerm}
-          onSearchChange={setSearchTerm}
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={setCurrentPage}
-          totalItems={totalItems}
-          itemsPerPage={itemsPerPage}
-          placeholder="Buscar estados..."
+        <button
+          onClick={handleNew}
+          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2"
         >
-          <h3>Lista de Estados</h3>
-        </SearchAndPagination>
-        
-        {!Array.isArray(filteredEstados) || filteredEstados.length === 0 ? (
-          <p>No hay estados registrados.</p>
-        ) : (
-          <div className="table-container">
-            <table>
-              <thead>
-                <tr>
-                  <th>Estado</th>
-                  <th>Descripción</th>
-                  <th>Color</th>
-                  <th>Activo</th>
-                  <th>Registrado</th>
-                  <th>Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredEstados.map((estado) => (
-                  <tr key={estado.id}>
-                    <td>
-                      <div className="flex items-center">
-                        <span style={{ marginRight: '0.5rem', fontSize: '1.2rem' }}>{estado.icon}</span>
-                        <span style={{ 
-                          color: estado.color, 
-                          fontWeight: 'bold' 
-                        }}>
-                          {estado.name}
-                        </span>
+          <Plus className="w-5 h-5" />
+          Nuevo Estado
+        </button>
+      </div>
+
+      {/* Búsqueda y paginación */}
+      <SearchAndPagination
+        searchTerm={searchTerm}
+        onSearchChange={handleSearchChange}
+        currentPage={currentPage}
+        totalPages={totalPages}
+        totalItems={totalItems}
+        itemsPerPage={itemsPerPage}
+        onPageChange={handlePageChange}
+        placeholder="Buscar estados..."
+      />
+
+      {/* Tabla de estados */}
+      <div className="bg-white rounded-lg shadow overflow-hidden">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Estado
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Descripción
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Color
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Activo
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Predefinido
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Acciones
+              </th>
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {paginatedData.map((estado) => (
+              <tr key={estado.id} className="hover:bg-gray-50">
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="flex items-center">
+                    <span className="text-2xl mr-3">{estado.icon}</span>
+                    <div>
+                      <div className="text-sm font-medium text-gray-900">
+                        {estado.name}
                       </div>
-                    </td>
-                    <td>{estado.description || '-'}</td>
-                    <td>
-                      <div style={{ 
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        gap: '0.5rem' 
-                      }}>
-                        <div style={{
-                          width: '20px',
-                          height: '20px',
-                          backgroundColor: estado.color,
-                          borderRadius: '50%',
-                          border: '1px solid #ccc'
-                        }}></div>
-                        <span style={{ fontSize: '0.8rem', color: '#666' }}>
-                          {estado.color}
-                        </span>
-                      </div>
-                    </td>
-                    <td>
-                      <span className={`badge ${estado.isActive ? 'active' : 'inactive'}`}>
-                        {estado.isActive ? 'Activo' : 'Inactivo'}
-                      </span>
-                    </td>
-                    <td>{new Date(estado.createdAt).toLocaleString('es-AR', {
-                      year: 'numeric',
-                      month: '2-digit',
-                      day: '2-digit',
-                      hour: '2-digit',
-                      minute: '2-digit'
-                    })}</td>
-                    <td>
-                      <ActionButtons
-                        onEdit={() => handleEdit(estado)}
-                        onDelete={() => handleDeleteRequest(estado.id, estado.name)}
-                        editTitle="Editar estado"
-                        deleteTitle="Eliminar estado"
-                      />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                    </div>
+                  </div>
+                </td>
+                <td className="px-6 py-4">
+                  <div className="text-sm text-gray-900">
+                    {estado.description || '-'}
+                  </div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="flex items-center">
+                    <div 
+                      className="w-6 h-6 rounded-full border border-gray-300 mr-2"
+                      style={{ backgroundColor: estado.color }}
+                    ></div>
+                    <span className="text-sm text-gray-600">{estado.color}</span>
+                  </div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                    estado.is_active 
+                      ? 'bg-green-100 text-green-800' 
+                      : 'bg-red-100 text-red-800'
+                  }`}>
+                    {estado.is_active ? 'Activo' : 'Inactivo'}
+                  </span>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                    estado.is_default 
+                      ? 'bg-blue-100 text-blue-800' 
+                      : 'bg-gray-100 text-gray-800'
+                  }`}>
+                    {estado.is_default ? 'Sí' : 'No'}
+                  </span>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                  <ActionButtons
+                    onEdit={() => handleEdit(estado)}
+                    onDelete={() => handleDeleteRequest(estado.id)}
+                    canEdit={!estado.is_default} // No permitir editar estados predefinidos
+                    canDelete={!estado.is_default} // No permitir eliminar estados predefinidos
+                  />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        {paginatedData.length === 0 && (
+          <div className="text-center py-12">
+            <Tag className="mx-auto h-12 w-12 text-gray-400" />
+            <h3 className="mt-2 text-sm font-medium text-gray-900">No hay estados</h3>
+            <p className="mt-1 text-sm text-gray-500">
+              {searchTerm ? 'No se encontraron estados que coincidan con la búsqueda.' : 'Comienza creando un nuevo estado de remito.'}
+            </p>
           </div>
         )}
-      </section>
+      </div>
 
       {/* Modal de formulario */}
       {showForm && (
-        <div className="modal-overlay">
-          <div className="modal form-modal">
-            <div className="modal-header">
-              <h3>{editingEstado ? "Editar Estado" : "Nuevo Estado"}</h3>
-              <button onClick={handleCloseForm} className="modal-close">×</button>
-            </div>
-            <form onSubmit={(e) => {
-              e.preventDefault();
-              const formData = new FormData(e.currentTarget);
-              const data = {
-                name: formData.get('name') as string,
-                description: formData.get('description') as string,
-                color: formData.get('color') as string,
-                icon: formData.get('icon') as string,
-                isActive: formData.get('isActive') === 'on'
-              };
-              handleFormSubmit(data);
-            }}>
-              <div className="form-group">
-                <label>Nombre del estado *</label>
-                <input
-                  type="text"
-                  name="name"
-                  defaultValue={editingEstado?.name || ''}
-                  required
-                  placeholder="Ej: En Proceso"
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Descripción</label>
-                <textarea
-                  name="description"
-                  defaultValue={editingEstado?.description || ''}
-                  placeholder="Descripción del estado..."
-                  rows={3}
-                />
-              </div>
-
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Color *</label>
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div className="mt-3">
+              <h3 className="text-lg font-medium text-gray-900 mb-4">
+                {editingEstado ? 'Editar Estado' : 'Nuevo Estado'}
+              </h3>
+              
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Nombre *
+                  </label>
                   <input
-                    type="color"
-                    name="color"
-                    defaultValue={editingEstado?.color || '#3b82f6'}
+                    type="text"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                     required
                   />
                 </div>
 
-                <div className="form-group">
-                  <label>Icono</label>
-                  <input
-                    type="text"
-                    name="icon"
-                    defaultValue={editingEstado?.icon || '📋'}
-                    placeholder="Emoji o símbolo"
-                    maxLength={2}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Descripción
+                  </label>
+                  <textarea
+                    value={formData.description}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    rows={3}
                   />
                 </div>
-              </div>
 
-              <div className="form-group">
-                <label>
-                  <input
-                    type="checkbox"
-                    name="isActive"
-                    defaultChecked={editingEstado?.isActive !== false}
-                  />
-                  Estado activo
-                </label>
-              </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Color
+                    </label>
+                    <input
+                      type="color"
+                      value={formData.color}
+                      onChange={(e) => setFormData({ ...formData, color: e.target.value })}
+                      className="mt-1 block w-full h-10 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    />
+                  </div>
 
-              <div className="form-actions">
-                <button
-                  type="button"
-                  onClick={handleCloseForm}
-                  className="btn secondary"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  className="btn primary"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? "Guardando..." : editingEstado ? "Actualizar" : "Guardar"}
-                </button>
-              </div>
-            </form>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                      Icono
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.icon}
+                      onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
+                      className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="📋"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={formData.is_active}
+                      onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
+                      className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+                    />
+                    <span className="ml-2 text-sm text-gray-700">Estado activo</span>
+                  </label>
+                </div>
+
+                <div className="flex justify-end space-x-3 pt-4">
+                  <button
+                    type="button"
+                    onClick={handleCloseForm}
+                    className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="px-4 py-2 bg-blue-600 border border-transparent rounded-md text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+                  >
+                    {isSubmitting ? 'Guardando...' : (editingEstado ? 'Actualizar' : 'Crear')}
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
       )}
 
-      <MessageModal
-        isOpen={isModalOpen}
-        onClose={hideModal}
-        title={modalContent?.title || ""}
-        message={modalContent?.message || ""}
-      />
-
+      {/* Modal de confirmación de eliminación */}
       <DeleteConfirmModal
         isOpen={!!showDeleteConfirm}
         onClose={handleCancelDelete}
         onConfirm={handleDelete}
-        itemName={showDeleteConfirm?.name || ""}
-        itemType="estado"
+        title="Eliminar Estado"
+        message="¿Estás seguro de que quieres eliminar este estado? Esta acción no se puede deshacer."
+        isLoading={isSubmitting}
       />
-    </main>
+
+      {/* Modal de mensajes */}
+      <MessageModal
+        isOpen={modalState.isOpen}
+        onClose={closeModal}
+        type={modalState.type}
+        title={modalState.title}
+        message={modalState.message}
+      />
+    </div>
   );
 }
 
