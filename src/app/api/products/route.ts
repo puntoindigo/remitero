@@ -102,15 +102,6 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
     const { name, description, price, stock, categoryId, companyId } = body;
-    
-    // Debug log para investigar error
-    console.log('POST /api/products - Debug:', {
-      sessionRole: session.user.role,
-      sessionCompanyId: session.user.companyId,
-      bodyCompanyId: companyId,
-      name: name,
-      price: price
-    });
 
     // Validaciones básicas
     if (!name || !price) {
@@ -150,6 +141,15 @@ export async function POST(request: NextRequest) {
       }, { status: 409 });
     }
 
+    console.log('Creating product with data:', {
+      name,
+      description,
+      price: parseFloat(price),
+      stock: stock || 'OUT_OF_STOCK',
+      category_id: categoryId || null,
+      company_id: finalCompanyId
+    });
+
     const { data: newProduct, error } = await supabaseAdmin
       .from('products')
       .insert([{
@@ -179,6 +179,14 @@ export async function POST(request: NextRequest) {
 
     if (error) {
       console.error('Error creating product:', error);
+      console.error('Product data:', {
+        name,
+        description,
+        price: parseFloat(price),
+        stock: stock || 'OUT_OF_STOCK',
+        category_id: categoryId || null,
+        company_id: finalCompanyId
+      });
       return NextResponse.json({ 
         error: "Error interno del servidor",
         message: "No se pudo crear el producto."
