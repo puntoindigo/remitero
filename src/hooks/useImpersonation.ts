@@ -30,14 +30,17 @@ export const useImpersonation = () => {
       }
 
       console.log('✅ Impersonation exitosa, guardando en localStorage...');
+      console.log('🔍 data.session.user:', data.session.user);
       
       // Guardar datos de impersonation en localStorage
-      localStorage.setItem('impersonation', JSON.stringify({
+      const impersonationData = {
         isActive: true,
         targetUser: data.session.user,
         originalAdmin: data.session.user.originalAdmin,
         startedAt: data.session.impersonation.startedAt
-      }));
+      };
+      console.log('🔍 impersonationData a guardar:', impersonationData);
+      localStorage.setItem('impersonation', JSON.stringify(impersonationData));
       
       showSuccess(data.message);
       
@@ -91,7 +94,10 @@ export const useImpersonation = () => {
   const getImpersonationData = () => {
     if (typeof window === 'undefined') return null;
     const data = localStorage.getItem('impersonation');
-    return data ? JSON.parse(data) : null;
+    const parsed = data ? JSON.parse(data) : null;
+    console.log('🔍 getImpersonationData - raw data:', data);
+    console.log('🔍 getImpersonationData - parsed:', parsed);
+    return parsed;
   };
 
   const impersonationData = getImpersonationData();
