@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
 import { transformRemito } from "@/lib/utils/supabase-transform";
+import { validateEstadoForCompany } from "@/lib/utils/estado-validator";
 
 export async function PUT(
   request: NextRequest,
@@ -38,13 +39,6 @@ export async function PUT(
       }, { status: 400 });
     }
 
-    if (!['PENDIENTE', 'PREPARADO', 'ENTREGADO', 'CANCELADO'].includes(status)) {
-      return NextResponse.json({ 
-        error: "Estado inválido", 
-        message: "El estado debe ser: PENDIENTE, PREPARADO, ENTREGADO o CANCELADO." 
-      }, { status: 400 });
-    }
-
     // Verificar que el remito existe y el usuario tiene acceso
     const { data: existingRemito, error: fetchError } = await supabaseAdmin
       .from('remitos')
@@ -65,6 +59,26 @@ export async function PUT(
         error: "No autorizado",
         message: "No tienes permisos para acceder a este remito."
       }, { status: 403 });
+    }
+
+    // Validar que el estado existe y está activo para la empresa
+    const companyId = session.user.role === 'SUPERADMIN' 
+      ? existingRemito.company_id 
+      : session.user.companyId;
+    
+    if (!companyId) {
+      return NextResponse.json({ 
+        error: "Error de configuración", 
+        message: "No se pudo determinar la empresa para validar el estado." 
+      }, { status: 400 });
+    }
+
+    const estadoValidation = await validateEstadoForCompany(status, companyId);
+    if (!estadoValidation.isValid) {
+      return NextResponse.json({ 
+        error: "Estado inválido", 
+        message: estadoValidation.error || "El estado no es válido para esta empresa." 
+      }, { status: 400 });
     }
 
     // Actualizar el estado del remito

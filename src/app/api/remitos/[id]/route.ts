@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
 import { transformRemito } from "@/lib/utils/supabase-transform";
+import { validateEstadoForCompany } from "@/lib/utils/estado-validator";
 
 export async function GET(
   request: NextRequest,
@@ -150,12 +151,26 @@ export async function PUT(
     // Preparar datos de actualización
     const updateData: any = {};
     if (status !== undefined) {
-      if (!['PENDIENTE', 'PREPARADO', 'ENTREGADO', 'CANCELADO'].includes(status)) {
+      // Validar que el estado existe y está activo para la empresa
+      const companyId = session.user.role === 'SUPERADMIN' 
+        ? existingRemito.company_id 
+        : session.user.companyId;
+      
+      if (!companyId) {
         return NextResponse.json({ 
-          error: "Estado inválido", 
-          message: "El estado debe ser: PENDIENTE, PREPARADO, ENTREGADO o CANCELADO." 
+          error: "Error de configuración", 
+          message: "No se pudo determinar la empresa para validar el estado." 
         }, { status: 400 });
       }
+
+      const estadoValidation = await validateEstadoForCompany(status, companyId);
+      if (!estadoValidation.isValid) {
+        return NextResponse.json({ 
+          error: "Estado inválido", 
+          message: estadoValidation.error || "El estado no es válido para esta empresa." 
+        }, { status: 400 });
+      }
+
       updateData.status = status;
       updateData.status_at = new Date().toISOString();
     }
