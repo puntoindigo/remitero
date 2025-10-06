@@ -19,13 +19,29 @@ export function useSearchAndPagination<T>({
   // Asegurar que data sea siempre un array
   const safeData = Array.isArray(data) ? data : [];
 
+  // Debug logs
+  console.log('🔍 useSearchAndPagination - data recibido:', data);
+  console.log('🔍 useSearchAndPagination - safeData:', safeData);
+  console.log('🔍 useSearchAndPagination - searchTerm:', searchTerm);
+  console.log('🔍 useSearchAndPagination - searchFields:', searchFields);
+
   // Filtrar datos basado en el término de búsqueda
   const filteredData = useMemo(() => {
-    if (!Array.isArray(safeData) || safeData.length === 0) return [];
-    if (!searchTerm.trim()) return safeData;
+    console.log('🔍 useSearchAndPagination - filteredData useMemo ejecutándose');
+    console.log('🔍 useSearchAndPagination - safeData en useMemo:', safeData);
+    console.log('🔍 useSearchAndPagination - safeData.length:', safeData.length);
+    
+    if (!Array.isArray(safeData) || safeData.length === 0) {
+      console.log('🔍 useSearchAndPagination - retornando array vacío por safeData');
+      return [];
+    }
+    if (!searchTerm.trim()) {
+      console.log('🔍 useSearchAndPagination - retornando safeData completo');
+      return safeData;
+    }
 
     const term = searchTerm.toLowerCase();
-    return safeData.filter((item) =>
+    const filtered = safeData.filter((item) =>
       searchFields.some((field) => {
         const value = item[field];
         if (typeof value === "string") {
@@ -40,6 +56,8 @@ export function useSearchAndPagination<T>({
         return false;
       })
     );
+    console.log('🔍 useSearchAndPagination - filtered result:', filtered);
+    return filtered;
   }, [safeData, searchTerm, searchFields]);
 
   // Calcular paginación
