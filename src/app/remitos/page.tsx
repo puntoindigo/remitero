@@ -7,7 +7,7 @@ import React, { useState, useEffect, Suspense } from "react";
 import { useSession } from "next-auth/react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { RemitoForm, remitoSchema } from "@/lib/validations";
 import { 
   Plus, 
@@ -81,6 +81,8 @@ function RemitosContent() {
   const { data: session } = useSession();
   const currentUser = useCurrentUser();
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
   const [remitos, setRemitos] = useState<Remito[]>([]);
   const { estadosActivos } = useEstadosRemitos();
   const [clients, setClients] = useState<Client[]>([]);
@@ -179,8 +181,15 @@ function RemitosContent() {
       setEditingRemito(null);
       setItems([]);
       reset();
+      // Limpiar el query parameter después de procesarlo
+      const newSearchParams = new URLSearchParams(searchParams?.toString());
+      newSearchParams.delete('new');
+      const newUrl = newSearchParams.toString() 
+        ? `${pathname}?${newSearchParams.toString()}` 
+        : pathname;
+      router.replace(newUrl);
     }
-  }, [searchParams, reset]);
+  }, [searchParams, reset, router, pathname]);
 
   const onSubmit = async (data: RemitoForm) => {
     if (DEBUG) {

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, Suspense } from "react";
 import { useSession } from "next-auth/react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { ProductForm } from "@/lib/validations";
 import { Plus, Package, Tag, DollarSign, Search } from "lucide-react";
 import ActionButtons from "@/components/common/ActionButtons";
@@ -40,6 +40,8 @@ function ProductosContent() {
   const { data: session } = useSession();
   const currentUser = useCurrentUser();
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
   // CRUD State Management
   const {
     editingItem: editingProduct,
@@ -141,8 +143,15 @@ function ProductosContent() {
     const newParam = searchParams?.get('new');
     if (newParam === 'true') {
       handleNewProduct();
+      // Limpiar el query parameter después de procesarlo
+      const newSearchParams = new URLSearchParams(searchParams?.toString());
+      newSearchParams.delete('new');
+      const newUrl = newSearchParams.toString() 
+        ? `${pathname}?${newSearchParams.toString()}` 
+        : pathname;
+      router.replace(newUrl);
     }
-  }, [searchParams, handleNewProduct]);
+  }, [searchParams, handleNewProduct, router, pathname]);
 
   // Leer parámetro de categoría de la URL
   useEffect(() => {
