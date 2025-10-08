@@ -60,13 +60,7 @@ export function useMessageModal() {
   };
 
   const closeModal = () => {
-    console.log('🔍 useMessageModal: Cerrando modal');
-    setModalState(prev => {
-      console.log('🔍 useMessageModal: Estado anterior:', prev);
-      const newState = { ...prev, isOpen: false };
-      console.log('🔍 useMessageModal: Nuevo estado:', newState);
-      return newState;
-    });
+    setModalState(prev => ({ ...prev, isOpen: false }));
   };
 
   return {
