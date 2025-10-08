@@ -31,79 +31,44 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Estados predefinidos temporales hasta que se cree la tabla
-    const estadosPredefinidos = [
-      {
-        id: "1",
-        name: "Pendiente",
-        description: "Remito creado, esperando procesamiento",
-        color: "#f59e0b",
-        icon: "⏰",
-        is_active: true,
-        is_default: true,
-        sort_order: 1,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        company_id: effectiveCompanyId || "temp",
-        companies: { 
-          id: effectiveCompanyId || "temp", 
-          name: "Empresa" 
-        }
-      },
-      {
-        id: "2",
-        name: "Preparado",
-        description: "Remito preparado para entrega",
-        color: "#10b981",
-        icon: "✅",
-        is_active: true,
-        is_default: true,
-        sort_order: 2,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        company_id: effectiveCompanyId || "temp",
-        companies: { 
-          id: effectiveCompanyId || "temp", 
-          name: "Empresa" 
-        }
-      },
-      {
-        id: "3",
-        name: "Entregado",
-        description: "Remito entregado al cliente",
-        color: "#3b82f6",
-        icon: "🚚",
-        is_active: true,
-        is_default: true,
-        sort_order: 3,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        company_id: effectiveCompanyId || "temp",
-        companies: { 
-          id: effectiveCompanyId || "temp", 
-          name: "Empresa" 
-        }
-      },
-      {
-        id: "4",
-        name: "Cancelado",
-        description: "Remito cancelado",
-        color: "#ef4444",
-        icon: "❌",
-        is_active: true,
-        is_default: true,
-        sort_order: 4,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        company_id: effectiveCompanyId || "temp",
-        companies: { 
-          id: effectiveCompanyId || "temp", 
-          name: "Empresa" 
-        }
-      }
-    ];
+    let query = supabaseAdmin
+      .from('estados_remitos')
+      .select(`
+        id,
+        name,
+        description,
+        color,
+        icon,
+        is_active,
+        is_default,
+        sort_order,
+        created_at,
+        updated_at,
+        company_id,
+        companies (
+          id,
+          name
+        )
+      `)
+      .order('sort_order', { ascending: true })
+      .order('name', { ascending: true });
 
-    return NextResponse.json(estadosPredefinidos);
+    // Filtrar por empresa si no es SUPERADMIN o si se especifica companyId
+    if (effectiveCompanyId) {
+      query = query.eq('company_id', effectiveCompanyId);
+    }
+
+    const { data: estados, error } = await query;
+
+    if (error) {
+      console.error('Error fetching estados remitos:', error);
+      return NextResponse.json({ 
+        error: "Error interno del servidor",
+        message: "No se pudieron cargar los estados de remitos."
+      }, { status: 500 });
+    }
+
+    return NextResponse.json(estados || []);
   } catch (error) {
     console.error('Error en GET /api/estados-remitos:', error);
     return NextResponse.json({ 
