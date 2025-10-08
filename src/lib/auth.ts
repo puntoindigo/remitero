@@ -5,6 +5,7 @@ import { supabaseAdmin } from "./supabase"
 import { logger } from "./logger"
 
 export const authOptions: NextAuthOptions = {
+  secret: process.env.NEXTAUTH_SECRET,
   providers: [
     CredentialsProvider({
       name: "credentials",
@@ -103,7 +104,7 @@ export const authOptions: NextAuthOptions = {
     signIn: "/auth/login",
     error: "/auth/error"
   },
-  debug: process.env.NODE_ENV === "development",
+  debug: true, // Habilitar debug en producción para diagnosticar
   logger: {
     error: (code, metadata) => {
       console.error("NextAuth Error:", code, metadata)
