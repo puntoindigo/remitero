@@ -13,11 +13,8 @@ export async function GET(request: NextRequest) {
     
     console.log('GET /api/estados-remitos - companyId:', companyId);
     
-    return NextResponse.json({ 
-      success: true, 
-      message: "Estados endpoint simplified for debug",
-      companyId: companyId
-    });
+    // Devolver array vacío temporalmente para evitar errores de .filter()
+    return NextResponse.json([]);
   } catch (error: any) {
     console.error('GET /api/estados-remitos - Error:', error);
     return NextResponse.json({ 
