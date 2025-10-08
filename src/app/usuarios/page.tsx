@@ -47,7 +47,7 @@ function UsuariosContent() {
     createUsuario, 
     updateUsuario, 
     deleteUsuario 
-  } = useUsuarios(selectedCompanyId && selectedCompanyId !== "" ? selectedCompanyId : (companyId || undefined));
+  } = useUsuarios(selectedCompanyId || undefined);
   
   const { empresas } = useEmpresas();
 

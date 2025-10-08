@@ -92,7 +92,7 @@ function EstadosRemitosContent() {
     if (currentUser?.companyId) {
       loadEstados();
     }
-  }, [currentUser?.companyId, loadEstados]);
+  }, [currentUser?.companyId]);
 
   // Manejar envío del formulario
   const handleSubmit = async (e: React.FormEvent) => {

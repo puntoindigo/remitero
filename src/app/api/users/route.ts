@@ -67,6 +67,11 @@ export async function GET(request: NextRequest) {
       query = query.eq('company_id', session.user.companyId);
     }
 
+    // Si el usuario actual no es SUPERADMIN, excluir usuarios SUPERADMIN de los resultados
+    if (session.user.role !== 'SUPERADMIN') {
+      query = query.neq('role', 'SUPERADMIN');
+    }
+
     const { data: users, error } = await query;
 
     if (error) {
