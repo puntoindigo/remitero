@@ -257,7 +257,6 @@ function EstadosRemitosContent() {
                   <div className="estados-remitos-actions">
                     <button
                       onClick={() => handleEdit(estado)}
-                      disabled={estado.is_default}
                       className="edit"
                       title="Editar estado"
                     >
@@ -265,7 +264,6 @@ function EstadosRemitosContent() {
                     </button>
                     <button
                       onClick={() => handleDeleteRequest(estado.id)}
-                      disabled={estado.is_default}
                       className="delete"
                       title="Eliminar estado"
                     >

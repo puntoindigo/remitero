@@ -59,13 +59,7 @@ export async function PUT(
       }, { status: 403 });
     }
 
-    // No permitir editar estados predefinidos
-    if (existingEstado.is_default) {
-      return NextResponse.json({ 
-        error: "No permitido",
-        message: "No se pueden editar los estados predefinidos."
-      }, { status: 400 });
-    }
+    // Permitir editar todos los estados (incluyendo predefinidos)
 
     // Verificar que no exista otro estado con el mismo nombre en la empresa
     const { data: duplicateEstado } = await supabaseAdmin
@@ -178,13 +172,7 @@ export async function DELETE(
       }, { status: 403 });
     }
 
-    // No permitir eliminar estados predefinidos
-    if (existingEstado.is_default) {
-      return NextResponse.json({ 
-        error: "No permitido",
-        message: "No se pueden eliminar los estados predefinidos."
-      }, { status: 400 });
-    }
+    // Permitir eliminar todos los estados (incluyendo predefinidos)
 
     // Verificar si hay remitos usando este estado
     const { data: remitosUsingEstado } = await supabaseAdmin

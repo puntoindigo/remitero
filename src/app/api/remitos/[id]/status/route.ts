@@ -74,7 +74,10 @@ export async function PUT(
       }, { status: 400 });
     }
 
+    console.log('Validating estado:', { status, companyId, userRole: session.user.role });
     const estadoValidation = await validateEstadoForCompany(status, companyId);
+    console.log('Estado validation result:', estadoValidation);
+    
     if (!estadoValidation.isValid) {
       return NextResponse.json({ 
         error: "Estado inválido", 
