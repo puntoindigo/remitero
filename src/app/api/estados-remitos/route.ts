@@ -129,6 +129,17 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
+    // Obtener el siguiente sort_order para la empresa
+    const { data: lastEstado } = await supabaseAdmin
+      .from('estados_remitos')
+      .select('sort_order')
+      .eq('company_id', companyId)
+      .order('sort_order', { ascending: false })
+      .limit(1)
+      .single();
+
+    const nextSortOrder = lastEstado ? lastEstado.sort_order + 1 : (sort_order || 100);
+
     // Crear el estado
     const { data: newEstado, error } = await supabaseAdmin
       .from('estados_remitos')
@@ -140,7 +151,7 @@ export async function POST(request: NextRequest) {
         icon: icon || '📋',
         is_active: is_active,
         is_default: false, // Los estados creados por el usuario no son predefinidos
-        sort_order: sort_order
+        sort_order: nextSortOrder
       }])
       .select(`
         id,
