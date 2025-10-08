@@ -67,8 +67,8 @@ export const useImpersonation = () => {
       
       showSuccess('Volviste a tu cuenta de administrador');
       
-      // Redirigir al dashboard después de detener impersonation
-      window.location.href = '/dashboard';
+      // Redirigir a usuarios después de detener impersonation
+      window.location.href = '/usuarios';
 
     } catch (error) {
       console.error('❌ Error al detener impersonation:', error);

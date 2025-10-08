@@ -131,7 +131,10 @@ export function useEstadosRemitos() {
       const response = await fetch("/api/estados-remitos", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(estadoData),
+        body: JSON.stringify({
+          ...estadoData,
+          companyId: currentUser?.companyId
+        }),
       });
 
       if (!response.ok) {
@@ -154,7 +157,10 @@ export function useEstadosRemitos() {
       const response = await fetch(`/api/estados-remitos/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(estadoData),
+        body: JSON.stringify({
+          ...estadoData,
+          companyId: currentUser?.companyId
+        }),
       });
 
       if (!response.ok) {

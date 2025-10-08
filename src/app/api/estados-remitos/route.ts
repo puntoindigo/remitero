@@ -100,17 +100,13 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
-    // Verificar que el usuario tenga companyId (excepto SUPERADMIN)
-    // Durante impersonation, SUPERADMIN puede crear estados sin companyId en la sesión
-    if (session.user.role !== 'SUPERADMIN' && !session.user.companyId) {
-      return NextResponse.json({ 
-        error: "No autorizado", 
-        message: "Usuario no asociado a una empresa." 
-      }, { status: 401 });
-    }
-
+    // Obtener companyId del body si está presente (para impersonation)
+    const { companyId: bodyCompanyId } = body;
+    
     // Determinar companyId
-    const companyId = session.user.companyId;
+    let companyId = bodyCompanyId || session.user.companyId;
+    
+    // Verificar que se pueda determinar la empresa
     if (!companyId) {
       return NextResponse.json({ 
         error: "Datos faltantes", 
