@@ -45,7 +45,6 @@ export function useSearchAndPagination<T>({
         return false;
       })
     );
-    console.log('🔍 useSearchAndPagination - filtered result:', filtered);
     return filtered;
   }, [safeData, searchTerm, searchFields]);
 

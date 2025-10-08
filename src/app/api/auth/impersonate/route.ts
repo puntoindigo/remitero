@@ -18,7 +18,6 @@ export async function POST(request: NextRequest) {
     }
 
     // Solo ADMIN y SUPERADMIN pueden impersonar
-    console.log('🔍 Session user role:', session.user.role, 'Type:', typeof session.user.role);
     if (!['ADMIN', 'SUPERADMIN'].includes(session.user.role)) {
       console.log('❌ User role is not ADMIN or SUPERADMIN:', session.user.role);
       return NextResponse.json({ error: 'Solo administradores pueden impersonar usuarios' }, { status: 403 });
@@ -74,7 +73,6 @@ export async function POST(request: NextRequest) {
       }
     };
 
-    console.log('🔍 Impersonation session creada:', JSON.stringify(impersonationSession, null, 2));
 
     // Registrar en audit log
     console.log(`[IMPERSONATION] Admin ${session.user.name} (${session.user.email}) impersonando a ${targetUser.name} (${targetUser.email})`);

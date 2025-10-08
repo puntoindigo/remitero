@@ -19,8 +19,6 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const companyId = searchParams.get('companyId');
     
-    console.log('🔍 /api/remitos - session.user:', session.user);
-    console.log('🔍 /api/remitos - companyId param:', companyId);
 
     let query = supabaseAdmin
       .from('remitos')
@@ -81,9 +79,6 @@ export async function GET(request: NextRequest) {
 
     const { data: remitos, error } = await query;
     
-    console.log('🔍 /api/remitos - effectiveCompanyId:', effectiveCompanyId);
-    console.log('🔍 /api/remitos - remitos count:', remitos?.length || 0);
-    console.log('🔍 /api/remitos - error:', error);
 
     if (error) {
       console.error('Error fetching remitos:', error);
@@ -218,7 +213,7 @@ export async function POST(request: NextRequest) {
     const remitoItems = items.map((item: any) => ({
       remito_id: newRemito.id,
       product_id: item.product_id || null,
-      quantity: item.quantity,
+              quantity: item.quantity,
       product_name: item.product_name,
       product_desc: item.product_desc || null,
       unit_price: parseFloat(item.unit_price),

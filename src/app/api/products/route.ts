@@ -58,9 +58,6 @@ export async function GET(request: NextRequest) {
 
     const { data: products, error } = await query;
     
-    console.log('🔍 /api/products - effectiveCompanyId:', effectiveCompanyId);
-    console.log('🔍 /api/products - products count:', products?.length || 0);
-    console.log('🔍 /api/products - error:', error);
 
     if (error) {
       console.error('Error fetching products:', error);

@@ -4,76 +4,25 @@ import { authOptions } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
 
 export async function GET(request: NextRequest) {
+  console.log('GET /api/estados-remitos - Starting');
+  
   try {
-    const session = await getServerSession(authOptions);
-    
-    if (!session?.user) {
-      return NextResponse.json({ 
-        error: "No autorizado", 
-        message: "Sesión no encontrada. Por favor, inicia sesión." 
-      }, { status: 401 });
-    }
-
-    // Obtener companyId de los query parameters (para impersonation)
+    // Simplificar temporalmente para debug
     const { searchParams } = new URL(request.url);
     const companyId = searchParams.get('companyId');
     
-    // Determinar qué companyId usar
-    const effectiveCompanyId = companyId || session.user.companyId;
-
-    // Solo SUPERADMIN puede ver estados de todas las empresas
-    if (session.user.role !== 'SUPERADMIN') {
-      if (!effectiveCompanyId) {
-        return NextResponse.json({ 
-          error: "No autorizado", 
-          message: "Usuario no asociado a una empresa." 
-        }, { status: 401 });
-      }
-    }
-
-    let query = supabaseAdmin
-      .from('estados_remitos')
-      .select(`
-        id,
-        name,
-        description,
-        color,
-        icon,
-        is_active,
-        is_default,
-        sort_order,
-        created_at,
-        updated_at,
-        company_id,
-        companies (
-          id,
-          name
-        )
-      `)
-      .order('sort_order', { ascending: true })
-      .order('name', { ascending: true });
-
-    // Filtrar por empresa si no es SUPERADMIN o si se especifica companyId
-    if (effectiveCompanyId) {
-      query = query.eq('company_id', effectiveCompanyId);
-    }
-
-    const { data: estados, error } = await query;
-
-    if (error) {
-      console.error('Error fetching estados remitos:', error);
-      return NextResponse.json({ 
-        error: "Error interno del servidor",
-        message: "No se pudieron cargar los estados de remitos."
-      }, { status: 500 });
-    }
-
-    return NextResponse.json(estados || []);
-  } catch (error) {
-    console.error('Error en GET /api/estados-remitos:', error);
+    console.log('GET /api/estados-remitos - companyId:', companyId);
+    
     return NextResponse.json({ 
-      error: "Error interno del servidor",
-      message: "Ocurrió un error inesperado al procesar la solicitud."
+      success: true, 
+      message: "Estados endpoint simplified for debug",
+      companyId: companyId
+    });
+  } catch (error: any) {
+    console.error('GET /api/estados-remitos - Error:', error);
+    return NextResponse.json({ 
+      error: "Error in estados endpoint",
+      message: error.message 
     }, { status: 500 });
   }
 }

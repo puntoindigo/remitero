@@ -53,8 +53,6 @@ export function useRemitos() {
       
       // Pasar companyId del usuario actual (considerando impersonation)
       const url = currentUser?.companyId ? `/api/remitos?companyId=${currentUser.companyId}` : "/api/remitos";
-      console.log('🔍 useRemitos - currentUser:', currentUser);
-      console.log('🔍 useRemitos - URL:', url);
       const response = await fetch(url);
       if (!response.ok) {
         throw new Error("Error al cargar remitos");

@@ -14,14 +14,12 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         try {
-          console.log("🔍 NextAuth authorize called with:", { email: credentials?.email, hasPassword: !!credentials?.password })
           
           if (!credentials?.email || !credentials?.password) {
             console.log("❌ Credenciales faltantes")
             throw new Error("Credenciales requeridas")
           }
 
-          console.log("🔍 Buscando usuario en Supabase...")
           const { data: user, error } = await supabaseAdmin
             .from('users')
             .select('*')

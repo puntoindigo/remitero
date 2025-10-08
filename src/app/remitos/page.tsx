@@ -128,8 +128,6 @@ function RemitosContent() {
       const clientsUrl = currentUser?.companyId ? `/api/clients?companyId=${currentUser.companyId}` : "/api/clients";
       const productsUrl = currentUser?.companyId ? `/api/products?companyId=${currentUser.companyId}` : "/api/products";
       
-      console.log('🔍 RemitosContent - currentUser:', currentUser);
-      console.log('🔍 RemitosContent - URLs:', { remitosUrl, clientsUrl, productsUrl });
       
       const [remitosResponse, clientsResponse, productsResponse] = await Promise.all([
         fetch(remitosUrl),

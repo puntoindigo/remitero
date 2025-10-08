@@ -110,7 +110,6 @@ function UsuariosContent() {
 
   const handleImpersonate = async (usuario: Usuario) => {
     console.log('🎭 handleImpersonate llamado para:', usuario);
-    console.log('🔍 Usuario actual:', session?.user);
     
     if (usuario.id === session?.user?.id) {
       console.log('❌ Intentando impersonar cuenta propia');
