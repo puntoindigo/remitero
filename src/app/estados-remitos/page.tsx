@@ -169,9 +169,16 @@ function EstadosRemitosContent() {
   // Mostrar error en modal si hay un error de carga
   useEffect(() => {
     if (estadosError) {
+      console.log('🔍 Mostrando error en modal:', estadosError);
       showError('Error al cargar estados', estadosError);
     }
   }, [estadosError, showError]);
+
+  // Función para cerrar modal con debug
+  const handleCloseModal = () => {
+    console.log('🔍 Cerrando modal de error');
+    closeModal();
+  };
 
   if (estadosLoading) {
     return (
@@ -392,7 +399,7 @@ function EstadosRemitosContent() {
       {/* Modal de mensajes */}
       <MessageModal
         isOpen={modalState.isOpen}
-        onClose={closeModal}
+        onClose={handleCloseModal}
         type={modalState.type}
         title={modalState.title}
         message={modalState.message}

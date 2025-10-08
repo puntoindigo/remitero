@@ -95,7 +95,12 @@ export function MessageModal({ isOpen, onClose, type, title, message, details }:
           
           <div className="modal-actions">
             <button
-              onClick={onClose}
+              onClick={(e) => {
+                console.log('🔍 MessageModal: Botón Entendido clickeado');
+                e.preventDefault();
+                e.stopPropagation();
+                onClose();
+              }}
               className={`${styles.buttonColor} text-white px-6 py-2 rounded-md font-medium transition-colors`}
             >
               Entendido
