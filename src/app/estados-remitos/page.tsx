@@ -33,6 +33,23 @@ function EstadosRemitosContent() {
     );
   }
 
+  // Renderizado simplificado para evitar error React #418
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
+        <h2 className="text-xl font-semibold text-blue-800 mb-2">
+          Estados de Remitos - Modo Debug
+        </h2>
+        <p className="text-blue-600">
+          Página temporalmente simplificada para evitar error React #418
+        </p>
+        <p className="text-sm text-gray-600 mt-2">
+          Usuario: {currentUser.name} ({currentUser.role})
+        </p>
+      </div>
+    </div>
+  );
+
   // Hook para manejar estado del formulario modal
   const {
     editingItem: editingEstado,
