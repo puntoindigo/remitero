@@ -44,15 +44,15 @@ export const authOptions: NextAuthOptions = {
             return null
           }
 
-          return {
-            id: user.id,
-            email: user.email,
-            name: user.name,
-            role: user.role,
-            companyId: user.company_id,
-            companyName: null,
-            impersonatingUserId: null
-          }
+                return {
+                  id: user.id,
+                  email: user.email,
+                  name: user.name,
+                  role: user.role,
+                  companyId: user.company_id,
+                  companyName: undefined,
+                  impersonatingUserId: null
+                } as any
         } catch (error) {
           return null
         }
@@ -64,10 +64,19 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async signIn({ user, account, profile }) {
+      console.log('🔍 NextAuth signIn callback iniciado:', {
+        provider: account?.provider,
+        userEmail: user?.email,
+        userName: user?.name
+      });
+
       // Si es login con Google
       if (account?.provider === 'google') {
+        console.log('🔍 Procesando login con Google para:', user.email);
+        
         try {
           // Buscar el usuario en la base de datos
+          console.log('🔍 Buscando usuario en base de datos...');
           const { data: existingUser, error } = await supabaseAdmin
             .from('users')
             .select('*')
@@ -76,43 +85,67 @@ export const authOptions: NextAuthOptions = {
 
           if (error || !existingUser) {
             // Si no existe, no permitir login
-            console.log('Usuario no encontrado en la base de datos:', user.email)
+            console.log('❌ Usuario no encontrado en la base de datos:', user.email, error?.message);
             return false
           }
+
+          console.log('✅ Usuario encontrado en base de datos:', {
+            id: existingUser.id,
+            email: existingUser.email,
+            name: existingUser.name,
+            role: existingUser.role,
+            companyId: existingUser.company_id
+          });
 
           // Actualizar la información del usuario con los datos de Google
           user.id = existingUser.id
           user.role = existingUser.role
           user.companyId = existingUser.company_id
-          user.companyName = null
-          user.impersonatingUserId = null
+          user.companyName = undefined
+          ;(user as any).impersonatingUserId = null
 
+          console.log('✅ Login con Google autorizado para:', user.email);
           return true
         } catch (error) {
-          console.error('Error en signIn callback:', error)
+          console.error('❌ Error en signIn callback:', error)
           return false
         }
       }
       
       // Para login con credenciales, permitir siempre
+      console.log('✅ Login con credenciales autorizado para:', user?.email);
       return true
     },
     async jwt({ token, user, account }) {
       if (user) {
+        console.log('🔍 NextAuth JWT callback - actualizando token:', {
+          userId: user.id,
+          userEmail: user.email,
+          userRole: user.role,
+          provider: account?.provider
+        });
+        
         token.role = user.role
         token.companyId = user.companyId
         token.companyName = user.companyName
-        token.impersonatingUserId = user.impersonatingUserId
+        token.impersonatingUserId = (user as any).impersonatingUserId
       }
       return token
     },
     async session({ session, token }) {
       if (token) {
+        console.log('🔍 NextAuth session callback - creando sesión:', {
+          userId: token.sub,
+          userEmail: session.user?.email,
+          userRole: token.role,
+          companyId: token.companyId
+        });
+        
         session.user.id = token.sub!
         session.user.role = token.role as string
         session.user.companyId = token.companyId as string
         session.user.companyName = token.companyName as string
-        session.user.impersonatingUserId = token.impersonatingUserId as string
+        ;(session.user as any).impersonatingUserId = token.impersonatingUserId as string
       }
       return session
     }
