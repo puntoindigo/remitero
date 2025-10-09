@@ -23,7 +23,7 @@ export default function DeleteConfirmModal({
 
   return (
     <>
-      <div className="modal-overlay" onClick={onCancel}></div>
+      <div className="modal-overlay"></div>
       <div className="modal confirm-modal">
         <div className="modal-header">
           <h3>{title}</h3>
