@@ -164,12 +164,35 @@ export default function LoginPage() {
                   type="checkbox"
                   checked={rememberMe}
                   onChange={(e) => setValue("rememberMe", e.target.checked)}
-                  className="h-4 w-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500 focus:ring-2 cursor-pointer"
+                  className="sr-only"
                 />
+                <div 
+                  className={`w-4 h-4 border-2 rounded-sm cursor-pointer transition-all duration-200 flex items-center justify-center ${
+                    rememberMe 
+                      ? 'bg-blue-600 border-blue-600' 
+                      : 'bg-white border-gray-300 hover:border-blue-400'
+                  }`}
+                  onClick={() => setValue("rememberMe", !rememberMe)}
+                >
+                  {rememberMe && (
+                    <svg 
+                      className="w-3 h-3 text-white" 
+                      fill="currentColor" 
+                      viewBox="0 0 20 20"
+                    >
+                      <path 
+                        fillRule="evenodd" 
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" 
+                        clipRule="evenodd" 
+                      />
+                    </svg>
+                  )}
+                </div>
               </div>
               <label
                 htmlFor="rememberMe"
                 className="text-sm text-gray-700 cursor-pointer select-none hover:text-gray-900 transition-colors duration-200"
+                onClick={() => setValue("rememberMe", !rememberMe)}
               >
                 Recordar contraseña
               </label>
