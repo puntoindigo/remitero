@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prueba de Login - Remitero</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+            white-space: pre-wrap;
+        }
+        .success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .info {
+            background-color: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Prueba de Login - Remitero</h1>
+        <p>Esta página te permite probar el login directamente desde el navegador.</p>
+        
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" value="daeiman@gmail.com" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Contraseña:</label>
+                <input type="password" id="password" value="password" required>
+            </div>
+            
+            <button type="submit" id="loginBtn">Iniciar Sesión</button>
+        </form>
+        
+        <div id="result"></div>
+        
+        <div style="margin-top: 30px;">
+            <h3>Usuarios de prueba disponibles:</h3>
+            <ul>
+                <li><strong>daeiman@gmail.com</strong> / password (SUPERADMIN)</li>
+                <li><strong>admin@remitero.com</strong> / admin123 (SUPERADMIN)</li>
+                <li><strong>superadmin@remitero.com</strong> / [contraseña desconocida] (SUPERADMIN)</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const loginBtn = document.getElementById('loginBtn');
+            const resultDiv = document.getElementById('result');
+            
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'Iniciando sesión...';
+            resultDiv.innerHTML = '';
+            
+            try {
+                console.log('🔍 Intentando login con:', email);
+                
+                // Probar el endpoint de debug primero
+                const debugResponse = await fetch('/api/debug-login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const debugResult = await debugResponse.json();
+                console.log('🔍 Resultado debug:', debugResult);
+                
+                if (debugResult.success) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = `✅ Login exitoso!\n\nUsuario: ${debugResult.user.name}\nEmail: ${debugResult.user.email}\nRol: ${debugResult.user.role}\nID: ${debugResult.user.id}`;
+                    
+                    // Ahora probar el login real de NextAuth
+                    console.log('🔍 Probando NextAuth...');
+                    
+                    // Simular el login de NextAuth
+                    const authResponse = await fetch('/api/auth/signin/credentials', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: new URLSearchParams({
+                            email: email,
+                            password: password,
+                            redirect: 'false'
+                        })
+                    });
+                    
+                    console.log('🔍 Respuesta NextAuth:', authResponse.status, authResponse.url);
+                    
+                    if (authResponse.ok || authResponse.status === 302) {
+                        resultDiv.textContent += '\n\n✅ NextAuth también funcionó correctamente!';
+                    } else {
+                        resultDiv.textContent += '\n\n⚠️ NextAuth tuvo problemas, pero el login básico funciona.';
+                    }
+                    
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent = `❌ Error en login: ${debugResult.error}`;
+                }
+                
+            } catch (error) {
+                console.error('❌ Error:', error);
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ Error de conexión: ${error.message}`;
+            } finally {
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Iniciar Sesión';
+            }
+        });
+        
+        // Mostrar información del entorno
+        const envInfo = document.createElement('div');
+        envInfo.className = 'result info';
+        envInfo.textContent = `🌐 Entorno: ${window.location.hostname}\n🔗 URL: ${window.location.origin}`;
+        document.getElementById('result').appendChild(envInfo);
+    </script>
+</body>
+</html>
