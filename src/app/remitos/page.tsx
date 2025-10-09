@@ -1033,13 +1033,13 @@ function RemitosContent() {
             {!needsCompanySelection && (
               <>
                 {remitos.length === 0 ? (
-              <div className="empty-state">
-                <FileText className="h-12 w-12 text-gray-400" />
-                <h3>No hay remitos</h3>
-                <p>Comienza creando un nuevo remito.</p>
-              </div>
-            ) : (
-              <table>
+                  <div className="empty-state">
+                    <FileText className="h-12 w-12 text-gray-400" />
+                    <h3>No hay remitos</h3>
+                    <p>Comienza creando un nuevo remito.</p>
+                  </div>
+                ) : (
+                  <table>
                 <thead>
                   <tr>
                     <th>Número</th>
@@ -1086,10 +1086,10 @@ function RemitosContent() {
                     </tr>
                   ))}
                 </tbody>
-              </table>
+                  </table>
+                )}
+              </>
             )}
-          </>
-        )}
 
         {/* Modal de confirmación de eliminación */}
         {showDeleteConfirm && (
