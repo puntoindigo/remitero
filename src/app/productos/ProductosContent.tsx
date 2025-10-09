@@ -79,6 +79,8 @@ function ProductosContent() {
   console.log('ProductosContent - currentUser:', currentUser);
   console.log('ProductosContent - selectedCompanyId:', selectedCompanyId);
   console.log('ProductosContent - companyId:', companyId);
+  console.log('ProductosContent - empresas:', empresas);
+  console.log('ProductosContent - needsCompanySelection:', currentUser?.role === "SUPERADMIN" && !selectedCompanyId);
 
   // Función para obtener el stock del producto
   const getStockFromProduct = (product: any) => {

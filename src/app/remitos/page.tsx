@@ -117,6 +117,12 @@ function RemitosContent() {
     ? selectedCompanyId 
     : currentUser?.companyId;
 
+  console.log('RemitosContent - currentUser:', currentUser);
+  console.log('RemitosContent - selectedCompanyId:', selectedCompanyId);
+  console.log('RemitosContent - companyId:', companyId);
+  console.log('RemitosContent - empresas:', empresas);
+  console.log('RemitosContent - needsCompanySelection:', currentUser?.role === "SUPERADMIN" && !selectedCompanyId);
+
   const {
     register,
     handleSubmit,
