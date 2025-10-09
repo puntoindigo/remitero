@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prueba de Login - Remitero Vercel</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+            white-space: pre-wrap;
+        }
+        .success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .info {
+            background-color: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+        .link {
+            color: #007bff;
+            text-decoration: none;
+        }
+        .link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Prueba de Login - Remitero Vercel</h1>
+        <p>Esta página te permite probar el login en <strong>https://remitero-dev.vercel.app</strong></p>
+        
+        <div class="result info">
+            🌐 <strong>URL de Prueba:</strong> <a href="https://remitero-dev.vercel.app/auth/login" class="link" target="_blank">https://remitero-dev.vercel.app/auth/login</a>
+        </div>
+        
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" value="daeiman@gmail.com" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Contraseña:</label>
+                <input type="password" id="password" value="password" required>
+            </div>
+            
+            <button type="submit" id="loginBtn">Probar Login en Vercel</button>
+        </form>
+        
+        <div id="result"></div>
+        
+        <div style="margin-top: 30px;">
+            <h3>Instrucciones:</h3>
+            <ol>
+                <li>Haz clic en el enlace de arriba para ir a la página de login</li>
+                <li>Usa las credenciales: <strong>daeiman@gmail.com</strong> / <strong>password</strong></li>
+                <li>Abre la consola del navegador (F12) para ver los logs</li>
+                <li>Si hay problemas, usa el botón "Probar Login en Vercel" de arriba</li>
+            </ol>
+            
+            <h3>Usuarios de prueba disponibles:</h3>
+            <ul>
+                <li><strong>daeiman@gmail.com</strong> / password (SUPERADMIN)</li>
+                <li><strong>admin@remitero.com</strong> / admin123 (SUPERADMIN)</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const loginBtn = document.getElementById('loginBtn');
+            const resultDiv = document.getElementById('result');
+            
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'Probando login...';
+            resultDiv.innerHTML = '';
+            
+            try {
+                console.log('🔍 Probando login en Vercel con:', email);
+                
+                // Probar el endpoint de debug en Vercel
+                const debugResponse = await fetch('https://remitero-dev.vercel.app/api/debug-login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const debugResult = await debugResponse.json();
+                console.log('🔍 Resultado debug Vercel:', debugResult);
+                
+                if (debugResult.success) {
+                    resultDiv.className = 'result success';
+                    resultDiv.textContent = `✅ Login exitoso en Vercel!\n\nUsuario: ${debugResult.user.name}\nEmail: ${debugResult.user.email}\nRol: ${debugResult.user.role}\nID: ${debugResult.user.id}`;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.textContent = `❌ Error en login Vercel: ${debugResult.error}`;
+                }
+                
+            } catch (error) {
+                console.error('❌ Error:', error);
+                resultDiv.className = 'result error';
+                resultDiv.textContent = `❌ Error de conexión con Vercel: ${error.message}\n\nEsto puede ser normal si el endpoint de debug no está desplegado.`;
+            } finally {
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Probar Login en Vercel';
+            }
+        });
+        
+        // Mostrar información del entorno
+        const envInfo = document.createElement('div');
+        envInfo.className = 'result info';
+        envInfo.textContent = `🌐 Entorno: ${window.location.hostname}\n🔗 URL: ${window.location.origin}`;
+        document.getElementById('result').appendChild(envInfo);
+    </script>
+</body>
+</html>
