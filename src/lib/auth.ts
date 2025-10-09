@@ -12,6 +12,13 @@ export const authOptions: NextAuthOptions = {
       GoogleProvider({
         clientId: process.env.GOOGLE_CLIENT_ID,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+        authorization: {
+          params: {
+            prompt: "consent",
+            access_type: "offline",
+            response_type: "code"
+          }
+        }
       })
     ] : []),
     CredentialsProvider({
@@ -73,6 +80,13 @@ export const authOptions: NextAuthOptions = {
       // Si es login con Google
       if (account?.provider === 'google') {
         console.log('🔍 Procesando login con Google para:', user.email);
+        console.log('🔍 Datos de Google OAuth:', {
+          accountType: account.type,
+          accessToken: account.access_token ? 'Presente' : 'Ausente',
+          refreshToken: account.refresh_token ? 'Presente' : 'Ausente',
+          expiresAt: account.expires_at,
+          scope: account.scope
+        });
         
         try {
           // Buscar el usuario en la base de datos
