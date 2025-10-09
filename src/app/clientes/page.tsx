@@ -6,16 +6,19 @@ import { Plus, Users, Mail, Phone, MapPin } from "lucide-react";
 import ActionButtons from "@/components/common/ActionButtons";
 import { formatDate } from "@/lib/utils/formatters";
 import SearchAndPagination from "@/components/common/SearchAndPagination";
+import FilterableSelect from "@/components/common/FilterableSelect";
 import { useSearchAndPagination } from "@/hooks/useSearchAndPagination";
 import { MessageModal } from "@/components/common/MessageModal";
 import DeleteConfirmModal from "@/components/common/DeleteConfirmModal";
 import { ClienteForm } from "@/components/forms/ClienteForm";
 import { useMessageModal } from "@/hooks/useMessageModal";
 import { useClientes, type Cliente } from "@/hooks/useClientes";
+import { useEmpresas, type Empresa } from "@/hooks/useEmpresas";
 import { useCRUDPage } from "@/hooks/useCRUDPage";
 
 function ClientesContent() {
   const { data: session } = useSession();
+  const [selectedCompanyId, setSelectedCompanyId] = useState<string>("");
   const {
     editingItem: editingCliente,
     showForm,
@@ -30,6 +33,13 @@ function ClientesContent() {
   } = useCRUDPage<Cliente>();
   const { showSuccess, showError, hideModal, isModalOpen, modalContent } = useMessageModal();
   
+  const { empresas } = useEmpresas();
+  
+  // Determinar qué empresa usar: la seleccionada o la del usuario
+  const companyId = session?.user?.role === "SUPERADMIN" 
+    ? selectedCompanyId 
+    : session?.user?.companyId;
+
   const { 
     clientes, 
     isLoading, 
@@ -37,7 +47,7 @@ function ClientesContent() {
     createCliente, 
     updateCliente, 
     deleteCliente 
-  } = useClientes();
+  } = useClientes(companyId || undefined);
 
   const {
     searchTerm,
@@ -104,6 +114,34 @@ function ClientesContent() {
     );
   }
 
+  // Verificar si necesita seleccionar empresa
+  const needsCompanySelection = session?.user?.role === "SUPERADMIN" && !selectedCompanyId;
+
+  // Mostrar selector de empresa si es SUPERADMIN sin empresa seleccionada
+  if (needsCompanySelection) {
+    return (
+      <main className="main-content">
+        <section className="form-section">
+          <h2>Gestión de Clientes</h2>
+          <div className="form-section">
+            <h3>Seleccionar Empresa</h3>
+            <p>Selecciona una empresa para ver sus clientes:</p>
+            <div className="mt-4">
+              <FilterableSelect
+                options={empresas}
+                value={selectedCompanyId}
+                onChange={setSelectedCompanyId}
+                placeholder="Seleccionar empresa"
+                searchFields={["name"]}
+                className="w-80"
+              />
+            </div>
+          </div>
+        </section>
+      </main>
+    );
+  }
+
   return (
     <main className="main-content">
       <div className="px-4 py-6 sm:px-0">
@@ -135,7 +173,20 @@ function ClientesContent() {
             totalItems={totalItems}
             itemsPerPage={itemsPerPage}
             placeholder="Buscar clientes..."
-          />
+          >
+            {session?.user?.role === "SUPERADMIN" && (
+              <div className="ml-4">
+                <FilterableSelect
+                  options={empresas}
+                  value={selectedCompanyId}
+                  onChange={setSelectedCompanyId}
+                  placeholder="Seleccionar empresa"
+                  searchFields={["name"]}
+                  className="w-64"
+                />
+              </div>
+            )}
+          </SearchAndPagination>
           
           {error && (
             <div className="error-message">
