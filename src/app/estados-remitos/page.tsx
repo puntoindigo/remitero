@@ -4,20 +4,23 @@ import React, { useState, useEffect, Suspense } from "react";
 import { useSession } from "next-auth/react";
 import { Plus, Tag, Edit, Trash2 } from "lucide-react";
 import SearchAndPagination from "@/components/common/SearchAndPagination";
+import FilterableSelect from "@/components/common/FilterableSelect";
 import { useSearchAndPagination } from "@/hooks/useSearchAndPagination";
 import { MessageModal } from "@/components/common/MessageModal";
 import DeleteConfirmModal from "@/components/common/DeleteConfirmModal";
 import { useMessageModal } from "@/hooks/useMessageModal";
 import { useCRUDPage } from "@/hooks/useCRUDPage";
 import { useEstadosRemitos, EstadoRemito, EstadoRemitoFormData } from "@/hooks/useEstadosRemitos";
+import { useEmpresas, type Empresa } from "@/hooks/useEmpresas";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 function EstadosRemitosContent() {
   const { data: session } = useSession();
   const currentUser = useCurrentUser();
+  const [selectedCompanyId, setSelectedCompanyId] = useState<string>("");
 
-  // Verificar permisos - solo ADMIN puede ver esta página
-  if (!currentUser || currentUser.role !== 'ADMIN') {
+  // Verificar permisos - solo ADMIN y SUPERADMIN pueden ver esta página
+  if (!currentUser || !['ADMIN', 'SUPERADMIN'].includes(currentUser.role)) {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
@@ -25,7 +28,7 @@ function EstadosRemitosContent() {
             Acceso Restringido
           </h2>
           <p className="text-red-600">
-            Solo los administradores de empresa pueden gestionar estados de remitos.
+            Solo los administradores pueden gestionar estados de remitos.
           </p>
         </div>
       </div>
@@ -50,6 +53,14 @@ function EstadosRemitosContent() {
   // Hook para manejar modales de mensajes
   const { modalState, showSuccess, showError, closeModal } = useMessageModal();
 
+  // Hook para empresas
+  const { empresas } = useEmpresas();
+
+  // Determinar qué empresa usar: la seleccionada o la del usuario
+  const companyId = currentUser?.role === "SUPERADMIN" 
+    ? selectedCompanyId 
+    : currentUser?.companyId;
+
   // Hook para manejar estados de remitos
   const {
     estados,
@@ -59,7 +70,7 @@ function EstadosRemitosContent() {
     updateEstado,
     deleteEstado,
     loadEstados
-  } = useEstadosRemitos();
+  } = useEstadosRemitos(companyId || undefined);
 
   // Hook para búsqueda y paginación
   const {
@@ -184,6 +195,37 @@ function EstadosRemitosContent() {
     );
   }
 
+  // Verificar si necesita seleccionar empresa
+  const needsCompanySelection = currentUser?.role === "SUPERADMIN" && !selectedCompanyId;
+
+  // Mostrar selector de empresa si es SUPERADMIN sin empresa seleccionada
+  if (needsCompanySelection) {
+    return (
+      <div className="estados-remitos-container">
+        <div className="estados-remitos-header">
+          <div>
+            <h1 className="estados-remitos-title">Estados de Remitos</h1>
+            <p className="estados-remitos-subtitle">
+              Selecciona una empresa para ver sus estados de remitos
+            </p>
+          </div>
+        </div>
+        <div className="estados-remitos-search">
+          <div className="mt-4">
+            <FilterableSelect
+              options={empresas}
+              value={selectedCompanyId}
+              onChange={setSelectedCompanyId}
+              placeholder="Seleccionar empresa"
+              searchFields={["name"]}
+              className="w-80"
+            />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="estados-remitos-container">
       <div className="estados-remitos-header">
@@ -213,7 +255,20 @@ function EstadosRemitosContent() {
           itemsPerPage={itemsPerPage}
           onPageChange={handlePageChange}
           placeholder="Buscar estados..."
-        />
+        >
+          {currentUser?.role === "SUPERADMIN" && (
+            <div className="ml-4">
+              <FilterableSelect
+                options={empresas}
+                value={selectedCompanyId}
+                onChange={setSelectedCompanyId}
+                placeholder="Seleccionar empresa"
+                searchFields={["name"]}
+                className="w-64"
+              />
+            </div>
+          )}
+        </SearchAndPagination>
       </div>
 
       {/* Tabla de estados */}

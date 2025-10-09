@@ -6,16 +6,19 @@ import { Plus, Package } from "lucide-react";
 import ActionButtons from "@/components/common/ActionButtons";
 import { formatDate } from "@/lib/utils/formatters";
 import SearchAndPagination from "@/components/common/SearchAndPagination";
+import FilterableSelect from "@/components/common/FilterableSelect";
 import { useSearchAndPagination } from "@/hooks/useSearchAndPagination";
 import { MessageModal } from "@/components/common/MessageModal";
 import DeleteConfirmModal from "@/components/common/DeleteConfirmModal";
 import { CategoriaForm } from "@/components/forms/CategoriaForm";
 import { useMessageModal } from "@/hooks/useMessageModal";
 import { useCategorias, type Categoria } from "@/hooks/useCategorias";
+import { useEmpresas, type Empresa } from "@/hooks/useEmpresas";
 import { useCRUDPage } from "@/hooks/useCRUDPage";
 
 function CategoriasContent() {
   const { data: session } = useSession();
+  const [selectedCompanyId, setSelectedCompanyId] = useState<string>("");
   const {
     editingItem: editingCategoria,
     showForm,
@@ -30,6 +33,13 @@ function CategoriasContent() {
   } = useCRUDPage<Categoria>();
   const { showSuccess, showError, hideModal, isModalOpen, modalContent } = useMessageModal();
   
+  const { empresas } = useEmpresas();
+  
+  // Determinar qué empresa usar: la seleccionada o la del usuario
+  const companyId = session?.user?.role === "SUPERADMIN" 
+    ? selectedCompanyId 
+    : session?.user?.companyId;
+
   const { 
     categorias, 
     isLoading, 
@@ -37,7 +47,7 @@ function CategoriasContent() {
     createCategoria, 
     updateCategoria, 
     deleteCategoria 
-  } = useCategorias();
+  } = useCategorias(companyId || undefined);
 
   const {
     searchTerm,
@@ -88,6 +98,9 @@ function CategoriasContent() {
     }
   };
 
+  // Verificar si necesita seleccionar empresa
+  const needsCompanySelection = session?.user?.role === "SUPERADMIN" && !selectedCompanyId;
+
   if (isLoading) {
     return (
       <main className="main-content">
@@ -95,6 +108,31 @@ function CategoriasContent() {
           <h2>Gestión de Categorías</h2>
           <p>Cargando...</p>
         </div>
+      </main>
+    );
+  }
+
+  // Mostrar selector de empresa si es SUPERADMIN sin empresa seleccionada
+  if (needsCompanySelection) {
+    return (
+      <main className="main-content">
+        <section className="form-section">
+          <h2>Gestión de Categorías</h2>
+          <div className="form-section">
+            <h3>Seleccionar Empresa</h3>
+            <p>Selecciona una empresa para ver sus categorías:</p>
+            <div className="mt-4">
+              <FilterableSelect
+                options={empresas}
+                value={selectedCompanyId}
+                onChange={setSelectedCompanyId}
+                placeholder="Seleccionar empresa"
+                searchFields={["name"]}
+                className="w-80"
+              />
+            </div>
+          </div>
+        </section>
       </main>
     );
   }
@@ -132,7 +170,20 @@ function CategoriasContent() {
             totalItems={totalItems}
             itemsPerPage={itemsPerPage}
             placeholder="Buscar categorías..."
-          />
+          >
+            {session?.user?.role === "SUPERADMIN" && (
+              <div className="ml-4">
+                <FilterableSelect
+                  options={empresas}
+                  value={selectedCompanyId}
+                  onChange={setSelectedCompanyId}
+                  placeholder="Seleccionar empresa"
+                  searchFields={["name"]}
+                  className="w-64"
+                />
+              </div>
+            )}
+          </SearchAndPagination>
           
           {error && (
             <div className="error-message">
