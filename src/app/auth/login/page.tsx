@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { signIn, getSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
@@ -10,7 +10,8 @@ import { useEnvironment } from "@/hooks/useEnvironment"
 
 const loginSchema = z.object({
   email: z.string().email("Email inválido"),
-  password: z.string().min(1, "Password requerido")
+  password: z.string().min(1, "Password requerido"),
+  rememberMe: z.boolean().optional()
 })
 
 type LoginForm = z.infer<typeof loginSchema>
@@ -24,10 +25,27 @@ export default function LoginPage() {
   const {
     register,
     handleSubmit,
+    setValue,
+    watch,
     formState: { errors }
   } = useForm<LoginForm>({
     resolver: zodResolver(loginSchema)
   })
+
+  const rememberMe = watch("rememberMe")
+
+  // Cargar credenciales guardadas al cargar la página
+  useEffect(() => {
+    const savedEmail = localStorage.getItem("rememberedEmail")
+    const savedPassword = localStorage.getItem("rememberedPassword")
+    const savedRememberMe = localStorage.getItem("rememberMe") === "true"
+
+    if (savedEmail && savedPassword && savedRememberMe) {
+      setValue("email", savedEmail)
+      setValue("password", savedPassword)
+      setValue("rememberMe", true)
+    }
+  }, [setValue])
 
   const onSubmit = async (data: LoginForm) => {
     setIsLoading(true)
@@ -50,6 +68,17 @@ export default function LoginPage() {
           setError("Error al iniciar sesión. Intenta nuevamente.")
         }
       } else {
+        // Guardar o limpiar credenciales según el checkbox
+        if (data.rememberMe) {
+          localStorage.setItem("rememberedEmail", data.email)
+          localStorage.setItem("rememberedPassword", data.password)
+          localStorage.setItem("rememberMe", "true")
+        } else {
+          localStorage.removeItem("rememberedEmail")
+          localStorage.removeItem("rememberedPassword")
+          localStorage.removeItem("rememberMe")
+        }
+
         // Verificar la sesión para obtener el rol
         const session = await getSession()
         if (session?.user?.role === "SUPERADMIN") {
@@ -125,6 +154,19 @@ export default function LoginPage() {
                   {errors.password.message}
                 </p>
               )}
+            </div>
+
+            {/* Remember Me Checkbox */}
+            <div className="flex items-center">
+              <input
+                {...register("rememberMe")}
+                id="rememberMe"
+                type="checkbox"
+                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+              />
+              <label htmlFor="rememberMe" className="ml-2 block text-sm text-gray-700">
+                Recordar contraseña
+              </label>
             </div>
 
             {error && (
