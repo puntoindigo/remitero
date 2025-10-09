@@ -17,6 +17,7 @@ import { useMessageModal } from "@/hooks/useMessageModal";
 import { ProductoForm } from "@/components/forms/ProductoForm";
 import { useCRUDPage } from "@/hooks/useCRUDPage";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { useEmpresas, type Empresa } from "@/hooks/useEmpresas";
 
 interface Product {
   id: string;
@@ -42,6 +43,7 @@ function ProductosContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
+  const [selectedCompanyId, setSelectedCompanyId] = useState<string>("");
   // CRUD State Management
   const {
     editingItem: editingProduct,
@@ -65,6 +67,14 @@ function ProductosContent() {
   
   // Hook para manejar modales de mensajes
   const { modalState, showSuccess, showError, closeModal } = useMessageModal();
+
+  // Hook para empresas
+  const { empresas } = useEmpresas();
+
+  // Determinar qué empresa usar: la seleccionada o la del usuario
+  const companyId = currentUser?.role === "SUPERADMIN" 
+    ? selectedCompanyId 
+    : currentUser?.companyId;
 
   // Función para obtener el stock del producto
   const getStockFromProduct = (product: any) => {
@@ -102,13 +112,13 @@ function ProductosContent() {
 
 
   const loadData = async () => {
-    if (!currentUser?.companyId) return;
+    if (!companyId) return;
 
     try {
       setIsLoading(true);
       // Pasar companyId del usuario actual (considerando impersonation)
-      const productsUrl = currentUser?.companyId ? `/api/products?companyId=${currentUser.companyId}` : "/api/products";
-      const categoriesUrl = currentUser?.companyId ? `/api/categories?companyId=${currentUser.companyId}` : "/api/categories";
+      const productsUrl = companyId ? `/api/products?companyId=${companyId}` : "/api/products";
+      const categoriesUrl = companyId ? `/api/categories?companyId=${companyId}` : "/api/categories";
       
       
       const [productsRes, categoriesRes] = await Promise.all([
@@ -134,7 +144,7 @@ function ProductosContent() {
 
   useEffect(() => {
     loadData();
-  }, [currentUser?.companyId]);
+  }, [companyId]);
 
   // Detectar parámetro ?new=true para abrir formulario automáticamente
   useEffect(() => {
@@ -298,6 +308,34 @@ function ProductosContent() {
     );
   }
 
+  // Verificar si necesita seleccionar empresa
+  const needsCompanySelection = currentUser?.role === "SUPERADMIN" && !selectedCompanyId;
+
+  // Mostrar selector de empresa si es SUPERADMIN sin empresa seleccionada
+  if (needsCompanySelection) {
+    return (
+      <main className="main-content">
+        <section className="form-section">
+          <h2>Gestión de Productos</h2>
+          <div className="form-section">
+            <h3>Seleccionar Empresa</h3>
+            <p>Selecciona una empresa para ver sus productos:</p>
+            <div className="mt-4">
+              <FilterableSelect
+                options={empresas}
+                value={selectedCompanyId}
+                onChange={setSelectedCompanyId}
+                placeholder="Seleccionar empresa"
+                searchFields={["name"]}
+                className="w-80"
+              />
+            </div>
+          </div>
+        </section>
+      </main>
+    );
+  }
+
   return (
     <main className="main-content">
       <div className="px-4 py-6 sm:px-0">
@@ -344,6 +382,16 @@ function ProductosContent() {
             placeholder="Buscar productos..."
           >
             <div className="category-filter-wrapper" style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+              {currentUser?.role === "SUPERADMIN" && (
+                <FilterableSelect
+                  options={empresas}
+                  value={selectedCompanyId}
+                  onChange={setSelectedCompanyId}
+                  placeholder="Seleccionar empresa"
+                  searchFields={["name"]}
+                  className="w-64"
+                />
+              )}
               <FilterableSelect
                 options={[
                   { id: "", name: "Todas las categorías" },
