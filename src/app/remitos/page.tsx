@@ -1286,6 +1286,9 @@ function RemitosContent() {
           </div>
         )}
 
+          </>
+        )}
+
         {/* Modal de mensajes */}
         <MessageModal
           isOpen={modalState.isOpen}
