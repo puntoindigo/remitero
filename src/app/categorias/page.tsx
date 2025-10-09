@@ -112,31 +112,6 @@ function CategoriasContent() {
     );
   }
 
-  // Mostrar selector de empresa si es SUPERADMIN sin empresa seleccionada
-  if (needsCompanySelection) {
-    return (
-      <main className="main-content">
-        <section className="form-section">
-          <h2>Gestión de Categorías</h2>
-          <div className="form-section">
-            <h3>Seleccionar Empresa</h3>
-            <p>Selecciona una empresa para ver sus categorías:</p>
-            <div className="mt-4">
-              <FilterableSelect
-                options={empresas}
-                value={selectedCompanyId}
-                onChange={setSelectedCompanyId}
-                placeholder="Seleccionar empresa"
-                searchFields={["name"]}
-                className="w-80"
-              />
-            </div>
-          </div>
-        </section>
-      </main>
-    );
-  }
-
   return (
     <main className="main-content">
       <section className="form-section">
@@ -184,14 +159,16 @@ function CategoriasContent() {
               </div>
             )}
           </SearchAndPagination>
-          
-          {error && (
-            <div className="error-message">
-              {error}
-            </div>
-          )}
-          
-          {!Array.isArray(filteredCategorias) || filteredCategorias.length === 0 ? (
+
+          {!needsCompanySelection && (
+            <>
+              {error && (
+                <div className="error-message">
+                  {error}
+                </div>
+              )}
+              
+              {!Array.isArray(filteredCategorias) || filteredCategorias.length === 0 ? (
             <p>No hay categorías registradas.</p>
           ) : (
             <div className="table-container">
@@ -238,6 +215,8 @@ function CategoriasContent() {
                 </tbody>
               </table>
             </div>
+          )}
+            </>
           )}
         </div>
       </section>

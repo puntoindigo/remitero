@@ -198,34 +198,6 @@ function EstadosRemitosContent() {
   // Verificar si necesita seleccionar empresa
   const needsCompanySelection = currentUser?.role === "SUPERADMIN" && !selectedCompanyId;
 
-  // Mostrar selector de empresa si es SUPERADMIN sin empresa seleccionada
-  if (needsCompanySelection) {
-    return (
-      <div className="estados-remitos-container">
-        <div className="estados-remitos-header">
-          <div>
-            <h1 className="estados-remitos-title">Estados de Remitos</h1>
-            <p className="estados-remitos-subtitle">
-              Selecciona una empresa para ver sus estados de remitos
-            </p>
-          </div>
-        </div>
-        <div className="estados-remitos-search">
-          <div className="mt-4">
-            <FilterableSelect
-              options={empresas}
-              value={selectedCompanyId}
-              onChange={setSelectedCompanyId}
-              placeholder="Seleccionar empresa"
-              searchFields={["name"]}
-              className="w-80"
-            />
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="estados-remitos-container">
       <div className="estados-remitos-header">
@@ -271,8 +243,10 @@ function EstadosRemitosContent() {
         </SearchAndPagination>
       </div>
 
-      {/* Tabla de estados */}
-      <div className="estados-remitos-table-container">
+      {!needsCompanySelection && (
+        <>
+          {/* Tabla de estados */}
+          <div className="estados-remitos-table-container">
         <table className="estados-remitos-table">
           <thead>
             <tr>
@@ -352,6 +326,8 @@ function EstadosRemitosContent() {
           </div>
         )}
       </div>
+        </>
+      )}
 
       {/* Modal de formulario */}
       {showForm && (

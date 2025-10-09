@@ -112,19 +112,27 @@ function ProductosContent() {
 
 
   const loadData = async () => {
-    if (!companyId) return;
+    if (!companyId) {
+      console.log('No companyId, skipping loadData');
+      return;
+    }
 
     try {
       setIsLoading(true);
+      console.log('Loading data for companyId:', companyId);
+      
       // Pasar companyId del usuario actual (considerando impersonation)
       const productsUrl = companyId ? `/api/products?companyId=${companyId}` : "/api/products";
       const categoriesUrl = companyId ? `/api/categories?companyId=${companyId}` : "/api/categories";
       
+      console.log('Fetching from URLs:', { productsUrl, categoriesUrl });
       
       const [productsRes, categoriesRes] = await Promise.all([
         fetch(productsUrl),
         fetch(categoriesUrl)
       ]);
+
+      console.log('Response status:', { products: productsRes.status, categories: categoriesRes.status });
 
       if (!productsRes.ok || !categoriesRes.ok) {
         throw new Error('Error al cargar los datos');
@@ -132,6 +140,8 @@ function ProductosContent() {
 
       const productsData = await productsRes.json();
       const categoriesData = await categoriesRes.json();
+
+      console.log('Loaded data:', { products: productsData.length, categories: categoriesData.length });
 
       setProducts(productsData);
       setCategories(categoriesData);
@@ -311,31 +321,6 @@ function ProductosContent() {
   // Verificar si necesita seleccionar empresa
   const needsCompanySelection = currentUser?.role === "SUPERADMIN" && !selectedCompanyId;
 
-  // Mostrar selector de empresa si es SUPERADMIN sin empresa seleccionada
-  if (needsCompanySelection) {
-    return (
-      <main className="main-content">
-        <section className="form-section">
-          <h2>Gestión de Productos</h2>
-          <div className="form-section">
-            <h3>Seleccionar Empresa</h3>
-            <p>Selecciona una empresa para ver sus productos:</p>
-            <div className="mt-4">
-              <FilterableSelect
-                options={empresas}
-                value={selectedCompanyId}
-                onChange={setSelectedCompanyId}
-                placeholder="Seleccionar empresa"
-                searchFields={["name"]}
-                className="w-80"
-              />
-            </div>
-          </div>
-        </section>
-      </main>
-    );
-  }
-
   return (
     <main className="main-content">
       <div className="px-4 py-6 sm:px-0">
@@ -360,16 +345,6 @@ function ProductosContent() {
         <div className="form-section">
           <h2>Gestión de Productos</h2>
           
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-            <h3 style={{ margin: 0 }}>Lista de Productos</h3>
-            <button
-              onClick={handleNewProduct}
-              className="primary"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Nuevo Producto
-            </button>
-          </div>
           
           <SearchAndPagination
             searchTerm={searchTerm}
@@ -392,33 +367,50 @@ function ProductosContent() {
                   className="w-64"
                 />
               )}
-              <FilterableSelect
-                options={[
-                  { id: "", name: "Todas las categorías" },
-                  ...categories.map(cat => ({ id: cat.id, name: cat.name }))
-                ]}
-                value={selectedCategory}
-                onChange={setSelectedCategory}
-                placeholder="Filtrar por categoría"
-                searchFields={["name"]}
-                className="category-filter-select"
-              />
-              <FilterableSelect
-                options={[
-                  { id: "", name: "Todos los estados" },
-                  { id: "IN_STOCK", name: "✅ Con stock" },
-                  { id: "OUT_OF_STOCK", name: "❌ Sin stock" }
-                ]}
-                value={selectedStock}
-                onChange={setSelectedStock}
-                placeholder="Filtrar por stock"
-                searchFields={["name"]}
-                className="category-filter-select"
-              />
+              {!needsCompanySelection && (
+                <>
+                  <FilterableSelect
+                    options={[
+                      { id: "", name: "Todas las categorías" },
+                      ...categories.map(cat => ({ id: cat.id, name: cat.name }))
+                    ]}
+                    value={selectedCategory}
+                    onChange={setSelectedCategory}
+                    placeholder="Filtrar por categoría"
+                    searchFields={["name"]}
+                    className="category-filter-select"
+                  />
+                  <FilterableSelect
+                    options={[
+                      { id: "", name: "Todos los estados" },
+                      { id: "IN_STOCK", name: "✅ Con stock" },
+                      { id: "OUT_OF_STOCK", name: "❌ Sin stock" }
+                    ]}
+                    value={selectedStock}
+                    onChange={setSelectedStock}
+                    placeholder="Filtrar por stock"
+                    searchFields={["name"]}
+                    className="category-filter-select"
+                  />
+                </>
+              )}
             </div>
           </SearchAndPagination>
-          
-          {!Array.isArray(products) || products.length === 0 ? (
+
+          {!needsCompanySelection && (
+            <>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                <h3 style={{ margin: 0 }}>Lista de Productos</h3>
+                <button
+                  onClick={handleNewProduct}
+                  className="primary"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Nuevo Producto
+                </button>
+              </div>
+              
+              {!Array.isArray(products) || products.length === 0 ? (
             <div className="empty-state">
               <Package className="empty-icon" />
               <p className="empty-text">No hay productos</p>
@@ -486,6 +478,8 @@ function ProductosContent() {
                 ))}
               </tbody>
             </table>
+          )}
+            </>
           )}
         </div>
 
