@@ -158,15 +158,17 @@ export default function LoginPage() {
             </div>
 
             {/* Remember Me Checkbox */}
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-3">
               <Checkbox
                 id="rememberMe"
                 checked={rememberMe}
                 onCheckedChange={(checked) => setValue("rememberMe", !!checked)}
+                className="border-gray-300 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
               />
               <label
                 htmlFor="rememberMe"
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-gray-700"
+                className="text-sm text-gray-700 cursor-pointer select-none hover:text-gray-900 transition-colors duration-200"
+                onClick={() => setValue("rememberMe", !rememberMe)}
               >
                 Recordar contraseña
               </label>
