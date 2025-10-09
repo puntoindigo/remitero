@@ -122,6 +122,8 @@ function RemitosContent() {
   console.log('RemitosContent - companyId:', companyId);
   console.log('RemitosContent - empresas:', empresas);
   console.log('RemitosContent - needsCompanySelection:', currentUser?.role === "SUPERADMIN" && !selectedCompanyId);
+  console.log('RemitosContent - shouldShowFilterableSelect:', currentUser?.role === "SUPERADMIN" && empresas.length > 0);
+  console.log('RemitosContent - isLoading:', isLoading);
 
   const {
     register,

@@ -81,6 +81,8 @@ function ProductosContent() {
   console.log('ProductosContent - companyId:', companyId);
   console.log('ProductosContent - empresas:', empresas);
   console.log('ProductosContent - needsCompanySelection:', currentUser?.role === "SUPERADMIN" && !selectedCompanyId);
+  console.log('ProductosContent - shouldShowFilterableSelect:', currentUser?.role === "SUPERADMIN" && empresas.length > 0);
+  console.log('ProductosContent - isLoading:', isLoading);
 
   // Función para obtener el stock del producto
   const getStockFromProduct = (product: any) => {
