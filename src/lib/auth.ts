@@ -6,6 +6,8 @@ import { supabaseAdmin } from "./supabase"
 
 export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
+  // Forzar URL correcta para evitar caracteres de nueva línea
+  url: process.env.NEXTAUTH_URL?.trim() || 'https://remitero-dev.vercel.app',
   providers: [
     // GoogleProvider solo si las variables de entorno están configuradas
     ...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET ? [
