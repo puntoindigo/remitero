@@ -7,6 +7,7 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { useEnvironment } from "@/hooks/useEnvironment"
+import { Checkbox } from "@/components/ui/checkbox"
 
 const loginSchema = z.object({
   email: z.string().email("Email inválido"),
@@ -157,14 +158,16 @@ export default function LoginPage() {
             </div>
 
             {/* Remember Me Checkbox */}
-            <div className="flex items-center">
-              <input
-                {...register("rememberMe")}
+            <div className="flex items-center space-x-2">
+              <Checkbox
                 id="rememberMe"
-                type="checkbox"
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                checked={rememberMe}
+                onCheckedChange={(checked) => setValue("rememberMe", !!checked)}
               />
-              <label htmlFor="rememberMe" className="ml-2 block text-sm text-gray-700">
+              <label
+                htmlFor="rememberMe"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-gray-700"
+              >
                 Recordar contraseña
               </label>
             </div>

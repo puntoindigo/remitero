@@ -1899,7 +1899,7 @@ form svg {
 
 /* Modal de confirmación específico */
 .confirm-modal {
-  z-index: 1001;
+  z-index: 10001;
   position: fixed;
   top: 50%;
   left: 50%;
