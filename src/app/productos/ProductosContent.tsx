@@ -122,6 +122,7 @@ function ProductosContent() {
   const loadData = async () => {
     if (!companyId) {
       console.log('No companyId, skipping loadData');
+      setIsLoading(false); // Importante: poner isLoading en false para mostrar el selector
       return;
     }
 

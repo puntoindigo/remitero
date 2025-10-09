@@ -138,7 +138,11 @@ function RemitosContent() {
   });
 
   const loadData = async () => {
-    if (!companyId) return;
+    if (!companyId) {
+      console.log('No companyId, skipping loadData');
+      setIsLoading(false); // Importante: poner isLoading en false para mostrar el selector
+      return;
+    }
     
     try {
       // Pasar companyId del usuario actual (considerando impersonation)
