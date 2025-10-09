@@ -7,6 +7,7 @@ import { Plus, Users, Building2 } from "lucide-react";
 import UserActionButtons from "@/components/common/UserActionButtons";
 import { formatDate } from "@/lib/utils/formatters";
 import SearchAndPagination from "@/components/common/SearchAndPagination";
+import FilterableSelect from "@/components/common/FilterableSelect";
 import { useSearchAndPagination } from "@/hooks/useSearchAndPagination";
 import { MessageModal } from "@/components/common/MessageModal";
 import DeleteConfirmModal from "@/components/common/DeleteConfirmModal";
@@ -209,18 +210,19 @@ function UsuariosContent() {
             placeholder="Buscar usuarios..."
           >
             {session?.user?.role === "SUPERADMIN" && (
-              <select
-                value={selectedCompanyId}
-                onChange={(e) => setSelectedCompanyId(e.target.value)}
-                className="ml-4 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-              >
-                <option value="">Todas las empresas</option>
-                {empresas.map((empresa) => (
-                  <option key={empresa.id} value={empresa.id}>
-                    {empresa.name}
-                  </option>
-                ))}
-              </select>
+              <div className="ml-4">
+                <FilterableSelect
+                  options={[
+                    { id: "", name: "Todas las empresas" },
+                    ...empresas
+                  ]}
+                  value={selectedCompanyId}
+                  onChange={setSelectedCompanyId}
+                  placeholder="Seleccionar empresa"
+                  searchFields={["name"]}
+                  className="w-64"
+                />
+              </div>
             )}
           </SearchAndPagination>
           

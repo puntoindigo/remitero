@@ -181,7 +181,7 @@ export function UsuarioForm({
           <input
             {...register("address")}
             type="text"
-            placeholder="Av. Corrientes 1234, CABA"
+            placeholder="Corrientes 1234, Rosario"
           />
           {errors.address && (
             <p className="error-message">{errors.address.message}</p>
