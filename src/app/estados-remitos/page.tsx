@@ -228,7 +228,7 @@ function EstadosRemitosContent() {
           onPageChange={handlePageChange}
           placeholder="Buscar estados..."
         >
-          {currentUser?.role === "SUPERADMIN" && (
+          {currentUser?.role === "SUPERADMIN" && empresas.length > 0 && (
             <div className="ml-4">
               <FilterableSelect
                 options={empresas}

@@ -363,7 +363,7 @@ function ProductosContent() {
             placeholder="Buscar productos..."
           >
             <div className="category-filter-wrapper" style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-              {currentUser?.role === "SUPERADMIN" && (
+              {currentUser?.role === "SUPERADMIN" && empresas.length > 0 && (
                 <FilterableSelect
                   options={empresas}
                   value={selectedCompanyId}

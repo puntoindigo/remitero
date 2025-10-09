@@ -150,7 +150,7 @@ function ClientesContent() {
             itemsPerPage={itemsPerPage}
             placeholder="Buscar clientes..."
           >
-            {session?.user?.role === "SUPERADMIN" && (
+            {session?.user?.role === "SUPERADMIN" && empresas.length > 0 && (
               <div className="ml-4">
                 <FilterableSelect
                   options={empresas}
