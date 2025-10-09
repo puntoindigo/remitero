@@ -26,6 +26,7 @@ import FilterableSelect from "@/components/common/FilterableSelect";
 import SimpleSelect from "@/components/common/SimpleSelect";
 import { useEstadosRemitos } from "@/hooks/useEstadosRemitos";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { useEmpresas, type Empresa } from "@/hooks/useEmpresas";
 import SearchAndPagination from "@/components/common/SearchAndPagination";
 import { MessageModal } from "@/components/common/MessageModal";
 import { FormModal } from "@/components/common/FormModal";
@@ -83,6 +84,7 @@ function RemitosContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
+  const [selectedCompanyId, setSelectedCompanyId] = useState<string>("");
   const [remitos, setRemitos] = useState<Remito[]>([]);
   const { estadosActivos } = useEstadosRemitos();
   const [clients, setClients] = useState<Client[]>([]);
@@ -107,6 +109,14 @@ function RemitosContent() {
   // Hook para manejar modales de mensajes
   const { modalState, showSuccess, showError, closeModal } = useMessageModal();
 
+  // Hook para empresas
+  const { empresas } = useEmpresas();
+
+  // Determinar qué empresa usar: la seleccionada o la del usuario
+  const companyId = currentUser?.role === "SUPERADMIN" 
+    ? selectedCompanyId 
+    : currentUser?.companyId;
+
   const {
     register,
     handleSubmit,
@@ -120,13 +130,13 @@ function RemitosContent() {
   });
 
   const loadData = async () => {
-    if (!currentUser?.companyId) return;
+    if (!companyId) return;
     
     try {
       // Pasar companyId del usuario actual (considerando impersonation)
-      const remitosUrl = currentUser?.companyId ? `/api/remitos?companyId=${currentUser.companyId}` : "/api/remitos";
-      const clientsUrl = currentUser?.companyId ? `/api/clients?companyId=${currentUser.companyId}` : "/api/clients";
-      const productsUrl = currentUser?.companyId ? `/api/products?companyId=${currentUser.companyId}` : "/api/products";
+      const remitosUrl = companyId ? `/api/remitos?companyId=${companyId}` : "/api/remitos";
+      const clientsUrl = companyId ? `/api/clients?companyId=${companyId}` : "/api/clients";
+      const productsUrl = companyId ? `/api/products?companyId=${companyId}` : "/api/products";
       
       
       const [remitosResponse, clientsResponse, productsResponse] = await Promise.all([
@@ -169,7 +179,7 @@ function RemitosContent() {
 
   useEffect(() => {
     loadData();
-  }, [currentUser?.companyId]);
+  }, [companyId]);
 
   // Detectar parámetro ?new=true para abrir formulario automáticamente
   useEffect(() => {
@@ -774,6 +784,9 @@ function RemitosContent() {
     );
   }
 
+  // Verificar si necesita seleccionar empresa
+  const needsCompanySelection = currentUser?.role === "SUPERADMIN" && !selectedCompanyId;
+
   return (
     <main className="main-content">
       <section className="form-section">
@@ -975,35 +988,51 @@ function RemitosContent() {
               placeholder="Buscar por número..."
             >
               <div className="category-filter-wrapper" style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                <FilterableSelect
-                  options={[
-                    { id: "", name: "Todos los clientes" },
-                    ...clients.map(client => ({ id: client.id, name: client.name }))
-                  ]}
-                  value={selectedClient}
-                  onChange={handleClientFilterChange}
-                  placeholder="Filtrar por cliente"
-                  searchFields={["name"]}
-                  className="category-filter-select"
-                />
-                <FilterableSelect
-                  options={[
-                    { id: "", name: "Todos los estados" },
-                    ...estadosActivos.map(estado => ({
-                      id: estado.id.toUpperCase(),
-                      name: `${estado.icon} ${estado.name}`
-                    }))
-                  ]}
-                  value={selectedStatus}
-                  onChange={handleStatusFilterChange}
-                  placeholder="Filtrar por estado"
-                  searchFields={["name"]}
-                  className="category-filter-select"
-                />
+                {currentUser?.role === "SUPERADMIN" && (
+                  <FilterableSelect
+                    options={empresas}
+                    value={selectedCompanyId}
+                    onChange={setSelectedCompanyId}
+                    placeholder="Seleccionar empresa"
+                    searchFields={["name"]}
+                    className="w-64"
+                  />
+                )}
+                {!needsCompanySelection && (
+                  <>
+                    <FilterableSelect
+                      options={[
+                        { id: "", name: "Todos los clientes" },
+                        ...clients.map(client => ({ id: client.id, name: client.name }))
+                      ]}
+                      value={selectedClient}
+                      onChange={handleClientFilterChange}
+                      placeholder="Filtrar por cliente"
+                      searchFields={["name"]}
+                      className="category-filter-select"
+                    />
+                    <FilterableSelect
+                      options={[
+                        { id: "", name: "Todos los estados" },
+                        ...estadosActivos.map(estado => ({
+                          id: estado.id.toUpperCase(),
+                          name: `${estado.icon} ${estado.name}`
+                        }))
+                      ]}
+                      value={selectedStatus}
+                      onChange={handleStatusFilterChange}
+                      placeholder="Filtrar por estado"
+                      searchFields={["name"]}
+                      className="category-filter-select"
+                    />
+                  </>
+                )}
               </div>
             </SearchAndPagination>
-            
-            {remitos.length === 0 ? (
+
+            {!needsCompanySelection && (
+              <>
+                {remitos.length === 0 ? (
               <div className="empty-state">
                 <FileText className="h-12 w-12 text-gray-400" />
                 <h3>No hay remitos</h3>

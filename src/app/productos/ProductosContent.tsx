@@ -76,6 +76,10 @@ function ProductosContent() {
     ? selectedCompanyId 
     : currentUser?.companyId;
 
+  console.log('ProductosContent - currentUser:', currentUser);
+  console.log('ProductosContent - selectedCompanyId:', selectedCompanyId);
+  console.log('ProductosContent - companyId:', companyId);
+
   // Función para obtener el stock del producto
   const getStockFromProduct = (product: any) => {
     return product.stock || 'OUT_OF_STOCK';
