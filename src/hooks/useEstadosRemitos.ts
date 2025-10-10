@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useCurrentUser } from "./useCurrentUser";
 
 export interface EstadoRemito {
@@ -203,13 +203,13 @@ export function useEstadosRemitos(companyId?: string) {
     return estados.find(estado => estado.id === id);
   };
 
-  const getEstadosActivos = () => {
+  const estadosActivos = useMemo(() => {
     return estados.filter(estado => estado.is_active);
-  };
+  }, [estados]);
 
   return {
     estados,
-    estadosActivos: getEstadosActivos(),
+    estadosActivos,
     isLoading,
     error,
     getEstadoById,
