@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 
 interface MessageModalState {
   isOpen: boolean;
@@ -19,7 +19,7 @@ export function useMessageModal() {
     details: undefined
   });
 
-  const showSuccess = (title: string, message: string, details?: string) => {
+  const showSuccess = useCallback((title: string, message: string, details?: string) => {
     setModalState({
       isOpen: true,
       type: 'success',
@@ -27,9 +27,9 @@ export function useMessageModal() {
       message,
       details
     });
-  };
+  }, []);
 
-  const showError = (title: string, message: string, details?: string) => {
+  const showError = useCallback((title: string, message: string, details?: string) => {
     setModalState({
       isOpen: true,
       type: 'error',
@@ -37,9 +37,9 @@ export function useMessageModal() {
       message,
       details
     });
-  };
+  }, []);
 
-  const showWarning = (title: string, message: string, details?: string) => {
+  const showWarning = useCallback((title: string, message: string, details?: string) => {
     setModalState({
       isOpen: true,
       type: 'warning',
@@ -47,9 +47,9 @@ export function useMessageModal() {
       message,
       details
     });
-  };
+  }, []);
 
-  const showInfo = (title: string, message: string, details?: string) => {
+  const showInfo = useCallback((title: string, message: string, details?: string) => {
     setModalState({
       isOpen: true,
       type: 'info',
@@ -57,11 +57,11 @@ export function useMessageModal() {
       message,
       details
     });
-  };
+  }, []);
 
-  const closeModal = () => {
+  const closeModal = useCallback(() => {
     setModalState(prev => ({ ...prev, isOpen: false }));
-  };
+  }, []);
 
   return {
     modalState,

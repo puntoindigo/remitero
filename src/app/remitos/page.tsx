@@ -23,7 +23,6 @@ import {
 import RemitoActionButtons from "@/components/common/RemitoActionButtons";
 import { formatDate } from "@/lib/utils/formatters";
 import FilterableSelect from "@/components/common/FilterableSelect";
-import SimpleSelect from "@/components/common/SimpleSelect";
 import { useEstadosRemitos } from "@/hooks/useEstadosRemitos";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useEmpresas, type Empresa } from "@/hooks/useEmpresas";
@@ -1110,16 +1109,17 @@ function RemitosContent() {
                       <td className="font-medium">#{remito.number}</td>
                       <td>{remito.client.name}</td>
                       <td>
-                        <SimpleSelect
+                        <select
                           value={remito.status}
-                          onChange={(value) => handleStatusChange(remito.id, value as any)}
-                          options={(estadosActivos || []).map(estado => ({
-                            id: estado.id.toUpperCase(),
-                            name: estado.name,
-                            icon: estado.icon
-                          }))}
+                          onChange={(e) => handleStatusChange(remito.id, e.target.value as any)}
                           className={getStatusColor(remito.status)}
-                        />
+                        >
+                          {(estadosActivos || []).map(estado => (
+                            <option key={estado.id} value={estado.id.toUpperCase()}>
+                              {estado.icon} {estado.name}
+                            </option>
+                          ))}
+                        </select>
                       </td>
                       <td>{(Number(remito.total) || 0).toLocaleString('es-AR', { style: 'currency', currency: 'ARS' })}</td>
                       <td>{new Date(remito.createdAt).toLocaleString('es-AR', {
