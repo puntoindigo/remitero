@@ -86,7 +86,10 @@ function RemitosContent() {
   const pathname = usePathname();
   const [selectedCompanyId, setSelectedCompanyId] = useState<string>("");
   const [remitos, setRemitos] = useState<Remito[]>([]);
-  const { estadosActivos } = useEstadosRemitos();
+  const { estadosActivos } = useEstadosRemitos(companyId);
+  
+  // Debug: Log estados disponibles
+  console.log('RemitosContent - estadosActivos:', estadosActivos);
   const [clients, setClients] = useState<Client[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -219,7 +222,7 @@ function RemitosContent() {
       console.log('session:', session?.user);
     }
     
-    if (!currentUser?.companyId || !currentUser?.id) {
+    if (!companyId || !currentUser?.id) {
       console.log('Missing session data');
       return;
     }
@@ -233,7 +236,7 @@ function RemitosContent() {
       const remitoData = {
         clientId: data.clientId,
         notes: data.notes || '',
-        companyId: currentUser?.companyId, // Incluir companyId para impersonation
+        companyId: companyId, // Incluir companyId para impersonation
         items: items.map(item => ({
           product_id: item.product_id,
           product_name: item.product_name,
@@ -508,7 +511,7 @@ function RemitosContent() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!currentUser?.companyId) return;
+    if (!companyId) return;
 
     try {
       const response = await fetch(`/api/remitos/${id}`, {
@@ -529,9 +532,15 @@ function RemitosContent() {
   };
 
   const handleStatusChange = async (id: string, status: "PENDIENTE" | "PREPARADO" | "ENTREGADO" | "CANCELADO") => {
-    if (!currentUser?.companyId || !currentUser?.id) return;
+    console.log('handleStatusChange called:', { id, status, companyId, currentUserId: currentUser?.id });
+    
+    if (!companyId || !currentUser?.id) {
+      console.log('Missing required data:', { companyId, currentUserId: currentUser?.id });
+      return;
+    }
 
     try {
+      console.log('Sending status change request to:', `/api/remitos/${id}/status`);
       const response = await fetch(`/api/remitos/${id}/status`, {
         method: 'PUT',
         headers: {
@@ -540,12 +549,18 @@ function RemitosContent() {
         body: JSON.stringify({ status }),
       });
 
+      console.log('Status change response:', { status: response.status, ok: response.ok });
+
       if (!response.ok) {
-        throw new Error('Error al actualizar el estado');
+        const errorData = await response.json();
+        console.error('Status change error:', errorData);
+        throw new Error(errorData.message || 'Error al actualizar el estado');
       }
 
+      console.log('Status change successful, reloading data...');
       await loadData();
     } catch (error: any) {
+      console.error('Status change error:', error);
       showError("Error al actualizar el estado", error.message);
     }
   };

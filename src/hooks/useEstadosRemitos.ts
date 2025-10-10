@@ -86,7 +86,7 @@ const ESTADOS_PREDEFINIDOS: EstadoRemito[] = [
   }
 ];
 
-export function useEstadosRemitos() {
+export function useEstadosRemitos(companyId?: string) {
   const currentUser = useCurrentUser();
   const [estados, setEstados] = useState<EstadoRemito[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -97,13 +97,13 @@ export function useEstadosRemitos() {
       setIsLoading(true);
       setError(null);
       
-      if (!currentUser?.companyId) {
+      if (!companyId) {
         setEstados(ESTADOS_PREDEFINIDOS);
         return;
       }
 
       // Pasar companyId del usuario actual (considerando impersonation)
-      const url = currentUser?.companyId ? `/api/estados-remitos?companyId=${currentUser.companyId}` : "/api/estados-remitos";
+      const url = companyId ? `/api/estados-remitos?companyId=${companyId}` : "/api/estados-remitos";
       const response = await fetch(url);
       
       if (!response.ok) {
@@ -124,7 +124,7 @@ export function useEstadosRemitos() {
 
   useEffect(() => {
     loadEstados();
-  }, [currentUser?.companyId]);
+  }, [companyId]);
 
   const createEstado = async (estadoData: EstadoRemitoFormData) => {
     try {

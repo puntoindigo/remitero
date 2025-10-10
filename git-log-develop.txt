@@ -1,0 +1,2516 @@
+c3ca967|2025-10-09 15:37:25 -0300|Diego Andres Eiman|fix: Corregir isLoading para mostrar FilterableSelect
+ src/app/productos/ProductosContent.tsx | 1 +
+ src/app/remitos/page.tsx               | 6 +++++-
+ 2 files changed, 6 insertions(+), 1 deletion(-)
+
+bcadca5|2025-10-09 15:35:01 -0300|Diego Andres Eiman|debug: Agregar logs adicionales para debuggear renderizado
+ src/app/productos/ProductosContent.tsx | 2 ++
+ src/app/remitos/page.tsx               | 2 ++
+ 2 files changed, 4 insertions(+)
+
+942dbbf|2025-10-09 15:31:10 -0300|Diego Andres Eiman|fix: Corregir renderizado del FilterableSelect de empresas
+ src/app/categorias/page.tsx            | 2 +-
+ src/app/clientes/page.tsx              | 2 +-
+ src/app/estados-remitos/page.tsx       | 2 +-
+ src/app/productos/ProductosContent.tsx | 2 +-
+ src/app/remitos/page.tsx               | 2 +-
+ 5 files changed, 5 insertions(+), 5 deletions(-)
+
+14ec7ef|2025-10-09 15:28:12 -0300|Diego Andres Eiman|debug: Agregar logs adicionales para debuggear FilterableSelect
+ src/app/productos/ProductosContent.tsx | 2 ++
+ src/app/remitos/page.tsx               | 6 ++++++
+ 2 files changed, 8 insertions(+)
+
+09fb046|2025-10-09 15:24:30 -0300|Diego Andres Eiman|fix: Cerrar bloque condicional {!showForm && ( correctamente
+ src/app/remitos/page.tsx | 3 +++
+ 1 file changed, 3 insertions(+)
+
+efec3b8|2025-10-09 15:19:27 -0300|Diego Andres Eiman|fix: Corregir error de sintaxis JSX en remitos
+ src/app/remitos/page.tsx | 20 ++++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
+
+4c21132|2025-10-09 15:16:55 -0300|Diego Andres Eiman|feat: Agregar FilterableSelect de empresas en remitos y debug productos
+ src/app/productos/ProductosContent.tsx |  4 ++
+ src/app/remitos/page.tsx               | 93 ++++++++++++++++++++++------------
+ 2 files changed, 65 insertions(+), 32 deletions(-)
+
+08f6182|2025-10-09 15:11:13 -0300|Diego Andres Eiman|feat: Mejorar UX del selector de empresas en todas las páginas
+ src/app/categorias/page.tsx            |  45 ++++---------
+ src/app/clientes/page.tsx              |  44 ++++---------
+ src/app/estados-remitos/page.tsx       |  36 ++--------
+ src/app/productos/ProductosContent.tsx | 116 ++++++++++++++++-----------------
+ 4 files changed, 85 insertions(+), 156 deletions(-)
+
+8fb2779|2025-10-09 15:02:35 -0300|Diego Andres Eiman|feat: Agregar FilterableSelect de empresas en página de productos
+ src/app/productos/ProductosContent.tsx | 56 +++++++++++++++++++++++++++++++---
+ 1 file changed, 52 insertions(+), 4 deletions(-)
+
+61338c6|2025-10-09 15:00:47 -0300|Diego Andres Eiman|feat: Agregar FilterableSelect de empresas en página de clientes
+ src/app/clientes/page.tsx | 55 +++++++++++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 53 insertions(+), 2 deletions(-)
+
+5aa0d6b|2025-10-09 14:59:48 -0300|Diego Andres Eiman|feat: Agregar FilterableSelect de empresas en categorías y estados
+ src/app/categorias/page.tsx      | 55 ++++++++++++++++++++++++++++++++--
+ src/app/estados-remitos/page.tsx | 65 ++++++++++++++++++++++++++++++++++++----
+ 2 files changed, 113 insertions(+), 7 deletions(-)
+
+1ef25aa|2025-10-09 14:51:13 -0300|Diego Andres Eiman|feat: Mejorar placeholders y desplegable de usuarios
+ src/app/usuarios/page.tsx            | 26 ++++++++++++++------------
+ src/components/forms/ClienteForm.tsx |  2 +-
+ src/components/forms/UsuarioForm.tsx |  2 +-
+ 3 files changed, 16 insertions(+), 14 deletions(-)
+
+e995f8a|2025-10-09 14:45:55 -0300|Diego Andres Eiman|fix: Modificar modales para que solo se cierren con botones
+ src/components/common/DeleteConfirmModal.tsx | 2 +-
+ src/components/common/FormModal.tsx          | 8 +-------
+ 2 files changed, 2 insertions(+), 8 deletions(-)
+
+64f15a4|2025-10-09 14:30:03 -0300|Diego Andres Eiman|fix: Simplificar checkbox a input nativo con estilos Tailwind
+ src/app/auth/login/page.tsx | 38 ++++++--------------------------------
+ 1 file changed, 6 insertions(+), 32 deletions(-)
+
+d12f28b|2025-10-09 14:27:02 -0300|Diego Andres Eiman|feat: Crear checkbox personalizado para recordar contraseña
+ src/app/auth/login/page.tsx | 25 ++++++++++++++++++++++++-
+ 1 file changed, 24 insertions(+), 1 deletion(-)
+
+d3a2010|2025-10-09 14:24:10 -0300|Diego Andres Eiman|fix: Simplificar checkbox recordar contraseña
+ src/app/auth/login/page.tsx | 17 +++++++++--------
+ 1 file changed, 9 insertions(+), 8 deletions(-)
+
+d37195b|2025-10-09 14:20:49 -0300|Diego Andres Eiman|style: Mejorar estilo del checkbox recordar contraseña
+ src/app/auth/login/page.tsx | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+d99424d|2025-10-09 14:16:55 -0300|Diego Andres Eiman|fix: Mejorar checkbox y arreglar z-index del modal
+ package-lock.json              | 217 +++++++++++++++++++++++++++++++++++++++++
+ package.json                   |   1 +
+ src/app/auth/login/page.tsx    |  15 +--
+ src/app/globals.css            |   2 +-
+ src/components/ui/checkbox.tsx |  30 ++++++
+ 5 files changed, 258 insertions(+), 7 deletions(-)
+
+2c16b45|2025-10-09 13:57:25 -0300|Diego Andres Eiman|feat: Agregar funcionalidad de recordar contraseña
+ src/app/auth/login/page.tsx | 46 +++++++++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 44 insertions(+), 2 deletions(-)
+
+a97e441|2025-10-09 13:52:31 -0300|Diego Andres Eiman|feat: Simplificar autenticación - Remover Google OAuth
+ src/app/auth/login/page.tsx | 42 --------------------
+ src/lib/auth.ts             | 97 +--------------------------------------------
+ 2 files changed, 2 insertions(+), 137 deletions(-)
+
+a24b33c|2025-10-09 13:48:37 -0300|Diego Andres Eiman|cleanup: Eliminar archivos temporales y endpoints de debug
+ CONFIGURACION_GOOGLE_OAUTH.md             | 130 -------
+ SOLUCION_ERROR_400.md                     | 127 ------
+ SOLUCION_GOOGLE_OAUTH.md                  | 119 ------
+ SOLUCION_LOGIN.md                         | 120 ------
+ fix-nextauth-url.sh                       |  16 -
+ index.html                                | 203 ----------
+ public/test-login.html                    | 185 ---------
+ script.js                                 | 615 ------------------------------
+ setup-google-env.sh                       |  28 --
+ src/app/api/create-test-user/route.ts     |  77 ----
+ src/app/api/debug-google-auth/route.ts    |  40 --
+ src/app/api/debug-google-urls/route.ts    |  63 ---
+ src/app/api/debug-login/route.ts          |  84 ----
+ src/app/api/debug-nextauth-url/route.ts   |  21 -
+ src/app/api/debug-product-update/route.ts |  98 -----
+ src/app/api/debug-remito/route.ts         |  21 -
+ src/app/api/debug-remitos/route.ts        |  99 -----
+ src/app/api/debug-simple/route.ts         |  22 --
+ src/app/api/debug-users/route.ts          |  38 --
+ src/app/api/test-deploy/route.ts          |  10 -
+ src/app/api/test-products/route.ts        |  22 --
+ src/app/api/test-remito/route.ts          |  28 --
+ src/app/api/test-status/route.ts          |  45 ---
+ src/app/api/test-validation/route.ts      |  93 -----
+ styles.css                                | 451 ----------------------
+ temp_clean.tsx                            |   4 -
+ test-google-auth.html                     | 255 -------------
+ test-login.js                             |  25 --
+ test-vercel-login.html                    | 178 ---------
+ verificar-google-oauth.sh                 |  43 ---
+ 30 files changed, 3260 deletions(-)
+
+26955b7|2025-10-09 13:42:34 -0300|Diego Andres Eiman|fix: Forzar URL correcta en NextAuth para evitar caracteres de nueva línea
+ src/lib/auth.ts | 2 ++
+ 1 file changed, 2 insertions(+)
+
+e2c29f5|2025-10-09 13:41:48 -0300|Diego Andres Eiman|debug: Agregar endpoint para debuggear NEXTAUTH_URL
+ fix-nextauth-url.sh                     | 16 ++++++++++++++++
+ src/app/api/debug-nextauth-url/route.ts | 21 +++++++++++++++++++++
+ 2 files changed, 37 insertions(+)
+
+3e93f6d|2025-10-09 13:38:25 -0300|Diego Andres Eiman|fix: Corregir NEXTAUTH_URL sin caracteres de nueva línea
+5fc788d|2025-10-09 13:27:14 -0300|Diego Andres Eiman|fix: Agregar scopes explícitos para Google OAuth
+ src/lib/auth.ts | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+ff1f79d|2025-10-09 12:35:24 -0300|Diego Andres Eiman|docs: Agregar solución específica para error 400 de Google OAuth
+ SOLUCION_ERROR_400.md     | 127 ++++++++++++++++++++++++++++++++++++++++++++++
+ verificar-google-oauth.sh |  43 ++++++++++++++++
+ 2 files changed, 170 insertions(+)
+
+3528519|2025-10-09 11:17:11 -0300|Diego Andres Eiman|fix: Agregar guía y debug para error 400 de Google OAuth
+ CONFIGURACION_GOOGLE_OAUTH.md          | 130 +++++++++++++++++++++++++++++++++
+ src/app/api/debug-google-urls/route.ts |  63 ++++++++++++++++
+ 2 files changed, 193 insertions(+)
+
+7878fc2|2025-10-09 11:11:14 -0300|Diego Andres Eiman|docs: Agregar documentación completa para solución de Google OAuth
+ SOLUCION_GOOGLE_OAUTH.md | 119 +++++++++++++++++++++++++++++++++++++++++++++++
+ setup-google-env.sh      |  28 +++++++++++
+ 2 files changed, 147 insertions(+)
+
+70e9249|2025-10-09 11:09:31 -0300|Diego Andres Eiman|trigger: Forzar nuevo deploy para aplicar variables de entorno de Google OAuth
+244059e|2025-10-09 11:08:00 -0300|Diego Andres Eiman|fix: Mejorar configuración y debug de Google OAuth
+ src/lib/auth.ts       |  14 +++
+ test-google-auth.html | 255 ++++++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 269 insertions(+)
+
+3315f8d|2025-10-09 11:06:46 -0300|Diego Andres Eiman|feat: Agregar endpoint de debug para Google OAuth
+ src/app/api/debug-google-auth/route.ts | 40 ++++++++++++++++++++++++++++++++++
+ 1 file changed, 40 insertions(+)
+
+5f39460|2025-10-09 11:00:33 -0300|Diego Andres Eiman|feat: Agregar archivos de prueba adicionales para login
+ test-browser-login.html | 185 ++++++++++++++++++++++++++++++++++++++++++++++++
+ test-login.js           |  25 +++++++
+ test-vercel-login.html  | 178 ++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 388 insertions(+)
+
+1cc325c|2025-10-09 11:00:27 -0300|Diego Andres Eiman|fix: Solucionar problemas de login y console logs
+ SOLUCION_LOGIN.md                     | 120 ++++++++++++++++++++++
+ public/test-login.html                | 185 ++++++++++++++++++++++++++++++++++
+ src/app/api/create-test-user/route.ts |  77 ++++++++++++++
+ src/app/api/debug-login/route.ts      |  84 +++++++++++++++
+ src/app/api/debug-users/route.ts      |  89 +++++-----------
+ src/lib/auth.ts                       |   2 +-
+ 6 files changed, 492 insertions(+), 65 deletions(-)
+
+3dbfb0c|2025-10-09 10:28:50 -0300|Diego Andres Eiman|Add comprehensive logging for Google Auth flow
+ src/lib/auth.ts | 63 +++++++++++++++++++++++++++++++++++++++++++--------------
+ 1 file changed, 48 insertions(+), 15 deletions(-)
+
+0d8092e|2025-10-09 10:13:23 -0300|Diego Andres Eiman|Fix auth configuration and add diagnostic scripts
+ scripts/check-and-create-user.js | 115 +++++++++++++++++++++++++++++++++++++++
+ scripts/test-login.js            |  62 +++++++++++++++++++++
+ scripts/test-nextauth-config.js  |  56 +++++++++++++++++++
+ src/lib/auth.ts                  |  11 ++--
+ 4 files changed, 240 insertions(+), 4 deletions(-)
+
+2369ea8|2025-10-08 14:20:35 -0300|Diego Andres Eiman|Add Google Auth integration and SUPERADMIN setup
+ scripts/make-daeiman-superadmin.sql | 58 +++++++++++++++++++++++++++++++++++++
+ scripts/setup-google-auth.md        | 47 ++++++++++++++++++++++++++++++
+ src/app/auth/login/page.tsx         | 44 ++++++++++++++++++++++++++++
+ src/lib/auth.ts                     | 41 +++++++++++++++++++++++++-
+ 4 files changed, 189 insertions(+), 1 deletion(-)
+
+964db62|2025-10-08 13:21:02 -0300|Diego Andres Eiman|CRITICAL FIX: Remove infinite loop in error modal useEffect
+ src/app/estados-remitos/page.tsx       | 11 ++---------
+ src/components/common/MessageModal.tsx |  1 -
+ src/hooks/useMessageModal.ts           |  8 +-------
+ 3 files changed, 3 insertions(+), 17 deletions(-)
+
+11582b6|2025-10-08 13:13:06 -0300|Diego Andres Eiman|Fix modal close button and z-index issues
+ src/app/estados-remitos/page.tsx       | 9 ++++++++-
+ src/app/globals.css                    | 2 +-
+ src/components/common/MessageModal.tsx | 7 ++++++-
+ src/hooks/useMessageModal.ts           | 8 +++++++-
+ 4 files changed, 22 insertions(+), 4 deletions(-)
+
+203314d|2025-10-08 12:59:19 -0300|Diego Andres Eiman|Fix error display to use modal instead of replacing page content
+ src/app/estados-remitos/page.tsx | 20 +++++++-------------
+ 1 file changed, 7 insertions(+), 13 deletions(-)
+
+595ebd3|2025-10-08 12:40:03 -0300|Diego Andres Eiman|Fix remito status issues
+ scripts/fix-remitos-status.js        | 63 ++++++++++++++++++++++++++++++++++++
+ src/app/api/estados-remitos/route.ts | 13 +++++++-
+ 2 files changed, 75 insertions(+), 1 deletion(-)
+
+20a8ca6|2025-10-08 12:29:44 -0300|Diego Andres Eiman|Fix impersonation issues
+ .cursor/commands/usuarios.md         |  0
+ src/app/api/estados-remitos/route.ts | 16 ++++++----------
+ src/hooks/useEstadosRemitos.ts       | 10 ++++++++--
+ src/hooks/useImpersonation.ts        |  4 ++--
+ 4 files changed, 16 insertions(+), 14 deletions(-)
+
+48c6166|2025-10-08 12:18:00 -0300|Diego Andres Eiman|Fix user filtering and estados redirect issues
+ src/app/api/users/route.ts       | 5 +++++
+ src/app/estados-remitos/page.tsx | 2 +-
+ src/app/usuarios/page.tsx        | 2 +-
+ 3 files changed, 7 insertions(+), 2 deletions(-)
+
+fd7c318|2025-10-08 11:51:59 -0300|Diego Andres Eiman|Fix auth timeout by simplifying NextAuth config and removing logger dependency
+ src/app/api/auth/check/route.ts    | 24 ++++++++++++++
+ src/app/api/test-nextauth/route.ts | 68 --------------------------------------
+ src/app/api/test-supabase/route.ts | 64 -----------------------------------
+ src/lib/auth.ts                    | 37 +--------------------
+ 4 files changed, 25 insertions(+), 168 deletions(-)
+
+5cb3dc3|2025-10-08 11:36:53 -0300|Diego Andres Eiman|debug: simplificar configuración NextAuth para resolver timeout
+ src/app/api/auth/providers/route.ts | 36 ------------------------------------
+ src/lib/auth.ts                     | 23 +++++++++++------------
+ 2 files changed, 11 insertions(+), 48 deletions(-)
+
+1c013dd|2025-10-08 11:31:40 -0300|Diego Andres Eiman|debug: mejorar configuración NextAuth y agregar endpoint de diagnóstico
+ src/app/api/test-nextauth/route.ts | 68 ++++++++++++++++++++++++++++++++++++++
+ src/lib/auth.ts                    |  3 +-
+ 2 files changed, 70 insertions(+), 1 deletion(-)
+
+2e62d27|2025-10-08 11:09:32 -0300|Diego Andres Eiman|debug: agregar endpoints de prueba para diagnosticar problemas de autenticación
+ src/app/api/auth/providers/route.ts | 36 +++++++++++++++++++++
+ src/app/api/test-supabase/route.ts  | 64 +++++++++++++++++++++++++++++++++++++
+ 2 files changed, 100 insertions(+)
+
+6b59513|2025-10-08 11:04:56 -0300|Diego Andres Eiman|feat: restaurar funcionalidad completa del ABM de estados de remitos
+ src/app/estados-remitos/page.tsx | 405 ++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 400 insertions(+), 5 deletions(-)
+
+6eccdc3|2025-10-08 10:56:21 -0300|Diego Andres Eiman|debug: reescribir página estados-remitos sin hooks para evitar React #418
+ src/app/estados-remitos/page.tsx | 393 +--------------------------------------
+ 1 file changed, 3 insertions(+), 390 deletions(-)
+
+23f1b1b|2025-10-08 10:53:19 -0300|Diego Andres Eiman|debug: ultra simplificar página estados-remitos para evitar React #418
+ src/app/estados-remitos/page.tsx | 18 +++++-------------
+ 1 file changed, 5 insertions(+), 13 deletions(-)
+
+940e840|2025-10-08 10:20:10 -0300|Diego Andres Eiman|debug: simplificar página estados-remitos y agregar endpoint de prueba
+ src/app/api/test-status/route.ts | 45 ++++++++++++++++++++++++++++++++++++++++
+ src/app/estados-remitos/page.tsx | 17 +++++++++++++++
+ 2 files changed, 62 insertions(+)
+
+c8228d2|2025-10-08 10:15:32 -0300|Diego Andres Eiman|fix: corregir botones deshabilitados y agregar logs para debug
+ src/app/api/estados-remitos/[id]/route.ts | 16 ++--------------
+ src/app/api/remitos/[id]/status/route.ts  |  3 +++
+ src/app/estados-remitos/page.tsx          |  2 --
+ 3 files changed, 5 insertions(+), 16 deletions(-)
+
+92c66a7|2025-10-08 10:09:12 -0300|Diego Andres Eiman|feat: restaurar funcionalidad completa del endpoint estados-remitos
+ src/app/api/estados-remitos/route.ts | 109 ++++++++++++-----------------------
+ 1 file changed, 37 insertions(+), 72 deletions(-)
+
+6adffdb|2025-10-08 10:00:46 -0300|Diego Andres Eiman|fix: solución temporal para endpoint estados-remitos
+ scripts/check-estados-remitos.js     |  94 +++++++++++++++++++++
+ scripts/create-estados-remitos-v2.js | 155 +++++++++++++++++++++++++++++++++++
+ scripts/create-estados-remitos.js    | 128 +++++++++++++++++++++++++++++
+ src/app/api/estados-remitos/route.ts | 109 +++++++++++++++---------
+ 4 files changed, 449 insertions(+), 37 deletions(-)
+
+80f570f|2025-10-08 08:49:51 -0300|Diego Andres Eiman|fix: restaurar endpoint estados-remitos completo para resolver error .filter()
+ src/app/api/estados-remitos/route.ts | 76 ++++++++++++++++++++++++++++++------
+ 1 file changed, 65 insertions(+), 11 deletions(-)
+
+b6e264b|2025-10-08 08:48:49 -0300|Diego Andres Eiman|fix: corregir endpoint estados-remitos para devolver array vacío
+ src/app/api/estados-remitos/route.ts | 7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
+
+dc5e17a|2025-10-08 08:42:10 -0300|Diego Andres Eiman|fix: simplificar endpoint estados-remitos y limpiar logs de debug
+ src/app/api/auth/impersonate/route.ts |  2 -
+ src/app/api/estados-remitos/route.ts  | 79 +++++++----------------------------
+ src/app/api/products/route.ts         |  3 --
+ src/app/api/remitos/route.ts          |  7 +---
+ src/app/remitos/page.tsx              |  2 -
+ src/app/usuarios/page.tsx             |  1 -
+ src/hooks/useProductos.ts             |  2 -
+ src/hooks/useRemitos.ts               |  2 -
+ src/hooks/useSearchAndPagination.ts   |  1 -
+ src/lib/auth.ts                       |  2 -
+ 10 files changed, 15 insertions(+), 86 deletions(-)
+
+02f8695|2025-10-06 16:06:11 -0300|Diego Andres Eiman|debug: simplificar endpoint de productos para diagnosticar error 500
+ src/app/api/products/route.ts | 137 ++++--------------------------------------
+ 1 file changed, 11 insertions(+), 126 deletions(-)
+
+5e4d574|2025-10-06 16:01:47 -0300|Diego Andres Eiman|debug: crear endpoint de prueba para diagnosticar error 500
+ src/app/api/test-products/route.ts | 22 ++++++++++++++++++++++
+ src/hooks/useProductos.ts          |  2 +-
+ 2 files changed, 23 insertions(+), 1 deletion(-)
+
+f397ebb|2025-10-06 15:58:00 -0300|Diego Andres Eiman|fix: corregir centrado del modal de eliminar y agregar logs básicos para debug
+ src/app/api/products/route.ts | 5 ++++-
+ src/app/globals.css           | 9 ++++++++-
+ 2 files changed, 12 insertions(+), 2 deletions(-)
+
+8fe8938|2025-10-06 15:51:57 -0300|Diego Andres Eiman|debug: agregar try-catch para request.json() y log de inicio
+ src/app/api/products/route.ts | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
+
+9c7d7ca|2025-10-06 15:48:55 -0300|Diego Andres Eiman|debug: agregar logs específicos para identificar error 500 en creación de productos
+ src/app/api/products/route.ts | 26 +++++++++++++++++---------
+ 1 file changed, 17 insertions(+), 9 deletions(-)
+
+af02f96|2025-10-06 15:46:00 -0300|Diego Andres Eiman|fix: corregir log de debug que causaba error 500
+ src/app/api/products/route.ts | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
+
+94be737|2025-10-06 15:42:24 -0300|Diego Andres Eiman|clean: eliminar console.log de debug y agregar log específico para error 400
+ src/app/api/products/route.ts          |  9 +++++++--
+ src/app/productos/ProductosContent.tsx |  2 --
+ src/hooks/useImpersonation.ts          | 14 --------------
+ src/hooks/useSearchAndPagination.ts    | 11 -----------
+ 4 files changed, 7 insertions(+), 29 deletions(-)
+
+4b70fa4|2025-10-06 15:33:01 -0300|Diego Andres Eiman|fix: corregir lógica de companyId en endpoint de productos para impersonation
+ src/app/api/products/route.ts | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
+
+7a9f670|2025-10-06 15:28:59 -0300|Diego Andres Eiman|fix: corregir errores 400/500 durante impersonation en endpoints de remitos y productos
+ src/app/api/products/route.ts            | 8 +++++++-
+ src/app/api/remitos/[id]/status/route.ts | 1 +
+ 2 files changed, 8 insertions(+), 1 deletion(-)
+
+53ada15|2025-10-06 14:38:44 -0300|Diego Andres Eiman|feat: agregar estilos CSS completos para la página de estados de remitos
+ src/app/estados-remitos/page.tsx | 283 +++++++++++++--------------
+ src/app/globals.css              | 409 +++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 539 insertions(+), 153 deletions(-)
+
+e6d8655|2025-10-06 14:29:26 -0300|Diego Andres Eiman|fix: corregir acceso a Estados cuando se está impersonando a un ADMIN
+ src/app/estados-remitos/page.tsx | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+c0055bc|2025-10-06 14:22:54 -0300|Diego Andres Eiman|feat: permitir impersonation de ADMIN y restringir Estados solo a ADMIN
+ src/app/estados-remitos/page.tsx            | 6 +++---
+ src/app/usuarios/page.tsx                   | 9 +++++----
+ src/components/common/UserActionButtons.tsx | 6 ++++--
+ src/components/layout/Header.tsx            | 2 +-
+ 4 files changed, 13 insertions(+), 10 deletions(-)
+
+5fd7abf|2025-10-06 12:58:41 -0300|Diego Andres Eiman|feat: actualizar validación de estados de remitos para usar tabla dinámica
+ src/app/api/remitos/[id]/route.ts        |  19 +++++-
+ src/app/api/remitos/[id]/status/route.ts |  28 ++++++--
+ src/lib/utils/estado-validator.ts        | 114 +++++++++++++++++++++++++++++++
+ 3 files changed, 152 insertions(+), 9 deletions(-)
+
+071581c|2025-10-06 12:56:40 -0300|Diego Andres Eiman|feat: implementar tabla estados_remitos con vinculación por empresa
+ scripts/add-estados-remitos-table.sql     | 106 +++++
+ src/app/api/estados-remitos/[id]/route.ts | 228 +++++++++++
+ src/app/api/estados-remitos/route.ts      | 184 +++++++++
+ src/app/estados-remitos/page.tsx          | 636 +++++++++++++++---------------
+ src/components/layout/Header.tsx          |   2 +-
+ src/hooks/useEstadosRemitos.ts            | 155 +++++++-
+ 6 files changed, 978 insertions(+), 333 deletions(-)
+
+851ea4e|2025-10-06 12:34:59 -0300|Diego Andres Eiman|fix: corregir error 'Missing session data' al crear entidades durante impersonation
+ src/app/productos/ProductosContent.tsx | 2 +-
+ src/app/remitos/page.tsx               | 2 +-
+ src/hooks/useCategorias.ts             | 2 +-
+ src/hooks/useClientes.ts               | 2 +-
+ 4 files changed, 4 insertions(+), 4 deletions(-)
+
+9cef619|2025-10-06 12:30:49 -0300|Diego Andres Eiman|fix: corregir persistencia de query parameters que causan reapertura de formularios
+ src/app/productos/ProductosContent.tsx | 13 +++++++++++--
+ src/app/remitos/page.tsx               | 13 +++++++++++--
+ 2 files changed, 22 insertions(+), 4 deletions(-)
+
+5e8a5f2|2025-10-06 12:21:29 -0300|Diego Andres Eiman|fix: corregir errores de impersonation y consistencia de datos
+ src/app/api/auth/stop-impersonation/route.ts | 33 +++++++++-------------------
+ src/app/dashboard/page.tsx                   |  8 +++----
+ src/app/productos/ProductosContent.tsx       |  5 ++---
+ 3 files changed, 16 insertions(+), 30 deletions(-)
+
+5a6bc59|2025-10-06 12:11:55 -0300|Diego Andres Eiman|fix: corregir validación de sesión en endpoints durante impersonation
+ src/app/api/categories/route.ts | 1 +
+ src/app/api/clients/route.ts    | 1 +
+ src/app/api/products/route.ts   | 1 +
+ src/hooks/useCategorias.ts      | 2 +-
+ src/hooks/useClientes.ts        | 2 +-
+ src/hooks/useProductos.ts       | 5 ++++-
+ 6 files changed, 9 insertions(+), 3 deletions(-)
+
+3ca9e4b|2025-10-06 12:02:38 -0300|Diego Andres Eiman|fix: corregir creación de remitos durante impersonation
+ src/app/api/remitos/route.ts | 1 +
+ src/app/remitos/page.tsx     | 5 +++--
+ 2 files changed, 4 insertions(+), 2 deletions(-)
+
+3084dc2|2025-10-06 11:55:56 -0300|Diego Andres Eiman|fix: corregir páginas de remitos y productos para usar currentUser
+ src/app/productos/ProductosContent.tsx | 17 +++++++++++++----
+ src/app/remitos/page.tsx               | 20 +++++++++++++++-----
+ 2 files changed, 28 insertions(+), 9 deletions(-)
+
+5ed430e|2025-10-06 11:51:22 -0300|Diego Andres Eiman|debug: agregar logs adicionales para impersonation
+ src/hooks/useImpersonation.ts | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
+
+588dcfd|2025-10-06 11:50:43 -0300|Diego Andres Eiman|debug: agregar logs para investigar productos y remitos durante impersonation
+ src/app/api/products/route.ts | 7 +++++++
+ src/app/api/remitos/route.ts  | 7 +++++++
+ src/hooks/useProductos.ts     | 2 ++
+ src/hooks/useRemitos.ts       | 2 ++
+ 4 files changed, 18 insertions(+)
+
+e9bfd28|2025-10-06 11:38:37 -0300|Diego Andres Eiman|fix: corregir endpoints de API para impersonation
+ src/app/api/categories/route.ts | 14 ++++++++--
+ src/app/api/clients/route.ts    | 14 ++++++++--
+ src/app/api/products/route.ts   | 14 ++++++++--
+ src/app/api/remitos/route.ts    | 14 ++++++++--
+ src/hooks/useCategorias.ts      |  8 ++++--
+ src/hooks/useClientes.ts        |  8 ++++--
+ src/hooks/useProductos.ts       |  8 ++++--
+ src/hooks/useRemitos.ts         |  8 ++++--
+ src/lib/auth-helpers.ts         | 57 +++++++++++++++++++++++++++++++++++++++++
+ 9 files changed, 129 insertions(+), 16 deletions(-)
+
+e4a83c6|2025-10-06 11:15:49 -0300|Diego Andres Eiman|fix: corregir botones de impersonar y dashboard durante impersonation
+ src/app/dashboard/page.tsx |  8 +++++---
+ src/app/globals.css        | 14 ++++++++++++++
+ 2 files changed, 19 insertions(+), 3 deletions(-)
+
+c697edf|2025-10-06 11:08:18 -0300|Diego Andres Eiman|fix: corregir filtro de empresas y impersonation para SUPERADMIN
+ src/app/api/auth/impersonate/route.ts | 6 +++---
+ src/app/usuarios/page.tsx             | 2 +-
+ src/hooks/useImpersonation.ts         | 2 +-
+ 3 files changed, 5 insertions(+), 5 deletions(-)
+
+9e8c290|2025-10-06 10:50:20 -0300|Diego Andres Eiman|fix: múltiples mejoras en impersonation y estados
+ src/app/remitos/page.tsx                    | 21 ++++---
+ src/app/usuarios/page.tsx                   | 13 +++-
+ src/components/common/UserActionButtons.tsx |  2 +-
+ src/hooks/useEstadosRemitos.ts              | 96 +++++++++++++++++++++++++++++
+ 4 files changed, 118 insertions(+), 14 deletions(-)
+
+893e07a|2025-10-06 10:39:00 -0300|Diego Andres Eiman|fix: corregir llamada al hook useSearchAndPagination
+ src/app/estados-remitos/page.tsx | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+5e22f64|2025-10-06 10:36:44 -0300|Diego Andres Eiman|debug: agregar logs detallados al hook useSearchAndPagination
+ src/hooks/useSearchAndPagination.ts | 24 +++++++++++++++++++++---
+ 1 file changed, 21 insertions(+), 3 deletions(-)
+
+08a53a2|2025-10-06 10:33:25 -0300|Diego Andres Eiman|debug: agregar logs detallados para investigar problema de estados
+ src/app/estados-remitos/page.tsx | 40 ++++++++++++++++++++++++++--------------
+ 1 file changed, 26 insertions(+), 14 deletions(-)
+
+6107edf|2025-10-06 10:28:56 -0300|Diego Andres Eiman|fix: corregir inicialización de estados en ABM
+ src/app/estados-remitos/page.tsx | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
+
+2639c7d|2025-10-06 10:26:23 -0300|Diego Andres Eiman|fix: corregir impersonation y agregar debug a estados
+ src/app/estados-remitos/page.tsx | 14 ++++++++++++++
+ src/app/usuarios/page.tsx        |  4 ++--
+ 2 files changed, 16 insertions(+), 2 deletions(-)
+
+01d5c96|2025-10-06 10:20:10 -0300|Diego Andres Eiman|fix: corregir error de length en estados-remitos
+ src/app/estados-remitos/page.tsx | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+e2c70d5|2025-10-06 10:09:24 -0300|Diego Andres Eiman|fix: corregir error React #310 en página de estados-remitos
+ src/app/estados-remitos/page.tsx | 24 ++++++++++++------------
+ 1 file changed, 12 insertions(+), 12 deletions(-)
+
+091dedf|2025-10-06 10:06:08 -0300|Diego Andres Eiman|fix: mejorar protección contra arrays undefined en useSearchAndPagination
+ src/hooks/useSearchAndPagination.ts | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
+
+eea7caa|2025-10-06 10:02:33 -0300|Diego Andres Eiman|fix: corregir problemas de impersonation y React hooks
+ src/app/usuarios/page.tsx     | 24 ++++++++++++------------
+ src/hooks/useImpersonation.ts | 18 +++++++++++++++---
+ 2 files changed, 27 insertions(+), 15 deletions(-)
+
+ec5050c|2025-10-06 09:28:48 -0300|Diego Andres Eiman|fix: múltiples mejoras de UI y funcionalidad
+ src/app/dashboard/page.tsx             |   9 +-
+ src/app/estados-remitos/page.tsx       | 379 +++++++++++++++++++++++++++++++++
+ src/app/globals.css                    |   7 +
+ src/app/productos/ProductosContent.tsx |   6 +-
+ src/app/usuarios/page.tsx              |  12 ++
+ src/components/forms/ProductoForm.tsx  |   2 +-
+ src/components/layout/Header.tsx       |   5 +
+ src/hooks/useImpersonation.ts          |   6 +-
+ 8 files changed, 418 insertions(+), 8 deletions(-)
+
+860e84e|2025-10-06 07:55:26 -0300|Diego Andres Eiman|feat: implementar sistema completo de logging y mejoras UI
+ src/app/api/admin/logs/route.ts        |  49 +++++++++
+ src/app/api/auth/impersonate/route.ts  |  18 +++-
+ src/app/api/users/route.ts             |  14 +++
+ src/app/layout.tsx                     |   2 +-
+ src/app/remitos/page.tsx               |   2 +-
+ src/components/forms/CategoriaForm.tsx |   2 +-
+ src/components/forms/ClienteForm.tsx   |   2 +-
+ src/components/forms/EmpresaForm.tsx   |   2 +-
+ src/components/forms/ProductoForm.tsx  |   2 +-
+ src/components/forms/UsuarioForm.tsx   |   2 +-
+ src/components/layout/Header.tsx       |  36 ++++++-
+ src/lib/auth.ts                        |   9 ++
+ src/lib/logger.ts                      | 178 +++++++++++++++++++++++++++++++++
+ 13 files changed, 309 insertions(+), 9 deletions(-)
+
+a9ee06f|2025-10-06 07:30:44 -0300|Diego Andres Eiman|feat: agregar botón de logout de impersonation en Header
+ src/app/globals.css              | 17 +++++++++++++++++
+ src/components/layout/Header.tsx | 31 +++++++++++++++++++++++++++----
+ 2 files changed, 44 insertions(+), 4 deletions(-)
+
+ed14854|2025-10-06 07:21:30 -0300|Diego Andres Eiman|feat: implementar impersonation con localStorage
+ src/app/api/auth/impersonate/route.ts         |  2 +
+ src/app/globals.css                           |  7 ++++
+ src/components/common/ImpersonationBanner.tsx | 13 +++----
+ src/components/layout/Header.tsx              | 11 ++++--
+ src/hooks/useCurrentUser.ts                   | 23 +++++++++++
+ src/hooks/useImpersonation.ts                 | 56 ++++++++++++++-------------
+ 6 files changed, 76 insertions(+), 36 deletions(-)
+
+6e2504c|2025-10-03 13:35:54 -0300|Diego Andres Eiman|feat: mejorar lógica de botón impersonar y agregar logs de debug
+ src/app/usuarios/page.tsx                   | 10 +++++++++-
+ src/components/common/UserActionButtons.tsx |  6 +++++-
+ src/hooks/useImpersonation.ts               |  8 +++++++-
+ 3 files changed, 21 insertions(+), 3 deletions(-)
+
+838f65b|2025-10-03 13:30:10 -0300|Diego Andres Eiman|fix: corregir validación de rol en impersonation
+ src/app/api/auth/impersonate/route.ts | 10 ++++++----
+ src/app/usuarios/page.tsx             |  2 +-
+ 2 files changed, 7 insertions(+), 5 deletions(-)
+
+6f8657d|2025-10-03 13:12:11 -0300|Diego Andres Eiman|feat: implementar User Impersonation (Opción 2)
+ src/app/api/auth/impersonate/route.ts         | 87 ++++++++++++++++++++++++
+ src/app/api/auth/stop-impersonation/route.ts  | 45 +++++++++++++
+ src/app/globals.css                           | 79 ++++++++++++++++++++++
+ src/app/usuarios/page.tsx                     | 97 +++++++++++++++++----------
+ src/components/common/ImpersonationBanner.tsx | 49 ++++++++++++++
+ src/components/common/UserActionButtons.tsx   | 59 ++++++++++++++++
+ src/components/layout/Layout.tsx              |  2 +
+ src/hooks/useImpersonation.ts                 | 89 ++++++++++++++++++++++++
+ src/types/next-auth.d.ts                      | 41 ++++++++++-
+ 9 files changed, 508 insertions(+), 40 deletions(-)
+
+3bf5ebe|2025-10-01 14:23:41 -0300|Diego Andres Eiman|fix: agregar estilos inline para forzar aplicación
+ src/app/remitos/[id]/print/page.tsx | 32 ++++++++++++++++----------------
+ 1 file changed, 16 insertions(+), 16 deletions(-)
+
+2cb9036|2025-10-01 14:20:22 -0300|Diego Andres Eiman|fix: corregir estilos de remito en media query print
+ src/app/globals.css | 65 +++++++++++++++++++++++++----------------------------
+ 1 file changed, 31 insertions(+), 34 deletions(-)
+
+569ad63|2025-10-01 14:15:43 -0300|Diego Andres Eiman|fix: mover estilos de remito a CSS global
+ src/app/globals.css                 | 35 +++++++++++++++++++++++++++++++++++
+ src/app/remitos/[id]/print/page.tsx | 35 -----------------------------------
+ 2 files changed, 35 insertions(+), 35 deletions(-)
+
+cecd9c0|2025-10-01 14:10:40 -0300|Diego Andres Eiman|feat: mejorar diseño del remito impreso
+ src/app/remitos/[id]/print/page.tsx | 88 +++++++++++++++++++++++++++----------
+ 1 file changed, 66 insertions(+), 22 deletions(-)
+
+728bda0|2025-10-01 14:02:45 -0300|Diego Andres Eiman|fix: problemas con modal de eliminar y relaciones de categorías
+ src/app/api/categories/[id]/route.ts | 4 ++++
+ src/app/globals.css                  | 6 ++++++
+ 2 files changed, 10 insertions(+)
+
+bedb45e|2025-10-01 13:49:34 -0300|Diego Andres Eiman|fix: corregir columnas de fecha en todas las páginas
+ src/app/categorias/page.tsx | 10 ++++++++--
+ src/app/clientes/page.tsx   | 10 ++++++++--
+ src/app/usuarios/page.tsx   | 10 ++++++++--
+ 3 files changed, 24 insertions(+), 6 deletions(-)
+
+8c89ae1|2025-10-01 13:45:35 -0300|Diego Andres Eiman|fix: errores en gestión de productos
+ src/app/productos/ProductosContent.tsx | 12 +++++++-----
+ src/hooks/useCRUDPage.ts               |  1 +
+ 2 files changed, 8 insertions(+), 5 deletions(-)
+
+09365a3|2025-10-01 13:39:39 -0300|Diego Andres Eiman|feat: script directo para poblar Distribuidora Ruben
+ scripts/populate-distribuidora-direct.js | 167 +++++++++++++++++++++++++++++++
+ 1 file changed, 167 insertions(+)
+
+0175df8|2025-10-01 13:31:09 -0300|Diego Andres Eiman|feat: actualizar script SQL con company_id real
+ scripts/sql-distribuidora-ruben.sql | 116 +++++++++++++++++++-----------------
+ 1 file changed, 62 insertions(+), 54 deletions(-)
+
+1df0d36|2025-10-01 13:27:05 -0300|Diego Andres Eiman|feat: script SQL para poblar Distribuidora Ruben
+ .gitignore                          |   1 +
+ package-lock.json                   |  13 ++++
+ package.json                        |   1 +
+ scripts/sql-distribuidora-ruben.sql | 115 ++++++++++++++++++++++++++++++++++++
+ 4 files changed, 130 insertions(+)
+
+f9347c9|2025-10-01 13:17:28 -0300|Diego Andres Eiman|refactor: ajustes finales formulario remitos
+ src/app/remitos/page.tsx | 7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
+
+c4cf5bc|2025-10-01 13:09:04 -0300|Diego Andres Eiman|feat: mejoras UX en formulario de remitos
+ src/app/remitos/page.tsx | 65 ++++++++++++++++++++++++------------------------
+ 1 file changed, 33 insertions(+), 32 deletions(-)
+
+77ef6e7|2025-10-01 12:53:05 -0300|Diego Andres Eiman|fix: use React Portal for FilterableSelect dropdown - DEFINITIVE FIX
+ src/components/common/FilterableSelect.tsx | 117 ++++++++++++++++++++---------
+ 1 file changed, 83 insertions(+), 34 deletions(-)
+
+ce14e5f|2025-10-01 12:47:41 -0300|Diego Andres Eiman|fix: force visible overflow for dropdown in remito modal
+ src/app/globals.css | 20 +++++++++++++++-----
+ 1 file changed, 15 insertions(+), 5 deletions(-)
+
+0c3cc69|2025-10-01 12:47:09 -0300|Diego Andres Eiman|fix: increase z-index for dropdown in table (attempt 2)
+ src/app/globals.css | 22 +++++++++++++++++++---
+ 1 file changed, 19 insertions(+), 3 deletions(-)
+
+8257017|2025-10-01 12:43:38 -0300|Diego Andres Eiman|fix: dropdown visibility in remito form table
+ src/app/globals.css | 24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
+
+102e237|2025-10-01 12:34:47 -0300|Diego Andres Eiman|feat: improve remito form UX with inline layout and collapsible notes
+ src/app/remitos/page.tsx | 274 ++++++++++++++++++++++++++---------------------
+ 1 file changed, 151 insertions(+), 123 deletions(-)
+
+5994d3c|2025-10-01 12:20:01 -0300|Diego Andres Eiman|refactor: create useCRUDPage hook and eliminate code duplication
+ src/app/categorias/page.tsx            |  45 +--
+ src/app/categorias/page_backup.tsx     | 267 --------------
+ src/app/clientes/page.tsx              |  45 +--
+ src/app/empresas/page.tsx              |  45 +--
+ src/app/productos/ProductosContent.tsx |  87 ++---
+ src/app/usuarios/page.tsx              |  47 ++-
+ src/components/CategoriasSection.tsx   | 203 -----------
+ src/components/ClientesSection.tsx     | 270 --------------
+ src/components/ProductosSection.tsx    | 296 ---------------
+ src/components/RemitosSection.tsx      | 641 ---------------------------------
+ src/hooks/useCRUDPage.ts               |  85 +++++
+ 11 files changed, 198 insertions(+), 1833 deletions(-)
+
+a97844c|2025-10-01 12:02:29 -0300|Diego Andres Eiman|fix: resolve remito validation, standardize selects, and improve layouts
+ src/app/globals.css                    | 52 +++++++++++++++++++++++++++++++
+ src/app/productos/ProductosContent.tsx | 16 +++++-----
+ src/app/remitos/page.tsx               | 56 ++++++++++++++++++----------------
+ src/components/common/SimpleSelect.tsx | 51 +++++++++++++++++++++++++++++++
+ src/lib/validations.ts                 | 11 ++-----
+ 5 files changed, 143 insertions(+), 43 deletions(-)
+
+d5ef6b1|2025-10-01 11:46:32 -0300|Diego Andres Eiman|fix: add missing Trash2 icon import in remitos page
+ src/app/remitos/page.tsx | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+24d53ab|2025-10-01 11:39:38 -0300|Diego Andres Eiman|fix: improve layout consistency and button spacing across all pages
+ src/app/categorias/page.tsx                   | 19 +++++++++----------
+ src/app/clientes/page.tsx                     |  3 ++-
+ src/app/empresas/page.tsx                     | 19 +++++++++----------
+ src/app/productos/ProductosContent.tsx        |  5 ++---
+ src/app/usuarios/page.tsx                     | 19 +++++++++----------
+ src/components/common/ActionButtons.tsx       |  2 +-
+ src/components/common/RemitoActionButtons.tsx |  2 +-
+ 7 files changed, 33 insertions(+), 36 deletions(-)
+
+ddef4de|2025-10-01 11:30:55 -0300|Diego Andres Eiman|feat: add delete confirmation modals to all CRUD pages
+ src/app/categorias/page.tsx | 21 ++++++++++++++++++---
+ src/app/clientes/page.tsx   | 21 ++++++++++++++++++---
+ src/app/empresas/page.tsx   | 21 ++++++++++++++++++---
+ src/app/usuarios/page.tsx   | 21 ++++++++++++++++++---
+ 4 files changed, 72 insertions(+), 12 deletions(-)
+
+05f1ac4|2025-10-01 11:20:49 -0300|Diego Andres Eiman|feat: move productos form to modal and create reusable components
+ src/app/productos/ProductosContent.tsx       | 135 +++++------------------
+ src/components/common/DeleteConfirmModal.tsx |  63 +++++++++++
+ src/components/forms/ProductoForm.tsx        | 158 +++++++++++++++++++++++++++
+ 3 files changed, 246 insertions(+), 110 deletions(-)
+
+22af2c6|2025-10-01 10:58:51 -0300|Diego Andres Eiman|refactor: standardize UI components and fix critical inconsistencies
+ src/app/categorias/page.tsx                   | 36 ++++++++------------
+ src/app/clientes/page.tsx                     | 38 ++++++++-------------
+ src/app/empresas/page.tsx                     | 25 +++++---------
+ src/app/productos/ProductosContent.tsx        | 25 +++++---------
+ src/app/remitos/page.tsx                      | 32 ++++--------------
+ src/app/usuarios/page.tsx                     | 25 +++++---------
+ src/components/common/ActionButtons.tsx       | 42 +++++++++++++++++++++++
+ src/components/common/RemitoActionButtons.tsx | 48 +++++++++++++++++++++++++++
+ 8 files changed, 146 insertions(+), 125 deletions(-)
+
+ec80e03|2025-10-01 10:16:18 -0300|Diego Andres Eiman|fix: resolve email validation and admin user management issues
+ src/app/usuarios/page.tsx            |  2 +-
+ src/components/forms/ClienteForm.tsx |  4 +++-
+ src/hooks/useUsuarios.ts             | 16 ++++++++++++++--
+ 3 files changed, 18 insertions(+), 4 deletions(-)
+
+d66d1b2|2025-10-01 09:59:10 -0300|Diego Andres Eiman|fix: allow ADMIN users to edit/delete users from their own company
+ src/app/api/users/[id]/route.ts | 75 ++++++++++++++++++++++++++++++++++-------
+ 1 file changed, 63 insertions(+), 12 deletions(-)
+
+5cd02c3|2025-09-30 16:14:14 -0300|Diego Andres Eiman|fix: improve user management UX and styling
+ src/app/empresas/page.tsx |  2 +-
+ src/app/globals.css       | 18 ++++++++++++++++++
+ src/app/usuarios/page.tsx | 37 ++++++++++++++++---------------------
+ 3 files changed, 35 insertions(+), 22 deletions(-)
+
+61e1c27|2025-09-30 16:06:14 -0300|Diego Andres Eiman|fix: improve UI/UX consistency across all pages
+ src/app/categorias/page.tsx | 2 +-
+ src/app/clientes/page.tsx   | 2 +-
+ src/app/empresas/page.tsx   | 4 ++--
+ src/app/usuarios/page.tsx   | 8 ++------
+ 4 files changed, 6 insertions(+), 10 deletions(-)
+
+aace9c5|2025-09-30 15:55:51 -0300|Diego Andres Eiman|fix: correct useSearchAndPagination usage in usuarios page
+ src/app/usuarios/page.tsx | 12 +++++-------
+ 1 file changed, 5 insertions(+), 7 deletions(-)
+
+55c5e9f|2025-09-30 15:53:39 -0300|Diego Andres Eiman|debug: add detailed logging to users API filtering logic
+ src/app/api/users/route.ts | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+460762a|2025-09-30 15:49:36 -0300|Diego Andres Eiman|fix: add debugging for user loading issues
+ src/app/api/debug-users/route.ts     | 77 ++++++++++++++++++++++++++++++++++++
+ src/components/forms/UsuarioForm.tsx |  1 +
+ src/hooks/useUsuarios.ts             |  7 +++-
+ 3 files changed, 84 insertions(+), 1 deletion(-)
+
+328304f|2025-09-30 15:45:31 -0300|Diego Andres Eiman|feat: add company filter dropdown for SUPERADMIN in usuarios page
+ src/app/api/users/route.ts | 15 +++++++++++++++
+ src/app/usuarios/page.tsx  | 36 ++++++++++++++++++++++++++++++++++--
+ 2 files changed, 49 insertions(+), 2 deletions(-)
+
+ea400a2|2025-09-30 15:41:22 -0300|Diego Andres Eiman|fix: resolve multiple issues with user management and API calls
+ src/app/api/users/route.ts           | 14 ++++++++++++--
+ src/app/usuarios/page.tsx            |  7 ++-----
+ src/components/forms/UsuarioForm.tsx |  1 +
+ src/hooks/useCategorias.ts           | 10 ++++++++--
+ src/hooks/useClientes.ts             | 10 ++++++++--
+ 5 files changed, 31 insertions(+), 11 deletions(-)
+
+7b4e688|2025-09-30 15:33:40 -0300|Diego Andres Eiman|feat: simplify page components using custom hooks and form components
+ src/app/categorias/page.tsx | 393 +++++++++++---------------------
+ src/app/clientes/page.tsx   | 469 +++++++++++++-------------------------
+ src/app/empresas/page.tsx   | 343 +++++++++++-----------------
+ src/app/usuarios/page.tsx   | 537 +++++++++++++-------------------------------
+ 4 files changed, 569 insertions(+), 1173 deletions(-)
+
+6d215e4|2025-09-30 15:30:28 -0300|Diego Andres Eiman|feat: create separate form components
+ src/components/forms/CategoriaForm.tsx |  82 +++++++++++++
+ src/components/forms/ClienteForm.tsx   | 144 ++++++++++++++++++++++
+ src/components/forms/EmpresaForm.tsx   |  82 +++++++++++++
+ src/components/forms/UsuarioForm.tsx   | 210 +++++++++++++++++++++++++++++++++
+ 4 files changed, 518 insertions(+)
+
+51e95d5|2025-09-30 15:29:16 -0300|Diego Andres Eiman|feat: create custom hooks for data management
+ src/hooks/useCategorias.ts | 125 +++++++++++++++++++++++++++++
+ src/hooks/useClientes.ts   | 130 ++++++++++++++++++++++++++++++
+ src/hooks/useEmpresas.ts   | 123 +++++++++++++++++++++++++++++
+ src/hooks/useProductos.ts  | 161 ++++++++++++++++++++++++++++++++++++++
+ src/hooks/useRemitos.ts    | 191 +++++++++++++++++++++++++++++++++++++++++++++
+ src/hooks/useUsuarios.ts   | 138 ++++++++++++++++++++++++++++++++
+ 6 files changed, 868 insertions(+)
+
+08e37fc|2025-09-30 14:37:28 -0300|Diego Andres Eiman|feat: convert remitos form to modal with custom styling
+ src/app/globals.css                 |  70 ++++++++
+ src/app/remitos/page.tsx            | 337 +++++++++++++++---------------------
+ src/components/common/FormModal.tsx |   6 +-
+ 3 files changed, 213 insertions(+), 200 deletions(-)
+
+538d632|2025-09-30 14:30:59 -0300|Diego Andres Eiman|feat: add FormModal import to remitos page
+ src/app/remitos/page.tsx | 1 +
+ 1 file changed, 1 insertion(+)
+
+408f8bf|2025-09-30 14:30:25 -0300|Diego Andres Eiman|feat: convert categorias and clientes forms to modals
+ src/app/categorias/page.tsx |  61 +++++++-------------
+ src/app/clientes/page.tsx   | 135 +++++++++++++++++++-------------------------
+ 2 files changed, 78 insertions(+), 118 deletions(-)
+
+1afb5d2|2025-09-30 14:28:53 -0300|Diego Andres Eiman|feat: create FormModal component and convert empresas/usuarios to modals
+ src/app/empresas/page.tsx           |  51 ++++------
+ src/app/globals.css                 |  85 ++++++++++++++++
+ src/app/usuarios/page.tsx           | 198 +++++++++++++++++-------------------
+ src/components/common/FormModal.tsx |  97 ++++++++++++++++++
+ 4 files changed, 298 insertions(+), 133 deletions(-)
+
+8d07043|2025-09-30 14:26:30 -0300|Diego Andres Eiman|fix: resolve multiple UI and functionality issues
+ src/app/empresas/page.tsx | 31 ++++++++++++++++++++++++++-----
+ src/app/usuarios/page.tsx |  9 +++++----
+ src/lib/validations.ts    |  2 +-
+ 3 files changed, 32 insertions(+), 10 deletions(-)
+
+64c4de9|2025-09-29 11:10:21 -0300|Diego Andres Eiman|feat: add DEBUG constant to control console.log messages
+ src/app/remitos/page.tsx | 71 ++++++++++++++++++++++++++++--------------------
+ 1 file changed, 42 insertions(+), 29 deletions(-)
+
+a685290|2025-09-29 09:47:29 -0300|Diego Andres Eiman|ui: remove product ID from stock update modal
+ src/app/productos/ProductosContent.tsx | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+3014b38|2025-09-26 19:34:17 -0300|Diego Andres Eiman|fix: add client address and phone to print HTML templates
+ src/app/remitos/page.tsx | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+a54fbf3|2025-09-26 19:30:30 -0300|Diego Andres Eiman|fix: resolve variable name conflict in PUT endpoint
+ src/app/api/remitos/[id]/route.ts | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+d1a7441|2025-09-26 16:25:41 -0300|Diego Andres Eiman|fix: ensure PUT endpoint returns complete remito data with remitoItems
+ src/app/api/remitos/[id]/route.ts | 52 ++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 51 insertions(+), 1 deletion(-)
+
+6fc6487|2025-09-26 16:18:11 -0300|Diego Andres Eiman|fix: resolve multiple issues with remitos
+ src/app/api/remitos/route.ts | 16 +++++++++-------
+ src/app/remitos/page.tsx     |  7 ++++---
+ 2 files changed, 13 insertions(+), 10 deletions(-)
+
+45dee62|2025-09-26 16:12:11 -0300|Diego Andres Eiman|fix: resolve TypeScript errors and standardize field names
+ src/app/remitos/page.tsx | 48 ++++++++++++++++++++++++------------------------
+ src/lib/types.ts         | 14 ++++++++------
+ 2 files changed, 32 insertions(+), 30 deletions(-)
+
+8d2fec6|2025-09-26 16:01:58 -0300|Diego Andres Eiman|ui: improve modal button spacing and centering
+ src/app/remitos/page.tsx | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
+
+caf8e79|2025-09-26 15:57:20 -0300|Diego Andres Eiman|fix: improve product_id mapping for items with missing product references
+ src/app/remitos/page.tsx | 19 +++++++++++++++----
+ 1 file changed, 15 insertions(+), 4 deletions(-)
+
+6dd63b4|2025-09-26 15:52:49 -0300|Diego Andres Eiman|debug: add logging to handleEdit to check product_id mapping
+ src/app/remitos/page.tsx | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
+
+8f06334|2025-09-26 15:47:26 -0300|Diego Andres Eiman|fix: correct product filtering in dropdown to use snake_case
+ src/app/remitos/page.tsx | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+e2b5d6f|2025-09-26 15:41:42 -0300|Diego Andres Eiman|fix: update PUT endpoint to handle remito items
+ src/app/api/remitos/[id]/route.ts | 42 ++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 41 insertions(+), 1 deletion(-)
+
+50cf38b|2025-09-26 15:38:33 -0300|Diego Andres Eiman|refactor: standardize all RemitoItem fields to snake_case
+ src/app/remitos/page.tsx | 99 +++++++++++++++++++-----------------------------
+ 1 file changed, 39 insertions(+), 60 deletions(-)
+
+d5c807d|2025-09-26 15:28:54 -0300|Diego Andres Eiman|fix: transform remitoItems to match form field names when editing
+ src/app/remitos/page.tsx | 14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
+
+bbdf327|2025-09-26 15:25:17 -0300|Diego Andres Eiman|debug: add logging to handleEdit and handlePrint to compare data sources
+ src/app/remitos/page.tsx | 18 ++++++++++--------
+ 1 file changed, 10 insertions(+), 8 deletions(-)
+
+a9062dd|2025-09-26 15:18:55 -0300|Diego Andres Eiman|debug: add logging to loadData to check remitoItems in list
+ src/app/remitos/page.tsx | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+faccf19|2025-09-26 15:14:46 -0300|Diego Andres Eiman|fix: fetch complete remito data when editing
+ src/app/remitos/page.tsx | 24 ++++++++++++++++++------
+ 1 file changed, 18 insertions(+), 6 deletions(-)
+
+5f153dc|2025-09-26 15:06:06 -0300|Diego Andres Eiman|fix: use remitoItems instead of items in handleEdit function
+ src/app/remitos/page.tsx | 9 +--------
+ 1 file changed, 1 insertion(+), 8 deletions(-)
+
+ebac17e|2025-09-26 15:03:00 -0300|Diego Andres Eiman|debug: add logging to handleEdit function to identify undefined length error
+ src/app/remitos/page.tsx | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+697ecb0|2025-09-26 14:50:30 -0300|Diego Andres Eiman|fix: add CANCELADO to Remito status type definition
+ src/app/api/update-status-values/route.ts | 65 -------------------------------
+ src/app/remitos/page.tsx                  |  2 +-
+ 2 files changed, 1 insertion(+), 66 deletions(-)
+
+06cb20c|2025-09-26 14:45:54 -0300|Diego Andres Eiman|feat: add endpoint to update EN_TRANSITO to PREPARADO in database
+ src/app/api/update-status-values/route.ts | 65 +++++++++++++++++++++++++++++++
+ 1 file changed, 65 insertions(+)
+
+9ea2639|2025-09-26 14:42:19 -0300|Diego Andres Eiman|fix: clean up debug logging and improve Supabase configuration
+ src/app/api/debug-supabase/route.ts      | 38 --------------------------------
+ src/app/api/remitos/[id]/status/route.ts | 18 +--------------
+ 2 files changed, 1 insertion(+), 55 deletions(-)
+
+408e7d5|2025-09-26 14:34:40 -0300|Diego Andres Eiman|fix: improve Supabase client configuration and add debug endpoint
+ src/app/api/debug-supabase/route.ts | 38 +++++++++++++++++++++++++++++++++++++
+ src/lib/supabase.ts                 | 16 ++++++++++++----
+ 2 files changed, 50 insertions(+), 4 deletions(-)
+
+c7def0e|2025-09-26 14:34:10 -0300|Diego Andres Eiman|debug: add comprehensive logging to status endpoint to debug 500 error
+ src/app/api/remitos/[id]/status/route.ts | 18 +++++++++++++++++-
+ 1 file changed, 17 insertions(+), 1 deletion(-)
+
+4e870f5|2025-09-26 14:29:29 -0300|Diego Andres Eiman|feat: change EN_TRANSITO status to PREPARADO across all components
+ scripts/update-status-values.js          | 57 ++++++++++++++++++++++++++++++++
+ src/app/api/remitos/[id]/route.ts        |  4 +--
+ src/app/api/remitos/[id]/status/route.ts |  4 +--
+ src/app/remitos/page.tsx                 |  6 ++--
+ 4 files changed, 64 insertions(+), 7 deletions(-)
+
+051d448|2025-09-26 14:24:46 -0300|Diego Andres Eiman|fix: correct remito status values to match backend validation
+ src/app/api/debug-logs/route.ts          | 66 --------------------------------
+ src/app/api/debug-status/route.ts        | 52 -------------------------
+ src/app/api/remitos/[id]/status/route.ts | 25 +-----------
+ src/app/remitos/page.tsx                 | 35 +++--------------
+ 4 files changed, 8 insertions(+), 170 deletions(-)
+
+80de028|2025-09-26 14:18:36 -0300|Diego Andres Eiman|debug: add debug-logs endpoint to test status validation
+ src/app/api/debug-logs/route.ts | 66 +++++++++++++++++++++++++++++++++++++++++
+ src/app/remitos/page.tsx        |  8 +++++
+ 2 files changed, 74 insertions(+)
+
+37c23a5|2025-09-26 14:16:40 -0300|Diego Andres Eiman|debug: add comprehensive logging to status endpoint
+ src/app/api/remitos/[id]/status/route.ts | 24 +++++++++++++++++++++---
+ 1 file changed, 21 insertions(+), 3 deletions(-)
+
+7c379dc|2025-09-26 14:10:25 -0300|Diego Andres Eiman|debug: add comprehensive debugging for status change issue
+ src/app/api/debug-status/route.ts | 52 +++++++++++++++++++++++++++++++++++++++
+ src/app/remitos/page.tsx          | 18 ++++++++++++++
+ 2 files changed, 70 insertions(+)
+
+1a7b3f2|2025-09-26 14:02:33 -0300|Diego Andres Eiman|fix: add logging to status endpoint and fix length error
+ src/app/api/remitos/[id]/status/route.ts | 3 +++
+ src/app/remitos/page.tsx                 | 2 +-
+ 2 files changed, 4 insertions(+), 1 deletion(-)
+
+0819fb5|2025-09-26 13:07:57 -0300|Diego Andres Eiman|fix: add null checks for arrays before using some() method
+ src/app/remitos/page.tsx          | 4 ++--
+ src/components/RemitosSection.tsx | 4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
+
+64f8efd|2025-09-26 13:04:08 -0300|Diego Andres Eiman|fix: add comprehensive defensive programming for remito data handling
+ src/app/remitos/page.tsx | 27 ++++++++++++++++++---------
+ 1 file changed, 18 insertions(+), 9 deletions(-)
+
+b2cf657|2025-09-26 12:59:32 -0300|Diego Andres Eiman|fix: combine success and print confirmation into single modal and fix remaining reduce error
+ src/app/remitos/page.tsx          | 10 +++++-----
+ src/components/RemitosSection.tsx |  2 +-
+ 2 files changed, 6 insertions(+), 6 deletions(-)
+
+13ee8d1|2025-09-26 12:49:17 -0300|Diego Andres Eiman|debug: add enhanced error handling and logging for remito data
+ src/app/api/remitos/route.ts        | 15 ++++++++++++++-
+ src/lib/utils/supabase-transform.ts |  7 ++++++-
+ 2 files changed, 20 insertions(+), 2 deletions(-)
+
+c62f8f9|2025-09-26 12:48:46 -0300|Diego Andres Eiman|fix: replace confirm() with custom modal for remito print confirmation
+ src/app/remitos/page.tsx | 60 +++++++++++++++++++++++++++++++++++++++++++++---
+ 1 file changed, 57 insertions(+), 3 deletions(-)
+
+77ca56c|2025-09-26 12:43:49 -0300|Diego Andres Eiman|fix: resolve reduce error in RemitosSection component
+ src/components/RemitosSection.tsx | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+fe04c37|2025-09-26 12:41:16 -0300|Diego Andres Eiman|debug: add debug endpoint to investigate remito data structure
+ src/app/api/debug-remitos/route.ts | 99 ++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 99 insertions(+)
+
+acb95a1|2025-09-26 12:37:07 -0300|Diego Andres Eiman|fix: resolve multiple issues with modals and remito data
+ src/app/api/remitos/[id]/status/route.ts | 133 +++++++++++++++++++++++++++++++
+ src/app/categorias/page.tsx              |  15 ++++
+ src/app/clientes/page.tsx                |  15 ++++
+ src/app/empresas/page.tsx                |  15 ++++
+ src/app/remitos/[id]/print/page.tsx      |  18 ++---
+ src/app/remitos/page.tsx                 |   4 +-
+ 6 files changed, 189 insertions(+), 11 deletions(-)
+
+f0bdd3b|2025-09-26 12:11:35 -0300|Diego Andres Eiman|fix: resolve user visibility and remito printing issues
+ src/app/api/users/route.ts | 23 ++++++++++++++---------
+ src/app/remitos/page.tsx   | 21 +++++++++++----------
+ 2 files changed, 25 insertions(+), 19 deletions(-)
+
+6ff9d85|2025-09-26 12:10:32 -0300|Diego Andres Eiman|feat: replace all alert() calls with modal messages
+ src/app/categorias/page.tsx            |  6 ++++--
+ src/app/clientes/page.tsx              |  8 +++++---
+ src/app/empresas/page.tsx              |  6 ++++--
+ src/app/productos/ProductosContent.tsx |  3 ++-
+ src/app/remitos/page.tsx               | 18 +++++++++---------
+ src/app/usuarios/page.tsx              | 21 +++++++++++++++++++--
+ 6 files changed, 43 insertions(+), 19 deletions(-)
+
+9059587|2025-09-26 12:00:35 -0300|Diego Andres Eiman|fix: resolve remitos reduce error and add missing remito_items
+ src/app/api/remitos/route.ts        | 12 ++++++++++++
+ src/lib/utils/supabase-transform.ts | 14 +++++++++++---
+ 2 files changed, 23 insertions(+), 3 deletions(-)
+
+825758b|2025-09-26 11:54:49 -0300|Diego Andres Eiman|fix: add debug endpoint for product category updates
+ src/app/api/debug-product-update/route.ts | 98 +++++++++++++++++++++++++++++++
+ 1 file changed, 98 insertions(+)
+
+7817ff0|2025-09-26 11:53:57 -0300|Diego Andres Eiman|fix: add data transformation utilities and fix date field mapping
+ src/app/api/categories/[id]/route.ts |   3 +-
+ src/app/api/categories/route.ts      |   8 ++-
+ src/app/api/clients/[id]/route.ts    |   3 +-
+ src/app/api/clients/route.ts         |   8 ++-
+ src/app/api/companies/[id]/route.ts  |   3 +-
+ src/app/api/companies/route.ts       |   5 +-
+ src/app/api/products/[id]/route.ts   |   3 +-
+ src/app/api/products/route.ts        |   5 +-
+ src/app/api/remitos/[id]/route.ts    |   5 +-
+ src/app/api/remitos/route.ts         |   5 +-
+ src/app/api/users/[id]/route.ts      |   5 +-
+ src/app/api/users/route.ts           |   5 +-
+ src/lib/utils/supabase-transform.ts  | 108 +++++++++++++++++++++++++++++++++++
+ 13 files changed, 146 insertions(+), 20 deletions(-)
+
+dc2c9da|2025-09-26 11:40:41 -0300|Diego Andres Eiman|feat: add remitos API endpoints with Supabase
+ src/app/api/remitos/[id]/route.ts | 305 ++++++++++++++++++++++++++++++++++++++
+ src/app/api/remitos/route.ts      | 268 +++++++++++++++++++++++++++++++++
+ 2 files changed, 573 insertions(+)
+
+1844227|2025-09-26 11:35:33 -0300|Diego Andres Eiman|feat: add clients and companies API endpoints with Supabase
+ src/app/api/clients/[id]/route.ts   | 202 ++++++++++++++++++++++++++++++++++++
+ src/app/api/clients/route.ts        | 158 ++++++++++++++++++++++++++++
+ src/app/api/companies/[id]/route.ts | 177 +++++++++++++++++++++++++++++++
+ src/app/api/companies/route.ts      | 124 ++++++++++++++++++++++
+ 4 files changed, 661 insertions(+)
+
+0221415|2025-09-26 11:33:39 -0300|Diego Andres Eiman|feat: add categories API endpoints with Supabase
+ src/app/api/categories/[id]/route.ts | 199 +++++++++++++++++++++++++++++++++++
+ src/app/api/categories/route.ts      | 149 ++++++++++++++++++++++++++
+ 2 files changed, 348 insertions(+)
+
+a0950c9|2025-09-26 11:32:41 -0300|Diego Andres Eiman|feat: create core API endpoints with Supabase
+ src/app/api/products/[id]/route.ts | 230 +++++++++++++++++++++++++++++++++
+ src/app/api/products/route.ts      | 168 ++++++++++++++++++++++++
+ src/app/api/users/[id]/route.ts    | 254 +++++++++++++++++++++++++++++++++++++
+ src/app/api/users/route.ts         | 166 ++++++++++++++++++++++++
+ 4 files changed, 818 insertions(+)
+
+3348bb3|2025-09-26 11:29:05 -0300|Diego Andres Eiman|clean: remove all Prisma references and update auth for Supabase
+ src/app/api/categories/[id]/route.ts     |  98 -----------
+ src/app/api/categories/route.ts          | 163 ------------------
+ src/app/api/check-db/route.ts            |  38 -----
+ src/app/api/clients/[id]/route.ts        | 116 -------------
+ src/app/api/clients/route.ts             | 166 ------------------
+ src/app/api/companies/[id]/route.ts      | 107 ------------
+ src/app/api/companies/route.ts           | 136 ---------------
+ src/app/api/debug-auth/route.ts          |  71 --------
+ src/app/api/debug-product/route.ts       |  89 ----------
+ src/app/api/populate/route.ts            | 189 ---------------------
+ src/app/api/products/[id]/route.ts       | 277 -------------------------------
+ src/app/api/products/route.ts            | 181 --------------------
+ src/app/api/remitos/[id]/route.ts        | 152 -----------------
+ src/app/api/remitos/[id]/status/route.ts |  52 ------
+ src/app/api/remitos/route.ts             | 136 ---------------
+ src/app/api/simple-seed/route.ts         |  40 -----
+ src/app/api/test-db/route.ts             |  42 -----
+ src/app/api/test-prisma/route.ts         |  56 -------
+ src/app/api/test-stock/route.ts          |  51 ------
+ src/app/api/users/[id]/route.ts          | 215 ------------------------
+ src/app/api/users/route.ts               | 241 ---------------------------
+ src/components/providers.tsx             |   3 +-
+ src/lib/auth.ts                          |  47 ++----
+ 23 files changed, 11 insertions(+), 2655 deletions(-)
+
+2f45f79|2025-09-26 11:20:06 -0300|Diego Andres Eiman|feat: migrate from Prisma to Supabase
+ env.example                       |  21 +-
+ package-lock.json                 | 632 +++++++++-----------------------------
+ package.json                      |  14 +-
+ prisma/schema.prisma              | 141 ---------
+ prisma/seed.ts                    | 150 ---------
+ scripts/create-tables.sql         | 135 ++++++++
+ scripts/seed-supabase.js          | 277 +++++++++++++++++
+ scripts/setup-supabase.js         |  75 +++++
+ src/app/api/debug-prisma/route.ts |  70 -----
+ src/app/api/test-update/route.ts  |  79 -----
+ src/lib/db.ts                     |  38 ---
+ src/lib/db.tsx                    | 117 -------
+ src/lib/logger.ts                 | 106 -------
+ src/lib/prisma.ts                 |  41 ---
+ src/lib/supabase.ts               |  12 +
+ supabase-schema.sql               | 133 ++++++++
+ 16 files changed, 786 insertions(+), 1255 deletions(-)
+
+d02ae5f|2025-09-26 11:08:08 -0300|Diego Andres Eiman|test: force deploy to test product update
+ src/app/api/debug-prisma/route.ts | 1 +
+ 1 file changed, 1 insertion(+)
+
+5756c23|2025-09-26 11:05:30 -0300|Diego Andres Eiman|debug: add debug-prisma endpoint to test database connection
+ src/app/api/debug-prisma/route.ts | 69 +++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 69 insertions(+)
+
+232beb1|2025-09-26 10:58:28 -0300|Diego Andres Eiman|config: add vercel.json to configure branch deployment
+ vercel.json | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
+
+9f3b38b|2025-09-26 10:46:49 -0300|Diego Andres Eiman|test: trigger deploy with test commit
+ src/app/api/products/[id]/route.ts | 1 +
+ 1 file changed, 1 insertion(+)
+
+025db62|2025-09-26 10:20:06 -0300|Diego Andres Eiman|debug: add comprehensive console logging to product update endpoint
+ src/app/api/products/[id]/route.ts | 55 +++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 54 insertions(+), 1 deletion(-)
+
+467e9cd|2025-09-26 10:15:02 -0300|Diego Andres Eiman|fix: remove include clause from product update to avoid Prisma validation error
+ src/app/api/products/[id]/route.ts | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+4d565b8|2025-09-25 17:29:55 -0300|Diego Andres Eiman|fix: simplify product query to avoid select validation error
+ src/app/api/test-update/route.ts | 8 +-------
+ 1 file changed, 1 insertion(+), 7 deletions(-)
+
+6d14b1d|2025-09-25 17:26:31 -0300|Diego Andres Eiman|test: add timestamp to verify new version is deployed
+ src/app/api/test-update/route.ts | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+88d8504|2025-09-25 17:23:58 -0300|Diego Andres Eiman|test: add database operations step by step
+ src/app/api/test-update/route.ts | 45 ++++++++++++++++++++++++++++++++++------
+ 1 file changed, 39 insertions(+), 6 deletions(-)
+
+6a1dcb1|2025-09-25 17:16:15 -0300|Diego Andres Eiman|simplify: test endpoint to only check session without database
+ src/app/api/test-update/route.ts | 39 +++++++++++----------------------------
+ 1 file changed, 11 insertions(+), 28 deletions(-)
+
+6692728|2025-09-25 17:13:39 -0300|Diego Andres Eiman|simplify: test endpoint to only find product without updating
+ src/app/api/test-update/route.ts | 22 +++++-----------------
+ 1 file changed, 5 insertions(+), 17 deletions(-)
+
+548ae1e|2025-09-25 17:04:17 -0300|Diego Andres Eiman|add: test update endpoint to debug product update issues
+ src/app/api/test-update/route.ts | 80 ++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 80 insertions(+)
+
+468d9ae|2025-09-25 15:21:24 -0300|Diego Andres Eiman|add: simple debug endpoint to check session status
+ paquete_revision.zip               |  Bin 41165 -> 0 bytes
+ review/autores.txt                 |    1 -
+ review/commits_ai_sospechosos.txt  |   10 -
+ review/diff_main_develop.patch     | 2553 ------------------------------------
+ review/diff_main_develop_stat.txt  |   34 -
+ review/log_basico.csv              |  190 ---
+ review/log_numstat.txt             | 1244 ------------------
+ review/tags.txt                    |    0
+ review/tamano_carpetas.txt         |   10 -
+ review/top_archivos.txt            |   50 -
+ src/app/api/debug-simple/route.ts  |   22 +
+ src/app/api/products/[id]/route.ts |    2 +-
+ 12 files changed, 23 insertions(+), 4093 deletions(-)
+
+8e1b700|2025-09-25 15:05:25 -0300|Diego Andres Eiman|cleanup: remove test endpoint after fixing issues
+ src/app/api/test-product-update/route.ts | 80 --------------------------------
+ 1 file changed, 80 deletions(-)
+
+f6bb668|2025-09-25 15:03:35 -0300|Diego Andres Eiman|fix: correct Prisma field names and regenerate client
+ src/app/api/products/[id]/route.ts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+698bee9|2025-09-25 14:51:19 -0300|Diego Andres Eiman|add: simple test endpoint to debug product update issues
+ src/app/api/test-product-update/route.ts | 80 ++++++++++++++++++++++++++++++++
+ 1 file changed, 80 insertions(+)
+
+8ce51a6|2025-09-25 14:43:22 -0300|Diego Andres Eiman|cleanup: remove debug endpoints after fixing issues
+ src/app/api/debug-products/route.ts | 70 -------------------------------------
+ src/app/api/debug-session/route.ts  | 46 ------------------------
+ 2 files changed, 116 deletions(-)
+
+69fa3de|2025-09-25 14:41:25 -0300|Diego Andres Eiman|fix: correct field name from category to Category in products endpoint
+ src/app/api/products/[id]/route.ts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+a68ce79|2025-09-25 14:38:22 -0300|Diego Andres Eiman|fix: correct field name from Company to company in debug products endpoint
+ src/app/api/debug-products/route.ts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+65365f0|2025-09-25 14:35:51 -0300|Diego Andres Eiman|fix: remove stock field from debug products endpoint
+ src/app/api/debug-products/route.ts | 1 -
+ 1 file changed, 1 deletion(-)
+
+d7d09ca|2025-09-25 14:27:32 -0300|Diego Andres Eiman|add: debug products endpoint to check user access to products
+ src/app/api/debug-products/route.ts | 71 +++++++++++++++++++++++++++++++++++++
+ 1 file changed, 71 insertions(+)
+
+816d8d4|2025-09-25 13:44:27 -0300|Diego Andres Eiman|add: debug session endpoint to troubleshoot authentication issues
+ src/app/api/debug-session/route.ts | 46 ++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 46 insertions(+)
+
+f89fdb9|2025-09-25 13:07:26 -0300|Diego Andres Eiman|fix: logger compatibility with Vercel environment
+ src/lib/logger.ts | 16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
+
+745a87d|2025-09-25 12:59:07 -0300|Diego Andres Eiman|fix: remove remaining extra closing brace
+ src/app/api/products/[id]/route.ts | 1 -
+ 1 file changed, 1 deletion(-)
+
+c1884b4|2025-09-25 12:58:26 -0300|Diego Andres Eiman|fix: remove extra closing brace causing syntax error
+ src/app/api/products/[id]/route.ts | 1 -
+ 1 file changed, 1 deletion(-)
+
+2ffeedc|2025-09-25 12:57:40 -0300|Diego Andres Eiman|feat: implement comprehensive error handling and logging system
+ src/app/api/products/[id]/route.ts     | 197 ++++++++++++++++++++++++++-------
+ src/app/productos/ProductosContent.tsx |  56 ++++++++--
+ src/components/common/MessageModal.tsx | 108 ++++++++++++++++++
+ src/hooks/useMessageModal.ts           |  74 +++++++++++++
+ src/lib/logger.ts                      |  94 ++++++++++++++++
+ 5 files changed, 480 insertions(+), 49 deletions(-)
+
+b2893dd|2025-09-25 12:42:48 -0300|Diego Andres Eiman|fix: resolve authentication issues and clean up debug endpoints
+ src/app/api/debug-session/route.ts | 25 -------------------
+ src/app/api/list-users/route.ts    | 34 --------------------------
+ src/app/api/test-login/route.ts    | 49 --------------------------------------
+ 3 files changed, 108 deletions(-)
+
+f017fde|2025-09-25 12:39:12 -0300|Diego Andres Eiman|add: list-users endpoint to check existing users in database
+ src/app/api/list-users/route.ts | 34 ++++++++++++++++++++++++++++++++++
+ 1 file changed, 34 insertions(+)
+
+151c93b|2025-09-25 12:35:28 -0300|Diego Andres Eiman|add: test-login endpoint to verify credentials and database connection
+ src/app/api/test-login/route.ts | 49 +++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 49 insertions(+)
+
+cc8c6ba|2025-09-25 12:27:12 -0300|Diego Andres Eiman|add: debug session endpoint to troubleshoot authentication issues
+ src/app/api/debug-session/route.ts | 25 +++++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
+
+e1b24c2|2025-09-25 12:13:08 -0300|Diego Andres Eiman|fix: standardize all ABM delete confirmation modals and fix products API endpoint
+ src/app/api/products/[id]/route.ts     | 30 +++++++++++++++++-------------
+ src/app/categorias/page.tsx            | 20 ++++++++------------
+ src/app/clientes/page.tsx              | 20 ++++++++------------
+ src/app/productos/ProductosContent.tsx | 32 +++++++++++++++++---------------
+ 4 files changed, 50 insertions(+), 52 deletions(-)
+
+e577201|2025-09-25 11:55:51 -0300|Diego Andres Eiman|fix: resolve multiple UI/UX issues
+ src/app/categorias/page.tsx            |   1 +
+ src/app/clientes/page.tsx              |   5 +-
+ src/app/empresas/page.tsx              |   8 +--
+ src/app/globals.css                    | 124 +++++++++++++++++++++++++++++++++
+ src/app/productos/ProductosContent.tsx |   7 +-
+ src/app/remitos/page.tsx               |   4 +-
+ src/app/usuarios/page.tsx              |   3 +-
+ src/lib/validations.ts                 |   2 +-
+ 8 files changed, 142 insertions(+), 12 deletions(-)
+
+eaf742d|2025-09-25 11:25:07 -0300|Diego Andres Eiman|fix: correct all API endpoints to use withPrisma and add missing CRUD methods
+ src/app/api/categories/[id]/route.ts | 62 ++++++++++++-----------
+ src/app/api/categories/route.ts      | 66 ++++++++++++++++++++++---
+ src/app/api/clients/[id]/route.ts    | 86 ++++++++++++++++++--------------
+ src/app/api/clients/route.ts         | 95 ++++++++++++++++++++++++++++++++++++
+ src/app/api/products/route.ts        | 67 ++++++++++++++++++++++---
+ 5 files changed, 299 insertions(+), 77 deletions(-)
+
+16271a1|2025-09-25 11:04:10 -0300|Diego Andres Eiman|fix: add missing PUT and DELETE methods to users API endpoint
+ src/app/api/users/[id]/route.ts | 215 ++++++++++++++++++++++++++++++++++++++++
+ src/app/api/users/route.ts      | 126 +++++++++++++++++++++++
+ 2 files changed, 341 insertions(+)
+
+a1eb00b|2025-09-25 10:04:26 -0300|Diego Andres Eiman|fix: add missing PUT and DELETE methods to companies API endpoint
+ paquete_revision.zip                |  Bin 0 -> 41165 bytes
+ review/autores.txt                  |    1 +
+ review/commits_ai_sospechosos.txt   |   10 +
+ review/diff_main_develop.patch      | 2553 +++++++++++++++++++++++++++++++++++
+ review/diff_main_develop_stat.txt   |   34 +
+ review/log_basico.csv               |  190 +++
+ review/log_numstat.txt              | 1244 +++++++++++++++++
+ review/tags.txt                     |    0
+ review/tamano_carpetas.txt          |   10 +
+ review/top_archivos.txt             |   50 +
+ src/app/api/companies/[id]/route.ts |  107 ++
+ src/app/api/companies/route.ts      |   93 +-
+ 12 files changed, 4285 insertions(+), 7 deletions(-)
+
+c939d17|2025-09-24 18:46:35 -0300|Diego Andres Eiman|test: complete system functionality verification
+ scripts/create-status-history.js | 55 ++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 55 insertions(+)
+
+30aaef1|2025-09-24 18:39:51 -0300|Diego Andres Eiman|fix: correct database schema synchronization and migration script
+ scripts/migrate-database.js | 100 +++++++++++++++++++++++++++++---------------
+ 1 file changed, 67 insertions(+), 33 deletions(-)
+
+700fc0c|2025-09-24 18:30:20 -0300|Diego Andres Eiman|feat: create unified database migration script
+ logs.txt                                |   6 -
+ scripts/check-deployment-db.js          |  74 -------
+ scripts/check-preview-env.sh            |  66 -------
+ scripts/check-vercel-env.sh             |  60 ------
+ scripts/clean-dev-variables.sh          |  52 -----
+ scripts/clean-prod-variables.sh         |  72 -------
+ scripts/clean-stock-descriptions.js     |  65 ------
+ scripts/configure-db-variables.sh       |  19 --
+ scripts/configure-separate-databases.sh |  53 -----
+ scripts/create-users-both-envs.js       | 108 ----------
+ scripts/create-users-direct.js          | 108 ----------
+ scripts/create-users-final.js           | 122 ------------
+ scripts/create-users-fixed.js           | 116 -----------
+ scripts/create-users.js                 |  75 -------
+ scripts/debug-auth.sh                   | 108 ----------
+ scripts/debug-nextauth.sh               |  58 ------
+ scripts/deploy-dev.sh                   |  21 --
+ scripts/deploy-develop.sh               |  23 ---
+ scripts/deploy-prod.sh                  |  28 ---
+ scripts/deploy-production.sh            |  20 --
+ scripts/dev-db.js                       | 174 -----------------
+ scripts/direct-auth-test.sh             |  43 ----
+ scripts/final-diagnosis-complete.sh     | 116 -----------
+ scripts/final-diagnosis.sh              | 109 -----------
+ scripts/final-solution.sh               |  45 -----
+ scripts/final-verification.sh           |  91 ---------
+ scripts/fix-all-endpoints.sh            |  54 -----
+ scripts/fix-branch-config.sh            |  89 ---------
+ scripts/fix-branch-mapping.sh           |  52 -----
+ scripts/fix-prisma-imports.sh           |  79 --------
+ scripts/force-branch-config.sh          |  55 ------
+ scripts/generate-credentials.sh         | 118 -----------
+ scripts/migrate-database.js             | 336 ++++++++++++++++++++++++++++++++
+ scripts/migrate-dev-to-prod.js          | 148 --------------
+ scripts/migrate-vercel.js               |  60 ------
+ scripts/migrate.sh                      |  40 ++++
+ scripts/prod-db.js                      | 174 -----------------
+ scripts/reset-all-environments.sh       | 104 ----------
+ scripts/reset-dev-variables.sh          |  83 --------
+ scripts/setup-environments.sh           |  25 ---
+ scripts/show-credentials.sh             |  21 --
+ scripts/test-api-auth.js                |  58 ------
+ scripts/test-auth.js                    |  90 ---------
+ scripts/test-complete-login.sh          |  49 -----
+ scripts/test-deployment-auth.js         |  82 --------
+ scripts/test-full-auth.sh               |  44 -----
+ scripts/update-dev-connection.sh        |  53 -----
+ scripts/verify-both-environments.sh     | 131 -------------
+ scripts/verify-credentials.sh           |  96 ---------
+ 49 files changed, 376 insertions(+), 3497 deletions(-)
+
+a62e015|2025-09-24 18:25:53 -0300|Diego Andres Eiman|remove: delete non-functional check-errors.sh script
+ logs.txt                |  6 ++++++
+ scripts/check-errors.sh | 37 -------------------------------------
+ 2 files changed, 6 insertions(+), 37 deletions(-)
+
+379bb0f|2025-09-24 18:23:53 -0300|Diego Andres Eiman|feat: optimize all API endpoints with centralized Prisma client management
+ logs.txt                        |  24 --------
+ scripts/fix-all-endpoints.sh    |  54 ++++++++++++++++++
+ src/app/api/categories/route.ts |  60 ++++++--------------
+ src/app/api/clients/route.ts    |  32 ++++++-----
+ src/app/api/products/route.ts   |  26 +++++----
+ src/app/api/remitos/route.ts    |  30 +++++-----
+ src/app/api/users/route.ts      | 122 +++++++++++++++++-----------------------
+ src/lib/prisma.ts               |  41 ++++++++++++++
+ 8 files changed, 215 insertions(+), 174 deletions(-)
+
+7b4be38|2025-09-24 18:14:22 -0300|Diego Andres Eiman|fix: resolve prisma undefined errors in users and categories endpoints
+ logs.txt                        | 24 +++++++++++++
+ scripts/check-errors.sh         | 37 +++++++++++++++++++
+ scripts/fix-prisma-imports.sh   | 79 +++++++++++++++++++++++++++++++++++++++++
+ src/app/api/categories/route.ts | 30 +++++++++++++++-
+ src/app/api/users/route.ts      | 30 +++++++++++++++-
+ 5 files changed, 198 insertions(+), 2 deletions(-)
+
+7bd8e5b|2025-09-24 14:27:58 -0300|Diego Andres Eiman|fix: create dedicated Prisma client for NextAuth to resolve undefined prisma error
+ scripts/final-solution.sh | 45 +++++++++++++++++++++++++++++++++++++++++++++
+ src/lib/auth.ts           | 29 ++++++++++++++++++++++++++++-
+ 2 files changed, 73 insertions(+), 1 deletion(-)
+
+4457430|2025-09-24 14:22:32 -0300|Diego Andres Eiman|fix: ensure database URL is configured before creating Prisma client
+ src/lib/db.ts | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+47dd114|2025-09-24 14:19:12 -0300|Diego Andres Eiman|fix: add prisma logging for debugging
+ src/lib/db.ts | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+1597a9e|2025-09-24 14:15:25 -0300|Diego Andres Eiman|add: test prisma endpoint for debugging
+ src/app/api/test-prisma/route.ts | 56 ++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 56 insertions(+)
+
+05366a4|2025-09-24 14:12:49 -0300|Diego Andres Eiman|fix: prisma database URL configuration
+ src/lib/db.ts | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+f559f79|2025-09-24 14:11:02 -0300|Diego Andres Eiman|fix: debugging authentication issue
+ CONFIGURACION_ENTORNOS.md           |  41 +++++--
+ env.development                     |  17 +++
+ env.example                         |  11 +-
+ env.preview                         |  17 +++
+ env.production                      |  17 +++
+ prisma/schema.prisma                | 210 ++++++++++++++++++------------------
+ scripts/check-deployment-db.js      |  74 +++++++++++++
+ scripts/check-preview-env.sh        |  66 ++++++++++++
+ scripts/check-vercel-env.sh         |  60 +++++++++++
+ scripts/clean-dev-variables.sh      |  52 +++++++++
+ scripts/clean-prod-variables.sh     |  72 +++++++++++++
+ scripts/create-users-both-envs.js   | 108 +++++++++++++++++++
+ scripts/create-users-direct.js      | 108 +++++++++++++++++++
+ scripts/create-users-final.js       | 122 +++++++++++++++++++++
+ scripts/create-users-fixed.js       | 116 ++++++++++++++++++++
+ scripts/create-users.js             |  75 +++++++++++++
+ scripts/debug-auth.sh               | 108 +++++++++++++++++++
+ scripts/debug-nextauth.sh           |  58 ++++++++++
+ scripts/direct-auth-test.sh         |  43 ++++++++
+ scripts/final-diagnosis-complete.sh | 116 ++++++++++++++++++++
+ scripts/final-diagnosis.sh          | 109 +++++++++++++++++++
+ scripts/final-verification.sh       |  91 ++++++++++++++++
+ scripts/fix-branch-config.sh        |  89 +++++++++++++++
+ scripts/fix-branch-mapping.sh       |  52 +++++++++
+ scripts/force-branch-config.sh      |  55 ++++++++++
+ scripts/generate-credentials.sh     | 118 ++++++++++++++++++++
+ scripts/reset-all-environments.sh   | 104 ++++++++++++++++++
+ scripts/reset-dev-variables.sh      |  83 ++++++++++++++
+ scripts/show-credentials.sh         |  21 ++++
+ scripts/test-api-auth.js            |  58 ++++++++++
+ scripts/test-auth.js                |  90 ++++++++++++++++
+ scripts/test-complete-login.sh      |  49 +++++++++
+ scripts/test-deployment-auth.js     |  82 ++++++++++++++
+ scripts/test-full-auth.sh           |  44 ++++++++
+ scripts/update-dev-connection.sh    |  53 +++++++++
+ scripts/verify-both-environments.sh | 131 ++++++++++++++++++++++
+ scripts/verify-credentials.sh       |  96 +++++++++++++++++
+ src/app/api/check-db/route.ts       |  38 +++++++
+ src/app/api/debug-auth/route.ts     |  71 ++++++++++++
+ src/app/api/test-db/route.ts        |  64 ++++++-----
+ src/app/api/test-simple/route.ts    |  17 ---
+ src/lib/auth.ts                     |  17 ++-
+ src/lib/db.ts                       |  12 ++-
+ 43 files changed, 2857 insertions(+), 178 deletions(-)
+
+117533a|2025-09-23 23:51:45 -0300|Diego Andres Eiman|feat: agregar endpoint test-simple para probar funcionalidad básica
+ src/app/api/test-simple/route.ts | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
+
+8ecb098|2025-09-23 23:46:00 -0300|Diego Andres Eiman|feat: agregar endpoint simple-seed para probar conexión
+ src/app/api/simple-seed/route.ts | 40 ++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 40 insertions(+)
+
+cd00beb|2025-09-23 23:44:41 -0300|Diego Andres Eiman|fix: corregir endpoint populate con instancia directa de Prisma
+ src/app/api/populate/route.ts | 15 ++++++++++++++-
+ 1 file changed, 14 insertions(+), 1 deletion(-)
+
+8e39e25|2025-09-23 23:43:16 -0300|Diego Andres Eiman|clean: limpiar scripts innecesarios y agregar endpoint de test
+ scripts/check-data.js               |  42 --------
+ scripts/check-db-schema.js          |  47 ---------
+ scripts/check-db-structure.js       |  63 ------------
+ scripts/check-product-schema.js     |  41 --------
+ scripts/debug-products.js           |  33 ------
+ scripts/fix-product-descriptions.js |  48 ---------
+ scripts/fix-stock-field.js          |  55 ----------
+ scripts/populate-prod-simple.js     |  97 ------------------
+ scripts/populate-production.js      | 195 ------------------------------------
+ scripts/setup-dev-db.js             | 107 --------------------
+ scripts/simple-migrate.js           | 141 --------------------------
+ scripts/test-api.js                 |  30 ------
+ scripts/update-products-stock.js    |  31 ------
+ src/app/api/seed/route.ts           |  81 ---------------
+ src/app/api/test-db/route.ts        |  46 +++++++++
+ 15 files changed, 46 insertions(+), 1011 deletions(-)
+
+de238f3|2025-09-23 23:41:07 -0300|Diego Andres Eiman|fix: corregir función getDatabaseUrl para evitar undefined
+ src/lib/db.ts | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+5036cab|2025-09-23 23:40:00 -0300|Diego Andres Eiman|feat: agregar endpoint simple para seed básico
+ src/app/api/seed/route.ts | 81 +++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 81 insertions(+)
+
+3a8830f|2025-09-23 23:38:57 -0300|Diego Andres Eiman|fix: corregir endpoint de poblamiento y agregar script simple
+ scripts/populate-prod-simple.js | 97 +++++++++++++++++++++++++++++++++++++++++
+ src/app/api/populate/route.ts   |  4 ++
+ 2 files changed, 101 insertions(+)
+
+9f17447|2025-09-23 23:35:01 -0300|Diego Andres Eiman|feat: agregar scripts reutilizables para manejo de base de datos
+ scripts/dev-db.js  | 174 +++++++++++++++++++++++++++++++++++++++++++++++++++++
+ scripts/prod-db.js | 174 +++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 348 insertions(+)
+
+eaac7af|2025-09-23 23:26:35 -0300|Diego Andres Eiman|🔧 Agregar endpoint temporal para poblar datos de producción
+ scripts/populate-production.js |  70 ++++++++++-------
+ src/app/api/populate/route.ts  | 172 +++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 212 insertions(+), 30 deletions(-)
+
+0efcecd|2025-09-23 23:22:56 -0300|Diego Andres Eiman|🔧 CORRECCIÓN CRÍTICA: Corregir autenticación para usar instancia centralizada de Prisma
+ src/app/api/users/route.ts | 4 +---
+ src/lib/auth.ts            | 4 +---
+ 2 files changed, 2 insertions(+), 6 deletions(-)
+
+c5726f0|2025-09-23 23:20:19 -0300|Diego Andres Eiman|🔧 Corregir APIs para usar instancia centralizada de Prisma con configuración correcta de base de datos
+ src/app/api/categories/[id]/route.ts |  8 +-------
+ src/app/api/categories/route.ts      | 10 +---------
+ src/app/api/clients/[id]/route.ts    |  8 +-------
+ src/app/api/clients/route.ts         |  8 +-------
+ src/app/api/products/[id]/route.ts   |  8 +-------
+ src/app/api/products/route.ts        | 10 +---------
+ src/app/api/remitos/[id]/route.ts    |  4 +---
+ src/app/api/remitos/route.ts         |  8 +-------
+ 8 files changed, 8 insertions(+), 56 deletions(-)
+
+3eb6c6b|2025-09-23 23:11:59 -0300|Diego Andres Eiman|🗑️ Eliminar script con credenciales expuestas
+ scripts/populate-prod-direct.js | 183 ----------------------------------------
+ 1 file changed, 183 deletions(-)
+
+40674bb|2025-09-23 23:11:44 -0300|Diego Andres Eiman|🔧 Agregar prisma.() a todas las APIs para corregir errores de conexión
+ scripts/populate-prod-direct.js | 183 ++++++++++++++++++++++++++++++++++++++++
+ src/app/api/categories/route.ts |   6 ++
+ src/app/api/products/route.ts   |   6 ++
+ src/app/api/remitos/route.ts    |   4 +
+ 4 files changed, 199 insertions(+)
+
+f782ff9|2025-09-23 23:07:26 -0300|Diego Andres Eiman|🗑️ Eliminar script con credenciales expuestas
+ scripts/populate-prod-direct.js | 183 ----------------------------------------
+ 1 file changed, 183 deletions(-)
+
+8800843|2025-09-23 23:07:08 -0300|Diego Andres Eiman|🔧 Corregir errores de APIs y poblar datos de producción
+ scripts/populate-prod-direct.js | 183 +++++++++++++++++++++++++++++++++++++++
+ scripts/populate-production.js  | 185 ++++++++++++++++++++++++++++++++++++++++
+ src/app/api/clients/route.ts    |   4 +
+ 3 files changed, 372 insertions(+)
+
+eac5761|2025-09-23 16:40:42 -0300|Diego Andres Eiman|🚨 URGENTE: Eliminar credenciales expuestas de scripts - seguridad
+ .gitignore                |   6 ++
+ scripts/direct-migrate.js | 136 ---------------------------------
+ scripts/final-seed.js     | 189 ----------------------------------------------
+ scripts/seed-dev-data.js  | 138 ---------------------------------
+ scripts/simple-create.js  | 138 ---------------------------------
+ scripts/simple-seed.js    | 147 ------------------------------------
+ 6 files changed, 6 insertions(+), 748 deletions(-)
+
+f977aef|2025-09-23 16:32:03 -0300|Diego Andres Eiman|🔧 Corregir error .filter() en dashboard - agregar validaciones de array
+ scripts/direct-migrate.js      | 136 +++++++++++++++++++++++++++++
+ scripts/final-seed.js          | 189 +++++++++++++++++++++++++++++++++++++++++
+ scripts/migrate-dev-to-prod.js | 148 ++++++++++++++++++++++++++++++++
+ scripts/seed-dev-data.js       | 138 ++++++++++++++++++++++++++++++
+ scripts/simple-create.js       | 138 ++++++++++++++++++++++++++++++
+ scripts/simple-migrate.js      | 141 ++++++++++++++++++++++++++++++
+ scripts/simple-seed.js         | 147 ++++++++++++++++++++++++++++++++
+ src/app/dashboard/page.tsx     |  32 +++++--
+ 8 files changed, 1060 insertions(+), 9 deletions(-)
+
+62670f6|2025-09-23 15:37:35 -0300|Diego Andres Eiman|🔧 Corregir configuración de base de datos para usar variables correctas por entorno
+ scripts/configure-separate-databases.sh | 53 +++++++++++++++++++++++++++++++++
+ src/lib/db.ts                           | 15 ++++++----
+ 2 files changed, 63 insertions(+), 5 deletions(-)
+
+6fc8bfd|2025-09-23 14:47:44 -0300|Diego Andres Eiman|fix: corregir error 500 en API de clientes
+ src/app/api/clients/[id]/route.ts | 70 ++++++++++++++++++++++++++++++++-------
+ 1 file changed, 58 insertions(+), 12 deletions(-)
+
+42d2158|2025-09-23 14:40:49 -0300|Diego Andres Eiman|feat: cambiar banner naranja por card movible
+ src/app/globals.css                         | 39 ++++++++++++++
+ src/components/common/EnvironmentBanner.tsx | 79 +++++++++++++++++++++++++----
+ 2 files changed, 107 insertions(+), 11 deletions(-)
+
+3217185|2025-09-23 14:36:41 -0300|Diego Andres Eiman|feat: configurar bases de datos separadas por entorno
+ scripts/configure-db-variables.sh | 19 +++++++++++++++++++
+ src/lib/db.ts                     | 18 +++++++++++++++++-
+ 2 files changed, 36 insertions(+), 1 deletion(-)
+
+08c34f0|2025-09-23 14:24:42 -0300|Diego Andres Eiman|docs: agregar configuración para entornos separados
+ CONFIGURACION_ENTORNOS.md     | 68 +++++++++++++++++++++++++++++++++++++++++++
+ scripts/setup-environments.sh | 25 ++++++++++++++++
+ 2 files changed, 93 insertions(+)
+
+b4c0b2b|2025-09-23 14:01:42 -0300|Diego Andres Eiman|fix: corregir detección de entorno con URLs reales
+ src/hooks/useEnvironment.ts | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
+
+e44c7a4|2025-09-23 14:00:21 -0300|Diego Andres Eiman|fix: simplificar detección de entorno para corregir banner en producción
+ src/hooks/useEnvironment.ts | 18 ++++++------------
+ 1 file changed, 6 insertions(+), 12 deletions(-)
+
+7f6a44d|2025-09-23 13:46:29 -0300|Diego Andres Eiman|fix: corregir detección de entorno y crear scripts de deploy
+ scripts/deploy-develop.sh    | 23 +++++++++++++++++++++++
+ scripts/deploy-production.sh | 20 ++++++++++++++++++++
+ src/hooks/useEnvironment.ts  | 11 +++++++++--
+ 3 files changed, 52 insertions(+), 2 deletions(-)
+
+095b0e7|2025-09-23 13:32:24 -0300|Diego Andres Eiman|fix: mover credenciales al banner naranja y mejorar centrado
+ src/app/auth/login/page.tsx                 | 14 ++------------
+ src/components/common/EnvironmentBanner.tsx | 10 ++++++++++
+ vercel-preview.json                         | 15 +++++++++++++++
+ 3 files changed, 27 insertions(+), 12 deletions(-)
+
+d7a2561|2025-09-23 13:20:17 -0300|Diego Andres Eiman|fix: mejorar estética de login y credenciales condicionales
+ src/app/auth/login/page.tsx | 22 +++++++++++++---------
+ 1 file changed, 13 insertions(+), 9 deletions(-)
+
+063ca49|2025-09-23 13:14:10 -0300|Diego Andres Eiman|trigger: forzar deploy automático
+ README.md | 1 +
+ 1 file changed, 1 insertion(+)
+
+a32aadf|2025-09-23 13:03:59 -0300|Diego Andres Eiman|fix: mejorar estética de pantalla de login
+ src/app/auth/login/page.tsx | 21 ++++---------
+ src/app/globals.css         | 77 +++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 83 insertions(+), 15 deletions(-)
+
+ddc6154|2025-09-23 12:46:44 -0300|Diego Andres Eiman|fix: limpiar package.json y agregar tipos TypeScript
+ package.json | 27 ++++-----------------------
+ 1 file changed, 4 insertions(+), 23 deletions(-)
+
+a3e0268|2025-09-23 12:41:23 -0300|Diego Andres Eiman|fix: duplicar dependencias para Vercel
+ package.json | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
+
+ee15991|2025-09-23 12:40:23 -0300|Diego Andres Eiman|fix: mover tailwindcss a dependencias de producción
+ package.json | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+906dc6c|2025-09-23 12:37:43 -0300|Diego Andres Eiman|test: forzar deployment con Tailwind CSS v3
+ README.md | 2 ++
+ 1 file changed, 2 insertions(+)
+
+a31bbd6|2025-09-23 12:34:36 -0300|Diego Andres Eiman|fix: cambiar a Tailwind CSS v3 estable
+ package-lock.json | 1645 +++++++++++++++++++++++++++++++----------------------
+ package.json      |    3 +-
+ postcss.config.js |    2 +-
+ 3 files changed, 963 insertions(+), 687 deletions(-)
+
+b1e3707|2025-09-23 12:33:07 -0300|Diego Andres Eiman|force: forzar nuevo deployment sin cache
+ README.md | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+d9211fd|2025-09-23 12:27:50 -0300|Diego Andres Eiman|fix: corregir configuración de PostCSS para Tailwind CSS v4
+ package-lock.json | 53 ++---------------------------------------------------
+ package.json      |  2 +-
+ postcss.config.js |  2 +-
+ 3 files changed, 4 insertions(+), 53 deletions(-)
+
+b42e0d7|2025-09-23 12:23:59 -0300|Diego Andres Eiman|fix: mover tailwindcss a dependencias de producción
+ package.json | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+c8fec05|2025-09-23 12:22:06 -0300|Diego Andres Eiman|fix: agregar configuración de Tailwind CSS
+ package-lock.json     | 160 +++++++++++++++++++++++++++++++++++++++++++++++++-
+ package.json          |   1 +
+ postcss.config.js     |   6 ++
+ scripts/deploy-dev.sh |  17 ++----
+ tailwind.config.js    |  12 ++++
+ 5 files changed, 183 insertions(+), 13 deletions(-)
+
+b338379|2025-09-23 11:56:05 -0300|Diego Andres Eiman|test: activar deploy automático en proyecto v0-remitero
+ README.md | 2 ++
+ 1 file changed, 2 insertions(+)
+
+d83b6fd|2025-09-23 11:31:06 -0300|Diego Andres Eiman|feat: mejorar estética de pantalla de login
+ src/app/auth/login/page.tsx | 38 ++++++++++++++++-----------
+ src/app/globals.css         | 62 +++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 85 insertions(+), 15 deletions(-)
+
+8a2a53b|2025-09-23 07:59:40 -0300|Diego Andres Eiman|feat: agregar banner visual para diferenciar entornos
+ src/app/globals.css                                | 29 ++++++++++++
+ src/app/layout.tsx                                 |  2 +
+ src/components/common/EnvironmentBanner.tsx        | 54 ++++++++++++++++++++++
+ src/components/common/EnvironmentBannerWrapper.tsx | 10 ++++
+ src/hooks/useEnvironment.ts                        | 36 +++++++++++++++
+ 5 files changed, 131 insertions(+)
+
+0d8ea2d|2025-09-22 19:44:51 -0300|Diego Andres Eiman|feat: agregar script de configuración de base de datos de desarrollo
+ scripts/setup-dev-db.js            | 107 +++++++++++++++++++++++++++++++++++++
+ src/app/api/products/[id]/route.ts |  39 +++-----------
+ 2 files changed, 115 insertions(+), 31 deletions(-)
+
+68805ff|2025-09-22 19:18:57 -0300|Diego Andres Eiman|feat: configurar entornos separados de desarrollo y producción
+ ENTORNOS.md                            | 65 ++++++++++++++++++++++++++++++++++
+ env.example                            |  9 +++++
+ scripts/deploy-dev.sh                  | 28 +++++++++++++++
+ scripts/deploy-prod.sh                 | 28 +++++++++++++++
+ scripts/migrate-vercel.js              | 60 +++++++++++++++++++++++++++++++
+ src/app/dashboard/page.tsx             | 18 ++--------
+ src/app/productos/ProductosContent.tsx | 15 +-------
+ src/app/remitos/page.tsx               | 13 +------
+ vercel-branches.json                   | 21 +++++++++++
+ vercel.json                            | 17 ++++++---
+ 10 files changed, 227 insertions(+), 47 deletions(-)
+
+7fb60c3|2025-09-22 19:08:06 -0300|Diego Andres Eiman|fix: solución compatible para stock en local y Vercel
+ scripts/check-db-structure.js          | 63 ++++++++++++++++++++++++
+ src/app/api/debug-product/route.ts     | 89 ++++++++++++++++++++++++++++++++++
+ src/app/api/products/[id]/route.ts     | 39 ++++++++++++---
+ src/app/dashboard/page.tsx             | 18 ++++++-
+ src/app/productos/ProductosContent.tsx | 16 +++++-
+ src/app/remitos/page.tsx               |  4 +-
+ 6 files changed, 215 insertions(+), 14 deletions(-)
+
+a1ac760|2025-09-22 15:23:27 -0300|Diego Andres Eiman|fix: corregir manejo de stock en campo dedicado
+ scripts/clean-stock-descriptions.js    |  65 +++++++++++++++++++++
+ src/app/api/debug-product/route.ts     | 100 ---------------------------------
+ src/app/dashboard/page.tsx             |  10 +---
+ src/app/productos/ProductosContent.tsx |  30 +++-------
+ src/app/remitos/page.tsx               |   9 +--
+ 5 files changed, 77 insertions(+), 137 deletions(-)
+
+ca4c7e6|2025-09-22 15:16:18 -0300|Diego Andres Eiman|fix: corregir espaciado de iconos y error de Vercel
+ src/app/categorias/page.tsx | 5 +++--
+ src/app/clientes/page.tsx   | 9 +++++----
+ 2 files changed, 8 insertions(+), 6 deletions(-)
+
+6dbb673|2025-09-22 15:05:54 -0300|Diego Andres Eiman|fix: corregir múltiples problemas de UI y funcionalidad
+ src/app/categorias/page.tsx | 11 +++++++++--
+ src/app/clientes/page.tsx   |  4 ++--
+ src/app/globals.css         | 16 ++++++++++++++++
+ src/app/remitos/page.tsx    | 36 +++++++++++++++++++++++++++++++++---
+ src/app/usuarios/page.tsx   | 13 ++++++++++---
+ 5 files changed, 70 insertions(+), 10 deletions(-)
+
+225a2cd|2025-09-22 14:51:51 -0300|Diego Andres Eiman|fix: corregir error de Suspense boundary en useSearchParams
+ src/app/categorias/page.tsx            | 18 ++++++++++++++++--
+ src/app/clientes/page.tsx              | 18 ++++++++++++++++--
+ src/app/productos/ProductosContent.tsx | 18 ++++++++++++++++--
+ src/app/remitos/page.tsx               | 18 ++++++++++++++++--
+ 4 files changed, 64 insertions(+), 8 deletions(-)
+
+0a6fc55|2025-09-22 14:45:53 -0300|Diego Andres Eiman|feat: mejorar dashboard y enlaces de creación
+ src/app/categorias/page.tsx            | 12 ++++++++++++
+ src/app/clientes/page.tsx              | 12 ++++++++++++
+ src/app/dashboard/page.tsx             | 30 ++++--------------------------
+ src/app/globals.css                    | 18 ++++++++++++++++--
+ src/app/productos/ProductosContent.tsx | 10 ++++++++++
+ src/app/remitos/page.tsx               | 13 +++++++++++++
+ 6 files changed, 67 insertions(+), 28 deletions(-)
+
+48174ea|2025-09-22 14:37:51 -0300|Diego Andres Eiman|feat: mejorar botones del dashboard con Ver y Nuevo lado a lado
+ src/app/dashboard/page.tsx | 35 +++++++++++++++++++++++++++++++----
+ src/app/globals.css        | 36 ++++++++++++++++++++++++++++++++----
+ 2 files changed, 63 insertions(+), 8 deletions(-)
+
+c06b750|2025-09-22 14:28:59 -0300|Diego Andres Eiman|fix: eliminar duplicaciones y corregir dashboard
+ src/app/clientes/page.tsx              |  23 +-----
+ src/app/dashboard/page.tsx             |  88 +++++++--------------
+ src/app/globals.css                    | 139 ++++++++++++++++++++++++++++++++-
+ src/app/productos/ProductosContent.tsx |  16 ----
+ 4 files changed, 168 insertions(+), 98 deletions(-)
+
+12a6a6c|2025-09-22 14:21:29 -0300|Diego Andres Eiman|fix: corregir error de sintaxis en categorias/page.tsx
+ src/app/categorias/page.tsx | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
+
+bba1c05|2025-09-22 14:13:34 -0300|Diego Andres Eiman|fix: corregir múltiples problemas de UX y estandarizar ABM
+ src/app/api/clients/route.ts           |  5 ++++
+ src/app/categorias/page.tsx            | 17 ++++----------
+ src/app/clientes/page.tsx              | 16 +++++++++++--
+ src/app/globals.css                    | 11 ++++++++-
+ src/app/productos/ProductosContent.tsx | 43 ++++++++++++++++++++++++++++++----
+ 5 files changed, 72 insertions(+), 20 deletions(-)
+
+9e86ba0|2025-09-22 14:00:32 -0300|Diego Andres Eiman|feat: mejorar UX y funcionalidad en todos los ABM
+ src/app/clientes/page.tsx              |  15 +-
+ src/app/dashboard/page.tsx             | 270 ++++++++++++++++++++++++---------
+ src/app/productos/ProductosContent.tsx |  11 +-
+ src/app/remitos/page.tsx               |  26 +++-
+ 4 files changed, 241 insertions(+), 81 deletions(-)
+
+12aa39a|2025-09-22 13:48:37 -0300|Diego Andres Eiman|feat: mejorar listados de clientes y remitos con filtros y UX
+ src/app/clientes/page.tsx | 15 +++++---
+ src/app/remitos/page.tsx  | 87 ++++++++++++++++++++++++++++++++++++++++++++---
+ 2 files changed, 94 insertions(+), 8 deletions(-)
+
+9c6d825|2025-09-22 13:37:14 -0300|Diego Andres Eiman|feat: mejorar UX de formulario de remitos y jerarquía de títulos
+ src/app/globals.css              | 45 ++++++++++++++++++++++++++++++++++++++++
+ src/app/remitos/page.tsx         | 11 +++++-----
+ src/components/layout/Header.tsx |  7 +++----
+ 3 files changed, 54 insertions(+), 9 deletions(-)
+
+5bd3bc0|2025-09-22 13:29:19 -0300|Diego Andres Eiman|fix: corregir cálculo del total en impresión de remitos
+ src/app/remitos/page.tsx | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
+
+637baab|2025-09-22 13:25:21 -0300|Diego Andres Eiman|fix: filtrar productos sin stock en frontend para compatibilidad
+ src/app/remitos/page.tsx | 20 ++++++++++++++++++--
+ 1 file changed, 18 insertions(+), 2 deletions(-)
+
+78105aa|2025-09-22 13:23:32 -0300|Diego Andres Eiman|fix: filtrar productos sin stock en remitos y limpiar descripciones
+ src/app/remitos/page.tsx | 13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
+
+3070bf5|2025-09-22 13:17:50 -0300|Diego Andres Eiman|fix: corregir visualización de stock y limpiar descripción
+ src/app/productos/ProductosContent.tsx | 34 ++++++++++++++++++++++++++++++----
+ 1 file changed, 30 insertions(+), 4 deletions(-)
+
+28d9681|2025-09-22 13:13:45 -0300|Diego Andres Eiman|fix: solución temporal para campo stock no disponible en producción
+ scripts/check-db-schema.js         | 47 ++++++++++++++++++++++++++++++++
+ src/app/api/debug-product/route.ts | 55 +++++++++++++++++++++++++-------------
+ 2 files changed, 84 insertions(+), 18 deletions(-)
+
+e565c80|2025-09-22 13:08:35 -0300|Diego Andres Eiman|debug: agregar endpoint de debug para identificar problema de stock
+ src/app/api/debug-product/route.ts     | 81 ++++++++++++++++++++++++++++++++++
+ src/app/productos/ProductosContent.tsx |  9 ++--
+ 2 files changed, 86 insertions(+), 4 deletions(-)
+
+c86d422|2025-09-22 12:52:31 -0300|Diego Andres Eiman|fix: simplificar endpoint de productos y corregir cambio de stock
+ scripts/fix-stock-field.js             | 55 ++++++++++++++++++++++++++++++++++
+ src/app/api/products/[id]/route.ts     | 42 ++++++++------------------
+ src/app/productos/ProductosContent.tsx |  9 +++---
+ 3 files changed, 72 insertions(+), 34 deletions(-)
+
+e247f6c|2025-09-22 12:40:57 -0300|Diego Andres Eiman|fix: corregir endpoint de test stock y mejorar UI de remitos
+ src/app/api/test-stock/route.ts | 14 +++++++++++++-
+ src/app/globals.css             | 15 +++++++++++++++
+ src/app/remitos/page.tsx        | 20 ++++++++++++++++----
+ 3 files changed, 44 insertions(+), 5 deletions(-)
+
+d765d68|2025-09-22 12:26:15 -0300|Diego Andres Eiman|debug: agregar endpoint de test para stock y revertir filtro
+ scripts/check-data.js                  | 42 ++++++++++++++++++++++++++++++++++
+ scripts/check-product-schema.js        | 41 +++++++++++++++++++++++++++++++++
+ src/app/api/test-stock/route.ts        | 39 +++++++++++++++++++++++++++++++
+ src/app/productos/ProductosContent.tsx | 16 +++++++++----
+ src/app/remitos/page.tsx               |  2 +-
+ 5 files changed, 134 insertions(+), 6 deletions(-)
+
+fef95e1|2025-09-22 11:59:08 -0300|Diego Andres Eiman|fix: corregir total NaN, stock y filtro de productos
+ src/app/api/products/route.ts | 12 +++++++++++-
+ src/app/remitos/page.tsx      |  6 +++---
+ 2 files changed, 14 insertions(+), 4 deletions(-)
+
+135d9aa|2025-09-22 11:53:37 -0300|Diego Andres Eiman|fix: corregir validación de productDesc nullable
+ src/app/remitos/page.tsx | 34 +---------------------------------
+ src/lib/validations.ts   |  2 +-
+ 2 files changed, 2 insertions(+), 34 deletions(-)
+
+0f28633|2025-09-22 11:49:08 -0300|Diego Andres Eiman|debug: mejorar logging de errores de validación
+ src/app/api/test-validation/route.ts | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
+
+01d0911|2025-09-22 11:43:52 -0300|Diego Andres Eiman|debug: agregar análisis detallado de datos en validación
+ src/app/api/test-validation/route.ts | 12 +++++++++++-
+ src/app/remitos/page.tsx             |  3 +++
+ 2 files changed, 14 insertions(+), 1 deletion(-)
+
+b14e11c|2025-09-22 11:38:08 -0300|Diego Andres Eiman|debug: agregar endpoint de validación paso a paso
+ src/app/api/test-validation/route.ts | 72 ++++++++++++++++++++++++++++++++++++
+ src/app/remitos/page.tsx             | 18 +++++++++
+ 2 files changed, 90 insertions(+)
+
+8c3edab|2025-09-22 11:21:33 -0300|Diego Andres Eiman|debug: agregar endpoint de debug y logging detallado para remitos
+ src/app/api/debug-remito/route.ts | 21 +++++++++++++++++++++
+ src/app/remitos/page.tsx          | 25 +++++++++++++++++++++++++
+ 2 files changed, 46 insertions(+)
+
+b326649|2025-09-22 11:13:21 -0300|Diego Andres Eiman|debug: agregar logging detallado para POST remitos y regenerar Prisma
+ src/app/api/remitos/route.ts | 18 ++++++++++++------
+ 1 file changed, 12 insertions(+), 6 deletions(-)
+
+d2f5932|2025-09-22 11:08:56 -0300|Diego Andres Eiman|fix: eliminar validación de prueba que causaba error 400
+ src/app/api/test-deploy/route.ts |  1 +
+ src/app/remitos/page.tsx         | 29 ++---------------------------
+ 2 files changed, 3 insertions(+), 27 deletions(-)
+
+cd889ba|2025-09-20 14:38:45 -0300|Diego Andres Eiman|debug: agregar logging detallado para debugging de stock
+ src/app/api/products/[id]/route.ts | 5 ++++-
+ src/app/api/test-deploy/route.ts   | 9 +++++++++
+ 2 files changed, 13 insertions(+), 1 deletion(-)
+
+c400ce8|2025-09-20 14:30:46 -0300|Diego Andres Eiman|fix: corregir endpoints de categorías y debugging de productos
+ src/app/api/categories/[id]/route.ts | 54 ++++++++++++++++++++++++++++++------
+ src/app/api/products/[id]/route.ts   |  7 +++++
+ 2 files changed, 52 insertions(+), 9 deletions(-)
+
+a8e1871|2025-09-20 14:27:36 -0300|Diego Andres Eiman|fix: corregir validación de enum StockStatus
+ src/app/api/products/[id]/route.ts | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
+
+81d7523|2025-09-20 14:25:41 -0300|Diego Andres Eiman|debug: agregar información de debug para error 500
+ src/app/api/products/[id]/route.ts     | 12 ++++++++++--
+ src/app/productos/ProductosContent.tsx |  3 ++-
+ 2 files changed, 12 insertions(+), 3 deletions(-)
+
+52de9ee|2025-09-20 14:23:01 -0300|Diego Andres Eiman|fix: corregir layout y debugging de stock
+ src/app/api/products/[id]/route.ts            |  4 +++
+ src/app/globals.css                           |  8 +++--
+ src/app/productos/ProductosContent.tsx        | 45 +++++++++------------------
+ src/components/common/SearchAndPagination.tsx |  5 ++-
+ 4 files changed, 28 insertions(+), 34 deletions(-)
+
+2e58220|2025-09-20 13:38:38 -0300|Diego Andres Eiman|fix: corregir layout y debugging de stock
+ src/app/api/products/[id]/route.ts     | 20 ++++++++++-
+ src/app/globals.css                    | 45 +++++++++++++++++++++----
+ src/app/productos/ProductosContent.tsx | 61 +++++++++++++++++++++-------------
+ 3 files changed, 95 insertions(+), 31 deletions(-)
+
+144d0f3|2025-09-20 13:30:17 -0300|Diego Andres Eiman|fix: corregir problemas pendientes del listado de productos
+ src/app/api/products/[id]/route.ts     | 50 ++++++++++++++++++++++----------
+ src/app/globals.css                    | 31 ++++++++++++++++++--
+ src/app/productos/ProductosContent.tsx | 53 ++++++++++++++++++----------------
+ 3 files changed, 92 insertions(+), 42 deletions(-)
+
+bfa5079|2025-09-20 13:23:07 -0300|Diego Andres Eiman|fix: resolver todos los problemas del listado de productos
+ scripts/fix-product-descriptions.js    | 48 ++++++++++++++++++++++++++++++++++
+ src/app/globals.css                    |  8 +++++-
+ src/app/productos/ProductosContent.tsx |  6 ++---
+ 3 files changed, 58 insertions(+), 4 deletions(-)
+
+4ceed25|2025-09-20 13:14:50 -0300|Diego Andres Eiman|debug: investigar y corregir duplicación del nombre del producto
+ scripts/debug-products.js              | 33 +++++++++++++++++++++++++++++++++
+ scripts/test-api.js                    | 30 ++++++++++++++++++++++++++++++
+ src/app/globals.css                    | 17 +++++++++++++++++
+ src/app/productos/ProductosContent.tsx |  6 +++---
+ 4 files changed, 83 insertions(+), 3 deletions(-)
+
+ee0525b|2025-09-20 12:51:45 -0300|Diego Andres Eiman|fix: corregir problemas visuales y funcionales del listado de productos
+ src/app/api/products/route.ts          | 52 +++++++++++++---------------------
+ src/app/globals.css                    | 27 +++++++++++++++---
+ src/app/productos/ProductosContent.tsx |  2 +-
+ 3 files changed, 43 insertions(+), 38 deletions(-)
+
+f77bd73|2025-09-20 12:46:01 -0300|Diego Andres Eiman|fix: corregir problemas del listado de productos
+ .../migrations/20250919151112_init/migration.sql   | 120 ---------------------
+ prisma/migrations/migration_lock.toml              |   3 -
+ scripts/update-products-stock.js                   |  31 ++++++
+ src/app/api/products/route.ts                      |  46 +++++---
+ src/app/globals.css                                |   9 +-
+ src/app/productos/ProductosContent.tsx             |   6 +-
+ 6 files changed, 73 insertions(+), 142 deletions(-)
+
+9dff589|2025-09-20 12:38:21 -0300|Diego Andres Eiman|feat: mejorar listado de productos con nuevas funcionalidades
+ prisma/schema.prisma                   |  6 ++++
+ src/app/globals.css                    | 49 ++++++++++++++++++++++++++++++
+ src/app/productos/ProductosContent.tsx | 55 ++++++++++++++++++++++++++++++----
+ src/lib/validations.ts                 |  3 +-
+ 4 files changed, 106 insertions(+), 7 deletions(-)
+
+a49fd92|2025-09-20 12:27:16 -0300|Diego Andres Eiman|optimize: mejorar experiencia de impresión
+ src/app/remitos/page.tsx | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
+
+db45113|2025-09-20 11:42:54 -0300|Diego Andres Eiman|fix: eliminar impresión duplicada y limpiar logging
+ src/app/remitos/page.tsx | 17 -----------------
+ 1 file changed, 17 deletions(-)
+
+163a3b2|2025-09-20 11:40:40 -0300|Diego Andres Eiman|debug: agregar logging detallado para debuggear impresión
+ src/app/remitos/page.tsx | 36 +++++++++++++++++++++++++++++-------
+ 1 file changed, 29 insertions(+), 7 deletions(-)
+
+244433b|2025-09-20 03:08:22 -0300|Diego Andres Eiman|feat: implementar impresión en nueva ventana con HTML completo
+ src/app/remitos/page.tsx | 186 +++++++++++++++++++++++++++++++++++++++++++----
+ 1 file changed, 173 insertions(+), 13 deletions(-)
+
+f21e734|2025-09-20 03:03:01 -0300|Diego Andres Eiman|fix: corregir estilos CSS de impresión para vista previa
+ src/app/globals.css | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
+
+5495dac|2025-09-20 03:00:25 -0300|Diego Andres Eiman|debug: hacer contenido de impresión visible temporalmente
+ src/app/globals.css      |  4 ++--
+ src/app/remitos/page.tsx | 24 +++++++++++++++++++++++-
+ 2 files changed, 25 insertions(+), 3 deletions(-)
+
+3a0192c|2025-09-20 02:57:15 -0300|Diego Andres Eiman|fix: ocultar contenido de impresión en pantalla, mostrar solo al imprimir
+ src/app/globals.css      | 10 ++++++++++
+ src/app/remitos/page.tsx | 24 +-----------------------
+ 2 files changed, 11 insertions(+), 23 deletions(-)
+
+c2491a9|2025-09-20 02:54:09 -0300|Diego Andres Eiman|debug: agregar indicador visual y estilos inline para impresión
+ src/app/remitos/page.tsx | 24 +++++++++++++++++++++++-
+ 1 file changed, 23 insertions(+), 1 deletion(-)
+
+384bc7c|2025-09-20 02:51:39 -0300|Diego Andres Eiman|fix: simplificar impresión eliminando modal
+ src/app/remitos/page.tsx | 141 +----------------------------------------------
+ 1 file changed, 3 insertions(+), 138 deletions(-)
+
+2d2d960|2025-09-20 02:48:36 -0300|Diego Andres Eiman|fix: implementar impresión directa en página principal
+ src/app/globals.css      |  21 +-------
+ src/app/remitos/page.tsx | 125 ++++++++++++++++++++++++++++++++++++++++++++++-
+ 2 files changed, 125 insertions(+), 21 deletions(-)
+
+2f0e282|2025-09-20 02:45:08 -0300|Diego Andres Eiman|fix: corregir impresión en blanco del modal
+ src/app/globals.css | 23 ++++++++++++++++++++++-
+ 1 file changed, 22 insertions(+), 1 deletion(-)
+
+cce5abc|2025-09-20 02:42:15 -0300|Diego Andres Eiman|feat: implementar modal de impresión sin nueva pestaña
+ src/app/globals.css      |  81 +++++++++++++++++++++++++-
+ src/app/remitos/page.tsx | 144 +++++++++++++++++++++++++++++++++++++++++++++--
+ 2 files changed, 219 insertions(+), 6 deletions(-)
+
+3f605af|2025-09-20 02:37:44 -0300|Diego Andres Eiman|fix: agregar endpoint GET para obtener remito individual
+ src/app/api/remitos/[id]/route.ts | 54 +++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 54 insertions(+)
+
+d70307d|2025-09-20 02:34:44 -0300|Diego Andres Eiman|feat: unificar columna de estado con desplegable
+ src/app/globals.css      | 43 +++++++++++++++++++++++++++++++++++++++++++
+ src/app/remitos/page.tsx | 22 +++++++++-------------
+ 2 files changed, 52 insertions(+), 13 deletions(-)
+
+830c31e|2025-09-20 02:19:33 -0300|Diego Andres Eiman|fix: convertir strings a números en validación de remitos
+ src/app/remitos/page.tsx | 23 ++++++++++++++++-------
+ 1 file changed, 16 insertions(+), 7 deletions(-)
+
+5d09c0a|2025-09-20 02:16:48 -0300|Diego Andres Eiman|fix: simplificar endpoint de test y mejorar manejo de errores
+ src/app/api/test-remito/route.ts | 16 ++--------------
+ src/app/remitos/page.tsx         | 14 ++++++++++----
+ 2 files changed, 12 insertions(+), 18 deletions(-)
+
+5f37300|2025-09-20 02:09:33 -0300|Diego Andres Eiman|debug: mostrar detalles específicos de error de validación
+ src/app/api/test-remito/route.ts | 3 ++-
+ src/app/remitos/page.tsx         | 4 ++++
+ 2 files changed, 6 insertions(+), 1 deletion(-)
+
+d3f25e5|2025-09-20 02:07:04 -0300|Diego Andres Eiman|debug: mejorar logging para identificar error de validación
+ src/app/api/remitos/[id]/route.ts |  6 ++++--
+ src/app/remitos/page.tsx          | 19 +++++++++++++++++--
+ 2 files changed, 21 insertions(+), 4 deletions(-)
+
+fe123c2|2025-09-20 02:04:16 -0300|Diego Andres Eiman|fix: crear endpoint PUT dinámico para actualizar remitos
+ src/app/api/remitos/[id]/route.ts | 113 +++++++++++++++++++++++++-------------
+ src/app/api/remitos/route.ts      |  90 ------------------------------
+ 2 files changed, 74 insertions(+), 129 deletions(-)
+
+7518f07|2025-09-20 02:02:07 -0300|Diego Andres Eiman|debug: simplificar endpoint de test y saltar validación temporal
+ src/app/api/test-remito/route.ts | 21 +++++++++++----------
+ src/app/remitos/page.tsx         | 18 ++----------------
+ 2 files changed, 13 insertions(+), 26 deletions(-)
+
+7830393|2025-09-20 01:59:30 -0300|Diego Andres Eiman|feat: implementar actualización de remitos
+ src/app/api/remitos/route.ts | 91 ++++++++++++++++++++++++++++++++++++++++++++
+ src/app/remitos/page.tsx     | 18 +++++++--
+ 2 files changed, 105 insertions(+), 4 deletions(-)
+
+bdb49ad|2025-09-20 01:51:53 -0300|Diego Andres Eiman|fix: corregir concatenación de números y error 500
+ src/app/api/test-remito/route.ts | 3 ++-
+ src/app/remitos/page.tsx         | 7 ++++---
+ 2 files changed, 6 insertions(+), 4 deletions(-)
+
+603971d|2025-09-20 01:47:47 -0300|Diego Andres Eiman|fix: corregir duplicación del símbolo $ en formato de moneda
+ src/app/remitos/page.tsx | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+c530223|2025-09-20 01:44:29 -0300|Diego Andres Eiman|feat: agregar separación de miles a todos los valores monetarios
+ src/app/remitos/page.tsx | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+060eb7b|2025-09-20 01:41:39 -0300|Diego Andres Eiman|debug: crear endpoint de test para validación de remitos
+ src/app/api/test-remito/route.ts | 37 +++++++++++++++++++++++++++++++++++++
+ src/app/remitos/page.tsx         | 17 +++++++++++++++++
+ 2 files changed, 54 insertions(+)
+
+39a8392|2025-09-20 01:39:24 -0300|Diego Andres Eiman|debug: agregar test de validación detallado y strict mode
+ src/app/remitos/page.tsx | 24 +++++++++++++++++++++---
+ src/lib/validations.ts   |  2 +-
+ 2 files changed, 22 insertions(+), 4 deletions(-)
+
+d533a05|2025-09-20 01:36:41 -0300|Diego Andres Eiman|fix: corregir tipos RemitoItem y Remito para coincidir con esquema
+ src/app/remitos/page.tsx |  1 +
+ src/lib/types.ts         | 30 ++++++++++++++++++++----------
+ 2 files changed, 21 insertions(+), 10 deletions(-)
+
+d92bfb7|2025-09-20 01:34:21 -0300|Diego Andres Eiman|debug: agregar logs detallados para debuggear error de validación
+ src/app/remitos/page.tsx | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
+
+e476845|2025-09-20 00:13:03 -0300|Diego Andres Eiman|fix: corregir todos los errores toFixed en la aplicación
+ src/app/productos/ProductosContent.tsx | 2 +-
+ src/app/remitos/page.tsx               | 8 ++++----
+ 2 files changed, 5 insertions(+), 5 deletions(-)
+
+e73ed71|2025-09-19 23:23:24 -0300|Diego Andres Eiman|fix: corregir problemas de impresión y navegación
+ src/app/globals.css                 | 6 +++++-
+ src/app/remitos/[id]/print/page.tsx | 5 +++++
+ src/app/remitos/page.tsx            | 7 +++++--
+ 3 files changed, 15 insertions(+), 3 deletions(-)
+
+180981e|2025-09-19 23:20:15 -0300|Diego Andres Eiman|fix: mejorar experiencia de impresión de remitos
+ src/app/globals.css      |  8 ++++++++
+ src/app/remitos/page.tsx | 17 +++++++----------
+ 2 files changed, 15 insertions(+), 10 deletions(-)
+
+2e28542|2025-09-19 23:16:15 -0300|Diego Andres Eiman|refactor: mejorar diseño de impresión de remitos
+ src/app/globals.css                 |  9 ++++++++-
+ src/app/remitos/[id]/print/page.tsx | 36 ++++--------------------------------
+ 2 files changed, 12 insertions(+), 33 deletions(-)
+
+1e3f0f4|2025-09-19 23:11:08 -0300|Diego Andres Eiman|fix: corregir errores de impresión y toFixed
+ src/app/globals.css                 | 66 ++++++++++++++++++-------------------
+ src/app/remitos/[id]/print/page.tsx | 10 +++---
+ 2 files changed, 38 insertions(+), 38 deletions(-)
+
+ce5698b|2025-09-19 21:51:45 -0300|Diego Andres Eiman|feat: implementar funcionalidad de impresión de remitos
+ src/app/globals.css                 | 122 +++++++++++++++++++++++
+ src/app/remitos/[id]/print/page.tsx | 188 ++++++++++++++++++++++++++++++++++++
+ src/app/remitos/page.tsx            |  12 ++-
+ 3 files changed, 320 insertions(+), 2 deletions(-)
+
+d84cbb9|2025-09-19 21:48:13 -0300|Diego Andres Eiman|fix: convertir Decimal de Prisma a number para validación Zod
+ src/app/remitos/page.tsx | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+6644cfa|2025-09-19 21:47:38 -0300|Diego Andres Eiman|debug: agregar logs detallados en API de remitos para ver error de validación
+ src/app/api/remitos/route.ts | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
+
+b2c11bb|2025-09-19 21:45:58 -0300|Diego Andres Eiman|fix: llamar directamente a onSubmit en lugar de usar handleSubmit
+ src/app/remitos/page.tsx | 21 ++++++++++++++++++---
+ 1 file changed, 18 insertions(+), 3 deletions(-)
+
+1302245|2025-09-19 21:20:05 -0300|Diego Andres Eiman|debug: agregar logs detallados para debuggear submit de remitos
+ src/app/remitos/page.tsx | 15 +++++++++++++--
+ 1 file changed, 13 insertions(+), 2 deletions(-)
+
+291ff1b|2025-09-19 21:11:24 -0300|Diego Andres Eiman|fix: mejorar estilos del desplegable y debuggear submit de remitos
+ src/app/globals.css      |  6 ++++--
+ src/app/remitos/page.tsx | 25 ++++++++++++++++++++++---
+ 2 files changed, 26 insertions(+), 5 deletions(-)
+
+019dcf6|2025-09-19 21:06:25 -0300|Diego Andres Eiman|feat: implementar estilo Vercel auténtico en FilterableSelect
+ src/app/globals.css                        | 192 +++++++++++++++++++++++++++++
+ src/components/common/FilterableSelect.tsx |  70 +++++------
+ 2 files changed, 222 insertions(+), 40 deletions(-)
+
+98c6de7|2025-09-19 21:01:15 -0300|Diego Andres Eiman|fix: agregar import faltante de Search en FilterableSelect
+ src/components/common/FilterableSelect.tsx | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+e6843d5|2025-09-19 20:58:03 -0300|Diego Andres Eiman|fix: corregir múltiples problemas en ABM y mejorar UX
+ src/app/api/categories/route.ts            | 46 +++++++++++++++++++++++++++++
+ src/app/api/products/route.ts              | 42 ++++++++++++++++++++++++++
+ src/app/categorias/page.tsx                |  4 +--
+ src/components/common/FilterableSelect.tsx | 47 +++++++++++++++++-------------
+ 4 files changed, 116 insertions(+), 23 deletions(-)
+
+759bbaf|2025-09-19 20:47:58 -0300|Diego Andres Eiman|fix: resolver error de Suspense boundary en productos
+ src/app/productos/ProductosContent.tsx | 418 +++++++++++++++++++++++++++++++
+ src/app/productos/page.tsx             | 434 +--------------------------------
+ 2 files changed, 423 insertions(+), 429 deletions(-)
+
+af1477e|2025-09-19 20:43:31 -0300|Diego Andres Eiman|fix: corregir errores de sintaxis JSX en categorías y productos
+ src/app/categorias/page.tsx | 3 +--
+ src/app/productos/page.tsx  | 1 -
+ 2 files changed, 1 insertion(+), 3 deletions(-)
+
+a14f8d2|2025-09-19 20:37:04 -0300|Diego Andres Eiman|feat: completar unificación de formularios y mejoras UX
+ src/app/categorias/page.tsx |  56 +++++++++++------------
+ src/app/clientes/page.tsx   | 107 ++++++++++++++++----------------------------
+ src/app/usuarios/page.tsx   |   8 ++--
+ 3 files changed, 68 insertions(+), 103 deletions(-)
+
+a2a50aa|2025-09-19 20:35:10 -0300|Diego Andres Eiman|feat: unificar estilos de formularios y agregar campo precio mejorado
+ src/app/globals.css        |  31 ++++++++++++++
+ src/app/productos/page.tsx | 101 +++++++++++++++++++--------------------------
+ 2 files changed, 74 insertions(+), 58 deletions(-)
+
+c0c7b65|2025-09-19 20:31:14 -0300|Diego Andres Eiman|feat: mejorar formularios y filtros en ABM
+ src/app/categorias/page.tsx                |   9 +-
+ src/app/productos/page.tsx                 |  33 ++++++-
+ src/app/remitos/page.tsx                   |  48 ++++-----
+ src/components/common/FilterableSelect.tsx | 152 +++++++++++++++++++++++++++++
+ 4 files changed, 216 insertions(+), 26 deletions(-)
+
+4683d74|2025-09-19 16:16:24 -0300|Diego Andres Eiman|fix: corregir error 'Cannot read properties of undefined (reading length)'
+ src/app/clientes/page.tsx           | 2 +-
+ src/hooks/useSearchAndPagination.ts | 1 +
+ 2 files changed, 2 insertions(+), 1 deletion(-)
+
+0cac809|2025-09-19 16:12:22 -0300|Diego Andres Eiman|fix: corregir referencias a servicios no definidos en ABM
+ src/app/categorias/page.tsx | 10 +++++++++-
+ src/app/clientes/page.tsx   | 29 +++++++++++++++++++++++-----
+ src/app/productos/page.tsx  | 46 +++++++++++++++++++++++++++++++++++----------
+ 3 files changed, 69 insertions(+), 16 deletions(-)
+
+5ec4327|2025-09-19 16:07:52 -0300|Diego Andres Eiman|feat: unificar estética y agregar búsqueda/paginación en todos los ABM
+ src/app/categorias/page.tsx                   | 146 ++++++++++---------
+ src/app/clientes/page.tsx                     | 194 +++++++++++++-------------
+ src/app/globals.css                           |  93 ++++++++++++
+ src/app/productos/page.tsx                    | 189 +++++++++++++------------
+ src/app/usuarios/page.tsx                     |  31 +++-
+ src/components/common/SearchAndPagination.tsx |  76 ++++++++++
+ src/hooks/useSearchAndPagination.ts           |  69 +++++++++
+ 7 files changed, 543 insertions(+), 255 deletions(-)
+
+e8f8d5b|2025-09-19 15:51:11 -0300|Diego Andres Eiman|feat: implementar lógica de formularios condicionales en todas las secciones
+ src/app/clientes/page.tsx | 17 ++++++++++++++++-
+ src/app/usuarios/page.tsx | 30 ++++++++++++++++++++++++++++--
+ 2 files changed, 44 insertions(+), 3 deletions(-)
+
+112cb75|2025-09-19 15:49:37 -0300|Diego Andres Eiman|fix: corregir error price.toFixed en remitos y agregar lógica showForm en categorías
+ src/app/categorias/page.tsx | 93 ++++++++++++++++++++++++++++-----------------
+ src/app/clientes/page.tsx   | 10 +++++
+ src/app/remitos/page.tsx    |  2 +-
+ 3 files changed, 69 insertions(+), 36 deletions(-)
+
+8a458db|2025-09-19 15:34:54 -0300|Diego Andres Eiman|fix: corregir errores restantes en categorías y dashboard
+ src/app/categorias/page.tsx | 2 +-
+ src/app/dashboard/page.tsx  | 5 ++---
+ 2 files changed, 3 insertions(+), 4 deletions(-)
+
+d3693bc|2025-09-19 15:32:01 -0300|Diego Andres Eiman|fix: corregir error ClientService is not defined
+ src/app/clientes/page.tsx | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+3a98d4d|2025-09-19 15:26:08 -0300|Diego Andres Eiman|fix: corregir estado activo de Remitos en menú
+ src/app/globals.css | 4 ----
+ 1 file changed, 4 deletions(-)
+
+9e7137b|2025-09-19 15:23:32 -0300|Diego Andres Eiman|fix: corregir error JSX en categorias - cambiar Layout por main
+ src/app/categorias/page.tsx        |   2 +-
+ src/app/categorias/page_backup.tsx | 267 +++++++++++++++++++++++++++++++++++++
+ temp_clean.tsx                     |   4 +
+ 3 files changed, 272 insertions(+), 1 deletion(-)
+
+31acdaf|2025-09-19 14:48:43 -0300|Diego Andres Eiman|fix: corregir error de sintaxis JSX en clientes/page.tsx
+ src/app/clientes/page.tsx | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+228b30c|2025-09-19 14:46:56 -0300|Diego Andres Eiman|fix: corregir problemas de UI y errores de aplicación
+ src/app/categorias/page.tsx | 34 ++++++++++++++++++++++--------
+ src/app/clientes/page.tsx   |  9 ++++----
+ src/app/globals.css         | 38 +--------------------------------
+ src/app/productos/page.tsx  | 51 ++++++++++++++++++++++++++++++++-------------
+ 4 files changed, 67 insertions(+), 65 deletions(-)
+
+b7ce317|2025-09-19 14:33:14 -0300|Diego Andres Eiman|fix: agregar verificaciones Array.isArray defensivas en todas las páginas
+ src/app/categorias/page.tsx | 4 ++--
+ src/app/clientes/page.tsx   | 4 ++--
+ src/app/empresas/page.tsx   | 4 ++--
+ src/app/productos/page.tsx  | 6 +++---
+ src/app/usuarios/page.tsx   | 6 +++---
+ 5 files changed, 12 insertions(+), 12 deletions(-)
+
+ce81524|2025-09-19 14:25:46 -0300|Diego Andres Eiman|fix: corregir errores de frontend y campo total faltante
+ src/app/api/remitos/route.ts | 4 ++--
+ src/app/productos/page.tsx   | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+afe0caa|2025-09-19 14:24:00 -0300|Diego Andres Eiman|fix: corregir error 500 en /api/remitos y bucles infinitos
+ src/app/api/remitos/[id]/route.ts        | 22 +++++++--
+ src/app/api/remitos/[id]/status/route.ts | 30 ++++++++----
+ src/app/api/remitos/route.ts             | 82 ++++++++++++++++++++++++++++----
+ 3 files changed, 114 insertions(+), 20 deletions(-)
+
+992183d|2025-09-19 14:17:29 -0300|Diego Andres Eiman|fix: corregir error de useSearchParams con Suspense boundary
+ src/app/usuarios/page.tsx | 18 ++++++++++++++++--
+ 1 file changed, 16 insertions(+), 2 deletions(-)
+
+4ba9e12|2025-09-19 13:45:38 -0300|Diego Andres Eiman|fix: corregir APIs faltantes y problema de sesión en header
+ src/app/api/companies/route.ts   |  57 +++++++++++++++++++++
+ src/app/api/users/route.ts       | 105 +++++++++++++++++++++++++++++++++++++++
+ src/app/layout.tsx               |   6 +--
+ src/components/layout/Header.tsx |  10 ++--
+ 4 files changed, 167 insertions(+), 11 deletions(-)
+
+4b303ec|2025-09-19 13:39:22 -0300|Diego Andres Eiman|fix: convertir páginas de empresas y usuarios a Client Components
+ src/app/empresas/page.tsx | 279 +++++++++++++++++++++++++++-----
+ src/app/usuarios/page.tsx | 400 +++++++++++++++++++++++++++++++++++++++-------
+ 2 files changed, 577 insertions(+), 102 deletions(-)
+
+f7fec71|2025-09-19 13:29:53 -0300|Diego Andres Eiman|fix: corregir error de servidor y iconos grandes
+ src/app/globals.css      |  60 ++++-
+ src/app/remitos/page.tsx | 587 ++++++++++++++++++++++-------------------------
+ 2 files changed, 330 insertions(+), 317 deletions(-)
+
+c2cbb56|2025-09-19 13:24:18 -0300|Diego Andres Eiman|fix: corregir header y enlace 'Ver Usuarios'
+ src/app/empresas/page.tsx        |  3 ++-
+ src/app/globals.css              | 24 +++++++++++++++++++++++-
+ src/components/layout/Header.tsx | 14 +++++++++++++-
+ 3 files changed, 38 insertions(+), 3 deletions(-)
+
+7340eaa|2025-09-19 12:58:32 -0300|Diego Andres Eiman|fix: corregir errores críticos de APIs, navegación y UI
+ src/app/api/categories/route.ts  |  24 +++--
+ src/app/api/clients/route.ts     |  27 ++++--
+ src/app/api/products/route.ts    |  29 ++++--
+ src/app/empresas/page.tsx        |  99 ++++++++++----------
+ src/app/globals.css              |  89 ++++++++++++++++++
+ src/app/layout.tsx               |  12 ++-
+ src/app/usuarios/page.tsx        | 178 +++++++++++++++++++----------------
+ src/components/layout/Header.tsx | 197 +++++++++++++++++++--------------------
+ src/lib/utils/formatters.ts      |  25 +++++
+ 9 files changed, 424 insertions(+), 256 deletions(-)
+
+3f4271a|2025-09-19 12:39:51 -0300|Diego Andres Eiman|fix: crear paginas faltantes y corregir problemas de estilos
+ src/app/empresas/page.tsx |  72 +++++++++++++++++++++++++++++++
+ src/app/globals.css       |  30 +++----------
+ src/app/usuarios/page.tsx | 107 ++++++++++++++++++++++++++++++++++++++++++++++
+ src/lib/auth.ts           |   6 +++
+ 4 files changed, 190 insertions(+), 25 deletions(-)
+
+d13628e|2025-09-19 12:33:47 -0300|Diego Andres Eiman|feat: configurar base de datos Prisma real y crear usuarios
+ prisma/schema.prisma | 10 +++----
+ src/app/globals.css  | 75 ++++++++++++++++++++++++++++++++++++++--------------
+ 2 files changed, 60 insertions(+), 25 deletions(-)
+
+052e91a|2025-09-19 12:24:33 -0300|Diego Andres Eiman|fix: configurar SQLite local para desarrollo y testing
+ prisma/schema.prisma | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
+d17e97d|2025-09-19 12:17:51 -0300|Diego Andres Eiman|fix: restaurar PostgreSQL y corregir estilos de iconos
+ prisma/schema.prisma        | 10 ++++----
+ src/app/auth/login/page.tsx | 10 ++++----
+ src/app/globals.css         | 62 +++++++++++----------------------------------
+ 3 files changed, 25 insertions(+), 57 deletions(-)
+
+243235c|2025-09-19 12:11:47 -0300|Diego Andres Eiman|fix: configurar SQLite local y corregir autenticacion
+ prisma/dev.db                                      | Bin 0 -> 110592 bytes
+ .../migrations/20250919151112_init/migration.sql   | 120 +++++++++++++++++++++
+ prisma/migrations/migration_lock.toml              |   3 +
+ prisma/schema.prisma                               |  10 +-
+ src/app/globals.css                                |  41 +++++--
+ 5 files changed, 159 insertions(+), 15 deletions(-)
+
+37e8a76|2025-09-19 12:02:02 -0300|Diego Andres Eiman|fix: corregir tamaño de iconos SVG que se mostraban enormes
+ src/app/auth/error/page.tsx |  2 +-
+ src/app/auth/login/page.tsx | 10 +++++-----
+ src/app/globals.css         | 43 +++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 49 insertions(+), 6 deletions(-)
+
+50535b0|2025-09-19 11:44:53 -0300|Diego Andres Eiman|feat: mejorar pantalla de login y corregir credenciales
+ prisma/seed.ts              |   2 +-
+ src/app/auth/login/page.tsx | 116 ++++++++++++++++++++++++++++++++------------
+ 2 files changed, 87 insertions(+), 31 deletions(-)
+
+5fcbc09|2025-09-19 11:35:35 -0300|Diego Andres Eiman|fix: corregir errores de configuración de NextAuth y página de error
+ VERCEL_SETUP.md             | 62 ++++++++++++++++++++++++++++++++
+ src/app/auth/error/page.tsx | 87 +++++++++++++++++++++++++++++++++++++++++++++
+ src/app/auth/login/page.tsx | 12 +++++--
+ src/lib/auth.ts             | 73 ++++++++++++++++++++++---------------
+ 4 files changed, 204 insertions(+), 30 deletions(-)
+
+51edbe2|2025-09-19 11:29:48 -0300|Diego Andres Eiman|feat: implementar sistema completo de remitos con multi-empresa
+ .gitignore                                   |    3 +-
+ package-lock.json                            | 1099 +++++++++++++++++++++++++-
+ package.json                                 |   20 +-
+ prisma/schema.prisma                         |  133 ++++
+ prisma/seed.ts                               |  150 ++++
+ src/app/api/auth/[...nextauth]/route.ts      |    6 +
+ src/app/api/categories/[id]/route.ts         |   62 ++
+ src/app/api/categories/route.ts              |   49 ++
+ src/app/api/clients/[id]/route.ts            |   62 ++
+ src/app/api/clients/route.ts                 |   49 ++
+ src/app/api/products/[id]/route.ts           |   62 ++
+ src/app/api/products/route.ts                |   49 ++
+ src/app/api/remitos/[id]/route.ts            |   49 ++
+ src/app/api/remitos/[id]/status/route.ts     |   38 +
+ src/app/api/remitos/route.ts                 |   50 ++
+ src/app/auth/login/page.tsx                  |  121 +++
+ src/app/categorias/page.tsx                  |  328 ++++++--
+ src/app/clientes/page.tsx                    |  425 ++++++++--
+ src/app/dashboard/page.tsx                   |  116 +++
+ src/app/layout.tsx                           |    9 +-
+ src/app/page.tsx                             |    2 +-
+ src/app/productos/page.tsx                   |  459 ++++++++---
+ src/app/remitos/page.tsx                     |  874 +++++++++++++-------
+ src/components/layout/Header.tsx             |  113 +++
+ src/components/layout/Layout.tsx             |   48 ++
+ src/components/providers/SessionProvider.tsx |   11 +
+ src/lib/auth.ts                              |   83 ++
+ src/lib/db.ts                                |    9 +
+ src/lib/services/categoryService.ts          |   58 ++
+ src/lib/services/clientService.ts            |   66 ++
+ src/lib/services/productService.ts           |   66 ++
+ src/lib/services/remitoService.ts            |   71 ++
+ src/lib/validations.ts                       |   58 ++
+ src/middleware.ts                            |   62 ++
+ src/types/next-auth.d.ts                     |   34 +
+ 35 files changed, 4316 insertions(+), 578 deletions(-)
+
+8a6093c|2025-09-19 00:12:13 -0300|Diego Andres Eiman|feat: aplicar estilo Hotmail clásico con diseño de correo electrónico
+ src/app/categorias/page.tsx |  54 +++++---
+ src/app/clientes/page.tsx   |  54 +++++---
+ src/app/globals.css         | 331 +++++++++++++++++++++++++++++++++++++++++++-
+ src/app/layout.tsx          |   4 +-
+ src/app/productos/page.tsx  |  98 +++++++------
+ src/app/remitos/page.tsx    | 121 +++++++++-------
+ 6 files changed, 519 insertions(+), 143 deletions(-)
+
+4f493e8|2025-09-19 00:03:19 -0300|Diego Andres Eiman|refactor: eliminar todos los estilos y dejar HTML crudo con Times New Roman
+ src/app/categorias/page.tsx | 102 +++++------
+ src/app/clientes/page.tsx   | 102 +++++------
+ src/app/globals.css         | 420 +++++++++-----------------------------------
+ src/app/layout.tsx          |   2 +-
+ src/app/productos/page.tsx  | 186 ++++++++------------
+ src/app/remitos/page.tsx    | 382 ++++++++++++++--------------------------
+ 6 files changed, 383 insertions(+), 811 deletions(-)
+
+b82ff60|2025-09-18 23:42:12 -0300|Diego Andres Eiman|feat: rediseño completo con estética moderna similar a v0-postulador
+ src/app/globals.css        |  51 +++++++++---------
+ src/app/productos/page.tsx | 130 +++++++++++++++++++++++++++------------------
+ src/app/remitos/page.tsx   |  88 ++++++++++++++++--------------
+ 3 files changed, 153 insertions(+), 116 deletions(-)
+
+8278f7a|2025-09-18 23:34:39 -0300|Diego Andres Eiman|fix: corregir header negro y formularios compactos
+ src/app/categorias/page.tsx | 23 +++++++++++----------
+ src/app/clientes/page.tsx   | 23 +++++++++++----------
+ src/app/productos/page.tsx  | 49 +++++++++++++++++++++++----------------------
+ src/app/remitos/page.tsx    | 23 +++++++++++----------
+ 4 files changed, 61 insertions(+), 57 deletions(-)
+
+3b9a3fb|2025-09-18 23:31:40 -0300|Diego Andres Eiman|fix: corregir diseño UI para coincidir exactamente con captura
+ src/app/categorias/page.tsx | 25 +++++++++----------
+ src/app/clientes/page.tsx   | 25 +++++++++----------
+ src/app/layout.tsx          |  2 +-
+ src/app/productos/page.tsx  | 25 +++++++++----------
+ src/app/remitos/page.tsx    | 59 +++++++++++++++++++++++----------------------
+ 5 files changed, 67 insertions(+), 69 deletions(-)
+
+3c4f76e|2025-09-18 22:59:09 -0300|Diego Andres Eiman|feat: sistema de gestión funcional con persistencia local y UI moderna
+ src/app/categorias/page.tsx  |  86 +++++++++
+ src/app/clientes/page.tsx    |  86 +++++++++
+ src/app/layout.tsx           |  28 +--
+ src/app/page.tsx             |  89 +--------
+ src/app/productos/page.tsx   | 118 ++++++++++++
+ src/app/remitos/page.tsx     | 427 +++++++++++++++++++++++++++++++++++++++++++
+ src/components/providers.tsx |   8 +
+ src/lib/db.tsx               | 117 ++++++++++++
+ src/lib/types.ts             |  52 ++++++
+ 9 files changed, 907 insertions(+), 104 deletions(-)
+
+72c42f6|2025-09-18 16:59:36 -0300|Diego Andres Eiman|Ajustar diseño para coincidir exactamente con captura de referencia
+ src/app/globals.css               |   7 +-
+ src/components/Navigation.tsx     |  28 +++----
+ src/components/RemitosSection.tsx | 170 ++++++++++++++++++--------------------
+ 3 files changed, 98 insertions(+), 107 deletions(-)
+
+ddce19a|2025-09-18 16:54:39 -0300|Diego Andres Eiman|Fix: Corregir errores de React y imports faltantes
+ src/components/ProductosSection.tsx |  2 +-
+ src/components/ui/popover.tsx       | 35 +++++++++++++++++++++++------------
+ 2 files changed, 24 insertions(+), 13 deletions(-)
+
+de6c6fd|2025-09-18 16:29:13 -0300|Diego Andres Eiman|Implementar interfaz moderna tipo SaaS con combobox buscable
+ components.json                      |  17 +++
+ src/app/globals.css                  |  25 ++++
+ src/components/CategoriasSection.tsx |  19 ++-
+ src/components/ClientesSection.tsx   |  18 ++-
+ src/components/Navigation.tsx        |  23 +--
+ src/components/ProductosSection.tsx  |  18 ++-
+ src/components/RemitosSection.tsx    | 281 +++++++++++++++++++----------------
+ src/components/ui/Combobox.tsx       | 112 ++++++++++++++
+ src/components/ui/command.tsx        |  88 +++++++++++
+ src/components/ui/popover.tsx        |  88 +++++++++++
+ 10 files changed, 538 insertions(+), 151 deletions(-)
+
+7079431|2025-09-18 15:23:43 -0300|Diego Andres Eiman|Rediseño completo con estilo moderno tipo Vercel
+ src/app/globals.css                  | 186 +++++++++++++++++++++++++++--------
+ src/components/CategoriasSection.tsx |  45 +++++----
+ src/components/ClientesSection.tsx   |  12 +--
+ src/components/Navigation.tsx        |  25 +++--
+ src/components/ProductosSection.tsx  |  12 +--
+ src/components/RemitosSection.tsx    |  12 +--
+ src/components/ui/Button.tsx         |  14 +--
+ 7 files changed, 202 insertions(+), 104 deletions(-)
+
+4292fba|2025-09-18 15:11:42 -0300|Diego Andres Eiman|Mejorar anchos de campos: quitar w-full y aplicar anchos específicos
+ src/components/CategoriasSection.tsx | 4 +++-
+ src/components/ClientesSection.tsx   | 7 ++++++-
+ src/components/ProductosSection.tsx  | 9 ++++++++-
+ src/components/RemitosSection.tsx    | 7 ++++++-
+ src/components/ui/Input.tsx          | 2 +-
+ src/components/ui/Select.tsx         | 2 +-
+ src/components/ui/Textarea.tsx       | 2 +-
+ 7 files changed, 26 insertions(+), 7 deletions(-)
+
+f09c09c|2025-09-18 14:42:54 -0300|Diego Andres Eiman|Rediseño completo de la interfaz con estilo moderno y atractivo
+ src/app/globals.css                  |  77 +++++++++++++++++++++++--
+ src/app/page.tsx                     |   6 +-
+ src/components/CategoriasSection.tsx | 108 +++++++++++++++++++++--------------
+ src/components/Navigation.tsx        |  28 +++++----
+ src/components/ui/Button.tsx         |  12 ++--
+ src/components/ui/Input.tsx          |   2 +-
+ src/components/ui/Label.tsx          |   2 +-
+ src/components/ui/Select.tsx         |   2 +-
+ src/components/ui/Textarea.tsx       |   2 +-
+ 9 files changed, 170 insertions(+), 69 deletions(-)
+
+4d0d984|2025-09-18 14:00:32 -0300|Diego Andres Eiman|Mejoras significativas en look & feel y funcionalidades
+ src/app/globals.css                 | 166 ++++++++++++++++-------
+ src/app/page.tsx                    |   7 +-
+ src/components/ClientesSection.tsx  |  61 ++++++++-
+ src/components/Navigation.tsx       |  23 ++--
+ src/components/ProductosSection.tsx |  41 +++++-
+ src/components/RemitosSection.tsx   | 256 +++++++++++++++++++++++-------------
+ src/types/index.ts                  |   2 +
+ 7 files changed, 390 insertions(+), 166 deletions(-)
+
+649c1a1|2025-09-18 13:46:25 -0300|Diego Andres Eiman|Merge: Integrar sistema Next.js con versión anterior
+79893ce|2025-09-18 13:45:40 -0300|Diego Andres Eiman|Sistema completo de gestión con Next.js
+ .eslintrc.json                       |   8 +
+ README.md                            | 205 +++++++++++--
+ next.config.js                       |  11 +
+ package-lock.json                    |  33 ++-
+ package.json                         |  13 +-
+ src/app/globals.css                  | 109 +++++--
+ src/app/layout.tsx                   |  42 ++-
+ src/app/page.tsx                     | 171 +++++------
+ src/components/CategoriasSection.tsx | 171 +++++++++++
+ src/components/ClientesSection.tsx   | 200 +++++++++++++
+ src/components/Navigation.tsx        |  58 ++++
+ src/components/ProductosSection.tsx  | 246 ++++++++++++++++
+ src/components/RemitosSection.tsx    | 555 +++++++++++++++++++++++++++++++++++
+ src/components/ui/Button.tsx         |  39 +++
+ src/components/ui/Input.tsx          |  21 ++
+ src/components/ui/Label.tsx          |  20 ++
+ src/components/ui/Select.tsx         |  22 ++
+ src/components/ui/Textarea.tsx       |  20 ++
+ src/hooks/useLocalStorage.ts         | 152 ++++++++++
+ src/lib/storage.ts                   |  85 ++++++
+ src/lib/utils.ts                     |   6 +
+ src/types/index.ts                   |  58 ++++
+ vercel.json                          |   7 +
+ 23 files changed, 2089 insertions(+), 163 deletions(-)
+
+2aa8012|2025-09-18 13:35:27 -0300|Diego Andres Eiman|Initial commit from Create Next App
+ .gitignore          |   41 +
+ README.md           |   36 +
+ eslint.config.mjs   |   25 +
+ next.config.ts      |    7 +
+ package-lock.json   | 6107 +++++++++++++++++++++++++++++++++++++++++++++++++++
+ package.json        |   27 +
+ postcss.config.mjs  |    5 +
+ public/file.svg     |    1 +
+ public/globe.svg    |    1 +
+ public/next.svg     |    1 +
+ public/vercel.svg   |    1 +
+ public/window.svg   |    1 +
+ src/app/favicon.ico |  Bin 0 -> 25931 bytes
+ src/app/globals.css |   26 +
+ src/app/layout.tsx  |   34 +
+ src/app/page.tsx    |  103 +
+ tsconfig.json       |   27 +
+ 17 files changed, 6443 insertions(+)
+
+6a07554|2025-09-18 13:21:44 -0300|Diego Andres Eiman|Sistema completo de gestión de productos y remitos
+ .gitignore |  37 ++++
+ README.md  | 119 ++++++++++++
+ index.html | 203 ++++++++++++++++++++
+ script.js  | 615 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ styles.css | 451 +++++++++++++++++++++++++++++++++++++++++++++
+ 5 files changed, 1425 insertions(+)
