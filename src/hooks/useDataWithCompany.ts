@@ -31,7 +31,7 @@ export function useDataWithCompany() {
     // Para mostrar/ocultar el selector de empresas
     needsCompanySelection,
     
-    // Para mostrar/ocultar el FilterableSelect
-    shouldShowCompanySelector: isSuperAdmin
+    // Para mostrar/ocultar el FilterableSelect (ya viene del hook)
+    shouldShowCompanySelector
   };
 }

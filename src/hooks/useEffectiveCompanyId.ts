@@ -7,25 +7,27 @@ import { useState, useEffect } from "react";
 /**
  * Hook que maneja el companyId efectivo considerando impersonation y selección de empresa
  * 
- * Lógica:
- * 1. Si es SUPERADMIN (con o sin impersonation): usa selectedCompanyId si está seleccionado
- * 2. Si no es SUPERADMIN: usa el companyId del usuario actual (impersonado o no)
- * 3. Si no hay companyId: retorna null
+ * Lógica CORRECTA:
+ * 1. Si estoy impersonando: uso el companyId del usuario impersonado (veo lo que él vería)
+ * 2. Si soy SUPERADMIN y NO estoy impersonando: puedo seleccionar empresa
+ * 3. Si no soy SUPERADMIN: uso mi companyId
  */
 export function useEffectiveCompanyId() {
   const currentUser = useCurrentUser();
   const { isCurrentlyImpersonating } = useImpersonation();
   const [selectedCompanyId, setSelectedCompanyId] = useState<string>("");
 
-  // Para SUPERADMIN, permitir seleccionar empresa independientemente de impersonation
   const isSuperAdmin = currentUser?.role === "SUPERADMIN";
   
   // El companyId efectivo es:
-  // - Para SUPERADMIN: selectedCompanyId si está seleccionado, sino null
-  // - Para otros roles: companyId del usuario actual
-  const effectiveCompanyId = isSuperAdmin 
-    ? (selectedCompanyId || null)
-    : currentUser?.companyId || null;
+  // - Si estoy impersonando: companyId del usuario impersonado (sin importar si soy SUPERADMIN)
+  // - Si soy SUPERADMIN y NO estoy impersonando: selectedCompanyId si está seleccionado
+  // - Si no soy SUPERADMIN: companyId del usuario actual
+  const effectiveCompanyId = isCurrentlyImpersonating
+    ? currentUser?.companyId || null  // Cuando impersono, veo lo que vería el usuario impersonado
+    : isSuperAdmin
+      ? (selectedCompanyId || null)   // SUPERADMIN sin impersonation puede seleccionar empresa
+      : currentUser?.companyId || null; // Usuario normal usa su companyId
 
   // Log para debugging
   useEffect(() => {
@@ -46,6 +48,9 @@ export function useEffectiveCompanyId() {
     setSelectedCompanyId,
     isSuperAdmin,
     isCurrentlyImpersonating,
-    needsCompanySelection: isSuperAdmin && !selectedCompanyId
+    // Solo necesita seleccionar empresa si es SUPERADMIN y NO está impersonando
+    needsCompanySelection: isSuperAdmin && !isCurrentlyImpersonating && !selectedCompanyId,
+    // Solo muestra el selector si es SUPERADMIN y NO está impersonando
+    shouldShowCompanySelector: isSuperAdmin && !isCurrentlyImpersonating
   };
 }
