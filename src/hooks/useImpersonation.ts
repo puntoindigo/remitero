@@ -1,10 +1,8 @@
 import { useState } from 'react';
 import { useSession, signIn } from 'next-auth/react';
-import { useMessageModal } from './useMessageModal';
 
 export const useImpersonation = () => {
   const { data: session, update } = useSession();
-  const { showSuccess, showError } = useMessageModal();
   const [isImpersonating, setIsImpersonating] = useState(false);
 
   const startImpersonation = async (targetUserId: string) => {
@@ -34,14 +32,14 @@ export const useImpersonation = () => {
       };
       localStorage.setItem('impersonation', JSON.stringify(impersonationData));
       
-      showSuccess(data.message);
+      console.log('✅ Impersonation started:', data.message);
       
       // Redirigir al dashboard después de impersonation
       window.location.href = '/dashboard';
 
     } catch (error) {
       console.error('❌ Error al impersonar:', error);
-      showError(error instanceof Error ? error.message : 'Error al impersonar usuario');
+      console.error('Error message:', error instanceof Error ? error.message : 'Error al impersonar usuario');
     } finally {
       setIsImpersonating(false);
     }
