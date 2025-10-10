@@ -98,7 +98,9 @@ export function useEstadosRemitos(companyId?: string) {
       setError(null);
       
       if (!companyId) {
+        console.log('useEstadosRemitos: No companyId, using predefined states');
         setEstados(ESTADOS_PREDEFINIDOS);
+        setIsLoading(false);
         return;
       }
 

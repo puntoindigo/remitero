@@ -128,6 +128,18 @@ function RemitosContent() {
   console.log('RemitosContent - shouldShowFilterableSelect:', currentUser?.role === "SUPERADMIN" && empresas.length > 0);
   console.log('RemitosContent - isLoading:', isLoading);
 
+  // Verificación de seguridad para evitar errores
+  if (!currentUser) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Cargando usuario...</p>
+        </div>
+      </div>
+    );
+  }
+
   const {
     register,
     handleSubmit,
