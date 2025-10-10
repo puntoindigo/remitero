@@ -843,8 +843,7 @@ function RemitosContent() {
     );
   }
 
-  // Verificar si necesita seleccionar empresa
-  const needsCompanySelection = currentUser?.role === "SUPERADMIN" && !selectedCompanyId;
+  // needsCompanySelection ya viene del hook useDataWithCompany
 
   return (
     <main className="main-content">
