@@ -90,6 +90,8 @@ function RemitosContent() {
   
   // Debug: Log estados disponibles
   console.log('RemitosContent - estadosActivos:', estadosActivos);
+  console.log('RemitosContent - estadosActivos length:', estadosActivos?.length);
+  console.log('RemitosContent - estadosActivos type:', typeof estadosActivos);
   const [clients, setClients] = useState<Client[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -135,6 +137,19 @@ function RemitosContent() {
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
           <p className="mt-4 text-gray-600">Cargando usuario...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Verificación adicional para estadosActivos
+  if (!Array.isArray(estadosActivos)) {
+    console.error('estadosActivos is not an array:', estadosActivos);
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Cargando estados...</p>
         </div>
       </div>
     );
@@ -1098,7 +1113,7 @@ function RemitosContent() {
                         <SimpleSelect
                           value={remito.status}
                           onChange={(value) => handleStatusChange(remito.id, value as any)}
-                          options={estadosActivos.map(estado => ({
+                          options={(estadosActivos || []).map(estado => ({
                             id: estado.id.toUpperCase(),
                             name: estado.name,
                             icon: estado.icon
