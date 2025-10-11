@@ -11,9 +11,6 @@ export function useDataWithCompany() {
     effectiveCompanyId,
     selectedCompanyId,
     setSelectedCompanyId,
-    isSuperAdmin,
-    isImpersonating,
-    needsCompanySelection,
     shouldShowCompanySelector
   } = useEffectiveCompanyId();
 
@@ -25,14 +22,7 @@ export function useDataWithCompany() {
     selectedCompanyId,
     setSelectedCompanyId,
     
-    // Información del usuario
-    isSuperAdmin,
-    isImpersonating,
-    
-    // Para mostrar/ocultar el selector de empresas
-    needsCompanySelection,
-    
-    // Para mostrar/ocultar el FilterableSelect (ya viene del hook)
+    // Para mostrar/ocultar el FilterableSelect
     shouldShowCompanySelector
   };
 }

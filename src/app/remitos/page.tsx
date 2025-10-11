@@ -90,9 +90,6 @@ function RemitosContent() {
     companyId,
     selectedCompanyId,
     setSelectedCompanyId,
-    isSuperAdmin,
-    isImpersonating,
-    needsCompanySelection,
     shouldShowCompanySelector
   } = useDataWithCompany();
   
@@ -823,7 +820,8 @@ function RemitosContent() {
     );
   }
 
-  // needsCompanySelection ya viene del hook useDataWithCompany
+  // Lógica simplificada: mostrar contenido si hay companyId o si es SUPERADMIN sin impersonar
+  const needsCompanySelection = currentUser?.companyId === null && currentUser?.role === "SUPERADMIN";
 
   return (
     <main className="main-content">
