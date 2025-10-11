@@ -10,7 +10,6 @@ import { MessageModal } from "@/components/common/MessageModal";
 import DeleteConfirmModal from "@/components/common/DeleteConfirmModal";
 import { useMessageModal } from "@/hooks/useMessageModal";
 import { useDirectUpdate } from "@/hooks/useDirectUpdate";
-import { ConfirmationModal } from "@/components/common/ConfirmationModal";
 import { useCRUDPage } from "@/hooks/useCRUDPage";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useDataWithCompany } from "@/hooks/useDataWithCompany";
@@ -76,7 +75,7 @@ function RemitosContent() {
   } = useCRUDPage<Remito>();
 
   const { modalState, showSuccess, showError, closeModal } = useMessageModal();
-  const { updateStatus, confirmation } = useDirectUpdate();
+  const { updateStatus } = useDirectUpdate();
 
   // CRUD Table configuration
   const {
@@ -357,7 +356,7 @@ function RemitosContent() {
               {...tableConfig}
               columns={columns}
               showSearch={true}
-              showNewButton={false} // Ya tenemos el botón arriba
+              showNewButton={true}
             />
             <Pagination {...paginationConfig} />
           </>
@@ -382,16 +381,6 @@ function RemitosContent() {
           details={modalState.details}
         />
 
-        {/* Modal de confirmación */}
-        <ConfirmationModal
-          isOpen={confirmation.isOpen}
-          onClose={confirmation.close}
-          onConfirm={confirmation.confirm}
-          title={confirmation.title}
-          message={confirmation.message}
-          type={confirmation.type}
-          isLoading={confirmation.isLoading}
-        />
       </section>
     </main>
   );

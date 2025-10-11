@@ -132,7 +132,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { clientId, notes, items, companyId } = body;
+    const { clientId, status, notes, items, companyId } = body;
 
     // Validaciones básicas
     if (!clientId) {
@@ -193,7 +193,7 @@ export async function POST(request: NextRequest) {
       .insert([{
         number: nextNumber,
         client_id: clientId,
-        status: 'PENDIENTE',
+        status: status || 'PENDIENTE',
         notes,
         created_by_id: session.user.id,
         company_id: finalCompanyId
@@ -239,7 +239,7 @@ export async function POST(request: NextRequest) {
       .from('status_history')
       .insert([{
         remito_id: newRemito.id,
-        status: 'PENDIENTE',
+        status: status || 'PENDIENTE',
         by_user_id: session.user.id
       }]);
 

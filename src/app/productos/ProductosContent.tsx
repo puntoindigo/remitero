@@ -11,7 +11,6 @@ import { MessageModal } from "@/components/common/MessageModal";
 import DeleteConfirmModal from "@/components/common/DeleteConfirmModal";
 import { useMessageModal } from "@/hooks/useMessageModal";
 import { useDirectUpdate } from "@/hooks/useDirectUpdate";
-import { ConfirmationModal } from "@/components/common/ConfirmationModal";
 import { ProductoForm } from "@/components/forms/ProductoForm";
 import { useCRUDPage } from "@/hooks/useCRUDPage";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
@@ -74,7 +73,7 @@ function ProductosContent() {
   
   // Hook para manejar modales de mensajes
   const { modalState, showSuccess, showError, closeModal } = useMessageModal();
-  const { updateStock, confirmation } = useDirectUpdate();
+  const { updateStock } = useDirectUpdate();
 
   // Hook para empresas
   const { empresas } = useEmpresas();
@@ -258,6 +257,9 @@ function ProductosContent() {
           product.id === id ? { ...product, stock: stock as 'IN_STOCK' | 'OUT_OF_STOCK' } : product
         )
       );
+
+      // Recargar los datos para asegurar consistencia
+      await loadData();
     };
 
     await updateStock(
@@ -421,7 +423,7 @@ function ProductosContent() {
                 {...tableConfig}
                 columns={columns}
                 showSearch={true}
-                showNewButton={false} // Ya tenemos el botón arriba
+                showNewButton={true}
               />
               <Pagination {...paginationConfig} />
             </>
@@ -447,16 +449,6 @@ function ProductosContent() {
           details={modalState.details}
         />
 
-        {/* Modal de confirmación */}
-        <ConfirmationModal
-          isOpen={confirmation.isOpen}
-          onClose={confirmation.close}
-          onConfirm={confirmation.confirm}
-          title={confirmation.title}
-          message={confirmation.message}
-          type={confirmation.type}
-          isLoading={confirmation.isLoading}
-        />
       </div>
     </main>
   );

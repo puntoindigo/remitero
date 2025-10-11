@@ -66,14 +66,10 @@ export function useDirectUpdate() {
   ) => {
     const stockText = newStock === 'IN_STOCK' ? 'En Stock' : 'Sin Stock';
     
-    await updateWithConfirmation(
+    await performUpdate(
       () => updateFunction(productId, newStock),
-      {
-        ...options,
-        confirmationTitle: "Actualizar stock",
-        confirmationMessage: `¿Cambiar el stock del producto a "${stockText}"?`,
-        onSuccess: options.onSuccess || ((message) => console.log(message))
-      }
+      options.onSuccess || ((message) => console.log(`Stock cambiado a "${stockText}"`)),
+      options.onError
     );
   };
 
@@ -84,14 +80,10 @@ export function useDirectUpdate() {
     updateFunction: (id: string, statusId: string) => Promise<void>,
     options: DirectUpdateOptions = {}
   ) => {
-    await updateWithConfirmation(
+    await performUpdate(
       () => updateFunction(remitoId, newStatusId),
-      {
-        ...options,
-        confirmationTitle: "Actualizar estado",
-        confirmationMessage: `¿Cambiar el estado del remito a "${statusName}"?`,
-        onSuccess: options.onSuccess || ((message) => console.log(message))
-      }
+      options.onSuccess || ((message) => console.log(`Estado cambiado a "${statusName}"`)),
+      options.onError
     );
   };
 
