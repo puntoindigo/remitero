@@ -4,13 +4,9 @@ import React, { useState, useEffect, Suspense } from "react";
 import { useSession } from "next-auth/react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { ProductForm } from "@/lib/validations";
-import { Plus, Package, Tag, DollarSign, Search } from "lucide-react";
-import ActionButtons from "@/components/common/ActionButtons";
+import { Plus, Package } from "lucide-react";
 import { formatDate } from "@/lib/utils/formatters";
-import SearchAndPagination from "@/components/common/SearchAndPagination";
-import { useSearchAndPagination } from "@/hooks/useSearchAndPagination";
 import FilterableSelect from "@/components/common/FilterableSelect";
-import SimpleSelect from "@/components/common/SimpleSelect";
 import { MessageModal } from "@/components/common/MessageModal";
 import DeleteConfirmModal from "@/components/common/DeleteConfirmModal";
 import { useMessageModal } from "@/hooks/useMessageModal";
@@ -19,17 +15,17 @@ import { useCRUDPage } from "@/hooks/useCRUDPage";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useEmpresas, type Empresa } from "@/hooks/useEmpresas";
 import { useDataWithCompany } from "@/hooks/useDataWithCompany";
+import { DataTable, type DataTableColumn } from "@/components/common/DataTable";
+import { useCRUDTable } from "@/hooks/useCRUDTable";
+import { Pagination } from "@/components/common/Pagination";
 
 interface Product {
   id: string;
   name: string;
   description?: string;
   price: number;
-  stock: 'IN_STOCK' | 'OUT_OF_STOCK';
-  category?: {
-    id: string;
-    name: string;
-  };
+  stock?: string;
+  category?: Category;
   createdAt: string;
 }
 
@@ -52,6 +48,7 @@ function ProductosContent() {
     setSelectedCompanyId,
     shouldShowCompanySelector
   } = useDataWithCompany();
+  
   // CRUD State Management
   const {
     editingItem: editingProduct,
@@ -63,10 +60,9 @@ function ProductosContent() {
     setIsSubmitting,
     showDeleteConfirm,
     handleDeleteRequest,
-    handleCancelDelete,
-    setEditingItem: setEditingProduct
+    handleCancelDelete
   } = useCRUDPage<Product>();
-  
+
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -97,22 +93,25 @@ function ProductosContent() {
     return matchesCategory && matchesStock;
   });
 
-  // Hook para búsqueda y paginación
+  // CRUD Table configuration
   const {
-    searchTerm,
-    currentPage,
-    totalPages,
-    totalItems,
-    itemsPerPage,
-    paginatedData,
-    handleSearchChange,
-    handlePageChange
-  } = useSearchAndPagination({
+    tableConfig,
+    paginationConfig
+  } = useCRUDTable({
     data: filteredProducts,
+    loading: isLoading,
     searchFields: ['name', 'description'],
-    itemsPerPage: 10
+    itemsPerPage: 10,
+    onEdit: handleEditProduct,
+    onDelete: handleDeleteRequest,
+    onNew: handleNewProduct,
+    getItemId: (product) => product.id,
+    emptyMessage: "No hay productos",
+    emptySubMessage: "Comienza creando un nuevo producto.",
+    emptyIcon: <Package className="empty-icon" />,
+    newButtonText: "Nuevo Producto",
+    searchPlaceholder: "Buscar productos..."
   });
-
 
   const loadData = async () => {
     if (!companyId) {
@@ -132,21 +131,20 @@ function ProductosContent() {
         fetch(categoriesUrl)
       ]);
 
-      console.log('Response status:', { products: productsRes.status, categories: categoriesRes.status });
-
       if (!productsRes.ok || !categoriesRes.ok) {
         throw new Error('Error al cargar los datos');
       }
 
-      const productsData = await productsRes.json();
-      const categoriesData = await categoriesRes.json();
-
-      console.log('Loaded data:', { products: productsData.length, categories: categoriesData.length });
+      const [productsData, categoriesData] = await Promise.all([
+        productsRes.json(),
+        categoriesRes.json()
+      ]);
 
       setProducts(productsData);
       setCategories(categoriesData);
     } catch (error) {
       console.error('Error loading data:', error);
+      showError("Error", "No se pudieron cargar los productos");
     } finally {
       setIsLoading(false);
     }
@@ -169,7 +167,7 @@ function ProductosContent() {
         : pathname;
       router.replace(newUrl);
     }
-  }, [searchParams, handleNewProduct, router, pathname]);
+  }, [searchParams, handleNewProduct, pathname, router]);
 
   // Leer parámetro de categoría de la URL
   useEffect(() => {
@@ -215,16 +213,15 @@ function ProductosContent() {
   };
 
   const handleDelete = async () => {
-    if (!showDeleteConfirm) return;
-    
+    if (!editingProduct) return;
+
     try {
-      const response = await fetch(`/api/products/${showDeleteConfirm.id}`, {
+      const response = await fetch(`/api/products/${editingProduct.id}`, {
         method: 'DELETE',
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Error al eliminar el producto');
+        throw new Error('Error al eliminar el producto');
       }
 
       await loadData();
@@ -244,45 +241,19 @@ function ProductosContent() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          stock: newStock
-        }),
+        body: JSON.stringify({ stock: newStock }),
       });
 
-      const result = await response.json();
-
       if (!response.ok) {
-        // Si es error 401, redirigir al login
-        if (response.status === 401) {
-          showError(
-            'Sesión expirada',
-            'Tu sesión ha expirado. Por favor, inicia sesión nuevamente.',
-            result.message
-          );
-          // Redirigir al login después de 2 segundos
-          setTimeout(() => {
-            window.location.href = '/auth/login';
-          }, 2000);
-          return;
-        }
-
-        // Para otros errores, mostrar el mensaje específico
-        showError(
-          'Error al actualizar stock',
-          result.message || result.error || 'Error al actualizar el stock',
-          response.status === 500 ? result.details : undefined
-        );
-        return;
+        throw new Error('Error al actualizar el stock');
       }
 
-      // Éxito
-      const stockText = newStock === 'IN_STOCK' ? 'en stock' : 'sin stock';
-      showSuccess(
-        'Stock actualizado',
-        `El producto ahora está ${stockText}.`
+      // Actualizar el estado local
+      setProducts(prevProducts =>
+        prevProducts.map(product =>
+          product.id === productId ? { ...product, stock: newStock } : product
+        )
       );
-
-      await loadData();
     } catch (error) {
       console.error('Error updating stock:', error);
       showError(
@@ -293,21 +264,10 @@ function ProductosContent() {
     }
   };
 
-  const getStockColor = (stock: string) => {
-    switch (stock) {
-      case "IN_STOCK":
-        return "stock-in";
-      case "OUT_OF_STOCK":
-        return "stock-out";
-      default:
-        return "stock-out";
-    }
-  };
-
-  const getCleanDescription = (product: any) => {
-    // Remover el texto "Stock: XXX" de la descripción
-    // La descripción ya no contiene información de stock
-    return product.description;
+  const getCleanDescription = (product: Product) => {
+    if (!product.description) return null;
+    const cleanDesc = product.description.replace(/<[^>]*>/g, '').trim();
+    return cleanDesc.length > 0 ? cleanDesc : null;
   };
 
   if (isLoading) {
@@ -320,6 +280,57 @@ function ProductosContent() {
 
   // Lógica simplificada: mostrar contenido si hay companyId o si es SUPERADMIN sin impersonar
   const needsCompanySelection = !companyId && currentUser?.role === "SUPERADMIN";
+
+  // Definir columnas para el DataTable
+  const columns: DataTableColumn<Product>[] = [
+    {
+      key: 'name',
+      label: 'Producto',
+      render: (product) => (
+        <div className="product-info">
+          <div className="product-name">{product.name}</div>
+          {getCleanDescription(product) && (
+            <div className="product-description">{getCleanDescription(product)}</div>
+          )}
+        </div>
+      )
+    },
+    {
+      key: 'category',
+      label: 'Categoría',
+      render: (product) => (
+        product.category ? (
+          <span className="badge">{product.category.name}</span>
+        ) : (
+          <span className="text-gray-400">Sin categoría</span>
+        )
+      )
+    },
+    {
+      key: 'price',
+      label: 'Precio',
+      render: (product) => `$${(Number(product.price) || 0).toFixed(2)}`
+    },
+    {
+      key: 'stock',
+      label: 'Stock',
+      render: (product) => (
+        <select
+          value={getStockFromProduct(product)}
+          onChange={(e) => handleStockChange(product.id, e.target.value as 'IN_STOCK' | 'OUT_OF_STOCK')}
+          className="stock-select"
+        >
+          <option value="IN_STOCK">En Stock</option>
+          <option value="OUT_OF_STOCK">Sin Stock</option>
+        </select>
+      )
+    },
+    {
+      key: 'createdAt',
+      label: 'Registrado',
+      render: (product) => formatDate(product.createdAt)
+    }
+  ];
 
   return (
     <main className="main-content">
@@ -345,152 +356,68 @@ function ProductosContent() {
         <div className="form-section">
           <h2>Gestión de Productos</h2>
           
-          
-          <SearchAndPagination
-            searchTerm={searchTerm}
-            onSearchChange={handleSearchChange}
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={handlePageChange}
-            totalItems={totalItems}
-            itemsPerPage={itemsPerPage}
-            placeholder="Buscar productos..."
-          >
-            <div className="category-filter-wrapper" style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-              {shouldShowCompanySelector && empresas.length > 0 && (
+          {/* Filtros adicionales */}
+          <div className="category-filter-wrapper" style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1rem' }}>
+            {shouldShowCompanySelector && empresas.length > 0 && (
+              <FilterableSelect
+                options={empresas}
+                value={selectedCompanyId}
+                onChange={setSelectedCompanyId}
+                placeholder="Seleccionar empresa"
+                searchFields={["name"]}
+                className="w-64"
+              />
+            )}
+            {!needsCompanySelection && (
+              <>
                 <FilterableSelect
-                  options={empresas}
-                  value={selectedCompanyId}
-                  onChange={setSelectedCompanyId}
-                  placeholder="Seleccionar empresa"
+                  options={[
+                    { id: "", name: "Todas las categorías" },
+                    ...categories.map(cat => ({ id: cat.id, name: cat.name }))
+                  ]}
+                  value={selectedCategory}
+                  onChange={setSelectedCategory}
+                  placeholder="Filtrar por categoría"
                   searchFields={["name"]}
-                  className="w-64"
+                  className="category-filter-select"
                 />
-              )}
-              {!needsCompanySelection && (
-                <>
-                  <FilterableSelect
-                    options={[
-                      { id: "", name: "Todas las categorías" },
-                      ...categories.map(cat => ({ id: cat.id, name: cat.name }))
-                    ]}
-                    value={selectedCategory}
-                    onChange={setSelectedCategory}
-                    placeholder="Filtrar por categoría"
-                    searchFields={["name"]}
-                    className="category-filter-select"
-                  />
-                  <FilterableSelect
-                    options={[
-                      { id: "", name: "Todos los estados" },
-                      { id: "IN_STOCK", name: "✅ Con stock" },
-                      { id: "OUT_OF_STOCK", name: "❌ Sin stock" }
-                    ]}
-                    value={selectedStock}
-                    onChange={setSelectedStock}
-                    placeholder="Filtrar por stock"
-                    searchFields={["name"]}
-                    className="category-filter-select"
-                  />
-                </>
-              )}
-            </div>
-          </SearchAndPagination>
+                <FilterableSelect
+                  options={[
+                    { id: "", name: "Todos los estados" },
+                    { id: "IN_STOCK", name: "✅ Con stock" },
+                    { id: "OUT_OF_STOCK", name: "❌ Sin stock" }
+                  ]}
+                  value={selectedStock}
+                  onChange={setSelectedStock}
+                  placeholder="Filtrar por stock"
+                  searchFields={["name"]}
+                  className="category-filter-select"
+                />
+              </>
+            )}
+          </div>
 
+          {/* DataTable con paginación */}
           {!needsCompanySelection && (
             <>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                <h3 style={{ margin: 0 }}>Lista de Productos</h3>
-                <button
-                  onClick={handleNewProduct}
-                  className="primary"
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Nuevo Producto
-                </button>
-              </div>
-              
-              {!Array.isArray(products) || products.length === 0 ? (
-            <div className="empty-state">
-              <Package className="empty-icon" />
-              <p className="empty-text">No hay productos</p>
-              <p className="empty-subtext">Comienza creando un nuevo producto.</p>
-            </div>
-          ) : (
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>Producto</th>
-                  <th>Categoría</th>
-                  <th>Precio</th>
-                  <th>Stock</th>
-                  <th>Registrado</th>
-                  <th>Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {Array.isArray(paginatedData) && paginatedData.map((product, index) => (
-                  <tr key={product.id} className={index % 2 === 0 ? "row-even" : "row-odd"}>
-                    <td>
-                      <div className="product-info">
-                        <div className="product-name">{product.name}</div>
-                        {getCleanDescription(product) && (
-                          <div className="product-description">{getCleanDescription(product)}</div>
-                        )}
-                      </div>
-                    </td>
-                    <td>
-                      {product.category ? (
-                        <span className="badge">{product.category.name}</span>
-                      ) : (
-                        <span className="text-gray-400">Sin categoría</span>
-                      )}
-                    </td>
-                    <td>${(Number(product.price) || 0).toFixed(2)}</td>
-                    <td>
-                      <SimpleSelect
-                        value={getStockFromProduct(product)}
-                        onChange={(value) => handleStockChange(product.id, value as 'IN_STOCK' | 'OUT_OF_STOCK')}
-                        options={[
-                          { id: 'IN_STOCK', name: 'Con stock', icon: '✅' },
-                          { id: 'OUT_OF_STOCK', name: 'Sin stock', icon: '❌' }
-                        ]}
-                        className={getStockColor(getStockFromProduct(product))}
-                      />
-                    </td>
-                    <td>{new Date(product.createdAt).toLocaleString('es-AR', {
-                      year: 'numeric',
-                      month: '2-digit',
-                      day: '2-digit',
-                      hour: '2-digit',
-                      minute: '2-digit',
-                      hour12: false
-                    })}</td>
-                    <td>
-                      <ActionButtons
-                        onEdit={() => handleEditProduct(product)}
-                        onDelete={() => handleDeleteRequest(product.id, product.name)}
-                        editTitle="Editar producto"
-                        deleteTitle="Eliminar producto"
-                      />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
+              <DataTable
+                {...tableConfig}
+                columns={columns}
+                showSearch={false} // Ya tenemos filtros arriba
+                showNewButton={false} // Ya tenemos el botón arriba
+              />
+              <Pagination {...paginationConfig} />
             </>
           )}
         </div>
 
         {/* Modal de confirmación de eliminación */}
         <DeleteConfirmModal
-          isOpen={!!showDeleteConfirm}
+          isOpen={showDeleteConfirm}
+          onClose={handleCancelDelete}
           onConfirm={handleDelete}
-          onCancel={handleCancelDelete}
-          title="Eliminar producto"
-          message="¿Estás seguro de que deseas eliminar este producto?"
-          itemName={showDeleteConfirm?.name}
+          title="Eliminar Producto"
+          message={`¿Estás seguro de que deseas eliminar el producto "${editingProduct?.name}"?`}
         />
 
         {/* Modal de mensajes */}
@@ -507,7 +434,7 @@ function ProductosContent() {
   );
 }
 
-export default function ProductosContentWrapper() {
+export default function ProductosPage() {
   return (
     <Suspense fallback={
       <main className="main-content">

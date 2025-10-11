@@ -3,9 +3,7 @@
 import React, { useState, useEffect, Suspense } from "react";
 import { useSession } from "next-auth/react";
 import { Plus, Tag, Edit, Trash2 } from "lucide-react";
-import SearchAndPagination from "@/components/common/SearchAndPagination";
 import FilterableSelect from "@/components/common/FilterableSelect";
-import { useSearchAndPagination } from "@/hooks/useSearchAndPagination";
 import { MessageModal } from "@/components/common/MessageModal";
 import DeleteConfirmModal from "@/components/common/DeleteConfirmModal";
 import { useMessageModal } from "@/hooks/useMessageModal";
@@ -14,6 +12,9 @@ import { useEstadosRemitos, EstadoRemito, EstadoRemitoFormData } from "@/hooks/u
 import { useEmpresas, type Empresa } from "@/hooks/useEmpresas";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useDataWithCompany } from "@/hooks/useDataWithCompany";
+import { DataTable, type DataTableColumn } from "@/components/common/DataTable";
+import { useCRUDTable } from "@/hooks/useCRUDTable";
+import { Pagination } from "@/components/common/Pagination";
 
 function EstadosRemitosContent() {
   const { data: session } = useSession();
@@ -58,12 +59,10 @@ function EstadosRemitosContent() {
     setEditingItem: setEditingEstado
   } = useCRUDPage<EstadoRemito>();
 
-  // Hook para manejar modales de mensajes
   const { modalState, showSuccess, showError, closeModal } = useMessageModal();
 
   // Hook para empresas
   const { empresas } = useEmpresas();
-
 
   // Hook para manejar estados de remitos
   const {
@@ -72,340 +71,196 @@ function EstadosRemitosContent() {
     error: estadosError,
     createEstado,
     updateEstado,
-    deleteEstado,
-    loadEstados
+    deleteEstado
   } = useEstadosRemitos(companyId || undefined);
 
-  // Hook para búsqueda y paginación
+  // CRUD Table configuration
   const {
-    searchTerm,
-    currentPage,
-    totalPages,
-    totalItems,
-    itemsPerPage,
-    paginatedData,
-    handleSearchChange,
-    handlePageChange
-  } = useSearchAndPagination({
-    data: estados,
+    tableConfig,
+    paginationConfig
+  } = useCRUDTable({
+    data: estados || [],
+    loading: estadosLoading,
     searchFields: ['name', 'description'],
-    itemsPerPage: 10
+    itemsPerPage: 10,
+    onEdit: handleEditEstado,
+    onDelete: handleDeleteRequest,
+    onNew: handleNewEstado,
+    getItemId: (estado) => estado.id,
+    emptyMessage: "No hay estados de remitos",
+    emptySubMessage: "Comienza creando un nuevo estado.",
+    emptyIcon: <Tag className="empty-icon" />,
+    newButtonText: "Nuevo Estado",
+    searchPlaceholder: "Buscar estados..."
   });
 
-  // Formulario para crear/editar estados
-  const [formData, setFormData] = useState<EstadoRemitoFormData>({
-    name: '',
-    description: '',
-    color: '#6b7280',
-    icon: '📋',
-    is_active: true,
-    sort_order: 0
-  });
-
-  // Cargar estados al montar el componente
-  useEffect(() => {
-    if (currentUser?.companyId) {
-      loadEstados();
-    }
-  }, [currentUser?.companyId]);
-
-  // Manejar envío del formulario
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit = async (data: EstadoRemitoFormData) => {
     setIsSubmitting(true);
-
     try {
       if (editingEstado) {
-        await updateEstado(editingEstado.id, formData);
-        showSuccess('Estado actualizado correctamente');
+        await updateEstado(editingEstado.id, data);
+        showSuccess("Estado actualizado correctamente");
       } else {
-        await createEstado(formData);
-        showSuccess('Estado creado correctamente');
+        await createEstado(data);
+        showSuccess("Estado creado correctamente");
       }
-      
       handleCloseForm();
-      setFormData({
-        name: '',
-        description: '',
-        color: '#6b7280',
-        icon: '📋',
-        is_active: true,
-        sort_order: 0
-      });
-    } catch (error) {
-      showError('Error al guardar el estado');
+    } catch (error: any) {
+      showError("Error", error.message);
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // Manejar edición
-  const handleEdit = (estado: EstadoRemito) => {
-    setFormData({
-      name: estado.name,
-      description: estado.description || '',
-      color: estado.color,
-      icon: estado.icon,
-      is_active: estado.is_active,
-      sort_order: estado.sort_order
-    });
-    handleEditEstado(estado);
-  };
-
-  // Manejar eliminación
   const handleDelete = async () => {
-    if (!showDeleteConfirm) return;
+    if (!editingEstado) return;
     
-    setIsSubmitting(true);
     try {
-      await deleteEstado(showDeleteConfirm);
-      showSuccess('Estado eliminado correctamente');
+      await deleteEstado(editingEstado.id);
       handleCancelDelete();
-    } catch (error) {
-      showError('Error al eliminar el estado');
-    } finally {
-      setIsSubmitting(false);
+      showSuccess("Estado eliminado correctamente");
+    } catch (error: any) {
+      handleCancelDelete();
+      showError("Error", error instanceof Error ? error.message : "Error al eliminar estado");
     }
   };
 
-  // Manejar nuevo estado
-  const handleNew = () => {
-    setFormData({
-      name: '',
-      description: '',
-      color: '#6b7280',
-      icon: '📋',
-      is_active: true,
-      sort_order: 0
-    });
-    handleNewEstado();
-  };
+  // Lógica simplificada: mostrar contenido si hay companyId o si es SUPERADMIN sin impersonar
+  const needsCompanySelection = !companyId && currentUser?.role === "SUPERADMIN";
 
-  // Mostrar error en modal si hay un error de carga
-  useEffect(() => {
-    if (estadosError) {
-      showError('Error al cargar estados', estadosError);
+  // Definir columnas para el DataTable
+  const columns: DataTableColumn<EstadoRemito>[] = [
+    {
+      key: 'name',
+      label: 'Nombre',
+      render: (estado) => (
+        <div className="estado-info">
+          <div className="estado-name">{estado.name}</div>
+          {estado.description && (
+            <div className="estado-description">{estado.description}</div>
+          )}
+        </div>
+      )
+    },
+    {
+      key: 'color',
+      label: 'Color',
+      render: (estado) => (
+        <div className="flex items-center gap-2">
+          <div 
+            className="w-4 h-4 rounded-full border"
+            style={{ backgroundColor: estado.color }}
+          ></div>
+          <span className="text-sm text-gray-600">{estado.color}</span>
+        </div>
+      )
+    },
+    {
+      key: 'isActive',
+      label: 'Estado',
+      render: (estado) => (
+        <span className={`badge ${estado.isActive ? 'badge-success' : 'badge-inactive'}`}>
+          {estado.isActive ? 'Activo' : 'Inactivo'}
+        </span>
+      )
     }
-  }, [estadosError]);
+  ];
 
   if (estadosLoading) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Cargando estados...</p>
+      <div className="estados-remitos-container">
+        <div className="estados-remitos-header">
+          <div className="loading">Cargando estados...</div>
         </div>
       </div>
     );
   }
 
-  // Lógica simplificada: mostrar contenido si hay companyId o si es SUPERADMIN sin impersonar
-  const needsCompanySelection = !companyId && currentUser?.role === "SUPERADMIN";
+  if (estadosError) {
+    return (
+      <div className="estados-remitos-container">
+        <div className="estados-remitos-header">
+          <div className="error-message">
+            Error al cargar los estados: {estadosError}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="estados-remitos-container">
       <div className="estados-remitos-header">
         <div>
-          <h1 className="estados-remitos-title">Estados de Remitos</h1>
-          <p className="estados-remitos-subtitle">
-            Gestiona los estados disponibles para los remitos de tu empresa
-          </p>
+          <h1>Gestión de Estados de Remitos</h1>
+          <p>Administra los estados disponibles para los remitos</p>
         </div>
-        <button
-          onClick={handleNew}
-          className="estados-remitos-new-btn"
-        >
-          <Plus className="w-5 h-5" />
-          Nuevo Estado
-        </button>
       </div>
 
-      {/* Búsqueda y paginación */}
-      <div className="estados-remitos-search">
-        <SearchAndPagination
-          searchTerm={searchTerm}
-          onSearchChange={handleSearchChange}
-          currentPage={currentPage}
-          totalPages={totalPages}
-          totalItems={totalItems}
-          itemsPerPage={itemsPerPage}
-          onPageChange={handlePageChange}
-          placeholder="Buscar estados..."
-        >
-          {shouldShowCompanySelector && empresas.length > 0 && (
-            <div className="ml-4">
-              <FilterableSelect
-                options={empresas}
-                value={selectedCompanyId}
-                onChange={setSelectedCompanyId}
-                placeholder="Seleccionar empresa"
-                searchFields={["name"]}
-                className="w-64"
-              />
-            </div>
-          )}
-        </SearchAndPagination>
-      </div>
-
-      {!needsCompanySelection && (
-        <>
-          {/* Tabla de estados */}
-          <div className="estados-remitos-table-container">
-        <table className="estados-remitos-table">
-          <thead>
-            <tr>
-              <th>Estado</th>
-              <th>Descripción</th>
-              <th>Color</th>
-              <th>Activo</th>
-              <th>Predefinido</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {paginatedData.map((estado) => (
-              <tr key={estado.id}>
-                <td>
-                  <div className="estado-cell">
-                    <span className="estado-icon">{estado.icon}</span>
-                    <div>
-                      <div className="estado-name">{estado.name}</div>
-                    </div>
-                  </div>
-                </td>
-                <td>
-                  <div className="estado-description">
-                    {estado.description || '-'}
-                  </div>
-                </td>
-                <td>
-                  <div className="color-preview">
-                    <div 
-                      className="color-square"
-                      style={{ backgroundColor: estado.color }}
-                    ></div>
-                    <span className="color-code">{estado.color}</span>
-                  </div>
-                </td>
-                <td>
-                  <span className={`status-badge ${estado.is_active ? 'active' : 'inactive'}`}>
-                    {estado.is_active ? 'Activo' : 'Inactivo'}
-                  </span>
-                </td>
-                <td>
-                  <span className={`status-badge ${estado.is_default ? 'default' : 'custom'}`}>
-                    {estado.is_default ? 'Sí' : 'No'}
-                  </span>
-                </td>
-                <td>
-                  <div className="estados-remitos-actions">
-                    <button
-                      onClick={() => handleEdit(estado)}
-                      className="edit"
-                      title="Editar estado"
-                    >
-                      <Edit className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={() => handleDeleteRequest(estado.id)}
-                      className="delete"
-                      title="Eliminar estado"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        {paginatedData.length === 0 && (
-          <div className="estados-remitos-empty">
-            <Tag className="mx-auto h-12 w-12" />
-            <h3>No hay estados</h3>
-            <p>
-              {searchTerm ? 'No se encontraron estados que coincidan con la búsqueda.' : 'Comienza creando un nuevo estado de remito.'}
-            </p>
-          </div>
-        )}
-      </div>
-        </>
-      )}
-
-      {/* Modal de formulario */}
+      {/* Formulario Modal */}
       {showForm && (
-        <div className="estados-modal">
-          <div className="estados-modal-content">
-            <h3 className="estados-modal-title">
-              {editingEstado ? 'Editar Estado' : 'Nuevo Estado'}
-            </h3>
-              
-            <form onSubmit={handleSubmit}>
-              <div className="estados-form-group">
-                <label>Nombre *</label>
-                <input
-                  type="text"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  required
-                />
+        <div className="estados-modal-overlay">
+          <div className="estados-modal">
+            <h2>{editingEstado ? 'Editar Estado' : 'Nuevo Estado'}</h2>
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              const formData = new FormData(e.currentTarget);
+              const data: EstadoRemitoFormData = {
+                name: formData.get('name') as string,
+                description: formData.get('description') as string,
+                color: formData.get('color') as string,
+                isActive: formData.get('isActive') === 'on'
+              };
+              onSubmit(data);
+            }}>
+              <div className="estados-form-row">
+                <div className="estados-form-group">
+                  <label htmlFor="name">Nombre *</label>
+                  <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    defaultValue={editingEstado?.name || ''}
+                    required
+                    placeholder="Ej: Enviado, Entregado, Cancelado"
+                  />
+                </div>
+                <div className="estados-form-group">
+                  <label htmlFor="color">Color *</label>
+                  <input
+                    type="color"
+                    id="color"
+                    name="color"
+                    defaultValue={editingEstado?.color || '#3b82f6'}
+                    required
+                  />
+                </div>
               </div>
-
               <div className="estados-form-group">
-                <label>Descripción</label>
+                <label htmlFor="description">Descripción</label>
                 <textarea
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  id="description"
+                  name="description"
+                  defaultValue={editingEstado?.description || ''}
+                  placeholder="Descripción opcional del estado"
                   rows={3}
                 />
               </div>
-
-              <div className="estados-form-row">
-                <div className="estados-form-group">
-                  <label>Color</label>
-                  <input
-                    type="color"
-                    value={formData.color}
-                    onChange={(e) => setFormData({ ...formData, color: e.target.value })}
-                  />
-                </div>
-
-                <div className="estados-form-group">
-                  <label>Icono</label>
-                  <input
-                    type="text"
-                    value={formData.icon}
-                    onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
-                    placeholder="📋"
-                  />
-                </div>
-              </div>
-
               <div className="estados-form-group">
-                <div className="estados-form-checkbox">
+                <label className="checkbox-label">
                   <input
                     type="checkbox"
-                    checked={formData.is_active}
-                    onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
+                    name="isActive"
+                    defaultChecked={editingEstado?.isActive !== false}
                   />
-                  <label>Estado activo</label>
-                </div>
+                  Estado activo
+                </label>
               </div>
-
               <div className="estados-modal-actions">
-                <button
-                  type="button"
-                  onClick={handleCloseForm}
-                  className="cancel"
-                >
+                <button type="button" onClick={handleCloseForm}>
                   Cancelar
                 </button>
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="submit"
-                >
+                <button type="submit" className="submit" disabled={isSubmitting}>
                   {isSubmitting ? 'Guardando...' : (editingEstado ? 'Actualizar' : 'Crear')}
                 </button>
               </div>
@@ -414,14 +269,40 @@ function EstadosRemitosContent() {
         </div>
       )}
 
+      {/* Filtros adicionales */}
+      <div className="category-filter-wrapper" style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1rem' }}>
+        {shouldShowCompanySelector && empresas.length > 0 && (
+          <FilterableSelect
+            options={empresas}
+            value={selectedCompanyId}
+            onChange={setSelectedCompanyId}
+            placeholder="Seleccionar empresa"
+            searchFields={["name"]}
+            className="w-64"
+          />
+        )}
+      </div>
+
+      {/* DataTable con paginación */}
+      {!needsCompanySelection && (
+        <>
+          <DataTable
+            {...tableConfig}
+            columns={columns}
+            showSearch={false} // Ya tenemos filtros arriba
+            showNewButton={false} // Ya tenemos el botón arriba
+          />
+          <Pagination {...paginationConfig} />
+        </>
+      )}
+
       {/* Modal de confirmación de eliminación */}
       <DeleteConfirmModal
-        isOpen={!!showDeleteConfirm}
+        isOpen={showDeleteConfirm}
         onClose={handleCancelDelete}
         onConfirm={handleDelete}
         title="Eliminar Estado"
-        message="¿Estás seguro de que quieres eliminar este estado? Esta acción no se puede deshacer."
-        isLoading={isSubmitting}
+        message={`¿Estás seguro de que deseas eliminar el estado "${editingEstado?.name}"?`}
       />
 
       {/* Modal de mensajes */}
@@ -431,6 +312,7 @@ function EstadosRemitosContent() {
         type={modalState.type}
         title={modalState.title}
         message={modalState.message}
+        details={modalState.details}
       />
     </div>
   );
@@ -438,7 +320,13 @@ function EstadosRemitosContent() {
 
 export default function EstadosRemitosPage() {
   return (
-    <Suspense fallback={<div>Cargando...</div>}>
+    <Suspense fallback={
+      <main className="main-content">
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+        </div>
+      </main>
+    }>
       <EstadosRemitosContent />
     </Suspense>
   );

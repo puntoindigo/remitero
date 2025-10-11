@@ -3,11 +3,8 @@
 import React, { useState, Suspense } from "react";
 import { useSession } from "next-auth/react";
 import { Plus, Users, Mail, Phone, MapPin } from "lucide-react";
-import ActionButtons from "@/components/common/ActionButtons";
 import { formatDate } from "@/lib/utils/formatters";
-import SearchAndPagination from "@/components/common/SearchAndPagination";
 import FilterableSelect from "@/components/common/FilterableSelect";
-import { useSearchAndPagination } from "@/hooks/useSearchAndPagination";
 import { MessageModal } from "@/components/common/MessageModal";
 import DeleteConfirmModal from "@/components/common/DeleteConfirmModal";
 import { ClienteForm } from "@/components/forms/ClienteForm";
@@ -16,6 +13,9 @@ import { useClientes, type Cliente } from "@/hooks/useClientes";
 import { useEmpresas, type Empresa } from "@/hooks/useEmpresas";
 import { useCRUDPage } from "@/hooks/useCRUDPage";
 import { useDataWithCompany } from "@/hooks/useDataWithCompany";
+import { DataTable, type DataTableColumn } from "@/components/common/DataTable";
+import { useCRUDTable } from "@/hooks/useCRUDTable";
+import { Pagination } from "@/components/common/Pagination";
 
 function ClientesContent() {
   const { data: session } = useSession();
@@ -27,6 +27,7 @@ function ClientesContent() {
     setSelectedCompanyId,
     shouldShowCompanySelector
   } = useDataWithCompany();
+  
   const {
     editingItem: editingCliente,
     showForm,
@@ -52,78 +53,126 @@ function ClientesContent() {
     deleteCliente 
   } = useClientes(companyId || undefined);
 
+  // CRUD Table configuration
   const {
-    searchTerm,
-    currentPage,
-    totalPages,
-    totalItems,
-    itemsPerPage,
-    handleSearchChange,
-    handlePageChange,
-    paginatedData: filteredClientes
-  } = useSearchAndPagination({
-    data: clientes,
-    searchFields: ['name', 'email', 'phone']
+    tableConfig,
+    paginationConfig
+  } = useCRUDTable({
+    data: clientes || [],
+    loading: isLoading,
+    searchFields: ['name', 'email', 'phone', 'address'],
+    itemsPerPage: 10,
+    onEdit: handleEdit,
+    onDelete: handleDeleteRequest,
+    onNew: handleNew,
+    getItemId: (cliente) => cliente.id,
+    emptyMessage: "No hay clientes",
+    emptySubMessage: "Comienza creando un nuevo cliente.",
+    emptyIcon: <Users className="empty-icon" />,
+    newButtonText: "Nuevo Cliente",
+    searchPlaceholder: "Buscar clientes..."
   });
 
-  const onSubmit = async (data: {
-    name: string;
-    email?: string;
-    phone?: string;
-    address?: string;
-  }) => {
+  const onSubmit = async (data: any) => {
+    setIsSubmitting(true);
     try {
-      setIsSubmitting(true);
-      
       if (editingCliente) {
         await updateCliente(editingCliente.id, data);
-        showSuccess("Éxito", "Cliente actualizado correctamente");
+        showSuccess("Cliente actualizado correctamente");
       } else {
         await createCliente(data);
-        showSuccess("Éxito", "Cliente creado correctamente");
+        showSuccess("Cliente creado correctamente");
       }
-      
       handleCloseForm();
-    } catch (error) {
-      console.error("Error saving cliente:", error);
-      showError("Error", error instanceof Error ? error.message : "Error al guardar cliente");
+    } catch (error: any) {
+      showError("Error", error.message);
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const handleDelete = async () => {
-    if (!showDeleteConfirm) return;
+    if (!editingCliente) return;
     
     try {
-      await deleteCliente(showDeleteConfirm.id);
+      await deleteCliente(editingCliente.id);
       handleCancelDelete();
-      showSuccess("Éxito", "Cliente eliminado correctamente");
-    } catch (error) {
-      console.error("Error deleting cliente:", error);
+      showSuccess("Cliente eliminado correctamente");
+    } catch (error: any) {
       handleCancelDelete();
       showError("Error", error instanceof Error ? error.message : "Error al eliminar cliente");
     }
   };
 
+  // Lógica simplificada: mostrar contenido si hay companyId o si es SUPERADMIN sin impersonar
+  const needsCompanySelection = !companyId && session?.user?.role === "SUPERADMIN";
+
+  // Definir columnas para el DataTable
+  const columns: DataTableColumn<Cliente>[] = [
+    {
+      key: 'name',
+      label: 'Cliente',
+      render: (cliente) => (
+        <div className="cliente-info">
+          <div className="cliente-name">{cliente.name}</div>
+          {cliente.email && (
+            <div className="cliente-email">
+              <Mail className="h-3 w-3 inline mr-1" />
+              {cliente.email}
+            </div>
+          )}
+        </div>
+      )
+    },
+    {
+      key: 'phone',
+      label: 'Teléfono',
+      render: (cliente) => (
+        cliente.phone ? (
+          <div className="cliente-phone">
+            <Phone className="h-3 w-3 inline mr-1" />
+            {cliente.phone}
+          </div>
+        ) : (
+          <span className="text-gray-400">Sin teléfono</span>
+        )
+      )
+    },
+    {
+      key: 'address',
+      label: 'Dirección',
+      render: (cliente) => (
+        cliente.address ? (
+          <div className="cliente-address">
+            <MapPin className="h-3 w-3 inline mr-1" />
+            {cliente.address}
+          </div>
+        ) : (
+          <span className="text-gray-400">Sin dirección</span>
+        )
+      )
+    },
+    {
+      key: 'createdAt',
+      label: 'Registrado',
+      render: (cliente) => formatDate(cliente.createdAt)
+    }
+  ];
+
   if (isLoading) {
     return (
       <main className="main-content">
         <div className="form-section">
-          <h2>Gestión de Clientes</h2>
-          <p>Cargando...</p>
+          <div className="loading">Cargando clientes...</div>
         </div>
       </main>
     );
   }
 
-  // Lógica simplificada: mostrar contenido si hay companyId o si es SUPERADMIN sin impersonar
-  const needsCompanySelection = !companyId && session?.user?.role === "SUPERADMIN";
-
-
   return (
     <main className="main-content">
       <div className="px-4 py-6 sm:px-0">
+        {/* Formulario */}
         <ClienteForm
           isOpen={showForm}
           onClose={handleCloseForm}
@@ -135,149 +184,66 @@ function ClientesContent() {
         <div className="form-section">
           <h2>Gestión de Clientes</h2>
           
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-            <h3 style={{ margin: 0 }}>Lista de Clientes</h3>
-            <button onClick={handleNew} className="primary">
-              <Plus className="h-4 w-4 mr-2" />
-              Nuevo Cliente
-            </button>
+          {/* Filtros adicionales */}
+          <div className="category-filter-wrapper" style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1rem' }}>
+            {shouldShowCompanySelector && empresas.length > 0 && (
+              <FilterableSelect
+                options={empresas}
+                value={selectedCompanyId}
+                onChange={setSelectedCompanyId}
+                placeholder="Seleccionar empresa"
+                searchFields={["name"]}
+                className="w-64"
+              />
+            )}
           </div>
 
-          <SearchAndPagination
-            searchTerm={searchTerm}
-            onSearchChange={handleSearchChange}
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={handlePageChange}
-            totalItems={totalItems}
-            itemsPerPage={itemsPerPage}
-            placeholder="Buscar clientes..."
-          >
-            {shouldShowCompanySelector && empresas.length > 0 && (
-              <div className="ml-4">
-                <FilterableSelect
-                  options={empresas}
-                  value={selectedCompanyId}
-                  onChange={setSelectedCompanyId}
-                  placeholder="Seleccionar empresa"
-                  searchFields={["name"]}
-                  className="w-64"
-                />
-              </div>
-            )}
-          </SearchAndPagination>
-
+          {/* DataTable con paginación */}
           {!needsCompanySelection && (
             <>
-              {error && (
-                <div className="error-message">
-                  {error}
-                </div>
-              )}
-              
-              {!Array.isArray(filteredClientes) || filteredClientes.length === 0 ? (
-            <p>No hay clientes registrados.</p>
-          ) : (
-            <div className="table-container">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Nombre</th>
-                    <th>Email</th>
-                    <th>Teléfono</th>
-                    <th>Dirección</th>
-                    <th>Registrado</th>
-                    <th>Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredClientes.map((cliente) => (
-                    <tr key={cliente.id}>
-                      <td>
-                        <div className="flex items-center">
-                          <Users className="h-4 w-4 mr-2" />
-                          {cliente.name}
-                        </div>
-                      </td>
-                      <td>
-                        {cliente.email ? (
-                          <div className="flex items-center">
-                            <Mail className="h-4 w-4 mr-1" />
-                            {cliente.email}
-                          </div>
-                        ) : (
-                          <span className="text-gray-500">-</span>
-                        )}
-                      </td>
-                      <td>
-                        {cliente.phone ? (
-                          <div className="flex items-center">
-                            <Phone className="h-4 w-4 mr-1" />
-                            {cliente.phone}
-                          </div>
-                        ) : (
-                          <span className="text-gray-500">-</span>
-                        )}
-                      </td>
-                      <td>
-                        {cliente.address ? (
-                          <div className="flex items-center">
-                            <MapPin className="h-4 w-4 mr-1" />
-                            {cliente.address}
-                          </div>
-                        ) : (
-                          <span className="text-gray-500">-</span>
-                        )}
-                      </td>
-                      <td>{new Date(cliente.createdAt).toLocaleString('es-AR', {
-                        year: 'numeric',
-                        month: '2-digit',
-                        day: '2-digit',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })}</td>
-                      <td>
-                        <ActionButtons
-                          onEdit={() => handleEdit(cliente)}
-                          onDelete={() => handleDeleteRequest(cliente.id, cliente.name)}
-                          editTitle="Editar cliente"
-                          deleteTitle="Eliminar cliente"
-                        />
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+              <DataTable
+                {...tableConfig}
+                columns={columns}
+                showSearch={false} // Ya tenemos filtros arriba
+                showNewButton={false} // Ya tenemos el botón arriba
+              />
+              <Pagination {...paginationConfig} />
             </>
           )}
         </div>
-      </div>
 
-      <MessageModal
-        isOpen={isModalOpen}
-        onClose={hideModal}
-        title={modalContent?.title || ""}
-        message={modalContent?.message || ""}
-        type={modalContent?.type || "info"}
-      />
-      
-      <DeleteConfirmModal
-        isOpen={!!showDeleteConfirm}
-        onConfirm={handleDelete}
-        onCancel={handleCancelDelete}
-        title="Eliminar cliente"
-        message="¿Estás seguro de que deseas eliminar este cliente?"
-        itemName={showDeleteConfirm?.name}
-      />
+        {/* Modal de confirmación de eliminación */}
+        <DeleteConfirmModal
+          isOpen={showDeleteConfirm}
+          onClose={handleCancelDelete}
+          onConfirm={handleDelete}
+          title="Eliminar Cliente"
+          message={`¿Estás seguro de que deseas eliminar el cliente "${editingCliente?.name}"?`}
+        />
+
+        {/* Modal de mensajes */}
+        <MessageModal
+          isOpen={isModalOpen}
+          onClose={hideModal}
+          type={modalContent.type}
+          title={modalContent.title}
+          message={modalContent.message}
+          details={modalContent.details}
+        />
+      </div>
     </main>
   );
 }
 
 export default function ClientesPage() {
   return (
-    <Suspense fallback={<div>Cargando...</div>}>
+    <Suspense fallback={
+      <main className="main-content">
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+        </div>
+      </main>
+    }>
       <ClientesContent />
     </Suspense>
   );

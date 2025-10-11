@@ -3,11 +3,8 @@
 import React, { useState, Suspense } from "react";
 import { useSession } from "next-auth/react";
 import { Plus, Package } from "lucide-react";
-import ActionButtons from "@/components/common/ActionButtons";
 import { formatDate } from "@/lib/utils/formatters";
-import SearchAndPagination from "@/components/common/SearchAndPagination";
 import FilterableSelect from "@/components/common/FilterableSelect";
-import { useSearchAndPagination } from "@/hooks/useSearchAndPagination";
 import { MessageModal } from "@/components/common/MessageModal";
 import DeleteConfirmModal from "@/components/common/DeleteConfirmModal";
 import { CategoriaForm } from "@/components/forms/CategoriaForm";
@@ -16,6 +13,9 @@ import { useCategorias, type Categoria } from "@/hooks/useCategorias";
 import { useEmpresas, type Empresa } from "@/hooks/useEmpresas";
 import { useCRUDPage } from "@/hooks/useCRUDPage";
 import { useDataWithCompany } from "@/hooks/useDataWithCompany";
+import { DataTable, type DataTableColumn } from "@/components/common/DataTable";
+import { useCRUDTable } from "@/hooks/useCRUDTable";
+import { Pagination } from "@/components/common/Pagination";
 
 function CategoriasContent() {
   const { data: session } = useSession();
@@ -27,6 +27,7 @@ function CategoriasContent() {
     setSelectedCompanyId,
     shouldShowCompanySelector
   } = useDataWithCompany();
+  
   const {
     editingItem: editingCategoria,
     showForm,
@@ -52,50 +53,52 @@ function CategoriasContent() {
     deleteCategoria 
   } = useCategorias(companyId || undefined);
 
+  // CRUD Table configuration
   const {
-    searchTerm,
-    currentPage,
-    totalPages,
-    totalItems,
-    itemsPerPage,
-    handleSearchChange,
-    handlePageChange,
-    paginatedData: filteredCategorias
-  } = useSearchAndPagination({
-    data: categorias,
-    searchFields: ['name']
+    tableConfig,
+    paginationConfig
+  } = useCRUDTable({
+    data: categorias || [],
+    loading: isLoading,
+    searchFields: ['name', 'description'],
+    itemsPerPage: 10,
+    onEdit: handleEdit,
+    onDelete: handleDeleteRequest,
+    onNew: handleNew,
+    getItemId: (categoria) => categoria.id,
+    emptyMessage: "No hay categorías",
+    emptySubMessage: "Comienza creando una nueva categoría.",
+    emptyIcon: <Package className="empty-icon" />,
+    newButtonText: "Nueva Categoría",
+    searchPlaceholder: "Buscar categorías..."
   });
 
-  const onSubmit = async (data: { name: string }) => {
+  const onSubmit = async (data: any) => {
+    setIsSubmitting(true);
     try {
-      setIsSubmitting(true);
-      
       if (editingCategoria) {
-        await updateCategoria(editingCategoria.id, data.name);
-        showSuccess("Éxito", "Categoría actualizada correctamente");
+        await updateCategoria(editingCategoria.id, data);
+        showSuccess("Categoría actualizada correctamente");
       } else {
-        await createCategoria(data.name);
-        showSuccess("Éxito", "Categoría creada correctamente");
+        await createCategoria(data);
+        showSuccess("Categoría creada correctamente");
       }
-      
       handleCloseForm();
-    } catch (error) {
-      console.error("Error saving categoria:", error);
-      showError("Error", error instanceof Error ? error.message : "Error al guardar categoría");
+    } catch (error: any) {
+      showError("Error", error.message);
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const handleDelete = async () => {
-    if (!showDeleteConfirm) return;
+    if (!editingCategoria) return;
     
     try {
-      await deleteCategoria(showDeleteConfirm.id);
+      await deleteCategoria(editingCategoria.id);
       handleCancelDelete();
-      showSuccess("Éxito", "Categoría eliminada correctamente");
-    } catch (error) {
-      console.error("Error deleting categoria:", error);
+      showSuccess("Categoría eliminada correctamente");
+    } catch (error: any) {
       handleCancelDelete();
       showError("Error", error instanceof Error ? error.message : "Error al eliminar categoría");
     }
@@ -104,12 +107,32 @@ function CategoriasContent() {
   // Lógica simplificada: mostrar contenido si hay companyId o si es SUPERADMIN sin impersonar
   const needsCompanySelection = !companyId && session?.user?.role === "SUPERADMIN";
 
+  // Definir columnas para el DataTable
+  const columns: DataTableColumn<Categoria>[] = [
+    {
+      key: 'name',
+      label: 'Nombre',
+      render: (categoria) => (
+        <div className="categoria-info">
+          <div className="categoria-name">{categoria.name}</div>
+          {categoria.description && (
+            <div className="categoria-description">{categoria.description}</div>
+          )}
+        </div>
+      )
+    },
+    {
+      key: 'createdAt',
+      label: 'Fecha de Creación',
+      render: (categoria) => formatDate(categoria.createdAt)
+    }
+  ];
+
   if (isLoading) {
     return (
       <main className="main-content">
         <div className="form-section">
-          <h2>Gestión de Categorías</h2>
-          <p>Cargando...</p>
+          <div className="loading">Cargando categorías...</div>
         </div>
       </main>
     );
@@ -117,9 +140,8 @@ function CategoriasContent() {
 
   return (
     <main className="main-content">
-      <section className="form-section">
-        <h2>Gestión de Categorías</h2>
-        
+      <div className="px-4 py-6 sm:px-0">
+        {/* Formulario */}
         <CategoriaForm
           isOpen={showForm}
           onClose={handleCloseForm}
@@ -127,126 +149,70 @@ function CategoriasContent() {
           isSubmitting={isSubmitting}
           editingCategoria={editingCategoria}
         />
-        
+
         <div className="form-section">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-            <h3 style={{ margin: 0 }}>Lista de Categorías</h3>
-            {!showForm && (
-              <button onClick={handleNew} className="primary">
-                <Plus className="h-4 w-4 mr-2" />
-                Nueva Categoría
-              </button>
+          <h2>Gestión de Categorías</h2>
+          
+          {/* Filtros adicionales */}
+          <div className="category-filter-wrapper" style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1rem' }}>
+            {shouldShowCompanySelector && empresas.length > 0 && (
+              <FilterableSelect
+                options={empresas}
+                value={selectedCompanyId}
+                onChange={setSelectedCompanyId}
+                placeholder="Seleccionar empresa"
+                searchFields={["name"]}
+                className="w-64"
+              />
             )}
           </div>
-          
-          <SearchAndPagination
-            searchTerm={searchTerm}
-            onSearchChange={handleSearchChange}
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={handlePageChange}
-            totalItems={totalItems}
-            itemsPerPage={itemsPerPage}
-            placeholder="Buscar categorías..."
-          >
-            {shouldShowCompanySelector && empresas.length > 0 && (
-              <div className="ml-4">
-                <FilterableSelect
-                  options={empresas}
-                  value={selectedCompanyId}
-                  onChange={setSelectedCompanyId}
-                  placeholder="Seleccionar empresa"
-                  searchFields={["name"]}
-                  className="w-64"
-                />
-              </div>
-            )}
-          </SearchAndPagination>
 
+          {/* DataTable con paginación */}
           {!needsCompanySelection && (
             <>
-              {error && (
-                <div className="error-message">
-                  {error}
-                </div>
-              )}
-              
-              {!Array.isArray(filteredCategorias) || filteredCategorias.length === 0 ? (
-            <p>No hay categorías registradas.</p>
-          ) : (
-            <div className="table-container">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Nombre</th>
-                    <th>Productos</th>
-                    <th>Registrado</th>
-                    <th>Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredCategorias.map((categoria) => (
-                    <tr key={categoria.id}>
-                      <td>
-                        <div className="flex items-center">
-                          <Package className="h-4 w-4 mr-2" />
-                          {categoria.name}
-                        </div>
-                      </td>
-                      <td>
-                        <span className="badge">
-                          {categoria.products?.length || 0} productos
-                        </span>
-                      </td>
-                      <td>{new Date(categoria.createdAt).toLocaleString('es-AR', {
-                        year: 'numeric',
-                        month: '2-digit',
-                        day: '2-digit',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })}</td>
-                      <td>
-                        <ActionButtons
-                          onEdit={() => handleEdit(categoria)}
-                          onDelete={() => handleDeleteRequest(categoria.id, categoria.name)}
-                          editTitle="Editar categoría"
-                          deleteTitle="Eliminar categoría"
-                        />
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+              <DataTable
+                {...tableConfig}
+                columns={columns}
+                showSearch={false} // Ya tenemos filtros arriba
+                showNewButton={false} // Ya tenemos el botón arriba
+              />
+              <Pagination {...paginationConfig} />
             </>
           )}
         </div>
-      </section>
 
-      <MessageModal
-        isOpen={isModalOpen}
-        onClose={hideModal}
-        title={modalContent?.title || ""}
-        message={modalContent?.message || ""}
-        type={modalContent?.type || "info"}
-      />
-      
-      <DeleteConfirmModal
-        isOpen={!!showDeleteConfirm}
-        onConfirm={handleDelete}
-        onCancel={handleCancelDelete}
-        title="Eliminar categoría"
-        message="¿Estás seguro de que deseas eliminar esta categoría?"
-        itemName={showDeleteConfirm?.name}
-      />
+        {/* Modal de confirmación de eliminación */}
+        <DeleteConfirmModal
+          isOpen={showDeleteConfirm}
+          onClose={handleCancelDelete}
+          onConfirm={handleDelete}
+          title="Eliminar Categoría"
+          message={`¿Estás seguro de que deseas eliminar la categoría "${editingCategoria?.name}"?`}
+        />
+
+        {/* Modal de mensajes */}
+        <MessageModal
+          isOpen={isModalOpen}
+          onClose={hideModal}
+          type={modalContent.type}
+          title={modalContent.title}
+          message={modalContent.message}
+          details={modalContent.details}
+        />
+      </div>
     </main>
   );
 }
 
 export default function CategoriasPage() {
   return (
-    <Suspense fallback={<div>Cargando...</div>}>
+    <Suspense fallback={
+      <main className="main-content">
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+        </div>
+      </main>
+    }>
       <CategoriasContent />
     </Suspense>
   );
