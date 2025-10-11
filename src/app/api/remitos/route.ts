@@ -180,7 +180,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Obtener el siguiente número de remito para la empresa
-    const { data: lastRemito } = await supabaseAdmin
+    console.log('Getting next remito number for company:', finalCompanyId);
+    const { data: lastRemito, error: numberError } = await supabaseAdmin
       .from('remitos')
       .select('number')
       .eq('company_id', finalCompanyId)
@@ -188,9 +189,27 @@ export async function POST(request: NextRequest) {
       .limit(1)
       .single();
 
+    if (numberError && numberError.code !== 'PGRST116') {
+      console.error('Error getting next remito number:', numberError);
+      return NextResponse.json({ 
+        error: "Error interno del servidor",
+        message: "No se pudo generar el número de remito."
+      }, { status: 500 });
+    }
+
     const nextNumber = lastRemito ? lastRemito.number + 1 : 1;
+    console.log('Next remito number:', nextNumber);
 
     // Crear el remito
+    console.log('Creating remito with data:', {
+      number: nextNumber,
+      client_id: clientId,
+      status: status || 'PENDIENTE',
+      notes,
+      created_by_id: session.user.id,
+      company_id: finalCompanyId
+    });
+    
     const { data: newRemito, error: remitoError } = await supabaseAdmin
       .from('remitos')
       .insert([{
@@ -212,16 +231,21 @@ export async function POST(request: NextRequest) {
       }, { status: 500 });
     }
 
+    console.log('Remito created successfully with ID:', newRemito.id);
+
     // Crear los items del remito
+    console.log('Creating remito items:', items);
     const remitoItems = items.map((item: any) => ({
       remito_id: newRemito.id,
       product_id: item.product_id || null,
-              quantity: item.quantity,
+      quantity: item.quantity,
       product_name: item.product_name,
       product_desc: item.product_desc || null,
       unit_price: parseFloat(item.unit_price),
       line_total: parseFloat(item.line_total)
     }));
+
+    console.log('Mapped remito items:', remitoItems);
 
     const { error: itemsError } = await supabaseAdmin
       .from('remito_items')
