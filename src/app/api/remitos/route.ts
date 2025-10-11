@@ -132,9 +132,11 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
+    console.log('POST /api/remitos - Request body:', JSON.stringify(body, null, 2));
     const { clientId, status, notes, items, companyId } = body;
 
     // Validaciones básicas
+    console.log('Validating clientId:', clientId);
     if (!clientId) {
       return NextResponse.json({ 
         error: "Datos faltantes", 
@@ -142,6 +144,7 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
+    console.log('Validating items:', items);
     if (!items || !Array.isArray(items) || items.length === 0) {
       return NextResponse.json({ 
         error: "Datos faltantes", 

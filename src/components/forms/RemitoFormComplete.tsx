@@ -61,9 +61,10 @@ export function RemitoFormComplete({
       setValue("status", editingRemito.status || "PENDIENTE");
       setValue("notes", editingRemito.notes || "");
       
-      // Cargar items del remito
-      if (editingRemito.items && Array.isArray(editingRemito.items)) {
-        setItems(editingRemito.items.map((item: any) => ({
+      // Cargar items del remito (pueden venir como 'items' o 'remitoItems')
+      const remitoItems = editingRemito.items || editingRemito.remitoItems || [];
+      if (Array.isArray(remitoItems)) {
+        setItems(remitoItems.map((item: any) => ({
           product_id: item.product_id || item.product?.id,
           product_name: item.product_name || item.product?.name || "",
           product_desc: item.product_desc || item.product?.description || "",
