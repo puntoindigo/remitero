@@ -14,7 +14,6 @@ import { useUsuarios, type Usuario } from "@/hooks/useUsuarios";
 import { useEmpresas, type Empresa } from "@/hooks/useEmpresas";
 import { useCRUDPage } from "@/hooks/useCRUDPage";
 import { useImpersonation } from "@/hooks/useImpersonation";
-import { useDataWithCompany } from "@/hooks/useDataWithCompany";
 import { DataTable, type DataTableColumn } from "@/components/common/DataTable";
 import { useCRUDTable } from "@/hooks/useCRUDTable";
 import { Pagination } from "@/components/common/Pagination";
@@ -22,14 +21,7 @@ import { Pagination } from "@/components/common/Pagination";
 function UsuariosContent() {
   const { data: session } = useSession();
   const searchParams = useSearchParams();
-  
-  // Hook centralizado para manejo de companyId
-  const {
-    companyId,
-    selectedCompanyId,
-    setSelectedCompanyId,
-    shouldShowCompanySelector
-  } = useDataWithCompany();
+  const companyId = searchParams.get("companyId");
   
   // Hook para manejar estado del formulario modal
   const {
@@ -45,6 +37,7 @@ function UsuariosContent() {
     handleCancelDelete
   } = useCRUDPage<Usuario>();
   
+  const [selectedCompanyId, setSelectedCompanyId] = useState<string>(companyId || "");
   const { modalState, showSuccess, showError, closeModal } = useMessageModal();
   const { startImpersonation, canImpersonate } = useImpersonation();
   
@@ -55,7 +48,7 @@ function UsuariosContent() {
     createUsuario, 
     updateUsuario, 
     deleteUsuario 
-  } = useUsuarios(companyId || undefined);
+  } = useUsuarios(selectedCompanyId || undefined);
   
   const { empresas } = useEmpresas();
 
@@ -134,7 +127,7 @@ function UsuariosContent() {
           <div className="usuario-name">{usuario.name}</div>
           {usuario.email && (
             <div className="usuario-email text-sm text-gray-500">
-              <Mail className="h-3 w-3 inline mr-2" />
+              <Mail className="h-3 w-3 inline mr-1" />
               {usuario.email}
             </div>
           )}
@@ -157,7 +150,7 @@ function UsuariosContent() {
       render: (usuario) => (
         usuario.company ? (
           <div className="company-info">
-            <Building2 className="h-3 w-3 inline mr-2" />
+            <Building2 className="h-3 w-3 inline mr-1" />
             {usuario.company.name}
           </div>
         ) : (
@@ -207,16 +200,14 @@ function UsuariosContent() {
           
           {/* Filtros adicionales */}
           <div className="category-filter-wrapper" style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1rem' }}>
-            {shouldShowCompanySelector && empresas.length > 0 && (
-              <FilterableSelect
-                options={empresas}
-                value={selectedCompanyId}
-                onChange={setSelectedCompanyId}
-                placeholder="Seleccionar empresa"
-                searchFields={["name"]}
-                className="w-64"
-              />
-            )}
+            <FilterableSelect
+              options={empresas}
+              value={selectedCompanyId}
+              onChange={setSelectedCompanyId}
+              placeholder="Seleccionar empresa"
+              searchFields={["name"]}
+              className="w-64"
+            />
           </div>
 
           {/* DataTable con paginación */}

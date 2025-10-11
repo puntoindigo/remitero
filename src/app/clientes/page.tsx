@@ -124,7 +124,7 @@ function ClientesContent() {
       render: (cliente) => (
         cliente.email ? (
           <div className="cliente-email">
-            <Mail className="h-3 w-3 inline mr-1" />
+            <Mail className="h-3 w-3 inline mr-2" />
             {cliente.email}
           </div>
         ) : (
@@ -138,7 +138,7 @@ function ClientesContent() {
       render: (cliente) => (
         cliente.phone ? (
           <div className="cliente-phone">
-            <Phone className="h-3 w-3 inline mr-1" />
+            <Phone className="h-3 w-3 inline mr-2" />
             {cliente.phone}
           </div>
         ) : (
@@ -152,7 +152,7 @@ function ClientesContent() {
       render: (cliente) => (
         cliente.address ? (
           <div className="cliente-address">
-            <MapPin className="h-3 w-3 inline mr-1" />
+            <MapPin className="h-3 w-3 inline mr-2" />
             {cliente.address}
           </div>
         ) : (

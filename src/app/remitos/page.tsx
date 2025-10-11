@@ -142,14 +142,15 @@ function RemitosContent() {
       });
 
       if (!response.ok) {
-        throw new Error('Error al actualizar el estado');
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Error al actualizar el estado');
       }
 
       // Actualizar el estado local
       setRemitos(prevRemitos =>
         prevRemitos.map(remito => {
           if (remito.id === remitoId) {
-            const newStatus = estadosActivos.find(estado => estado.id === newStatusId);
+            const newStatus = estadosActivos?.find(estado => estado.id === newStatusId);
             return {
               ...remito,
               status: newStatus ? {
@@ -166,7 +167,7 @@ function RemitosContent() {
       showSuccess("Estado actualizado correctamente");
     } catch (error) {
       console.error('Error updating status:', error);
-      showError("Error", "No se pudo actualizar el estado del remito");
+      showError("Error", error instanceof Error ? error.message : "No se pudo actualizar el estado del remito");
     }
   };
 
@@ -207,6 +208,11 @@ function RemitosContent() {
       )
     },
     {
+      key: 'createdAt',
+      label: 'Fecha',
+      render: (remito) => formatDate(remito.createdAt)
+    },
+    {
       key: 'client',
       label: 'Cliente',
       render: (remito) => (
@@ -238,11 +244,11 @@ function RemitosContent() {
             color: remito.status.color
           }}
         >
-          {estadosActivos.map(estado => (
+          {estadosActivos?.map(estado => (
             <option key={estado.id} value={estado.id}>
               {estado.name}
             </option>
-          ))}
+          )) || []}
         </select>
       )
     },
@@ -250,11 +256,6 @@ function RemitosContent() {
       key: 'total',
       label: 'Total',
       render: (remito) => `$${(Number(remito.total) || 0).toFixed(2)}`
-    },
-    {
-      key: 'createdAt',
-      label: 'Fecha',
-      render: (remito) => formatDate(remito.createdAt)
     }
   ];
 
