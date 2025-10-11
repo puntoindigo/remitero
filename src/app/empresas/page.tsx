@@ -152,7 +152,7 @@ function EmpresasContent() {
                           href={`/usuarios?companyId=${company.id}`}
                           className="view-users-link"
                         >
-                          <Users className="h-4 w-4 mr-1" />
+                          <Users className="h-4 w-4 mr-2" />
                           Ver Usuarios
                         </Link>
                       </td>

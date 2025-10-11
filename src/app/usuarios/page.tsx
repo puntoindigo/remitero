@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, Suspense } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { useSession } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 import { Plus, Users, Building2, Mail, Phone } from "lucide-react";
@@ -57,7 +57,14 @@ function UsuariosContent() {
     deleteUsuario 
   } = useUsuarios(companyId || undefined);
   
-  const { empresas } = useEmpresas();
+  const { empresas, loadEmpresas } = useEmpresas();
+  
+  // Cargar empresas cuando se abre el formulario
+  useEffect(() => {
+    if (showForm && empresas.length === 0) {
+      loadEmpresas();
+    }
+  }, [showForm, empresas.length, loadEmpresas]);
 
   // CRUD Table configuration
   const {

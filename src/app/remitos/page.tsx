@@ -17,6 +17,7 @@ import { useEmpresas } from "@/hooks/useEmpresas";
 import { DataTable, type DataTableColumn } from "@/components/common/DataTable";
 import { useCRUDTable } from "@/hooks/useCRUDTable";
 import { Pagination } from "@/components/common/Pagination";
+import { RemitoForm } from "@/components/forms/RemitoForm";
 
 interface Remito {
   id: string;
@@ -138,7 +139,7 @@ function RemitosContent() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ statusId: newStatusId }),
+        body: JSON.stringify({ status: newStatusId }),
       });
 
       if (!response.ok) {
@@ -190,6 +191,40 @@ function RemitosContent() {
       console.error('Error deleting remito:', error);
       handleCancelDelete();
       showError("Error", error.message);
+    }
+  };
+
+  const handleSubmit = async (data: any) => {
+    if (!companyId) return;
+
+    setIsSubmitting(true);
+    try {
+      const url = editingRemito ? `/api/remitos/${editingRemito.id}` : '/api/remitos';
+      const method = editingRemito ? 'PUT' : 'POST';
+
+      const response = await fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...data,
+          companyId: companyId
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Error al guardar el remito');
+      }
+
+      await loadData();
+      handleCloseForm();
+      showSuccess(editingRemito ? "Remito actualizado correctamente" : "Remito creado correctamente");
+    } catch (error: any) {
+      console.error('Error saving remito:', error);
+      showError("Error al guardar el remito", error.message);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -271,6 +306,17 @@ function RemitosContent() {
     <main className="main-content">
       <section className="form-section">
         <h2>Gestión de Remitos</h2>
+        
+        {/* Formulario */}
+        <RemitoForm
+          isOpen={showForm}
+          onClose={handleCloseForm}
+          onSubmit={handleSubmit}
+          isSubmitting={isSubmitting}
+          editingRemito={editingRemito}
+          clients={clients}
+          estados={estadosActivos}
+        />
         
         {/* Filtros adicionales */}
         <div className="category-filter-wrapper" style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1rem' }}>
