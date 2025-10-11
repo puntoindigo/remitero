@@ -3,7 +3,6 @@
 import React, { useState, Suspense } from "react";
 import { useSession } from "next-auth/react";
 import { Plus, Building2, Users } from "lucide-react";
-import ActionButtons from "@/components/common/ActionButtons";
 import { formatDate } from "@/lib/utils/formatters";
 import Link from "next/link";
 import { MessageModal } from "@/components/common/MessageModal";
@@ -12,6 +11,9 @@ import { EmpresaForm } from "@/components/forms/EmpresaForm";
 import { useMessageModal } from "@/hooks/useMessageModal";
 import { useEmpresas, type Empresa } from "@/hooks/useEmpresas";
 import { useCRUDPage } from "@/hooks/useCRUDPage";
+import { DataTable, type DataTableColumn } from "@/components/common/DataTable";
+import { useCRUDTable } from "@/hooks/useCRUDTable";
+import { Pagination } from "@/components/common/Pagination";
 
 function EmpresasContent() {
   const { data: session } = useSession();
@@ -27,7 +29,7 @@ function EmpresasContent() {
     handleDeleteRequest,
     handleCancelDelete
   } = useCRUDPage<Empresa>();
-  const { showSuccess, showError, hideModal, isModalOpen, modalContent } = useMessageModal();
+  const { modalState, showSuccess, showError, closeModal } = useMessageModal();
   
   const { 
     empresas, 
@@ -37,6 +39,67 @@ function EmpresasContent() {
     updateEmpresa, 
     deleteEmpresa 
   } = useEmpresas();
+
+  // CRUD Table configuration
+  const {
+    tableConfig,
+    paginationConfig
+  } = useCRUDTable({
+    data: empresas,
+    loading: isLoading,
+    searchFields: ['name'],
+    itemsPerPage: 10,
+    onEdit: handleEdit,
+    onDelete: handleDeleteRequest,
+    onNew: handleNew,
+    getItemId: (empresa) => empresa.id,
+    emptyMessage: "No hay empresas",
+    emptySubMessage: "Comienza creando una nueva empresa.",
+    emptyIcon: <Building2 className="empty-icon" />,
+    newButtonText: "Nueva Empresa",
+    searchPlaceholder: "Buscar empresas..."
+  });
+
+  // Definir columnas del DataTable
+  const columns: DataTableColumn<Empresa>[] = [
+    { 
+      key: 'name', 
+      label: 'Nombre',
+      render: (empresa) => (
+        <div className="empresa-info">
+          <div className="empresa-name">{empresa.name}</div>
+        </div>
+      )
+    },
+    {
+      key: 'createdAt',
+      label: 'Registrado',
+      render: (empresa) => new Date(empresa.createdAt).toLocaleString('es-AR', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+      })
+    },
+    {
+      key: 'actions',
+      label: 'Acciones',
+      render: (empresa) => (
+        <div className="flex gap-2">
+          <Link
+            href={`/usuarios?companyId=${empresa.id}`}
+            className="btn small primary"
+            title="Ver usuarios de esta empresa"
+          >
+            <Users className="h-4 w-4 mr-2" />
+            Ver Usuarios
+          </Link>
+        </div>
+      )
+    }
+  ];
 
   const onSubmit = async (data: { name: string }) => {
     try {
@@ -125,61 +188,23 @@ function EmpresasContent() {
             </div>
           )}
           
-          {!Array.isArray(empresas) || empresas.length === 0 ? (
-            <p>No hay empresas registradas.</p>
-          ) : (
-            <div className="table-container">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Nombre</th>
-                    <th>Usuarios</th>
-                    <th>Fecha de Creación</th>
-                    <th>Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {empresas.map((company) => (
-                    <tr key={company.id}>
-                      <td>
-                        <div className="flex items-center">
-                          <Building2 className="h-4 w-4 mr-2" />
-                          {company.name}
-                        </div>
-                      </td>
-                      <td>
-                        <Link 
-                          href={`/usuarios?companyId=${company.id}`}
-                          className="view-users-link"
-                        >
-                          <Users className="h-4 w-4 mr-2" />
-                          Ver Usuarios
-                        </Link>
-                      </td>
-                      <td>{formatDate(company.createdAt)}</td>
-                      <td>
-                        <ActionButtons
-                          onEdit={() => handleEdit(company)}
-                          onDelete={() => handleDeleteRequest(company.id, company.name)}
-                          editTitle="Editar empresa"
-                          deleteTitle="Eliminar empresa"
-                        />
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+          <DataTable
+            {...tableConfig}
+            columns={columns}
+            showSearch={true}
+            showNewButton={true}
+          />
+          <Pagination {...paginationConfig} />
         </div>
       </section>
 
       <MessageModal
-        isOpen={isModalOpen}
-        onClose={hideModal}
-        title={modalContent?.title || ""}
-        message={modalContent?.message || ""}
-        type={modalContent?.type || "info"}
+        isOpen={modalState.isOpen}
+        onClose={closeModal}
+        type={modalState.type}
+        title={modalState.title}
+        message={modalState.message}
+        details={modalState.details}
       />
       
       <DeleteConfirmModal
