@@ -71,9 +71,6 @@ export function Pagination({
   return (
     <div className={`pagination-container ${className}`}>
       <div className="pagination-info">
-        <span className="pagination-text">
-          Mostrando {startItem}-{endItem} de {totalItems} elementos
-        </span>
         <span className="pagination-pages">
           Página {currentPage} de {totalPages}
         </span>

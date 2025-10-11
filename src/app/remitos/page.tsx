@@ -203,9 +203,6 @@ function RemitosContent() {
       render: (remito) => (
         <div className="remito-info">
           <div className="remito-number">{remito.number}</div>
-          <div className="remito-date text-sm text-gray-500">
-            {formatDate(remito.createdAt)}
-          </div>
         </div>
       )
     },
@@ -215,11 +212,15 @@ function RemitosContent() {
       render: (remito) => (
         <div className="client-info">
           <div className="client-name">{remito.client.name}</div>
-          {remito.client.email && (
-            <div className="client-email text-sm text-gray-500">
-              {remito.client.email}
-            </div>
-          )}
+        </div>
+      )
+    },
+    {
+      key: 'clientEmail',
+      label: 'Email',
+      render: (remito) => (
+        <div className="client-email">
+          {remito.client.email || <span className="text-gray-400">Sin email</span>}
         </div>
       )
     },
@@ -249,6 +250,11 @@ function RemitosContent() {
       key: 'total',
       label: 'Total',
       render: (remito) => `$${(Number(remito.total) || 0).toFixed(2)}`
+    },
+    {
+      key: 'createdAt',
+      label: 'Fecha',
+      render: (remito) => formatDate(remito.createdAt)
     }
   ];
 

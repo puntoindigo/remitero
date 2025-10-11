@@ -315,21 +315,31 @@ function ProductosContent() {
     {
       key: 'stock',
       label: 'Stock',
-      render: (product) => (
-        <select
-          value={getStockFromProduct(product)}
-          onChange={(e) => handleStockChange(product.id, e.target.value as 'IN_STOCK' | 'OUT_OF_STOCK')}
-          className="stock-select"
-        >
-          <option value="IN_STOCK">En Stock</option>
-          <option value="OUT_OF_STOCK">Sin Stock</option>
-        </select>
-      )
+      render: (product) => {
+        const stock = getStockFromProduct(product);
+        return (
+          <select
+            value={stock}
+            onChange={(e) => handleStockChange(product.id, e.target.value as 'IN_STOCK' | 'OUT_OF_STOCK')}
+            className="stock-select"
+          >
+            <option value="IN_STOCK">✅ En Stock</option>
+            <option value="OUT_OF_STOCK">❌ Sin Stock</option>
+          </select>
+        );
+      }
     },
     {
       key: 'createdAt',
       label: 'Registrado',
-      render: (product) => formatDate(product.createdAt)
+      render: (product) => new Date(product.createdAt).toLocaleString('es-AR', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+      })
     }
   ];
 

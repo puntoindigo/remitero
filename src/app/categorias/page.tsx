@@ -173,8 +173,8 @@ function CategoriasContent() {
               <DataTable
                 {...tableConfig}
                 columns={columns}
-                showSearch={false} // Ya tenemos filtros arriba
-                showNewButton={false} // Ya tenemos el botón arriba
+                showSearch={true} // Habilitar búsqueda
+                showNewButton={true} // Habilitar botón nuevo
               />
               <Pagination {...paginationConfig} />
             </>

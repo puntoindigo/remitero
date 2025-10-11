@@ -115,13 +115,21 @@ function ClientesContent() {
       render: (cliente) => (
         <div className="cliente-info">
           <div className="cliente-name">{cliente.name}</div>
-          {cliente.email && (
-            <div className="cliente-email">
-              <Mail className="h-3 w-3 inline mr-1" />
-              {cliente.email}
-            </div>
-          )}
         </div>
+      )
+    },
+    {
+      key: 'email',
+      label: 'Email',
+      render: (cliente) => (
+        cliente.email ? (
+          <div className="cliente-email">
+            <Mail className="h-3 w-3 inline mr-1" />
+            {cliente.email}
+          </div>
+        ) : (
+          <span className="text-gray-400">Sin email</span>
+        )
       )
     },
     {
@@ -155,7 +163,14 @@ function ClientesContent() {
     {
       key: 'createdAt',
       label: 'Registrado',
-      render: (cliente) => formatDate(cliente.createdAt)
+      render: (cliente) => new Date(cliente.createdAt).toLocaleString('es-AR', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+      })
     }
   ];
 
@@ -204,8 +219,8 @@ function ClientesContent() {
               <DataTable
                 {...tableConfig}
                 columns={columns}
-                showSearch={false} // Ya tenemos filtros arriba
-                showNewButton={false} // Ya tenemos el botón arriba
+                showSearch={true} // Habilitar búsqueda
+                showNewButton={true} // Habilitar botón nuevo
               />
               <Pagination {...paginationConfig} />
             </>
