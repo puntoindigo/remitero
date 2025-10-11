@@ -40,7 +40,7 @@ function ClientesContent() {
     handleDeleteRequest,
     handleCancelDelete
   } = useCRUDPage<Cliente>();
-  const { showSuccess, showError, hideModal, isModalOpen, modalContent } = useMessageModal();
+  const { modalState, showSuccess, showError, closeModal } = useMessageModal();
   
   const { empresas } = useEmpresas();
 
@@ -223,12 +223,12 @@ function ClientesContent() {
 
         {/* Modal de mensajes */}
         <MessageModal
-          isOpen={isModalOpen}
-          onClose={hideModal}
-          type={modalContent.type}
-          title={modalContent.title}
-          message={modalContent.message}
-          details={modalContent.details}
+          isOpen={modalState.isOpen}
+          onClose={closeModal}
+          type={modalState.type}
+          title={modalState.title}
+          message={modalState.message}
+          details={modalState.details}
         />
       </div>
     </main>
