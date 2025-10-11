@@ -13,7 +13,8 @@ export function useDataWithCompany() {
     setSelectedCompanyId,
     isSuperAdmin,
     isImpersonating,
-    needsCompanySelection
+    needsCompanySelection,
+    shouldShowCompanySelector
   } = useEffectiveCompanyId();
 
   return {
