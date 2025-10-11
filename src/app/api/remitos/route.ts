@@ -238,11 +238,11 @@ export async function POST(request: NextRequest) {
     const remitoItems = items.map((item: any) => ({
       remito_id: newRemito.id,
       product_id: item.product_id || null,
-      quantity: item.quantity,
-      product_name: item.product_name,
+      quantity: parseInt(item.quantity) || 1,
+      product_name: item.product_name || '',
       product_desc: item.product_desc || null,
-      unit_price: parseFloat(item.unit_price),
-      line_total: parseFloat(item.line_total)
+      unit_price: parseFloat(item.unit_price) || 0,
+      line_total: parseFloat(item.line_total) || 0
     }));
 
     console.log('Mapped remito items:', remitoItems);
