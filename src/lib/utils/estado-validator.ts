@@ -1,7 +1,7 @@
 import { supabaseAdmin } from "@/lib/supabase";
 
 /**
- * Valida si un estado existe y está activo para una empresa específica
+ * Valida si un estado existe y está activo para una empresa específica por nombre
  */
 export async function validateEstadoForCompany(
   estadoName: string, 
@@ -29,6 +29,42 @@ export async function validateEstadoForCompany(
     };
   } catch (error) {
     console.error('Error validating estado:', error);
+    return {
+      isValid: false,
+      error: 'Error al validar el estado.'
+    };
+  }
+}
+
+/**
+ * Valida si un estado existe y está activo para una empresa específica por ID
+ */
+export async function validateEstadoByIdForCompany(
+  estadoId: string, 
+  companyId: string
+): Promise<{ isValid: boolean; estado?: any; error?: string }> {
+  try {
+    const { data: estado, error } = await supabaseAdmin
+      .from('estados_remitos')
+      .select('id, name, is_active, is_default')
+      .eq('company_id', companyId)
+      .eq('id', estadoId)
+      .eq('is_active', true)
+      .single();
+
+    if (error || !estado) {
+      return {
+        isValid: false,
+        error: `El estado "${estadoId}" no existe o no está activo para esta empresa.`
+      };
+    }
+
+    return {
+      isValid: true,
+      estado
+    };
+  } catch (error) {
+    console.error('Error validating estado by ID:', error);
     return {
       isValid: false,
       error: 'Error al validar el estado.'

@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
 import { transformRemito } from "@/lib/utils/supabase-transform";
-import { validateEstadoForCompany } from "@/lib/utils/estado-validator";
+import { validateEstadoByIdForCompany } from "@/lib/utils/estado-validator";
 
 export async function PUT(
   request: NextRequest,
@@ -75,7 +75,7 @@ export async function PUT(
     }
 
     console.log('Validating estado:', { status, companyId, userRole: session.user.role });
-    const estadoValidation = await validateEstadoForCompany(status, companyId);
+    const estadoValidation = await validateEstadoByIdForCompany(status, companyId);
     console.log('Estado validation result:', estadoValidation);
     
     if (!estadoValidation.isValid) {
