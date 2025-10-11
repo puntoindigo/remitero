@@ -95,20 +95,21 @@ export async function PUT(
     }
 
     // Mapear nombres de estados a valores del enum delivery_status
-    const statusMapping: { [key: string]: string } = {
-      'Pendiente': 'PENDIENTE',
-      'Preparado': 'EN_TRANSITO', // Mapear Preparado a EN_TRANSITO
-      'Entregado': 'ENTREGADO',
-      'Cancelado': 'CANCELADO'
+    // Mapeo más flexible que maneja estados personalizados
+    const getMappedStatus = (name: string): string => {
+      const lowerName = name.toLowerCase();
+      
+      // Estados predefinidos
+      if (lowerName.includes('pendiente')) return 'PENDIENTE';
+      if (lowerName.includes('preparado') || lowerName.includes('en transito') || lowerName.includes('en tránsito')) return 'EN_TRANSITO';
+      if (lowerName.includes('entregado')) return 'ENTREGADO';
+      if (lowerName.includes('cancelado')) return 'CANCELADO';
+      
+      // Fallback: usar PENDIENTE para estados desconocidos
+      return 'PENDIENTE';
     };
 
-    const mappedStatus = statusMapping[estadoName];
-    if (!mappedStatus) {
-      return NextResponse.json({ 
-        error: "Estado no válido", 
-        message: `El estado "${estadoName}" no tiene un mapeo válido.` 
-      }, { status: 400 });
-    }
+    const mappedStatus = getMappedStatus(estadoName);
 
     // Actualizar el estado del remito (usando el valor mapeado del enum)
     const { data: updatedRemito, error } = await supabaseAdmin

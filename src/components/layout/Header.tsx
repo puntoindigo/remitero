@@ -130,22 +130,10 @@ export default function Header() {
           Empresas
         </NavLink>
         
-        <NavLink href="/estados-remitos" roles={['ADMIN']}>
+        <NavLink href="/estados-remitos">
           <Tag className="h-4 w-4" />
           Estados
         </NavLink>
-        
-        {/* Enlace para descargar logs - solo SUPERADMIN */}
-        {currentUser.role === 'SUPERADMIN' && (
-          <button
-            onClick={handleDownloadLogs}
-            className="nav-link"
-            title="Descargar logs de actividad"
-          >
-            <FileText className="h-4 w-4" />
-            Logs
-          </button>
-        )}
       </nav>
       
       <div className="header-right">
