@@ -112,6 +112,8 @@ export async function PUT(
     const mappedStatus = getMappedStatus(estadoName);
 
     // Actualizar el estado del remito (usando el valor mapeado del enum)
+    console.log('Updating remito with:', { remitoId, mappedStatus, estadoName });
+    
     const { data: updatedRemito, error } = await supabaseAdmin
       .from('remitos')
       .update({ 
@@ -143,6 +145,8 @@ export async function PUT(
         )
       `)
       .single();
+    
+    console.log('Update result:', { updatedRemito, error });
 
     if (error) {
       console.error('Error updating remito status:', error);
@@ -153,6 +157,8 @@ export async function PUT(
     }
 
     // Crear un registro en el historial de estados
+    console.log('Creating status history:', { remitoId, mappedStatus, userId: session.user.id });
+    
     const { error: historyError } = await supabaseAdmin
       .from('status_history')
       .insert([{
@@ -160,6 +166,8 @@ export async function PUT(
         status: mappedStatus,
         by_user_id: session.user.id
       }]);
+    
+    console.log('History result:', { historyError });
 
     if (historyError) {
       console.error('Error creating status history:', historyError);
