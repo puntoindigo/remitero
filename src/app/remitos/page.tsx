@@ -166,6 +166,9 @@ function RemitosContent() {
       );
 
       showSuccess("Estado actualizado correctamente");
+      
+      // Recargar los datos para reflejar el cambio
+      await loadData();
     } catch (error) {
       console.error('Error updating status:', error);
       showError("Error", error instanceof Error ? error.message : "No se pudo actualizar el estado del remito");

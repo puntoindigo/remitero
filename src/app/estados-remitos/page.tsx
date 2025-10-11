@@ -156,11 +156,11 @@ function EstadosRemitosContent() {
       )
     },
     {
-      key: 'isActive',
+      key: 'is_active',
       label: 'Estado',
       render: (estado) => (
-        <span className={`badge ${estado.isActive ? 'badge-success' : 'badge-inactive'}`}>
-          {estado.isActive ? 'Activo' : 'Inactivo'}
+        <span className={`badge ${estado.is_active ? 'badge-success' : 'badge-inactive'}`}>
+          {estado.is_active ? 'Activo' : 'Inactivo'}
         </span>
       )
     }
@@ -209,7 +209,7 @@ function EstadosRemitosContent() {
                 name: formData.get('name') as string,
                 description: formData.get('description') as string,
                 color: formData.get('color') as string,
-                isActive: formData.get('isActive') === 'on'
+                is_active: formData.get('isActive') === 'on'
               };
               onSubmit(data);
             }}>
@@ -251,7 +251,7 @@ function EstadosRemitosContent() {
                   <input
                     type="checkbox"
                     name="isActive"
-                    defaultChecked={editingEstado?.isActive !== false}
+                    defaultChecked={editingEstado?.is_active !== false}
                   />
                   Estado activo
                 </label>
