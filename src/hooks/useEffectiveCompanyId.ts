@@ -1,56 +1,42 @@
 "use client";
 
 import { useCurrentUser } from "./useCurrentUser";
-import { useImpersonation } from "./useImpersonation";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 /**
  * Hook que maneja el companyId efectivo considerando impersonation y selección de empresa
  * 
  * Lógica CORRECTA:
- * 1. Si estoy impersonando: uso el companyId del usuario impersonado (veo lo que él vería)
+ * 1. Si estoy impersonando (impersonating !== null): uso el companyId del usuario impersonado
  * 2. Si soy SUPERADMIN y NO estoy impersonando: puedo seleccionar empresa
  * 3. Si no soy SUPERADMIN: uso mi companyId
  */
 export function useEffectiveCompanyId() {
   const currentUser = useCurrentUser();
-  const { isCurrentlyImpersonating } = useImpersonation();
   const [selectedCompanyId, setSelectedCompanyId] = useState<string>("");
 
   const isSuperAdmin = currentUser?.role === "SUPERADMIN";
+  const isImpersonating = currentUser?.impersonating !== null;
   
   // El companyId efectivo es:
-  // - Si estoy impersonando: companyId del usuario impersonado (sin importar si soy SUPERADMIN)
+  // - Si estoy impersonando: companyId del usuario impersonado
   // - Si soy SUPERADMIN y NO estoy impersonando: selectedCompanyId si está seleccionado
   // - Si no soy SUPERADMIN: companyId del usuario actual
-  const effectiveCompanyId = isCurrentlyImpersonating
+  const effectiveCompanyId = isImpersonating
     ? currentUser?.companyId || null  // Cuando impersono, veo lo que vería el usuario impersonado
     : isSuperAdmin
       ? (selectedCompanyId || null)   // SUPERADMIN sin impersonation puede seleccionar empresa
       : currentUser?.companyId || null; // Usuario normal usa su companyId
-
-  // Log para debugging
-  useEffect(() => {
-    console.log('useEffectiveCompanyId:', {
-      currentUser: currentUser?.name,
-      role: currentUser?.role,
-      isCurrentlyImpersonating,
-      isSuperAdmin,
-      selectedCompanyId,
-      effectiveCompanyId,
-      userCompanyId: currentUser?.companyId
-    });
-  }, [currentUser, isCurrentlyImpersonating, isSuperAdmin, selectedCompanyId, effectiveCompanyId]);
 
   return {
     effectiveCompanyId,
     selectedCompanyId,
     setSelectedCompanyId,
     isSuperAdmin,
-    isCurrentlyImpersonating,
+    isImpersonating,
     // Solo necesita seleccionar empresa si es SUPERADMIN y NO está impersonando
-    needsCompanySelection: isSuperAdmin && !isCurrentlyImpersonating && !selectedCompanyId,
+    needsCompanySelection: isSuperAdmin && !isImpersonating && !selectedCompanyId,
     // Solo muestra el selector si es SUPERADMIN y NO está impersonando
-    shouldShowCompanySelector: isSuperAdmin && !isCurrentlyImpersonating
+    shouldShowCompanySelector: isSuperAdmin && !isImpersonating
   };
 }

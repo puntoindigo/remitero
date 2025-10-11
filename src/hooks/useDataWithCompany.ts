@@ -12,7 +12,7 @@ export function useDataWithCompany() {
     selectedCompanyId,
     setSelectedCompanyId,
     isSuperAdmin,
-    isCurrentlyImpersonating,
+    isImpersonating,
     needsCompanySelection
   } = useEffectiveCompanyId();
 
@@ -26,7 +26,7 @@ export function useDataWithCompany() {
     
     // Información del usuario
     isSuperAdmin,
-    isCurrentlyImpersonating,
+    isImpersonating,
     
     // Para mostrar/ocultar el selector de empresas
     needsCompanySelection,

@@ -1,23 +1,32 @@
 import { useSession } from "next-auth/react";
-import { useImpersonation } from "./useImpersonation";
+import { useState, useEffect } from "react";
 
 export const useCurrentUser = () => {
   const { data: session } = useSession();
-  const { isCurrentlyImpersonating, targetUser, originalAdmin } = useImpersonation();
+  const [impersonationData, setImpersonationData] = useState<any>(null);
 
-  // Si hay impersonation activa, devolver el usuario objetivo
-  if (isCurrentlyImpersonating && targetUser) {
+  // Obtener datos de impersonation del localStorage
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const data = localStorage.getItem('impersonation');
+      const parsed = data ? JSON.parse(data) : null;
+      setImpersonationData(parsed);
+    }
+  }, []);
+
+  // Si hay impersonation activa, devolver el usuario impersonado con el ID del admin
+  if (impersonationData?.isActive && impersonationData?.targetUser) {
     return {
-      ...targetUser,
-      isImpersonating: true,
-      originalAdmin
+      ...impersonationData.targetUser, // Datos del usuario impersonado
+      impersonating: impersonationData.originalAdmin?.id, // ID del SUPERADMIN que impersona
+      isImpersonating: true
     };
   }
 
   // Si no hay impersonation, devolver el usuario de la sesión
   return {
     ...session?.user,
-    isImpersonating: false,
-    originalAdmin: null
+    impersonating: null,
+    isImpersonating: false
   };
 };

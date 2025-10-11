@@ -91,6 +91,7 @@ function RemitosContent() {
     selectedCompanyId,
     setSelectedCompanyId,
     isSuperAdmin,
+    isImpersonating,
     needsCompanySelection,
     shouldShowCompanySelector
   } = useDataWithCompany();
@@ -98,10 +99,6 @@ function RemitosContent() {
   const [remitos, setRemitos] = useState<Remito[]>([]);
   const { estadosActivos } = useEstadosRemitos(companyId);
   
-  // Debug: Log estados disponibles
-  console.log('RemitosContent - estadosActivos:', estadosActivos);
-  console.log('RemitosContent - estadosActivos length:', estadosActivos?.length);
-  console.log('RemitosContent - estadosActivos type:', typeof estadosActivos);
   const [clients, setClients] = useState<Client[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -127,13 +124,6 @@ function RemitosContent() {
   // Hook para empresas
   const { empresas } = useEmpresas();
 
-  console.log('RemitosContent - currentUser:', currentUser);
-  console.log('RemitosContent - selectedCompanyId:', selectedCompanyId);
-  console.log('RemitosContent - companyId:', companyId);
-  console.log('RemitosContent - empresas:', empresas);
-  console.log('RemitosContent - needsCompanySelection:', needsCompanySelection);
-  console.log('RemitosContent - shouldShowCompanySelector:', shouldShowCompanySelector);
-  console.log('RemitosContent - isLoading:', isLoading);
 
   // Verificación de seguridad para evitar errores
   if (!currentUser) {
@@ -174,8 +164,7 @@ function RemitosContent() {
 
   const loadData = async () => {
     if (!companyId) {
-      console.log('No companyId, skipping loadData');
-      setIsLoading(false); // Importante: poner isLoading en false para mostrar el selector
+      setIsLoading(false);
       return;
     }
     
@@ -564,15 +553,11 @@ function RemitosContent() {
   };
 
   const handleStatusChange = async (id: string, status: "PENDIENTE" | "PREPARADO" | "ENTREGADO" | "CANCELADO") => {
-    console.log('handleStatusChange called:', { id, status, companyId, currentUserId: currentUser?.id });
-    
     if (!companyId || !currentUser?.id) {
-      console.log('Missing required data:', { companyId, currentUserId: currentUser?.id });
       return;
     }
 
     try {
-      console.log('Sending status change request to:', `/api/remitos/${id}/status`);
       const response = await fetch(`/api/remitos/${id}/status`, {
         method: 'PUT',
         headers: {
@@ -581,18 +566,13 @@ function RemitosContent() {
         body: JSON.stringify({ status }),
       });
 
-      console.log('Status change response:', { status: response.status, ok: response.ok });
-
       if (!response.ok) {
         const errorData = await response.json();
-        console.error('Status change error:', errorData);
         throw new Error(errorData.message || 'Error al actualizar el estado');
       }
 
-      console.log('Status change successful, reloading data...');
       await loadData();
     } catch (error: any) {
-      console.error('Status change error:', error);
       showError("Error al actualizar el estado", error.message);
     }
   };
