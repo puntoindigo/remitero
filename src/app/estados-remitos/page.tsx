@@ -289,7 +289,7 @@ function EstadosRemitosContent() {
           <DataTable
             {...tableConfig}
             columns={columns}
-            showSearch={false} // Ya tenemos filtros arriba
+            showSearch={true}
             showNewButton={false} // Ya tenemos el botón arriba
           />
           <Pagination {...paginationConfig} />

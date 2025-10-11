@@ -12,7 +12,7 @@ import { useMessageModal } from "@/hooks/useMessageModal";
 import { useCRUDPage } from "@/hooks/useCRUDPage";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useDataWithCompany } from "@/hooks/useDataWithCompany";
-import { useEstadosRemitos } from "@/hooks/useEstadosRemitos";
+import { useEstadosByCompany } from "@/hooks/useEstadosByCompany";
 import { useEmpresas } from "@/hooks/useEmpresas";
 import { DataTable, type DataTableColumn } from "@/components/common/DataTable";
 import { useCRUDTable } from "@/hooks/useCRUDTable";
@@ -53,7 +53,7 @@ function RemitosContent() {
   } = useDataWithCompany();
   
   const [remitos, setRemitos] = useState<Remito[]>([]);
-  const { estadosActivos } = useEstadosRemitos(companyId);
+  const { estados: estadosActivos } = useEstadosByCompany(companyId);
   const { empresas } = useEmpresas();
   
   const [clients, setClients] = useState<any[]>([]);
@@ -341,7 +341,7 @@ function RemitosContent() {
             <DataTable
               {...tableConfig}
               columns={columns}
-              showSearch={false} // Ya tenemos filtros arriba
+              showSearch={true}
               showNewButton={false} // Ya tenemos el botón arriba
             />
             <Pagination {...paginationConfig} />

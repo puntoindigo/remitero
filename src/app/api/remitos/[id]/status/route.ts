@@ -131,18 +131,7 @@ export async function PUT(
         updated_at,
         company_id,
         client_id,
-        created_by_id,
-        clients (
-          id,
-          name,
-          email,
-          phone
-        ),
-        users (
-          id,
-          name,
-          email
-        )
+        created_by_id
       `)
       .single();
     
