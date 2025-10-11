@@ -102,7 +102,7 @@ function CategoriasContent() {
   };
 
   // Lógica simplificada: mostrar contenido si hay companyId o si es SUPERADMIN sin impersonar
-  const needsCompanySelection = session?.user?.companyId === null && session?.user?.role === "SUPERADMIN";
+  const needsCompanySelection = !companyId && session?.user?.role === "SUPERADMIN";
 
   if (isLoading) {
     return (

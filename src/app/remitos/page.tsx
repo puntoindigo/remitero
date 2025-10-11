@@ -821,7 +821,7 @@ function RemitosContent() {
   }
 
   // Lógica simplificada: mostrar contenido si hay companyId o si es SUPERADMIN sin impersonar
-  const needsCompanySelection = currentUser?.companyId === null && currentUser?.role === "SUPERADMIN";
+  const needsCompanySelection = !companyId && currentUser?.role === "SUPERADMIN";
 
   return (
     <main className="main-content">
