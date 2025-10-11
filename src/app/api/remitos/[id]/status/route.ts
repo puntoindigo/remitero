@@ -85,7 +85,7 @@ export async function PUT(
       }, { status: 400 });
     }
 
-    // Obtener el nombre del estado para actualizar el remito
+    // Mapear el nombre del estado al valor del enum delivery_status
     const estadoName = estadoValidation.estado?.name;
     if (!estadoName) {
       return NextResponse.json({ 
@@ -94,11 +94,27 @@ export async function PUT(
       }, { status: 400 });
     }
 
-    // Actualizar el estado del remito (usando el nombre del estado, no el ID)
+    // Mapear nombres de estados a valores del enum delivery_status
+    const statusMapping: { [key: string]: string } = {
+      'Pendiente': 'PENDIENTE',
+      'Preparado': 'EN_TRANSITO', // Mapear Preparado a EN_TRANSITO
+      'Entregado': 'ENTREGADO',
+      'Cancelado': 'CANCELADO'
+    };
+
+    const mappedStatus = statusMapping[estadoName];
+    if (!mappedStatus) {
+      return NextResponse.json({ 
+        error: "Estado no válido", 
+        message: `El estado "${estadoName}" no tiene un mapeo válido.` 
+      }, { status: 400 });
+    }
+
+    // Actualizar el estado del remito (usando el valor mapeado del enum)
     const { data: updatedRemito, error } = await supabaseAdmin
       .from('remitos')
       .update({ 
-        status: estadoName,
+        status: mappedStatus,
         status_at: new Date().toISOString()
       })
       .eq('id', remitoId)
@@ -140,7 +156,7 @@ export async function PUT(
       .from('status_history')
       .insert([{
         remito_id: remitoId,
-        status: estadoName,
+        status: mappedStatus,
         by_user_id: session.user.id
       }]);
 
