@@ -15,10 +15,12 @@ import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useDataWithCompany } from "@/hooks/useDataWithCompany";
 import { useEstadosByCompany } from "@/hooks/useEstadosByCompany";
 import { useEmpresas } from "@/hooks/useEmpresas";
+import { useProductos } from "@/hooks/useProductos";
+import { useClientes } from "@/hooks/useClientes";
 import { DataTable, type DataTableColumn } from "@/components/common/DataTable";
 import { useCRUDTable } from "@/hooks/useCRUDTable";
 import { Pagination } from "@/components/common/Pagination";
-import { RemitoForm } from "@/components/forms/RemitoForm";
+import { RemitoFormComplete } from "@/components/forms/RemitoFormComplete";
 
 interface Remito {
   id: string;
@@ -57,7 +59,11 @@ function RemitosContent() {
   const { estados: estadosActivos } = useEstadosByCompany(companyId);
   const { empresas } = useEmpresas();
   
-  const [clients, setClients] = useState<any[]>([]);
+  // Hook para productos
+  const { productos: products } = useProductos(companyId);
+  
+  // Hook para clientes
+  const { clientes: clients } = useClientes(companyId);
   const [isLoading, setIsLoading] = useState(true);
 
   // CRUD State Management
@@ -106,22 +112,14 @@ function RemitosContent() {
     try {
       setIsLoading(true);
       
-      const [remitosRes, clientsRes] = await Promise.all([
-        fetch(`/api/remitos?companyId=${companyId}`),
-        fetch(`/api/clients?companyId=${companyId}`)
-      ]);
+      const remitosRes = await fetch(`/api/remitos?companyId=${companyId}`);
 
-      if (!remitosRes.ok || !clientsRes.ok) {
+      if (!remitosRes.ok) {
         throw new Error('Error al cargar los datos');
       }
 
-      const [remitosData, clientsData] = await Promise.all([
-        remitosRes.json(),
-        clientsRes.json()
-      ]);
-
+      const remitosData = await remitosRes.json();
       setRemitos(remitosData);
-      setClients(clientsData);
     } catch (error) {
       console.error('Error loading data:', error);
       showError("Error", "No se pudieron cargar los remitos");
@@ -325,13 +323,14 @@ function RemitosContent() {
         <h2>Gestión de Remitos</h2>
         
         {/* Formulario */}
-        <RemitoForm
+        <RemitoFormComplete
           isOpen={showForm}
           onClose={handleCloseForm}
           onSubmit={handleSubmit}
           isSubmitting={isSubmitting}
           editingRemito={editingRemito}
           clients={clients}
+          products={products}
           estados={estadosActivos}
         />
         
