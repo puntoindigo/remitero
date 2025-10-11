@@ -9,6 +9,8 @@ import FilterableSelect from "@/components/common/FilterableSelect";
 import { MessageModal } from "@/components/common/MessageModal";
 import DeleteConfirmModal from "@/components/common/DeleteConfirmModal";
 import { useMessageModal } from "@/hooks/useMessageModal";
+import { useDirectUpdate } from "@/hooks/useDirectUpdate";
+import { ConfirmationModal } from "@/components/common/ConfirmationModal";
 import { useCRUDPage } from "@/hooks/useCRUDPage";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useDataWithCompany } from "@/hooks/useDataWithCompany";
@@ -74,6 +76,7 @@ function RemitosContent() {
   } = useCRUDPage<Remito>();
 
   const { modalState, showSuccess, showError, closeModal } = useMessageModal();
+  const { updateStatus, confirmation } = useDirectUpdate();
 
   // CRUD Table configuration
   const {
@@ -133,13 +136,19 @@ function RemitosContent() {
   }, [companyId]);
 
   const handleStatusChange = async (remitoId: string, newStatusId: string) => {
-    try {
-      const response = await fetch(`/api/remitos/${remitoId}/status`, {
+    const newStatus = estadosActivos?.find(estado => estado.id === newStatusId);
+    if (!newStatus) {
+      showError("Error", "Estado no encontrado");
+      return;
+    }
+
+    const updateFunction = async (id: string, statusId: string) => {
+      const response = await fetch(`/api/remitos/${id}/status`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ status: newStatusId }),
+        body: JSON.stringify({ status: statusId }),
       });
 
       if (!response.ok) {
@@ -150,14 +159,14 @@ function RemitosContent() {
       // Actualizar el estado local
       setRemitos(prevRemitos =>
         prevRemitos.map(remito => {
-          if (remito.id === remitoId) {
-            const newStatus = estadosActivos?.find(estado => estado.id === newStatusId);
+          if (remito.id === id) {
+            const status = estadosActivos?.find(estado => estado.id === statusId);
             return {
               ...remito,
-              status: newStatus ? {
-                id: newStatus.id,
-                name: newStatus.name,
-                color: newStatus.color
+              status: status ? {
+                id: status.id,
+                name: status.name,
+                color: status.color
               } : remito.status
             };
           }
@@ -165,14 +174,20 @@ function RemitosContent() {
         })
       );
 
-      showSuccess("Estado actualizado correctamente");
-      
       // Recargar los datos para reflejar el cambio
       await loadData();
-    } catch (error) {
-      console.error('Error updating status:', error);
-      showError("Error", error instanceof Error ? error.message : "No se pudo actualizar el estado del remito");
-    }
+    };
+
+    await updateStatus(
+      remitoId,
+      newStatusId,
+      newStatus.name,
+      updateFunction,
+      {
+        onSuccess: (message) => showSuccess(message),
+        onError: (error) => showError("Error", error)
+      }
+    );
   };
 
   const handleDelete = async () => {
@@ -365,6 +380,17 @@ function RemitosContent() {
           title={modalState.title}
           message={modalState.message}
           details={modalState.details}
+        />
+
+        {/* Modal de confirmación */}
+        <ConfirmationModal
+          isOpen={confirmation.isOpen}
+          onClose={confirmation.close}
+          onConfirm={confirmation.confirm}
+          title={confirmation.title}
+          message={confirmation.message}
+          type={confirmation.type}
+          isLoading={confirmation.isLoading}
         />
       </section>
     </main>

@@ -10,6 +10,8 @@ import FilterableSelect from "@/components/common/FilterableSelect";
 import { MessageModal } from "@/components/common/MessageModal";
 import DeleteConfirmModal from "@/components/common/DeleteConfirmModal";
 import { useMessageModal } from "@/hooks/useMessageModal";
+import { useDirectUpdate } from "@/hooks/useDirectUpdate";
+import { ConfirmationModal } from "@/components/common/ConfirmationModal";
 import { ProductoForm } from "@/components/forms/ProductoForm";
 import { useCRUDPage } from "@/hooks/useCRUDPage";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
@@ -72,6 +74,7 @@ function ProductosContent() {
   
   // Hook para manejar modales de mensajes
   const { modalState, showSuccess, showError, closeModal } = useMessageModal();
+  const { updateStock, confirmation } = useDirectUpdate();
 
   // Hook para empresas
   const { empresas } = useEmpresas();
@@ -236,13 +239,13 @@ function ProductosContent() {
   };
 
   const handleStockChange = async (productId: string, newStock: 'IN_STOCK' | 'OUT_OF_STOCK') => {
-    try {
-      const response = await fetch(`/api/products/${productId}`, {
+    const updateFunction = async (id: string, stock: string) => {
+      const response = await fetch(`/api/products/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ stock: newStock }),
+        body: JSON.stringify({ stock }),
       });
 
       if (!response.ok) {
@@ -252,17 +255,20 @@ function ProductosContent() {
       // Actualizar el estado local
       setProducts(prevProducts =>
         prevProducts.map(product =>
-          product.id === productId ? { ...product, stock: newStock } : product
+          product.id === id ? { ...product, stock: stock as 'IN_STOCK' | 'OUT_OF_STOCK' } : product
         )
       );
-    } catch (error) {
-      console.error('Error updating stock:', error);
-      showError(
-        'Error de conexión',
-        'No se pudo conectar con el servidor. Verifica tu conexión a internet.',
-        (error as Error).message
-      );
-    }
+    };
+
+    await updateStock(
+      productId,
+      newStock,
+      updateFunction,
+      {
+        onSuccess: (message) => showSuccess(message),
+        onError: (error) => showError("Error", error)
+      }
+    );
   };
 
   const getCleanDescription = (product: Product) => {
@@ -439,6 +445,17 @@ function ProductosContent() {
           title={modalState.title}
           message={modalState.message}
           details={modalState.details}
+        />
+
+        {/* Modal de confirmación */}
+        <ConfirmationModal
+          isOpen={confirmation.isOpen}
+          onClose={confirmation.close}
+          onConfirm={confirmation.confirm}
+          title={confirmation.title}
+          message={confirmation.message}
+          type={confirmation.type}
+          isLoading={confirmation.isLoading}
         />
       </div>
     </main>
