@@ -60,8 +60,7 @@ function ProductosContent() {
     setIsSubmitting,
     showDeleteConfirm,
     handleDeleteRequest,
-    handleCancelDelete,
-    setEditingItem: setEditingProduct
+    handleCancelDelete
   } = useCRUDPage<Product>();
 
   const [products, setProducts] = useState<Product[]>([]);
