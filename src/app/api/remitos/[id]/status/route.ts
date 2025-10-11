@@ -85,11 +85,20 @@ export async function PUT(
       }, { status: 400 });
     }
 
-    // Actualizar el estado del remito
+    // Obtener el nombre del estado para actualizar el remito
+    const estadoName = estadoValidation.estado?.name;
+    if (!estadoName) {
+      return NextResponse.json({ 
+        error: "Error de configuración", 
+        message: "No se pudo obtener el nombre del estado." 
+      }, { status: 400 });
+    }
+
+    // Actualizar el estado del remito (usando el nombre del estado, no el ID)
     const { data: updatedRemito, error } = await supabaseAdmin
       .from('remitos')
       .update({ 
-        status: status,
+        status: estadoName,
         status_at: new Date().toISOString()
       })
       .eq('id', remitoId)
@@ -131,7 +140,7 @@ export async function PUT(
       .from('status_history')
       .insert([{
         remito_id: remitoId,
-        status: status,
+        status: estadoName,
         by_user_id: session.user.id
       }]);
 
