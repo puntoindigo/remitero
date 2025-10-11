@@ -15,10 +15,18 @@ import { useMessageModal } from "@/hooks/useMessageModal";
 import { useCategorias, type Categoria } from "@/hooks/useCategorias";
 import { useEmpresas, type Empresa } from "@/hooks/useEmpresas";
 import { useCRUDPage } from "@/hooks/useCRUDPage";
+import { useDataWithCompany } from "@/hooks/useDataWithCompany";
 
 function CategoriasContent() {
   const { data: session } = useSession();
-  const [selectedCompanyId, setSelectedCompanyId] = useState<string>("");
+  
+  // Hook centralizado para manejo de companyId
+  const {
+    companyId,
+    selectedCompanyId,
+    setSelectedCompanyId,
+    shouldShowCompanySelector
+  } = useDataWithCompany();
   const {
     editingItem: editingCategoria,
     showForm,
@@ -34,11 +42,6 @@ function CategoriasContent() {
   const { showSuccess, showError, hideModal, isModalOpen, modalContent } = useMessageModal();
   
   const { empresas } = useEmpresas();
-  
-  // Determinar qué empresa usar: la seleccionada o la del usuario
-  const companyId = session?.user?.role === "SUPERADMIN" 
-    ? selectedCompanyId 
-    : session?.user?.companyId;
 
   const { 
     categorias, 
@@ -98,8 +101,8 @@ function CategoriasContent() {
     }
   };
 
-  // Verificar si necesita seleccionar empresa
-  const needsCompanySelection = session?.user?.role === "SUPERADMIN" && !selectedCompanyId;
+  // Lógica simplificada: mostrar contenido si hay companyId o si es SUPERADMIN sin impersonar
+  const needsCompanySelection = session?.user?.companyId === null && session?.user?.role === "SUPERADMIN";
 
   if (isLoading) {
     return (
@@ -146,7 +149,7 @@ function CategoriasContent() {
             itemsPerPage={itemsPerPage}
             placeholder="Buscar categorías..."
           >
-            {session?.user?.role === "SUPERADMIN" && empresas.length > 0 && (
+            {shouldShowCompanySelector && empresas.length > 0 && (
               <div className="ml-4">
                 <FilterableSelect
                   options={empresas}

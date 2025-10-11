@@ -13,11 +13,19 @@ import { useCRUDPage } from "@/hooks/useCRUDPage";
 import { useEstadosRemitos, EstadoRemito, EstadoRemitoFormData } from "@/hooks/useEstadosRemitos";
 import { useEmpresas, type Empresa } from "@/hooks/useEmpresas";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { useDataWithCompany } from "@/hooks/useDataWithCompany";
 
 function EstadosRemitosContent() {
   const { data: session } = useSession();
   const currentUser = useCurrentUser();
-  const [selectedCompanyId, setSelectedCompanyId] = useState<string>("");
+  
+  // Hook centralizado para manejo de companyId
+  const {
+    companyId,
+    selectedCompanyId,
+    setSelectedCompanyId,
+    shouldShowCompanySelector
+  } = useDataWithCompany();
 
   // Verificar permisos - solo ADMIN y SUPERADMIN pueden ver esta página
   if (!currentUser || !['ADMIN', 'SUPERADMIN'].includes(currentUser.role)) {
@@ -56,10 +64,6 @@ function EstadosRemitosContent() {
   // Hook para empresas
   const { empresas } = useEmpresas();
 
-  // Determinar qué empresa usar: la seleccionada o la del usuario
-  const companyId = currentUser?.role === "SUPERADMIN" 
-    ? selectedCompanyId 
-    : currentUser?.companyId;
 
   // Hook para manejar estados de remitos
   const {
@@ -195,8 +199,8 @@ function EstadosRemitosContent() {
     );
   }
 
-  // Verificar si necesita seleccionar empresa
-  const needsCompanySelection = currentUser?.role === "SUPERADMIN" && !selectedCompanyId;
+  // Lógica simplificada: mostrar contenido si hay companyId o si es SUPERADMIN sin impersonar
+  const needsCompanySelection = currentUser?.companyId === null && currentUser?.role === "SUPERADMIN";
 
   return (
     <div className="estados-remitos-container">
@@ -228,7 +232,7 @@ function EstadosRemitosContent() {
           onPageChange={handlePageChange}
           placeholder="Buscar estados..."
         >
-          {currentUser?.role === "SUPERADMIN" && empresas.length > 0 && (
+          {shouldShowCompanySelector && empresas.length > 0 && (
             <div className="ml-4">
               <FilterableSelect
                 options={empresas}

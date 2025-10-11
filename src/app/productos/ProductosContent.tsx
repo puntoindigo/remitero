@@ -18,6 +18,7 @@ import { ProductoForm } from "@/components/forms/ProductoForm";
 import { useCRUDPage } from "@/hooks/useCRUDPage";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useEmpresas, type Empresa } from "@/hooks/useEmpresas";
+import { useDataWithCompany } from "@/hooks/useDataWithCompany";
 
 interface Product {
   id: string;
@@ -43,7 +44,14 @@ function ProductosContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
-  const [selectedCompanyId, setSelectedCompanyId] = useState<string>("");
+  
+  // Hook centralizado para manejo de companyId
+  const {
+    companyId,
+    selectedCompanyId,
+    setSelectedCompanyId,
+    shouldShowCompanySelector
+  } = useDataWithCompany();
   // CRUD State Management
   const {
     editingItem: editingProduct,
@@ -70,19 +78,6 @@ function ProductosContent() {
 
   // Hook para empresas
   const { empresas } = useEmpresas();
-
-  // Determinar qué empresa usar: la seleccionada o la del usuario
-  const companyId = currentUser?.role === "SUPERADMIN" 
-    ? selectedCompanyId 
-    : currentUser?.companyId;
-
-  console.log('ProductosContent - currentUser:', currentUser);
-  console.log('ProductosContent - selectedCompanyId:', selectedCompanyId);
-  console.log('ProductosContent - companyId:', companyId);
-  console.log('ProductosContent - empresas:', empresas);
-  console.log('ProductosContent - needsCompanySelection:', currentUser?.role === "SUPERADMIN" && !selectedCompanyId);
-  console.log('ProductosContent - shouldShowFilterableSelect:', currentUser?.role === "SUPERADMIN" && empresas.length > 0);
-  console.log('ProductosContent - isLoading:', isLoading);
 
   // Función para obtener el stock del producto
   const getStockFromProduct = (product: any) => {
@@ -121,20 +116,16 @@ function ProductosContent() {
 
   const loadData = async () => {
     if (!companyId) {
-      console.log('No companyId, skipping loadData');
       setIsLoading(false); // Importante: poner isLoading en false para mostrar el selector
       return;
     }
 
     try {
       setIsLoading(true);
-      console.log('Loading data for companyId:', companyId);
       
       // Pasar companyId del usuario actual (considerando impersonation)
       const productsUrl = companyId ? `/api/products?companyId=${companyId}` : "/api/products";
       const categoriesUrl = companyId ? `/api/categories?companyId=${companyId}` : "/api/categories";
-      
-      console.log('Fetching from URLs:', { productsUrl, categoriesUrl });
       
       const [productsRes, categoriesRes] = await Promise.all([
         fetch(productsUrl),
@@ -189,7 +180,7 @@ function ProductosContent() {
   }, [searchParams]);
 
   const onSubmit = async (data: ProductForm) => {
-    if (!currentUser?.companyId) return;
+    if (!companyId) return;
 
     setIsSubmitting(true);
     try {
@@ -203,7 +194,7 @@ function ProductosContent() {
         },
         body: JSON.stringify({
           ...data,
-          companyId: session.user.companyId
+          companyId: companyId
         }),
       });
 
@@ -327,8 +318,8 @@ function ProductosContent() {
     );
   }
 
-  // Verificar si necesita seleccionar empresa
-  const needsCompanySelection = currentUser?.role === "SUPERADMIN" && !selectedCompanyId;
+  // Lógica simplificada: mostrar contenido si hay companyId o si es SUPERADMIN sin impersonar
+  const needsCompanySelection = currentUser?.companyId === null && currentUser?.role === "SUPERADMIN";
 
   return (
     <main className="main-content">
@@ -366,7 +357,7 @@ function ProductosContent() {
             placeholder="Buscar productos..."
           >
             <div className="category-filter-wrapper" style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-              {currentUser?.role === "SUPERADMIN" && empresas.length > 0 && (
+              {shouldShowCompanySelector && empresas.length > 0 && (
                 <FilterableSelect
                   options={empresas}
                   value={selectedCompanyId}
