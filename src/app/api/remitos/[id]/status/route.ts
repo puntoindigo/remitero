@@ -74,8 +74,8 @@ export async function PUT(
       }, { status: 400 });
     }
 
-    console.log('Validating estado:', { status, companyId, userRole: session.user.role });
-    const estadoValidation = await validateEstadoByIdForCompany(status, companyId);
+    console.log('Validating estado:', { statusId, companyId, userRole: session.user.role });
+    const estadoValidation = await validateEstadoByIdForCompany(statusId, companyId);
     console.log('Estado validation result:', estadoValidation);
     
     if (!estadoValidation.isValid) {
