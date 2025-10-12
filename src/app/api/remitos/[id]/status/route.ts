@@ -102,18 +102,7 @@ export async function PUT(
         status_at: new Date().toISOString()
       })
       .eq('id', remitoId)
-      .select(`
-        id,
-        number,
-        status,
-        status_at,
-        notes,
-        created_at,
-        updated_at,
-        company_id,
-        client_id,
-        created_by_id
-      `)
+      .select('id, number, status, status_at')
       .single();
     
     console.log('Update result:', { updatedRemito, error });
@@ -122,18 +111,23 @@ export async function PUT(
       console.error('Error updating remito status:', error);
       return NextResponse.json({ 
         error: "Error interno del servidor",
-        message: "No se pudo actualizar el estado del remito."
+        message: `No se pudo actualizar el estado del remito: ${error.message}`
       }, { status: 500 });
     }
 
-    // Ya no creamos historial de estados (tabla eliminada)
-
-    return NextResponse.json(transformRemito(updatedRemito));
+    // Respuesta simplificada
+    return NextResponse.json({ 
+      success: true, 
+      message: "Estado actualizado correctamente",
+      remito: updatedRemito
+    });
   } catch (error: any) {
     console.error('Error in remitos status PUT:', error);
+    console.error('Error stack:', error.stack);
     return NextResponse.json({ 
       error: "Error interno del servidor",
-      message: "Ocurrió un error inesperado."
+      message: `Ocurrió un error inesperado: ${error.message}`,
+      details: error.stack
     }, { status: 500 });
   }
 }
