@@ -75,6 +75,12 @@ export function transformRemito(remito: any) {
     }, 0);
   }
   
+  // Asegurar que los items tengan product_id
+  const remitoItems = (remito.remito_items || []).map((item: any) => ({
+    ...item,
+    product_id: item.product_id || item.products?.id || null
+  }));
+
   return {
     ...remito,
     createdAt: remito.created_at,
@@ -86,7 +92,8 @@ export function transformRemito(remito: any) {
     client: remito.clients,
     user: remito.users,
     total: total,
-    remitoItems: remito.remito_items || [],
+    remitoItems: remitoItems,
+    items: remitoItems, // También como 'items' para compatibilidad
     statusHistory: remito.status_history || []
   };
 }
