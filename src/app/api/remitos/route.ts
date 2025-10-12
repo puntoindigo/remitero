@@ -200,11 +200,11 @@ export async function POST(request: NextRequest) {
     const nextNumber = lastRemito ? lastRemito.number + 1 : 1;
     console.log('Next remito number:', nextNumber);
 
-    // Crear el remito
+    // Crear el remito (usar estado por defecto del enum)
     console.log('Creating remito with data:', {
       number: nextNumber,
       client_id: clientId,
-      status: status || 'PENDIENTE',
+      status: 'PENDIENTE', // Siempre usar estado por defecto del enum
       notes,
       created_by_id: session.user.id,
       company_id: finalCompanyId
@@ -215,7 +215,7 @@ export async function POST(request: NextRequest) {
       .insert([{
         number: nextNumber,
         client_id: clientId,
-        status: status || 'PENDIENTE',
+        status: 'PENDIENTE', // Siempre usar estado por defecto del enum
         notes,
         created_by_id: session.user.id,
         company_id: finalCompanyId
@@ -266,7 +266,7 @@ export async function POST(request: NextRequest) {
       .from('status_history')
       .insert([{
         remito_id: newRemito.id,
-        status: status || 'PENDIENTE',
+        status: 'PENDIENTE', // Siempre usar estado por defecto del enum
         by_user_id: session.user.id
       }]);
 
