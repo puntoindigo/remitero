@@ -93,7 +93,7 @@ function RemitosContent() {
     searchFields: ['number', 'client.name'],
     itemsPerPage: 10,
     onEdit: handleEditRemito,
-    onDelete: handleDeleteRequest,
+    onDelete: (remito) => handleDeleteRequest(remito.id, `Remito #${remito.number}`),
     onNew: handleNewRemito,
     getItemId: (remito) => remito.id,
     emptyMessage: "No hay remitos",
