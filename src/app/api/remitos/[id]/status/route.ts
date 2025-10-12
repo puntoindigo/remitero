@@ -30,10 +30,10 @@ export async function PUT(
 
     const remitoId = params.id;
     const body = await request.json();
-    const { status } = body;
+    const { status: statusId } = body;
 
     // Validaciones básicas
-    if (!status) {
+    if (!statusId) {
       return NextResponse.json({ 
         error: "Datos faltantes", 
         message: "El estado es requerido." 
