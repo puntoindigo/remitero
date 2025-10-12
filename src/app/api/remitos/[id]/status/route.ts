@@ -62,30 +62,35 @@ export async function PUT(
       }, { status: 403 });
     }
 
-    // Validar que el estado existe y está activo para la empresa
-    const companyId = session.user.role === 'SUPERADMIN' 
-      ? existingRemito.company_id 
-      : session.user.companyId;
+    // Simplificar: usar directamente el companyId del remito
+    const companyId = existingRemito.company_id;
     
-    if (!companyId) {
-      return NextResponse.json({ 
-        error: "Error de configuración", 
-        message: "No se pudo determinar la empresa para validar el estado." 
-      }, { status: 400 });
-    }
+    console.log('Updating remito status:', { 
+      remitoId, 
+      statusId, 
+      companyId, 
+      userRole: session.user.role,
+      existingRemito 
+    });
 
-    console.log('Validating estado:', { statusId, companyId, userRole: session.user.role });
-    const estadoValidation = await validateEstadoByIdForCompany(statusId, companyId);
-    console.log('Estado validation result:', estadoValidation);
-    
-    if (!estadoValidation.isValid) {
+    // Validar que el estado existe (simplificado)
+    const { data: estado, error: estadoError } = await supabaseAdmin
+      .from('estados_remitos')
+      .select('id, name, is_active')
+      .eq('id', statusId)
+      .eq('company_id', companyId)
+      .eq('is_active', true)
+      .single();
+
+    if (estadoError || !estado) {
+      console.error('Estado validation failed:', { estadoError, estado, statusId, companyId });
       return NextResponse.json({ 
         error: "Estado inválido", 
-        message: estadoValidation.error || "El estado no es válido para esta empresa." 
+        message: `El estado no existe o no está activo para esta empresa.` 
       }, { status: 400 });
     }
 
-    // Ya no necesitamos mapear a enum, usamos directamente el UUID
+    console.log('Estado validado:', estado);
 
     // Actualizar el estado del remito (usando directamente el UUID del estado)
     console.log('Updating remito with:', { remitoId, statusId });
