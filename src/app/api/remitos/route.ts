@@ -47,6 +47,7 @@ export async function GET(request: NextRequest) {
         ),
         remito_items (
           id,
+          product_id,
           quantity,
           product_name,
           product_desc,
@@ -56,6 +57,12 @@ export async function GET(request: NextRequest) {
             id,
             name
           )
+        ),
+        estados_remitos (
+          id,
+          name,
+          color,
+          is_active
         )
       `)
       .order('created_at', { ascending: false });
@@ -200,11 +207,21 @@ export async function POST(request: NextRequest) {
     const nextNumber = lastRemito ? lastRemito.number + 1 : 1;
     console.log('Next remito number:', nextNumber);
 
-    // Crear el remito (usar estado por defecto del enum)
+    // Obtener el estado por defecto de la empresa
+    const { data: defaultEstado } = await supabaseAdmin
+      .from('estados_remitos')
+      .select('id')
+      .eq('company_id', finalCompanyId)
+      .eq('is_default', true)
+      .single();
+
+    const estadoId = defaultEstado?.id || status;
+
+    // Crear el remito con el estado del ABM
     console.log('Creating remito with data:', {
       number: nextNumber,
       client_id: clientId,
-      status: 'PENDIENTE', // Siempre usar estado por defecto del enum
+      status: estadoId, // Usar UUID del estado del ABM
       notes,
       created_by_id: session.user.id,
       company_id: finalCompanyId
@@ -215,7 +232,7 @@ export async function POST(request: NextRequest) {
       .insert([{
         number: nextNumber,
         client_id: clientId,
-        status: 'PENDIENTE', // Siempre usar estado por defecto del enum
+        status: estadoId, // Usar UUID del estado del ABM
         notes,
         created_by_id: session.user.id,
         company_id: finalCompanyId
@@ -261,19 +278,7 @@ export async function POST(request: NextRequest) {
       }, { status: 500 });
     }
 
-    // Crear el historial de estado inicial
-    const { error: historyError } = await supabaseAdmin
-      .from('status_history')
-      .insert([{
-        remito_id: newRemito.id,
-        status: 'PENDIENTE', // Siempre usar estado por defecto del enum
-        by_user_id: session.user.id
-      }]);
-
-    if (historyError) {
-      console.error('Error creating status history:', historyError);
-      // No es crítico, continuar
-    }
+    // Ya no necesitamos crear historial de estado (tabla eliminada)
 
     // Obtener el remito completo con relaciones
     const { data: completeRemito, error: fetchError } = await supabaseAdmin

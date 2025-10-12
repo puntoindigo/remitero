@@ -91,10 +91,11 @@ export function transformRemito(remito: any) {
     statusAt: remito.status_at,
     client: remito.clients,
     user: remito.users,
+    status: remito.estados_remitos, // Ahora es un objeto con los datos del estado
     total: total,
     remitoItems: remitoItems,
     items: remitoItems, // También como 'items' para compatibilidad
-    statusHistory: remito.status_history || []
+    statusHistory: [] // Ya no existe status_history
   };
 }
 
