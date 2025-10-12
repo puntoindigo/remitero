@@ -85,39 +85,15 @@ export async function PUT(
       }, { status: 400 });
     }
 
-    // Mapear el nombre del estado al valor del enum delivery_status
-    const estadoName = estadoValidation.estado?.name;
-    if (!estadoName) {
-      return NextResponse.json({ 
-        error: "Error de configuración", 
-        message: "No se pudo obtener el nombre del estado." 
-      }, { status: 400 });
-    }
+    // Ya no necesitamos mapear a enum, usamos directamente el UUID
 
-    // Mapear nombres de estados a valores del enum delivery_status
-    // Mapeo más flexible que maneja estados personalizados
-    const getMappedStatus = (name: string): string => {
-      const lowerName = name.toLowerCase();
-      
-      // Estados predefinidos
-      if (lowerName.includes('pendiente')) return 'PENDIENTE';
-      if (lowerName.includes('preparado') || lowerName.includes('en transito') || lowerName.includes('en tránsito')) return 'EN_TRANSITO';
-      if (lowerName.includes('entregado')) return 'ENTREGADO';
-      if (lowerName.includes('cancelado')) return 'CANCELADO';
-      
-      // Fallback: usar PENDIENTE para estados desconocidos
-      return 'PENDIENTE';
-    };
-
-    const mappedStatus = getMappedStatus(estadoName);
-
-    // Actualizar el estado del remito (usando el valor mapeado del enum)
-    console.log('Updating remito with:', { remitoId, mappedStatus, estadoName });
+    // Actualizar el estado del remito (usando directamente el UUID del estado)
+    console.log('Updating remito with:', { remitoId, statusId });
     
     const { data: updatedRemito, error } = await supabaseAdmin
       .from('remitos')
       .update({ 
-        status: mappedStatus,
+        status: statusId,
         status_at: new Date().toISOString()
       })
       .eq('id', remitoId)
@@ -145,23 +121,7 @@ export async function PUT(
       }, { status: 500 });
     }
 
-    // Crear un registro en el historial de estados
-    console.log('Creating status history:', { remitoId, mappedStatus, userId: session.user.id });
-    
-    const { error: historyError } = await supabaseAdmin
-      .from('status_history')
-      .insert([{
-        remito_id: remitoId,
-        status: mappedStatus,
-        by_user_id: session.user.id
-      }]);
-    
-    console.log('History result:', { historyError });
-
-    if (historyError) {
-      console.error('Error creating status history:', historyError);
-      // No es crítico, continuar
-    }
+    // Ya no creamos historial de estados (tabla eliminada)
 
     return NextResponse.json(transformRemito(updatedRemito));
   } catch (error: any) {

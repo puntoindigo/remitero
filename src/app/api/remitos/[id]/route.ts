@@ -258,16 +258,7 @@ export async function DELETE(
       }, { status: 500 });
     }
 
-    // Eliminar historial de estados
-    const { error: deleteHistoryError } = await supabaseAdmin
-      .from('status_history')
-      .delete()
-      .eq('remito_id', remitoId);
-
-    if (deleteHistoryError) {
-      console.error('Error deleting status history:', deleteHistoryError);
-      // No es crítico, continuar
-    }
+    // Ya no existe tabla status_history
 
     // Eliminar el remito
     const { error: deleteError } = await supabaseAdmin

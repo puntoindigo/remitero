@@ -58,7 +58,9 @@ export function RemitoFormComplete({
   useEffect(() => {
     if (editingRemito) {
       setValue("clientId", editingRemito.client?.id || "");
-      setValue("status", editingRemito.status || "PENDIENTE");
+      // El status ahora es un objeto con los datos del estado
+      const statusId = editingRemito.status?.id || editingRemito.status;
+      setValue("status", statusId || "");
       setValue("notes", editingRemito.notes || "");
       
       // Cargar items del remito (pueden venir como 'items' o 'remitoItems')
@@ -82,8 +84,13 @@ export function RemitoFormComplete({
       setSelectedProduct("");
       setQuantity(1);
       setShowNotes(false);
+      // Set default status if available
+      const defaultStatus = estados.find(e => e.is_default);
+      if (defaultStatus) {
+        setValue("status", defaultStatus.id);
+      }
     }
-  }, [editingRemito, setValue, reset]);
+  }, [editingRemito, setValue, reset, estados]);
 
   // Calcular total
   const total = items.reduce((sum, item) => sum + (item.line_total || 0), 0);
