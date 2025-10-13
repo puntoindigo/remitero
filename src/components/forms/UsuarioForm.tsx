@@ -52,6 +52,8 @@ export function UsuarioForm({
     register,
     handleSubmit,
     reset,
+    watch,
+    setValue,
     formState: { errors }
   } = useForm<UsuarioFormData>({
     resolver: zodResolver(userSchema),
@@ -65,6 +67,18 @@ export function UsuarioForm({
       companyId: editingUser?.companyId || companyId || ""
     }
   });
+
+  // Observar el valor del rol para mostrar/ocultar empresa
+  const selectedRole = watch("role");
+  const isCurrentUserSuperAdmin = session?.user?.role === "SUPERADMIN";
+  const shouldShowCompanyField = isCurrentUserSuperAdmin && selectedRole !== "SUPERADMIN";
+
+  // Limpiar companyId cuando el rol es SUPERADMIN
+  React.useEffect(() => {
+    if (selectedRole === "SUPERADMIN") {
+      setValue("companyId", "");
+    }
+  }, [selectedRole, setValue]);
 
   // Reset form when editingUser changes
   React.useEffect(() => {
@@ -194,7 +208,7 @@ export function UsuarioForm({
         </div>
       </div>
 
-      {session?.user?.role === "SUPERADMIN" && (
+      {shouldShowCompanyField && (
         <div className="form-row">
           <div className="form-group">
             <label className="form-label-large">Empresa</label>
