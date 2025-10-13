@@ -188,6 +188,24 @@ function UsuariosContent() {
         minute: '2-digit',
         hour12: false
       })
+    },
+    {
+      key: 'actions',
+      label: 'Acciones',
+      render: (usuario) => (
+        <div className="flex gap-2">
+          {canImpersonate(usuario) && (
+            <button
+              onClick={() => handleImpersonate(usuario)}
+              className="btn small primary"
+              title="Impersonar usuario"
+            >
+              <Users className="h-4 w-4 mr-2" />
+              Impersonar
+            </button>
+          )}
+        </div>
+      )
     }
   ];
 
@@ -211,7 +229,7 @@ function UsuariosContent() {
           onSubmit={onSubmit}
           isSubmitting={isSubmitting}
           editingUser={editingUser}
-          empresas={empresas}
+          companies={empresas}
         />
 
         <div className="form-section">
@@ -247,7 +265,7 @@ function UsuariosContent() {
         {/* Modal de confirmación de eliminación */}
         <DeleteConfirmModal
           isOpen={!!showDeleteConfirm}
-          onClose={handleCancelDelete}
+          onCancel={handleCancelDelete}
           onConfirm={handleDelete}
           title="Eliminar Usuario"
           message={`¿Estás seguro de que deseas eliminar el usuario "${showDeleteConfirm?.name}"?`}

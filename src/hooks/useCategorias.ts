@@ -17,6 +17,7 @@ export interface CategoriaFormData {
 
 export function useCategorias(companyId?: string) {
   const { data: session } = useSession();
+  const currentUser = useCurrentUser();
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

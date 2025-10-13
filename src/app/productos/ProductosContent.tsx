@@ -290,7 +290,7 @@ function ProductosContentFixed() {
         {/* Modal de confirmación de eliminación */}
         <DeleteConfirmModal
           isOpen={!!showDeleteConfirm}
-          onClose={handleCancelDelete}
+          onCancel={handleCancelDelete}
           onConfirm={handleDelete}
           title="Eliminar Producto"
           message={`¿Estás seguro de que deseas eliminar el producto "${showDeleteConfirm?.name}"?`}
