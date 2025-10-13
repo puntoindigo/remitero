@@ -293,7 +293,7 @@ function ProductosContentFixed() {
           onCancel={handleCancelDelete}
           onConfirm={handleDelete}
           title="Eliminar Producto"
-          message={`¿Estás seguro de que deseas eliminar el producto "${showDeleteConfirm?.name}"?`}
+          message={`¿Estás seguro de que deseas eliminar el producto "${showDeleteConfirm?.name || 'este producto'}"?`}
         />
 
         {/* Modal de mensajes */}

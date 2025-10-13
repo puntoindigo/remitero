@@ -8,6 +8,7 @@ import { FormModal } from "@/components/common/FormModal";
 
 const categoriaSchema = z.object({
   name: z.string().min(1, "El nombre es requerido"),
+  description: z.string().optional(),
 });
 
 type CategoriaFormData = z.infer<typeof categoriaSchema>;
@@ -17,7 +18,7 @@ interface CategoriaFormProps {
   onClose: () => void;
   onSubmit: (data: CategoriaFormData) => Promise<void>;
   isSubmitting: boolean;
-  editingCategoria?: { id: string; name: string } | null;
+  editingCategoria?: { id: string; name: string; description?: string } | null;
 }
 
 export function CategoriaForm({
@@ -35,16 +36,23 @@ export function CategoriaForm({
   } = useForm<CategoriaFormData>({
     resolver: zodResolver(categoriaSchema),
     defaultValues: {
-      name: editingCategoria?.name || ""
+      name: editingCategoria?.name || "",
+      description: editingCategoria?.description || ""
     }
   });
 
   // Reset form when editingCategoria changes
   React.useEffect(() => {
     if (editingCategoria) {
-      reset({ name: editingCategoria.name });
+      reset({ 
+        name: editingCategoria.name,
+        description: editingCategoria.description || ""
+      });
     } else {
-      reset({ name: "" });
+      reset({ 
+        name: "",
+        description: ""
+      });
     }
   }, [editingCategoria, reset]);
 
@@ -75,6 +83,18 @@ export function CategoriaForm({
         />
         {errors.name && (
           <p className="error-message">{errors.name.message}</p>
+        )}
+      </div>
+
+      <div className="form-group">
+        <label>Descripción</label>
+        <textarea
+          {...register("description")}
+          placeholder="Descripción opcional de la categoría"
+          rows={3}
+        />
+        {errors.description && (
+          <p className="error-message">{errors.description.message}</p>
         )}
       </div>
     </FormModal>

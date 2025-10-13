@@ -7,12 +7,14 @@ import { useCurrentUser } from "./useCurrentUser";
 export interface Categoria {
   id: string;
   name: string;
+  description?: string;
   products: { id: string }[];
   createdAt: Date;
 }
 
 export interface CategoriaFormData {
   name: string;
+  description?: string;
 }
 
 export function useCategorias(companyId?: string) {
@@ -47,13 +49,14 @@ export function useCategorias(companyId?: string) {
     }
   };
 
-  const createCategoria = async (name: string) => {
+  const createCategoria = async (data: CategoriaFormData) => {
     try {
       const response = await fetch("/api/categories", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
-          name,
+          name: data.name,
+          description: data.description,
           companyId: currentUser?.companyId
         }),
       });
@@ -73,13 +76,14 @@ export function useCategorias(companyId?: string) {
     }
   };
 
-  const updateCategoria = async (id: string, name: string) => {
+  const updateCategoria = async (id: string, data: CategoriaFormData) => {
     try {
       const response = await fetch(`/api/categories/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
-          name,
+          name: data.name,
+          description: data.description,
           companyId: currentUser?.companyId
         }),
       });

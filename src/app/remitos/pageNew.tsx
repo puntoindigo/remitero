@@ -74,6 +74,11 @@ function RemitosContent() {
 
   const { modalState, showSuccess, showError, closeModal } = useMessageModal();
 
+  // Función de eliminación con useCallback para evitar problemas de hoisting
+  const handleDeleteRemito = useCallback((remito: Remito) => {
+    handleDeleteRequest(remito.id, `REM-${remito.number.toString().padStart(4, '0')}`);
+  }, [handleDeleteRequest]);
+
   // CRUD Table configuration
   const {
     tableConfig,
@@ -84,7 +89,7 @@ function RemitosContent() {
     searchFields: ['number', 'client.name'],
     itemsPerPage: 10,
     onEdit: handleEditRemito,
-    onDelete: handleDeleteRequest,
+    onDelete: handleDeleteRemito,
     onNew: handleNewRemito,
     getItemId: (remito) => remito.id,
     emptyMessage: "No hay remitos",
@@ -298,7 +303,7 @@ function RemitosContent() {
           onCancel={handleCancelDelete}
           onConfirm={handleDelete}
           title="Eliminar Remito"
-          message={`¿Estás seguro de que deseas eliminar el remito "${editingRemito?.number}"?`}
+          message={`¿Estás seguro de que deseas eliminar el remito "${showDeleteConfirm?.name || 'este remito'}"?`}
         />
 
         {/* Modal de mensajes */}

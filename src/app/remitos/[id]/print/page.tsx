@@ -43,6 +43,54 @@ export default function PrintRemito() {
     }
   }, [remito, loading]);
 
+  // Cerrar pestaña después de imprimir o cancelar
+  useEffect(() => {
+    const handleAfterPrint = () => {
+      // Cerrar la pestaña después de imprimir
+      window.close();
+    };
+
+    const handleBeforeUnload = () => {
+      // Cerrar la pestaña si se cancela la impresión
+      window.close();
+    };
+
+    // Escuchar eventos de impresión
+    window.addEventListener('afterprint', handleAfterPrint);
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    // También agregar un botón manual para cerrar
+    const addCloseButton = () => {
+      const closeButton = document.createElement('button');
+      closeButton.innerHTML = 'Cerrar';
+      closeButton.style.cssText = `
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        z-index: 9999;
+        background: #dc2626;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 14px;
+      `;
+      closeButton.onclick = () => window.close();
+      document.body.appendChild(closeButton);
+    };
+
+    // Agregar botón después de cargar
+    if (remito && !loading) {
+      setTimeout(addCloseButton, 1000);
+    }
+
+    return () => {
+      window.removeEventListener('afterprint', handleAfterPrint);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [remito, loading]);
+
   if (loading) {
     return <div className="loading">Cargando remito...</div>;
   }
