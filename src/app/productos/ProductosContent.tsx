@@ -311,34 +311,6 @@ function ProductosContentFixed() {
     return <div className="loading">Cargando...</div>;
   }
 
-  // Si necesita selección de empresa, mostrar solo el selector
-  if (needsCompanySelection) {
-    return (
-      <main className="main-content">
-        <div className="px-4 py-6 sm:px-0">
-          <div className="form-section">
-            <h2>Gestión de Productos</h2>
-            <div className="company-selector-wrapper" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '200px' }}>
-              <div style={{ textAlign: 'center' }}>
-                <p style={{ marginBottom: '1rem', color: '#6b7280' }}>Selecciona una empresa para ver los productos</p>
-                {empresas.length > 0 && (
-                  <FilterableSelect
-                    options={empresas}
-                    value={selectedCompanyId}
-                    onChange={setSelectedCompanyId}
-                    placeholder="Seleccionar empresa"
-                    searchFields={["name"]}
-                    className="w-64"
-                  />
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      </main>
-    );
-  }
-
   return (
     <main className="main-content">
       <div className="px-4 py-6 sm:px-0">
@@ -355,100 +327,105 @@ function ProductosContentFixed() {
         <div className="form-section">
           <h2>Gestión de Productos</h2>
           
-          {/* Filtros adicionales */}
-          <div className="filters-wrapper" style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap' }}>
-            {shouldShowCompanySelector && empresas.length > 0 && (
+          {/* Selector de empresa - siempre arriba, ancho completo */}
+          {shouldShowCompanySelector && empresas.length > 0 && (
+            <div className="company-selector-wrapper" style={{ marginBottom: '1rem' }}>
               <FilterableSelect
                 options={empresas}
                 value={selectedCompanyId}
                 onChange={setSelectedCompanyId}
                 placeholder="Seleccionar empresa"
                 searchFields={["name"]}
-                className="w-64"
+                className="w-full"
               />
-            )}
-          </div>
-
-          {/* DataTable con paginación */}
-          <div className="data-table-with-filters">
-            <div className="search-and-filter-row" style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1rem' }}>
-              <div className="search-field" style={{ flex: 1, position: 'relative' }}>
-                <input
-                  type="text"
-                  placeholder="Buscar productos..."
-                  value={tableConfig.searchValue || ''}
-                  onChange={(e) => tableConfig.onSearchChange?.(e.target.value)}
-                  className="search-input"
-                  style={{
-                    width: '100%',
-                    padding: '0.5rem 0.5rem 0.5rem 2.5rem',
-                    border: '1px solid #d1d5db',
-                    borderRadius: '0.375rem',
-                    fontSize: '0.875rem'
-                  }}
-                />
-                <div style={{
-                  position: 'absolute',
-                  left: '0.75rem',
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  color: '#9ca3af',
-                  pointerEvents: 'none'
-                }}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="11" cy="11" r="8"></circle>
-                    <path d="m21 21-4.35-4.35"></path>
-                  </svg>
-                </div>
-              </div>
-              <div className="category-filter" style={{ minWidth: '200px' }}>
-                <FilterableSelect
-                  options={[
-                    { id: "", name: "Todas las categorías" },
-                    ...categorias
-                  ]}
-                  value={selectedCategoryId}
-                  onChange={setSelectedCategoryId}
-                  placeholder="Filtrar por categoría"
-                  searchFields={["name"]}
-                  className="w-full"
-                />
-              </div>
-              {tableConfig.onNew && (
-                <button
-                  onClick={tableConfig.onNew}
-                  className="new-button"
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.5rem',
-                    padding: '0.5rem 1rem',
-                    backgroundColor: '#3b82f6',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '0.375rem',
-                    cursor: 'pointer',
-                    fontSize: '0.875rem',
-                    fontWeight: '500'
-                  }}
-                >
-                  <Plus className="h-4 w-4" />
-                  {tableConfig.newButtonText || 'Nuevo'}
-                </button>
-              )}
             </div>
-            
-            <DataTable
-              {...tableConfig}
-              columns={columns}
-              showSearch={false}
-              showNewButton={false}
-              onEdit={(producto) => handleEditProduct(producto)}
-              onDelete={handleDeleteProduct}
-              actionsColumnLabel="Acciones"
-            />
-          </div>
-          <Pagination {...paginationConfig} />
+          )}
+
+          {/* Mostrar productos solo si hay empresa seleccionada */}
+          {companyId && (
+            <>
+              {/* DataTable con paginación */}
+              <div className="data-table-with-filters">
+                <div className="search-and-filter-row" style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1rem' }}>
+                  <div className="search-field" style={{ flex: 1, position: 'relative' }}>
+                    <input
+                      type="text"
+                      placeholder="Buscar productos..."
+                      value={tableConfig.searchValue || ''}
+                      onChange={(e) => tableConfig.onSearchChange?.(e.target.value)}
+                      className="search-input"
+                      style={{
+                        width: '100%',
+                        padding: '0.5rem 0.5rem 0.5rem 2.5rem',
+                        border: '1px solid #d1d5db',
+                        borderRadius: '0.375rem',
+                        fontSize: '0.875rem'
+                      }}
+                    />
+                    <div style={{
+                      position: 'absolute',
+                      left: '0.75rem',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      color: '#9ca3af',
+                      pointerEvents: 'none'
+                    }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="m21 21-4.35-4.35"></path>
+                      </svg>
+                    </div>
+                  </div>
+                  <div className="category-filter" style={{ minWidth: '200px' }}>
+                    <FilterableSelect
+                      options={[
+                        { id: "", name: "Todas las categorías" },
+                        ...categorias
+                      ]}
+                      value={selectedCategoryId}
+                      onChange={setSelectedCategoryId}
+                      placeholder="Filtrar por categoría"
+                      searchFields={["name"]}
+                      className="w-full"
+                    />
+                  </div>
+                  {tableConfig.onNew && (
+                    <button
+                      onClick={tableConfig.onNew}
+                      className="new-button"
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                        padding: '0.5rem 1rem',
+                        backgroundColor: '#3b82f6',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '0.375rem',
+                        cursor: 'pointer',
+                        fontSize: '0.875rem',
+                        fontWeight: '500'
+                      }}
+                    >
+                      <Plus className="h-4 w-4" />
+                      {tableConfig.newButtonText || 'Nuevo'}
+                    </button>
+                  )}
+                </div>
+                
+                <DataTable
+                  {...tableConfig}
+                  columns={columns}
+                  showSearch={false}
+                  showNewButton={false}
+                  onEdit={(producto) => handleEditProduct(producto)}
+                  onDelete={handleDeleteProduct}
+                  actionsColumnLabel="Acciones"
+                />
+              </div>
+              <Pagination {...paginationConfig} />
+            </>
+          )}
         </div>
 
         {/* Modal de confirmación de eliminación */}
