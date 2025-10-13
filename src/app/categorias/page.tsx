@@ -97,10 +97,10 @@ function CategoriasContent() {
   };
 
   const handleDelete = async () => {
-    if (!editingCategoria) return;
+    if (!showDeleteConfirm) return;
     
     try {
-      await deleteCategoria(editingCategoria.id);
+      await deleteCategoria(showDeleteConfirm.id);
       handleCancelDelete();
       showSuccess("Categoría eliminada correctamente");
     } catch (error: any) {
