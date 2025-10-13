@@ -24,7 +24,6 @@ export async function GET(request: NextRequest) {
       .select(`
         id,
         name,
-        description,
         created_at,
         updated_at,
         company_id,
@@ -131,13 +130,11 @@ export async function POST(request: NextRequest) {
       .from('categories')
       .insert([{
         name,
-        description: description || null,
         company_id: finalCompanyId
       }])
       .select(`
         id,
         name,
-        description,
         created_at,
         updated_at,
         company_id,

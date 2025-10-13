@@ -120,9 +120,6 @@ function CategoriasContent() {
       render: (categoria) => (
         <div className="categoria-info">
           <div className="categoria-name">{categoria.name}</div>
-          {categoria.description && (
-            <div className="categoria-description">{categoria.description}</div>
-          )}
         </div>
       )
     },

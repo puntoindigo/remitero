@@ -7,7 +7,6 @@ import { useCurrentUser } from "./useCurrentUser";
 export interface Categoria {
   id: string;
   name: string;
-  description?: string;
   products: { id: string }[];
   createdAt: Date;
 }
@@ -56,7 +55,6 @@ export function useCategorias(companyId?: string) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
           name: data.name,
-          description: data.description,
           companyId: currentUser?.companyId
         }),
       });
@@ -83,7 +81,6 @@ export function useCategorias(companyId?: string) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
           name: data.name,
-          description: data.description,
           companyId: currentUser?.companyId
         }),
       });
