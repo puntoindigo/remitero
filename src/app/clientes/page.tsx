@@ -85,7 +85,7 @@ function ClientesContent() {
         await updateCliente(editingCliente.id, data);
         showSuccess("Cliente actualizado correctamente");
       } else {
-        await createCliente(data);
+        await createCliente({ ...data, companyId });
         showSuccess("Cliente creado correctamente");
       }
       handleCloseForm();
