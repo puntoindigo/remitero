@@ -188,11 +188,11 @@ function CategoriasContent() {
 
         {/* Modal de confirmación de eliminación */}
         <DeleteConfirmModal
-          isOpen={showDeleteConfirm}
+          isOpen={!!showDeleteConfirm}
           onClose={handleCancelDelete}
           onConfirm={handleDelete}
           title="Eliminar Categoría"
-          message={`¿Estás seguro de que deseas eliminar la categoría "${editingCategoria?.name}"?`}
+          message={`¿Estás seguro de que deseas eliminar la categoría "${showDeleteConfirm?.name}"?`}
         />
 
         {/* Modal de mensajes */}

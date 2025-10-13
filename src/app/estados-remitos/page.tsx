@@ -303,11 +303,11 @@ function EstadosRemitosContent() {
 
       {/* Modal de confirmación de eliminación */}
       <DeleteConfirmModal
-        isOpen={showDeleteConfirm}
+        isOpen={!!showDeleteConfirm}
         onClose={handleCancelDelete}
         onConfirm={handleDelete}
         title="Eliminar Estado"
-        message={`¿Estás seguro de que deseas eliminar el estado "${editingEstado?.name}"?`}
+        message={`¿Estás seguro de que deseas eliminar el estado "${showDeleteConfirm?.name}"?`}
       />
 
       {/* Modal de mensajes */}

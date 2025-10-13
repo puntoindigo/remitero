@@ -234,11 +234,11 @@ function ClientesContent() {
 
         {/* Modal de confirmación de eliminación */}
         <DeleteConfirmModal
-          isOpen={showDeleteConfirm}
+          isOpen={!!showDeleteConfirm}
           onClose={handleCancelDelete}
           onConfirm={handleDelete}
           title="Eliminar Cliente"
-          message={`¿Estás seguro de que deseas eliminar el cliente "${editingCliente?.name}"?`}
+          message={`¿Estás seguro de que deseas eliminar el cliente "${showDeleteConfirm?.name}"?`}
         />
 
         {/* Modal de mensajes */}

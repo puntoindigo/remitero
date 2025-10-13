@@ -1903,11 +1903,9 @@ form svg {
 
 /* Modal de confirmación específico */
 .confirm-modal {
-  z-index: 10001;
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
   max-width: 400px;
   width: 90%;
   max-height: 90vh;

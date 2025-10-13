@@ -246,11 +246,11 @@ function UsuariosContent() {
 
         {/* Modal de confirmación de eliminación */}
         <DeleteConfirmModal
-          isOpen={showDeleteConfirm}
+          isOpen={!!showDeleteConfirm}
           onClose={handleCancelDelete}
           onConfirm={handleDelete}
           title="Eliminar Usuario"
-          message={`¿Estás seguro de que deseas eliminar el usuario "${editingUser?.name}"?`}
+          message={`¿Estás seguro de que deseas eliminar el usuario "${showDeleteConfirm?.name}"?`}
         />
 
         {/* Modal de mensajes */}
