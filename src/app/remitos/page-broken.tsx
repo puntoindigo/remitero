@@ -11,8 +11,8 @@ import DeleteConfirmModal from "@/components/common/DeleteConfirmModal";
 import { useMessageModal } from "@/hooks/useMessageModal";
 import { useDirectUpdate } from "@/hooks/useDirectUpdate";
 import { useCRUDPage } from "@/hooks/useCRUDPage";
-import { useCurrentUserSimple } from "@/hooks/useCurrentUserSimple";
-import { useDataWithCompanySimple } from "@/hooks/useDataWithCompanySimple";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { useDataWithCompany } from "@/hooks/useDataWithCompany";
 import { useEstadosByCompany } from "@/hooks/useEstadosByCompany";
 import { useEmpresas } from "@/hooks/useEmpresas";
 import { useProductos } from "@/hooks/useProductos";
@@ -40,9 +40,9 @@ interface Remito {
   updatedAt: string;
 }
 
-function RemitosContentFixed() {
+function RemitosContent() {
   const { data: session } = useSession();
-  const currentUser = useCurrentUserSimple();
+  const currentUser = useCurrentUser();
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -53,7 +53,7 @@ function RemitosContentFixed() {
     selectedCompanyId,
     setSelectedCompanyId,
     shouldShowCompanySelector
-  } = useDataWithCompanySimple();
+  } = useDataWithCompany();
   
   const [remitos, setRemitos] = useState<Remito[]>([]);
   const { estados: estadosActivos } = useEstadosByCompany(companyId);
@@ -83,39 +83,6 @@ function RemitosContentFixed() {
   const { modalState, showSuccess, showError, closeModal } = useMessageModal();
   const { updateStatus } = useDirectUpdate();
 
-  const loadData = async () => {
-    if (!companyId) {
-      setIsLoading(false);
-      return;
-    }
-
-    try {
-      setIsLoading(true);
-      const response = await fetch(`/api/remitos?companyId=${companyId}`);
-      if (response.ok) {
-        const data = await response.json();
-        setRemitos(data || []);
-      }
-    } catch (error) {
-      console.error('Error loading remitos:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    loadData();
-  }, [companyId]);
-
-  // Función de eliminación con useCallback para evitar problemas de hoisting
-  const handleDeleteRemito = useCallback((remito: Remito) => {
-    handleDeleteRequest(remito.id, `Remito #${remito.number}`);
-  }, [handleDeleteRequest]);
-
-  const handlePrintRemito = useCallback((remito: Remito) => {
-    window.open(`/remitos/${remito.id}/print`, '_blank');
-  }, []);
-
   // CRUD Table configuration
   const {
     tableConfig,
@@ -137,67 +104,162 @@ function RemitosContentFixed() {
     searchPlaceholder: "Buscar remitos..."
   });
 
-  const handleStatusChange = async (remitoId: string, newStatusId: string) => {
-    try {
-      await updateStatus(remitoId, newStatusId);
-      await loadData();
-    } catch (error) {
-      console.error('Error updating status:', error);
+  const loadData = async () => {
+    if (!companyId) {
+      setIsLoading(false);
+      return;
     }
+
+    try {
+      setIsLoading(true);
+      
+      const remitosRes = await fetch(`/api/remitos?companyId=${companyId}`);
+
+      if (!remitosRes.ok) {
+        throw new Error('Error al cargar los datos');
+      }
+
+      const remitosData = await remitosRes.json();
+      setRemitos(remitosData);
+    } catch (error) {
+      console.error('Error loading data:', error);
+      showError("Error", "No se pudieron cargar los remitos");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadData();
+  }, [companyId]);
+
+  const handleStatusChange = async (remitoId: string, newStatusId: string) => {
+    const newStatus = estadosActivos?.find(estado => estado.id === newStatusId);
+    if (!newStatus) {
+      showError("Error", "Estado no encontrado");
+      return;
+    }
+
+    const updateFunction = async (id: string, statusId: string) => {
+      const response = await fetch(`/api/remitos/${id}/status`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: statusId }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Error al actualizar el estado');
+      }
+
+      // Actualizar el estado local
+      setRemitos(prevRemitos =>
+        prevRemitos.map(remito => {
+          if (remito.id === id) {
+            const status = estadosActivos?.find(estado => estado.id === statusId);
+        return { 
+              ...remito,
+              status: status ? {
+                id: status.id,
+                name: status.name,
+                color: status.color
+              } : remito.status
+            };
+          }
+          return remito;
+        })
+      );
+
+      // Recargar los datos para reflejar el cambio
+      await loadData();
+    };
+
+    await updateStatus(
+      remitoId,
+      newStatusId,
+      newStatus.name,
+      updateFunction,
+      {
+        onSuccess: (message) => showSuccess(message),
+        onError: (error) => showError("Error", error)
+      }
+    );
   };
 
   const handleDelete = async () => {
     if (!editingRemito) return;
-    
+
     try {
       const response = await fetch(`/api/remitos/${editingRemito.id}`, {
-        method: 'DELETE'
+        method: 'DELETE',
       });
-      
-      if (response.ok) {
-        handleCancelDelete();
-        showSuccess("Remito eliminado correctamente");
-        await loadData();
-      } else {
-        throw new Error('Error al eliminar remito');
+
+      if (!response.ok) {
+        throw new Error('Error al eliminar el remito');
       }
-    } catch (error: any) {
+
+      await loadData();
       handleCancelDelete();
-      showError("Error", error instanceof Error ? error.message : "Error al eliminar remito");
+      showSuccess("Remito eliminado correctamente");
+    } catch (error: any) {
+      console.error('Error deleting remito:', error);
+      handleCancelDelete();
+      showError("Error", error.message);
     }
   };
 
   const handleSubmit = async (data: any) => {
+    if (!companyId) return;
+
     setIsSubmitting(true);
     try {
       const url = editingRemito ? `/api/remitos/${editingRemito.id}` : '/api/remitos';
       const method = editingRemito ? 'PUT' : 'POST';
-      
+
       const response = await fetch(url, {
         method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...data, companyId })
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...data,
+          companyId: companyId
+        }),
       });
 
-      if (response.ok) {
-        handleCloseForm();
-        showSuccess(editingRemito ? "Remito actualizado correctamente" : "Remito creado correctamente");
-        await loadData();
-        
-        // Si es un nuevo remito, abrir la página de impresión
-        if (!editingRemito) {
-          const newRemito = await response.json();
-          window.open(`/remitos/${newRemito.id}/print`, '_blank');
-        }
-      } else {
-        throw new Error('Error al guardar remito');
+      if (!response.ok) {
+        throw new Error('Error al guardar el remito');
+      }
+
+      const result = await response.json();
+      await loadData();
+      handleCloseForm();
+      showSuccess(editingRemito ? "Remito actualizado correctamente" : "Remito creado correctamente");
+      
+      // Abrir impresión automáticamente después de crear un nuevo remito
+      if (!editingRemito && result.id) {
+        setTimeout(() => {
+          window.open(`/remitos/${result.id}/print`, '_blank');
+        }, 1000);
       }
     } catch (error: any) {
-      showError("Error", error instanceof Error ? error.message : "Error al guardar remito");
+      console.error('Error saving remito:', error);
+      showError("Error al guardar el remito", error.message);
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  const handlePrintRemito = useCallback((remito: Remito) => {
+    window.open(`/remitos/${remito.id}/print`, '_blank');
+  }, []);
+
+  // Función de eliminación con useCallback para evitar problemas de hoisting
+  const handleDeleteRemito = useCallback((remito: Remito) => {
+    handleDeleteRequest(remito.id, `Remito #${remito.number}`);
+  }, [handleDeleteRequest]);
 
   // Lógica simplificada: mostrar contenido si hay companyId o si es SUPERADMIN sin impersonar
   const needsCompanySelection = !companyId && currentUser?.role === "SUPERADMIN";
@@ -208,30 +270,32 @@ function RemitosContentFixed() {
       key: 'number',
       label: 'Número',
       render: (remito) => (
-        <div>
-          <div className="font-medium">#{remito.number}</div>
-          <div className="text-sm text-gray-500">
-            {new Date(remito.createdAt).toLocaleDateString('es-AR', {
-              year: 'numeric',
-              month: '2-digit',
-              day: '2-digit',
-              hour: '2-digit',
-              minute: '2-digit'
-            })}
-          </div>
-        </div>
+        <div className="remito-info">
+          <div className="remito-number">{remito.number}</div>
+              </div>
       )
+    },
+    {
+      key: 'createdAt',
+      label: 'Fecha',
+      render: (remito) => formatDate(remito.createdAt)
     },
     {
       key: 'client',
       label: 'Cliente',
       render: (remito) => (
-        <div>
-          <div className="font-medium">{remito.client.name}</div>
-          {remito.client.email && (
-            <div className="text-sm text-gray-500">{remito.client.email}</div>
-          )}
-        </div>
+        <div className="client-info">
+          <div className="client-name">{remito.client.name}</div>
+              </div>
+      )
+    },
+    {
+      key: 'clientEmail',
+      label: 'Email',
+      render: (remito) => (
+        <div className="client-email">
+          {remito.client.email || <span className="text-gray-400">Sin email</span>}
+              </div>
       )
     },
     {
@@ -242,58 +306,69 @@ function RemitosContentFixed() {
           value={remito.status.id}
           onChange={(e) => handleStatusChange(remito.id, e.target.value)}
           className="status-select"
+          style={{ 
+            backgroundColor: remito.status.color + '20',
+            borderColor: remito.status.color,
+            color: remito.status.color
+          }}
         >
-          {estadosActivos?.map((estado) => (
+          {estadosActivos?.map(estado => (
             <option key={estado.id} value={estado.id}>
               {estado.name}
             </option>
-          ))}
+          )) || []}
         </select>
       )
     },
     {
       key: 'total',
       label: 'Total',
-      render: (remito) => `$${remito.total.toFixed(2)}`
+      render: (remito) => `$${(Number(remito.total) || 0).toFixed(2)}`
     }
   ];
 
-  if (!session) {
-    return <div className="loading">Cargando...</div>;
+  if (isLoading) {
+    return (
+      <main className="main-content">
+        <div className="loading">Cargando remitos...</div>
+      </main>
+    );
   }
 
   return (
     <main className="main-content">
-      <div className="page-container">
-        <div className="page-header">
-          <h1>Gestión de Remitos</h1>
-          <h2>Administra los remitos de la empresa</h2>
-        </div>
+      <section className="form-section">
+        <h2>Gestión de Remitos</h2>
 
+        {/* Formulario */}
+        <RemitoFormComplete
+          isOpen={showForm}
+          onClose={handleCloseForm}
+          onSubmit={handleSubmit}
+          isSubmitting={isSubmitting}
+          editingRemito={editingRemito}
+          clients={clients}
+          products={products}
+          estados={estadosActivos}
+        />
+        
         {/* Filtros adicionales */}
         <div className="category-filter-wrapper" style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1rem' }}>
           {shouldShowCompanySelector && empresas.length > 0 && (
-            <FilterableSelect
+                    <FilterableSelect
               options={empresas}
               value={selectedCompanyId}
               onChange={setSelectedCompanyId}
               placeholder="Seleccionar empresa"
-              searchFields={["name"]}
+                      searchFields={["name"]}
               className="w-64"
             />
           )}
-        </div>
+              </div>
 
-        {/* Contenido principal */}
-        {needsCompanySelection ? (
-          <div className="empty-state">
-            <FileText className="empty-icon" />
-            <h3>Selecciona una empresa</h3>
-            <p>Para ver los remitos, primero selecciona una empresa.</p>
-          </div>
-        ) : (
+        {/* DataTable con paginación */}
+        {!needsCompanySelection && (
           <>
-            {/* DataTable con paginación */}
             <DataTable
               {...tableConfig}
               columns={columns}
@@ -304,25 +379,13 @@ function RemitosContentFixed() {
           </>
         )}
 
-        {/* Formulario de remito */}
-        <RemitoFormComplete
-          isOpen={showForm}
-          onClose={handleCloseForm}
-          onSubmit={handleSubmit}
-          isSubmitting={isSubmitting}
-          editingRemito={editingRemito}
-          clients={clients || []}
-          products={products || []}
-          estados={estadosActivos || []}
-        />
-
         {/* Modal de confirmación de eliminación */}
         <DeleteConfirmModal
-          isOpen={!!showDeleteConfirm}
+          isOpen={showDeleteConfirm}
           onClose={handleCancelDelete}
           onConfirm={handleDelete}
           title="Eliminar Remito"
-          message={`¿Estás seguro de que deseas eliminar el remito "${showDeleteConfirm?.name}"?`}
+          message={`¿Estás seguro de que deseas eliminar el remito "${editingRemito?.number}"?`}
         />
 
         {/* Modal de mensajes */}
@@ -334,12 +397,13 @@ function RemitosContentFixed() {
           message={modalState.message}
           details={modalState.details}
         />
-      </div>
+
+      </section>
     </main>
   );
 }
 
-export default function RemitosPageFixed() {
+export default function RemitosPage() {
   return (
     <Suspense fallback={
       <main className="main-content">
@@ -348,7 +412,7 @@ export default function RemitosPageFixed() {
         </div>
       </main>
     }>
-      <RemitosContentFixed />
+      <RemitosContent />
     </Suspense>
   );
 }
