@@ -19,6 +19,7 @@ import { useDataWithCompanySimple } from "@/hooks/useDataWithCompanySimple";
 import { DataTable, type DataTableColumn } from "@/components/common/DataTable";
 import { useCRUDTable } from "@/hooks/useCRUDTable";
 import { Pagination } from "@/components/common/Pagination";
+import { FilterableSelect } from "@/components/common/FilterableSelect";
 
 interface Product {
   id: string;
@@ -53,6 +54,7 @@ function ProductosContentFixed() {
   const [productos, setProductos] = useState<Product[]>([]);
   const [categorias, setCategorias] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
   const { empresas } = useEmpresas();
 
   // CRUD State Management
@@ -109,22 +111,19 @@ function ProductosContentFixed() {
     loadData();
   }, [companyId]);
 
+  // Filtrar productos por categoría
+  const filteredProductos = selectedCategoryId 
+    ? productos.filter(producto => producto.category?.id === selectedCategoryId)
+    : productos;
+
   // Función de eliminación
   const handleDeleteProduct = (producto: Product) => {
-    console.log('handleDeleteProduct called with:', producto);
-    console.log('Product ID:', producto.id, 'Type:', typeof producto.id);
-    console.log('Product name:', producto.name, 'Type:', typeof producto.name);
-    
     if (!producto.id || typeof producto.id !== 'string') {
-      console.error('Invalid product ID:', producto.id);
       showError("Error", "ID de producto inválido");
       return;
     }
     
-    // Asegurar que el nombre no sea undefined
     const productName = producto.name || 'Producto sin nombre';
-    console.log('Calling handleDeleteRequest with:', { id: producto.id, name: productName });
-    
     handleDeleteRequest(producto.id, productName);
   };
 
@@ -133,18 +132,14 @@ function ProductosContentFixed() {
     tableConfig,
     paginationConfig
   } = useCRUDTable({
-    data: productos,
+    data: filteredProductos,
     loading: isLoading,
     searchFields: ['name', 'description'],
     itemsPerPage: 10,
     onEdit: handleEditProduct,
     onDelete: handleDeleteProduct,
     onNew: handleNewProduct,
-    getItemId: (product) => {
-      console.log('getItemId called with product:', product);
-      console.log('Product ID:', product.id, 'Type:', typeof product.id);
-      return product.id;
-    },
+    getItemId: (product) => product.id,
     emptyMessage: "No hay productos",
     emptySubMessage: "Comienza creando un nuevo producto.",
     emptyIcon: <Package className="empty-icon" />,
@@ -181,16 +176,13 @@ function ProductosContentFixed() {
   const handleDelete = async () => {
     if (!showDeleteConfirm) return;
     
-    // Validar que el ID sea válido
     if (!showDeleteConfirm.id || typeof showDeleteConfirm.id !== 'string') {
-      console.error('Invalid product ID for deletion:', showDeleteConfirm);
       showError("Error", "ID de producto inválido para eliminación");
       handleCancelDelete();
       return;
     }
     
     try {
-      console.log('Deleting product with ID:', showDeleteConfirm.id);
       const response = await fetch(`/api/products/${showDeleteConfirm.id}`, {
         method: 'DELETE'
       });
@@ -337,7 +329,7 @@ function ProductosContentFixed() {
           <h2>Gestión de Productos</h2>
           
           {/* Filtros adicionales */}
-          <div className="category-filter-wrapper" style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1rem' }}>
+          <div className="filters-wrapper" style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap' }}>
             {shouldShowCompanySelector && empresas.length > 0 && (
               <FilterableSelect
                 options={empresas}
@@ -348,6 +340,18 @@ function ProductosContentFixed() {
                 className="w-64"
               />
             )}
+            
+            <FilterableSelect
+              options={[
+                { id: "", name: "Todas las categorías" },
+                ...categorias
+              ]}
+              value={selectedCategoryId}
+              onChange={setSelectedCategoryId}
+              placeholder="Filtrar por categoría"
+              searchFields={["name"]}
+              className="w-64"
+            />
           </div>
 
           {/* DataTable con paginación */}
