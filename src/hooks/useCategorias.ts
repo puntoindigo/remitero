@@ -55,7 +55,7 @@ export function useCategorias(companyId?: string) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
           name: data.name,
-          companyId: currentUser?.companyId
+          companyId: companyId
         }),
       });
 
@@ -81,7 +81,7 @@ export function useCategorias(companyId?: string) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
           name: data.name,
-          companyId: currentUser?.companyId
+          companyId: companyId
         }),
       });
 
