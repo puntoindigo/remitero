@@ -52,14 +52,7 @@ export function useClientes(companyId?: string) {
   const loadClientes = async () => {
     const effectiveCompanyId = getEffectiveCompanyId();
     
-    console.log('useClientes loadClientes:', {
-      effectiveCompanyId,
-      companyId,
-      currentUser: currentUser ? { id: currentUser.id, role: currentUser.role, companyId: currentUser.companyId, impersonating: currentUser.impersonating } : null
-    });
-    
     if (!effectiveCompanyId) {
-      console.log('useClientes: No effectiveCompanyId, setting loading to false');
       setClientes([]);
       setIsLoading(false);
       return;
@@ -69,14 +62,12 @@ export function useClientes(companyId?: string) {
       setIsLoading(true);
       setError(null);
       
-      console.log('useClientes: Fetching clients for companyId:', effectiveCompanyId);
       const response = await fetch(`/api/clients?companyId=${effectiveCompanyId}`);
       if (!response.ok) {
         throw new Error("Error al cargar clientes");
       }
       
       const data = await response.json();
-      console.log('useClientes: Received data:', data);
       setClientes(data || []);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error desconocido");
@@ -109,7 +100,7 @@ export function useClientes(companyId?: string) {
       }
 
       const newCliente = await response.json();
-      setClientes(prev => [...prev, newCliente]);
+      setClientes(prev => [newCliente, ...prev]);
       return newCliente;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Error al crear cliente";

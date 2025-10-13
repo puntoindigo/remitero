@@ -92,11 +92,12 @@ export function ClienteForm({
     >
       <div className="form-row">
         <div className="form-group">
-          <label>Nombre del cliente *</label>
+          <label className="form-label-large">Nombre del cliente *</label>
           <input
             {...register("name")}
             type="text"
             placeholder="Ingresa el nombre del cliente"
+            className="form-input-standard"
           />
           {errors.name && (
             <p className="error-message">{errors.name.message}</p>
@@ -104,11 +105,12 @@ export function ClienteForm({
         </div>
 
         <div className="form-group">
-          <label>Email</label>
+          <label className="form-label-large">Email</label>
           <input
             {...register("email")}
             type="email"
             placeholder="cliente@email.com"
+            className="form-input-standard"
           />
           {errors.email && (
             <p className="error-message">{errors.email.message}</p>
@@ -118,11 +120,12 @@ export function ClienteForm({
 
       <div className="form-row">
         <div className="form-group">
-          <label>Teléfono</label>
+          <label className="form-label-large">Teléfono</label>
           <input
             {...register("phone")}
             type="tel"
             placeholder="+54 11 1234-5678"
+            className="form-input-standard"
           />
           {errors.phone && (
             <p className="error-message">{errors.phone.message}</p>
@@ -130,11 +133,12 @@ export function ClienteForm({
         </div>
 
         <div className="form-group">
-          <label>Dirección</label>
+          <label className="form-label-large">Dirección</label>
           <input
             {...register("address")}
             type="text"
             placeholder="Corrientes 1234, Rosario"
+            className="form-input-standard"
           />
           {errors.address && (
             <p className="error-message">{errors.address.message}</p>
