@@ -246,8 +246,47 @@ function ProductosContentFixed() {
 
   return (
     <main className="main-content">
-      <div className="px-4 py-6 sm:px-0">
-        {/* Formulario */}
+      <div className="page-container">
+        <div className="page-header">
+          <h1>Gestión de Productos</h1>
+          <h2>Administra los productos de la empresa</h2>
+        </div>
+
+        {/* Filtros adicionales */}
+        <div className="category-filter-wrapper" style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1rem' }}>
+          {shouldShowCompanySelector && empresas.length > 0 && (
+            <FilterableSelect
+              options={empresas}
+              value={selectedCompanyId}
+              onChange={setSelectedCompanyId}
+              placeholder="Seleccionar empresa"
+              searchFields={["name"]}
+              className="w-64"
+            />
+          )}
+        </div>
+
+        {/* Contenido principal */}
+        {needsCompanySelection ? (
+          <div className="empty-state">
+            <Package className="empty-icon" />
+            <h3>Selecciona una empresa</h3>
+            <p>Para ver los productos, primero selecciona una empresa.</p>
+          </div>
+        ) : (
+          <>
+            {/* DataTable con paginación */}
+            <DataTable
+              {...tableConfig}
+              columns={columns}
+              showSearch={true}
+              showNewButton={true}
+            />
+            <Pagination {...paginationConfig} />
+          </>
+        )}
+
+        {/* Formulario de producto */}
         <ProductoForm
           isOpen={showForm}
           onClose={handleCloseForm}
@@ -256,36 +295,6 @@ function ProductosContentFixed() {
           editingProduct={editingProduct}
           categories={categorias}
         />
-
-        <div className="form-section">
-          <h2>Gestión de Productos</h2>
-          
-          {/* Filtros adicionales */}
-          <div className="category-filter-wrapper" style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1rem' }}>
-            {shouldShowCompanySelector && empresas.length > 0 && (
-              <FilterableSelect
-                options={empresas}
-                value={selectedCompanyId}
-                onChange={setSelectedCompanyId}
-                placeholder="Seleccionar empresa"
-                searchFields={["name"]}
-                className="w-64"
-              />
-            )}
-          </div>
-
-          {/* DataTable con paginación */}
-          <DataTable
-            {...tableConfig}
-            columns={columns}
-            showSearch={true}
-            showNewButton={true}
-            onEdit={(producto) => handleEditProduct(producto)}
-            onDelete={(producto) => handleDeleteRequest(producto)}
-            actionsColumnLabel="Acciones"
-          />
-          <Pagination {...paginationConfig} />
-        </div>
 
         {/* Modal de confirmación de eliminación */}
         <DeleteConfirmModal

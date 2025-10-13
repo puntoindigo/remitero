@@ -173,153 +173,151 @@ function EstadosRemitosContent() {
 
   if (estadosLoading) {
     return (
-      <div className="estados-remitos-container">
-        <div className="estados-remitos-header">
+      <main className="main-content">
+        <div className="form-section">
           <div className="loading">Cargando estados...</div>
         </div>
-      </div>
+      </main>
     );
   }
 
   if (estadosError) {
     return (
-      <div className="estados-remitos-container">
-        <div className="estados-remitos-header">
+      <main className="main-content">
+        <div className="form-section">
           <div className="error-message">
             Error al cargar los estados: {estadosError}
           </div>
         </div>
-      </div>
+      </main>
     );
   }
 
   return (
-    <div className="estados-remitos-container">
-      <div className="estados-remitos-header">
-        <div>
-          <h1>Gestión de Estados de Remitos</h1>
-          <p>Administra los estados disponibles para los remitos</p>
-        </div>
-      </div>
-
-      {/* Formulario Modal */}
-      {showForm && (
-        <div className="estados-modal-overlay">
-          <div className="estados-modal">
-            <h2>{editingEstado ? 'Editar Estado' : 'Nuevo Estado'}</h2>
-            <form onSubmit={(e) => {
-              e.preventDefault();
-              const formData = new FormData(e.currentTarget);
-              const data: EstadoRemitoFormData = {
-                name: formData.get('name') as string,
-                description: formData.get('description') as string,
-                color: formData.get('color') as string,
-                is_active: formData.get('isActive') === 'on'
-              };
-              onSubmit(data);
-            }}>
-              <div className="estados-form-row">
+    <main className="main-content">
+      <div className="px-4 py-6 sm:px-0">
+        {/* Formulario Modal */}
+        {showForm && (
+          <div className="estados-modal-overlay">
+            <div className="estados-modal">
+              <h2>{editingEstado ? 'Editar Estado' : 'Nuevo Estado'}</h2>
+              <form onSubmit={(e) => {
+                e.preventDefault();
+                const formData = new FormData(e.currentTarget);
+                const data: EstadoRemitoFormData = {
+                  name: formData.get('name') as string,
+                  description: formData.get('description') as string,
+                  color: formData.get('color') as string,
+                  is_active: formData.get('isActive') === 'on'
+                };
+                onSubmit(data);
+              }}>
+                <div className="estados-form-row">
+                  <div className="estados-form-group">
+                    <label htmlFor="name">Nombre *</label>
+                    <input
+                      type="text"
+                      id="name"
+                      name="name"
+                      defaultValue={editingEstado?.name || ''}
+                      required
+                      placeholder="Ej: Enviado, Entregado, Cancelado"
+                    />
+                  </div>
+                  <div className="estados-form-group">
+                    <label htmlFor="color">Color *</label>
+                    <input
+                      type="color"
+                      id="color"
+                      name="color"
+                      defaultValue={editingEstado?.color || '#3b82f6'}
+                      required
+                    />
+                  </div>
+                </div>
                 <div className="estados-form-group">
-                  <label htmlFor="name">Nombre *</label>
-                  <input
-                    type="text"
-                    id="name"
-                    name="name"
-                    defaultValue={editingEstado?.name || ''}
-                    required
-                    placeholder="Ej: Enviado, Entregado, Cancelado"
+                  <label htmlFor="description">Descripción</label>
+                  <textarea
+                    id="description"
+                    name="description"
+                    defaultValue={editingEstado?.description || ''}
+                    placeholder="Descripción opcional del estado"
+                    rows={3}
                   />
                 </div>
                 <div className="estados-form-group">
-                  <label htmlFor="color">Color *</label>
-                  <input
-                    type="color"
-                    id="color"
-                    name="color"
-                    defaultValue={editingEstado?.color || '#3b82f6'}
-                    required
-                  />
+                  <label className="checkbox-label">
+                    <input
+                      type="checkbox"
+                      name="isActive"
+                      defaultChecked={editingEstado?.is_active !== false}
+                    />
+                    Estado activo
+                  </label>
                 </div>
-              </div>
-              <div className="estados-form-group">
-                <label htmlFor="description">Descripción</label>
-                <textarea
-                  id="description"
-                  name="description"
-                  defaultValue={editingEstado?.description || ''}
-                  placeholder="Descripción opcional del estado"
-                  rows={3}
-                />
-              </div>
-              <div className="estados-form-group">
-                <label className="checkbox-label">
-                  <input
-                    type="checkbox"
-                    name="isActive"
-                    defaultChecked={editingEstado?.is_active !== false}
-                  />
-                  Estado activo
-                </label>
-              </div>
-              <div className="estados-modal-actions">
-                <button type="button" onClick={handleCloseForm}>
-                  Cancelar
-                </button>
-                <button type="submit" className="submit" disabled={isSubmitting}>
-                  {isSubmitting ? 'Guardando...' : (editingEstado ? 'Actualizar' : 'Crear')}
-                </button>
-              </div>
-            </form>
+                <div className="estados-modal-actions">
+                  <button type="button" onClick={handleCloseForm}>
+                    Cancelar
+                  </button>
+                  <button type="submit" className="submit" disabled={isSubmitting}>
+                    {isSubmitting ? 'Guardando...' : (editingEstado ? 'Actualizar' : 'Crear')}
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
-        </div>
-      )}
-
-      {/* Filtros adicionales */}
-      <div className="category-filter-wrapper" style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1rem' }}>
-        {shouldShowCompanySelector && empresas.length > 0 && (
-          <FilterableSelect
-            options={empresas}
-            value={selectedCompanyId}
-            onChange={setSelectedCompanyId}
-            placeholder="Seleccionar empresa"
-            searchFields={["name"]}
-            className="w-64"
-          />
         )}
-      </div>
 
-      {/* DataTable con paginación */}
-      {!needsCompanySelection && (
-        <>
+        <div className="form-section">
+          <h2>Gestión de Estados de Remitos</h2>
+          
+          {/* Filtros adicionales */}
+          <div className="category-filter-wrapper" style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1rem' }}>
+            {shouldShowCompanySelector && empresas.length > 0 && (
+              <FilterableSelect
+                options={empresas}
+                value={selectedCompanyId}
+                onChange={setSelectedCompanyId}
+                placeholder="Seleccionar empresa"
+                searchFields={["name"]}
+                className="w-64"
+              />
+            )}
+          </div>
+
+          {/* DataTable con paginación */}
           <DataTable
             {...tableConfig}
             columns={columns}
             showSearch={true}
-            showNewButton={false} // Ya tenemos el botón arriba
+            showNewButton={true}
+            onEdit={(estado) => handleEditEstado(estado)}
+            onDelete={(estado) => handleDeleteRequest(estado)}
+            actionsColumnLabel="Acciones"
           />
           <Pagination {...paginationConfig} />
-        </>
-      )}
+        </div>
 
-      {/* Modal de confirmación de eliminación */}
-      <DeleteConfirmModal
-        isOpen={!!showDeleteConfirm}
-        onClose={handleCancelDelete}
-        onConfirm={handleDelete}
-        title="Eliminar Estado"
-        message={`¿Estás seguro de que deseas eliminar el estado "${showDeleteConfirm?.name}"?`}
-      />
+        {/* Modal de confirmación de eliminación */}
+        <DeleteConfirmModal
+          isOpen={!!showDeleteConfirm}
+          onClose={handleCancelDelete}
+          onConfirm={handleDelete}
+          title="Eliminar Estado"
+          message={`¿Estás seguro de que deseas eliminar el estado "${showDeleteConfirm?.name}"?`}
+        />
 
-      {/* Modal de mensajes */}
-      <MessageModal
-        isOpen={modalState.isOpen}
-        onClose={closeModal}
-        type={modalState.type}
-        title={modalState.title}
-        message={modalState.message}
-        details={modalState.details}
-      />
-    </div>
+        {/* Modal de mensajes */}
+        <MessageModal
+          isOpen={modalState.isOpen}
+          onClose={closeModal}
+          type={modalState.type}
+          title={modalState.title}
+          message={modalState.message}
+          details={modalState.details}
+        />
+      </div>
+    </main>
   );
 }
 

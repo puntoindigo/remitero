@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useImpersonation } from "@/hooks/useImpersonation";
+import DeleteConfirmModal from "@/components/common/DeleteConfirmModal";
 
 export default function Header() {
   const { data: session } = useSession();
@@ -173,42 +174,13 @@ export default function Header() {
       </div>
 
       {/* Modal de confirmación de logout */}
-      {showLogoutConfirm && (
-        <div className="modal-overlay">
-          <div className="modal-content confirm-modal">
-            <div className="modal-header">
-              <h3>Confirmar Salida</h3>
-              <button 
-                onClick={handleCancelLogout}
-                className="modal-close"
-                type="button"
-              >
-                ×
-              </button>
-            </div>
-            <div className="modal-body">
-              <p>¿Estás seguro de que deseas cerrar sesión?</p>
-            </div>
-            <div className="modal-footer">
-              <button 
-                onClick={handleCancelLogout}
-                className="btn btn-secondary"
-                type="button"
-              >
-                Cancelar
-              </button>
-              <button 
-                onClick={handleLogout}
-                className="btn btn-danger"
-                type="button"
-              >
-                <LogOut className="h-4 w-4 mr-2" />
-                Cerrar Sesión
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <DeleteConfirmModal
+        isOpen={showLogoutConfirm}
+        onClose={handleCancelLogout}
+        onConfirm={handleLogout}
+        title="Confirmar Salida"
+        message="¿Estás seguro de que deseas cerrar sesión?"
+      />
     </header>
   );
 }

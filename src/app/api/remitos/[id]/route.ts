@@ -4,6 +4,96 @@ import { authOptions } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
 import { transformRemito } from "@/lib/utils/supabase-transform";
 
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const session = await getServerSession(authOptions);
+    
+    if (!session?.user) {
+      return NextResponse.json({ 
+        error: "No autorizado", 
+        message: "Sesión no encontrada. Por favor, inicia sesión." 
+      }, { status: 401 });
+    }
+
+    const remitoId = params.id;
+
+    // Obtener el remito con todas sus relaciones
+    const { data: remito, error } = await supabaseAdmin
+      .from('remitos')
+      .select(`
+        id,
+        number,
+        status,
+        status_at,
+        notes,
+        created_at,
+        updated_at,
+        company_id,
+        client_id,
+        created_by_id,
+        clients (
+          id,
+          name,
+          email,
+          phone,
+          address
+        ),
+        users (
+          id,
+          name,
+          email
+        ),
+        remito_items (
+          id,
+          product_id,
+          quantity,
+          product_name,
+          product_desc,
+          unit_price,
+          line_total,
+          products (
+            id,
+            name
+          )
+        ),
+        estados_remitos (
+          id,
+          name,
+          color,
+          is_active
+        )
+      `)
+      .eq('id', remitoId)
+      .single();
+
+    if (error || !remito) {
+      return NextResponse.json({ 
+        error: "Remito no encontrado",
+        message: "El remito especificado no existe."
+      }, { status: 404 });
+    }
+
+    // Verificar permisos: solo SUPERADMIN puede ver remitos de todas las empresas
+    if (session.user.role !== 'SUPERADMIN' && remito.company_id !== session.user.companyId) {
+      return NextResponse.json({ 
+        error: "No autorizado",
+        message: "No tienes permisos para ver este remito."
+      }, { status: 403 });
+    }
+
+    return NextResponse.json(transformRemito(remito));
+  } catch (error: any) {
+    console.error('Error in remitos GET:', error);
+    return NextResponse.json({ 
+      error: "Error interno del servidor",
+      message: "Ocurrió un error inesperado."
+    }, { status: 500 });
+  }
+}
+
 export async function PUT(
   request: NextRequest,
   { params }: { params: { id: string } }

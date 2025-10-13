@@ -177,16 +177,6 @@ function EmpresasContent() {
         />
         
         <div className="form-section">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-            <h3 style={{ margin: 0 }}>Lista de Empresas</h3>
-            {!showForm && (
-              <button onClick={handleNew} className="primary">
-                <Plus className="h-4 w-4 mr-2" />
-                Nueva Empresa
-              </button>
-            )}
-          </div>
-          
           {error && (
             <div className="error-message">
               {error}
@@ -198,6 +188,9 @@ function EmpresasContent() {
             columns={columns}
             showSearch={true}
             showNewButton={true}
+            onEdit={(empresa) => handleEdit(empresa)}
+            onDelete={(empresa) => handleDeleteRequest(empresa.id, empresa.name)}
+            actionsColumnLabel="Acciones"
           />
           <Pagination {...paginationConfig} />
         </div>
