@@ -110,6 +110,11 @@ function ProductosContentFixed() {
     loadData();
   }, [companyId]);
 
+  // Limpiar campo de búsqueda cuando cambie la empresa
+  useEffect(() => {
+    setSearchTerm('');
+  }, [companyId, setSearchTerm]);
+
   // Filtrar productos por categoría
   const filteredProductos = selectedCategoryId 
     ? productos.filter(producto => producto.category?.id === selectedCategoryId)
@@ -129,7 +134,9 @@ function ProductosContentFixed() {
   // CRUD Table configuration
   const {
     tableConfig,
-    paginationConfig
+    paginationConfig,
+    searchTerm,
+    setSearchTerm
   } = useCRUDTable({
     data: filteredProductos,
     loading: isLoading,
@@ -347,12 +354,12 @@ function ProductosContentFixed() {
               {/* DataTable con paginación */}
               <div className="data-table-with-filters">
                 <div className="search-and-filter-row" style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1rem' }}>
-                  <div className="search-field" style={{ flex: 1, position: 'relative' }}>
+                  <div className="search-field" style={{ width: '300px', position: 'relative' }}>
                     <input
                       type="text"
                       placeholder="Buscar productos..."
-                      value={tableConfig.searchValue || ''}
-                      onChange={(e) => tableConfig.onSearchChange?.(e.target.value)}
+                      value={searchTerm || ''}
+                      onChange={(e) => setSearchTerm(e.target.value)}
                       className="search-input"
                       style={{
                         width: '100%',
@@ -376,7 +383,7 @@ function ProductosContentFixed() {
                       </svg>
                     </div>
                   </div>
-                  <div className="category-filter" style={{ minWidth: '200px' }}>
+                  <div className="category-filter" style={{ width: '300px' }}>
                     <FilterableSelect
                       options={[
                         { id: "", name: "Todas las categorías" },
