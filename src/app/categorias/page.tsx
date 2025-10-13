@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, Suspense } from "react";
+import React, { useState, Suspense, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { Plus, Package } from "lucide-react";
 import { formatDate } from "@/lib/utils/formatters";
@@ -53,6 +53,11 @@ function CategoriasContent() {
     deleteCategoria 
   } = useCategorias(companyId || undefined);
 
+  // Función de eliminación con useCallback para evitar problemas de hoisting
+  const handleDeleteCategoria = useCallback((categoria: Categoria) => {
+    handleDeleteRequest(categoria.id, categoria.name);
+  }, [handleDeleteRequest]);
+
   // CRUD Table configuration
   const {
     tableConfig,
@@ -63,7 +68,7 @@ function CategoriasContent() {
     searchFields: ['name', 'description'],
     itemsPerPage: 10,
     onEdit: handleEdit,
-    onDelete: (categoria) => handleDeleteRequest(categoria.id, categoria.name),
+    onDelete: handleDeleteCategoria,
     onNew: handleNew,
     getItemId: (categoria) => categoria.id,
     emptyMessage: "No hay categorías",

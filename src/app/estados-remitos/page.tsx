@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, Suspense } from "react";
+import React, { useState, useEffect, Suspense, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { Plus, Tag, Edit, Trash2 } from "lucide-react";
 import FilterableSelect from "@/components/common/FilterableSelect";
@@ -74,6 +74,11 @@ function EstadosRemitosContent() {
     deleteEstado
   } = useEstadosRemitos(companyId || undefined);
 
+  // Función de eliminación con useCallback para evitar problemas de hoisting
+  const handleDeleteEstado = useCallback((estado: EstadoRemito) => {
+    handleDeleteRequest(estado.id, estado.name);
+  }, [handleDeleteRequest]);
+
   // CRUD Table configuration
   const {
     tableConfig,
@@ -84,7 +89,7 @@ function EstadosRemitosContent() {
     searchFields: ['name', 'description'],
     itemsPerPage: 10,
     onEdit: handleEditEstado,
-    onDelete: (estado) => handleDeleteRequest(estado.id, estado.name),
+    onDelete: handleDeleteEstado,
     onNew: handleNewEstado,
     getItemId: (estado) => estado.id,
     emptyMessage: "No hay estados de remitos",

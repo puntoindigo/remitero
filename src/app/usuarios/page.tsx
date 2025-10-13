@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, Suspense } from "react";
+import React, { useState, useEffect, Suspense, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 import { Plus, Users, Building2, Mail, Phone } from "lucide-react";
@@ -66,6 +66,11 @@ function UsuariosContent() {
     }
   }, [showForm, empresas.length, loadEmpresas]);
 
+  // Función de eliminación con useCallback para evitar problemas de hoisting
+  const handleDeleteUsuario = useCallback((usuario: Usuario) => {
+    handleDeleteRequest(usuario.id, usuario.name);
+  }, [handleDeleteRequest]);
+
   // CRUD Table configuration
   const {
     tableConfig,
@@ -76,7 +81,7 @@ function UsuariosContent() {
     searchFields: ['name', 'email', 'role'],
     itemsPerPage: 10,
     onEdit: handleEdit,
-    onDelete: (usuario) => handleDeleteRequest(usuario.id, usuario.name),
+    onDelete: handleDeleteUsuario,
     onNew: handleNew,
     getItemId: (usuario) => usuario.id,
     emptyMessage: "No hay usuarios",

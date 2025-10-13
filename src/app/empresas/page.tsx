@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, Suspense } from "react";
+import React, { useState, Suspense, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { Plus, Building2, Users } from "lucide-react";
 import { formatDate } from "@/lib/utils/formatters";
@@ -40,6 +40,11 @@ function EmpresasContent() {
     deleteEmpresa 
   } = useEmpresas();
 
+  // Función de eliminación con useCallback para evitar problemas de hoisting
+  const handleDeleteEmpresa = useCallback((empresa: Empresa) => {
+    handleDeleteRequest(empresa.id, empresa.name);
+  }, [handleDeleteRequest]);
+
   // CRUD Table configuration
   const {
     tableConfig,
@@ -50,7 +55,7 @@ function EmpresasContent() {
     searchFields: ['name'],
     itemsPerPage: 10,
     onEdit: handleEdit,
-    onDelete: (empresa) => handleDeleteRequest(empresa.id, empresa.name),
+    onDelete: handleDeleteEmpresa,
     onNew: handleNew,
     getItemId: (empresa) => empresa.id,
     emptyMessage: "No hay empresas",

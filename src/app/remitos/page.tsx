@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, Suspense } from "react";
+import React, { useState, useEffect, Suspense, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { Plus, FileText, Calendar, User, Package } from "lucide-react";
@@ -93,7 +93,7 @@ function RemitosContent() {
     searchFields: ['number', 'client.name'],
     itemsPerPage: 10,
     onEdit: handleEditRemito,
-    onDelete: (remito) => handleDeleteRequest(remito.id, `Remito #${remito.number}`),
+    onDelete: handleDeleteRemito,
     onPrint: handlePrintRemito,
     onNew: handleNewRemito,
     getItemId: (remito) => remito.id,
@@ -159,7 +159,7 @@ function RemitosContent() {
         prevRemitos.map(remito => {
           if (remito.id === id) {
             const status = estadosActivos?.find(estado => estado.id === statusId);
-            return {
+        return { 
               ...remito,
               status: status ? {
                 id: status.id,
@@ -252,9 +252,14 @@ function RemitosContent() {
     }
   };
 
-  const handlePrintRemito = (remito: Remito) => {
+  const handlePrintRemito = useCallback((remito: Remito) => {
     window.open(`/remitos/${remito.id}/print`, '_blank');
-  };
+  }, []);
+
+  // Función de eliminación con useCallback para evitar problemas de hoisting
+  const handleDeleteRemito = useCallback((remito: Remito) => {
+    handleDeleteRequest(remito.id, `Remito #${remito.number}`);
+  }, [handleDeleteRequest]);
 
   // Lógica simplificada: mostrar contenido si hay companyId o si es SUPERADMIN sin impersonar
   const needsCompanySelection = !companyId && currentUser?.role === "SUPERADMIN";
@@ -267,7 +272,7 @@ function RemitosContent() {
       render: (remito) => (
         <div className="remito-info">
           <div className="remito-number">{remito.number}</div>
-        </div>
+              </div>
       )
     },
     {
@@ -281,7 +286,7 @@ function RemitosContent() {
       render: (remito) => (
         <div className="client-info">
           <div className="client-name">{remito.client.name}</div>
-        </div>
+              </div>
       )
     },
     {
@@ -290,7 +295,7 @@ function RemitosContent() {
       render: (remito) => (
         <div className="client-email">
           {remito.client.email || <span className="text-gray-400">Sin email</span>}
-        </div>
+              </div>
       )
     },
     {
@@ -334,7 +339,7 @@ function RemitosContent() {
     <main className="main-content">
       <section className="form-section">
         <h2>Gestión de Remitos</h2>
-        
+
         {/* Formulario */}
         <RemitoFormComplete
           isOpen={showForm}
@@ -350,16 +355,16 @@ function RemitosContent() {
         {/* Filtros adicionales */}
         <div className="category-filter-wrapper" style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1rem' }}>
           {shouldShowCompanySelector && empresas.length > 0 && (
-            <FilterableSelect
+                    <FilterableSelect
               options={empresas}
               value={selectedCompanyId}
               onChange={setSelectedCompanyId}
               placeholder="Seleccionar empresa"
-              searchFields={["name"]}
+                      searchFields={["name"]}
               className="w-64"
             />
           )}
-        </div>
+              </div>
 
         {/* DataTable con paginación */}
         {!needsCompanySelection && (

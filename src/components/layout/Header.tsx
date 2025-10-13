@@ -175,7 +175,7 @@ export default function Header() {
       {/* Modal de confirmación de logout */}
       {showLogoutConfirm && (
         <div className="modal-overlay" style={{ zIndex: 10001 }}>
-          <div className="modal-content confirm-modal">
+          <div className="modal-content">
             <div className="modal-header">
               <h3>Confirmar Salida</h3>
               <button 
