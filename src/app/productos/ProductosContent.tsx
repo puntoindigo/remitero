@@ -357,7 +357,7 @@ function ProductosContentFixed() {
             showSearch={true}
             showNewButton={true}
             onEdit={(producto) => handleEditProduct(producto)}
-            onDelete={(producto) => handleDeleteRequest(producto)}
+            onDelete={handleDeleteProduct}
             actionsColumnLabel="Acciones"
           />
           <Pagination {...paginationConfig} />
