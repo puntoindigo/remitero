@@ -43,6 +43,7 @@ function ClientesContent() {
   const { modalState, showSuccess, showError, closeModal } = useMessageModal();
   
   const { empresas } = useEmpresas();
+  const [searchTerm, setSearchTerm] = useState('');
 
   const { 
     clientes, 
@@ -58,12 +59,22 @@ function ClientesContent() {
     handleDeleteRequest(cliente.id, cliente.name);
   }, [handleDeleteRequest]);
 
+  // Filtrar clientes por término de búsqueda
+  const filteredClientes = searchTerm 
+    ? (clientes || []).filter(cliente => 
+        cliente.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (cliente.email && cliente.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (cliente.phone && cliente.phone.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (cliente.address && cliente.address.toLowerCase().includes(searchTerm.toLowerCase()))
+      )
+    : (clientes || []);
+
   // CRUD Table configuration
   const {
     tableConfig,
     paginationConfig
   } = useCRUDTable({
-    data: clientes || [],
+    data: filteredClientes,
     loading: isLoading,
     searchFields: ['name', 'email', 'phone', 'address'],
     itemsPerPage: 10,
@@ -221,11 +232,68 @@ function ClientesContent() {
           {/* DataTable con paginación */}
           {shouldShowContent && (
             <>
+              <div style={{ marginBottom: '1rem' }}>
+                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                    <div style={{ width: '300px', position: 'relative' }}>
+                      <input
+                        type="text"
+                        placeholder="Buscar clientes..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="search-input"
+                        style={{
+                          width: '100%',
+                          padding: '0.5rem 0.5rem 0.5rem 2.5rem',
+                          border: '1px solid #d1d5db',
+                          borderRadius: '0.375rem',
+                          fontSize: '0.875rem',
+                          backgroundImage: 'none'
+                        }}
+                      />
+                      <div style={{
+                        position: 'absolute',
+                        left: '0.75rem',
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        color: '#9ca3af',
+                        pointerEvents: 'none'
+                      }}>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <circle cx="11" cy="11" r="8"></circle>
+                          <path d="m21 21-4.35-4.35"></path>
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+                  <button
+                    onClick={handleNew}
+                    className="new-button"
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.5rem',
+                      padding: '0.5rem 1rem',
+                      backgroundColor: '#3b82f6',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '0.375rem',
+                      cursor: 'pointer',
+                      fontSize: '0.875rem',
+                      fontWeight: '500'
+                    }}
+                  >
+                    <Plus className="h-4 w-4" />
+                    Nuevo Cliente
+                  </button>
+                </div>
+              </div>
+              
               <DataTable
                 {...tableConfig}
                 columns={columns}
-                showSearch={true} // Habilitar búsqueda
-                showNewButton={true} // Habilitar botón nuevo
+                showSearch={false} // Deshabilitar búsqueda del DataTable
+                showNewButton={false} // Deshabilitar botón nuevo del DataTable
               />
               <Pagination {...paginationConfig} />
             </>
