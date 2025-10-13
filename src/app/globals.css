@@ -3057,6 +3057,21 @@ form svg {
   background: transparent;
 }
 
+/* Asegurar que los números de páginas sean visibles */
+.pagination-number {
+  color: #374151 !important;
+  font-weight: 500;
+}
+
+.pagination-number:hover:not(:disabled) {
+  color: #1f2937 !important;
+}
+
+.pagination-number.active {
+  color: white !important;
+  font-weight: 600;
+}
+
 /* Badge styles for roles */
 .badge-superadmin {
   background: #dc2626;

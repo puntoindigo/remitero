@@ -353,48 +353,50 @@ function ProductosContentFixed() {
             <>
               {/* DataTable con paginación */}
               <div className="data-table-with-filters">
-                <div className="search-and-filter-row" style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1rem' }}>
-                  <div className="search-field" style={{ width: '300px', position: 'relative' }}>
-                    <input
-                      type="text"
-                      placeholder="Buscar productos..."
-                      value={searchTerm || ''}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="search-input"
-                      style={{
-                        width: '100%',
-                        padding: '0.5rem 0.5rem 0.5rem 2.5rem',
-                        border: '1px solid #d1d5db',
-                        borderRadius: '0.375rem',
-                        fontSize: '0.875rem'
-                      }}
-                    />
-                    <div style={{
-                      position: 'absolute',
-                      left: '0.75rem',
-                      top: '50%',
-                      transform: 'translateY(-50%)',
-                      color: '#9ca3af',
-                      pointerEvents: 'none'
-                    }}>
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <circle cx="11" cy="11" r="8"></circle>
-                        <path d="m21 21-4.35-4.35"></path>
-                      </svg>
+                <div className="search-and-filter-row" style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1rem', justifyContent: 'space-between' }}>
+                  <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                    <div className="search-field" style={{ width: '300px', position: 'relative' }}>
+                      <input
+                        type="text"
+                        placeholder="Buscar productos..."
+                        value={searchTerm || ''}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="search-input"
+                        style={{
+                          width: '100%',
+                          padding: '0.5rem 0.5rem 0.5rem 2.5rem',
+                          border: '1px solid #d1d5db',
+                          borderRadius: '0.375rem',
+                          fontSize: '0.875rem'
+                        }}
+                      />
+                      <div style={{
+                        position: 'absolute',
+                        left: '0.75rem',
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        color: '#9ca3af',
+                        pointerEvents: 'none'
+                      }}>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <circle cx="11" cy="11" r="8"></circle>
+                          <path d="m21 21-4.35-4.35"></path>
+                        </svg>
+                      </div>
                     </div>
-                  </div>
-                  <div className="category-filter" style={{ width: '300px' }}>
-                    <FilterableSelect
-                      options={[
-                        { id: "", name: "Todas las categorías" },
-                        ...categorias
-                      ]}
-                      value={selectedCategoryId}
-                      onChange={setSelectedCategoryId}
-                      placeholder="Filtrar por categoría"
-                      searchFields={["name"]}
-                      className="w-full"
-                    />
+                    <div className="category-filter" style={{ width: '300px' }}>
+                      <FilterableSelect
+                        options={[
+                          { id: "", name: "Todas las categorías" },
+                          ...categorias
+                        ]}
+                        value={selectedCategoryId}
+                        onChange={setSelectedCategoryId}
+                        placeholder="Filtrar por categoría"
+                        searchFields={["name"]}
+                        className="w-full"
+                      />
+                    </div>
                   </div>
                   {tableConfig.onNew && (
                     <button
