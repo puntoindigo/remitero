@@ -21,23 +21,17 @@ export function useEmpresas() {
       setIsLoading(true);
       setError(null);
       
-      console.log("Loading empresas...");
       const response = await fetch("/api/companies");
-      console.log("Response status:", response.status);
       
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error("Error response:", errorText);
         throw new Error(`Error al cargar empresas: ${response.status}`);
       }
       
       const data = await response.json();
-      console.log("Empresas loaded:", data);
       setEmpresas(data || []);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Error desconocido";
       setError(errorMessage);
-      console.error("Error loading empresas:", err);
     } finally {
       setIsLoading(false);
     }
@@ -113,12 +107,9 @@ export function useEmpresas() {
   };
 
   useEffect(() => {
-    console.log("useEmpresas useEffect - session:", session);
     if (session?.user?.role === "SUPERADMIN") {
-      console.log("Loading empresas for SUPERADMIN");
       loadEmpresas();
     } else if (session?.user) {
-      console.log("User is not SUPERADMIN, skipping empresas load");
       setIsLoading(false);
     }
   }, [session]);

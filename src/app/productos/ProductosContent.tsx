@@ -163,10 +163,18 @@ function ProductosContentSimple() {
                         <td>{new Date(producto.createdAt).toLocaleDateString('es-AR')}</td>
                         <td>
                           <div className="action-buttons">
-                            <button className="action-button edit-button" title="Editar">
+                            <button 
+                              className="action-button edit-button" 
+                              title="Editar"
+                              onClick={() => console.log('Editar producto:', producto.id)}
+                            >
                               ✏️
                             </button>
-                            <button className="action-button delete-button" title="Eliminar">
+                            <button 
+                              className="action-button delete-button" 
+                              title="Eliminar"
+                              onClick={() => console.log('Eliminar producto:', producto.id)}
+                            >
                               🗑️
                             </button>
                           </div>

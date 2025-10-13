@@ -1910,6 +1910,9 @@ form svg {
   width: 90%;
   max-height: 90vh;
   overflow-y: auto;
+  pointer-events: auto;
+  position: relative;
+  z-index: 10001;
 }
 
 /* Impersonation banner */
