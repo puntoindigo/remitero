@@ -63,14 +63,13 @@ export const useImpersonation = () => {
       // Remover datos de impersonation del localStorage
       localStorage.removeItem('impersonation');
       
-      showSuccess('Volviste a tu cuenta de administrador');
+      console.log('✅ Impersonation stopped successfully');
       
       // Redirigir a usuarios después de detener impersonation
       window.location.href = '/usuarios';
 
     } catch (error) {
       console.error('❌ Error al detener impersonation:', error);
-      showError(error instanceof Error ? error.message : 'Error al detener impersonation');
     } finally {
       setIsImpersonating(false);
     }
@@ -85,7 +84,11 @@ export const useImpersonation = () => {
   };
 
   const impersonationData = getImpersonationData();
-  const canImpersonate = ['ADMIN', 'SUPERADMIN'].includes(session?.user?.role || '') && !impersonationData?.isActive;
+  const canImpersonate = (usuario: any) => {
+    return ['ADMIN', 'SUPERADMIN'].includes(session?.user?.role || '') && 
+           !impersonationData?.isActive && 
+           usuario.id !== session?.user?.id;
+  };
   const isCurrentlyImpersonating = impersonationData?.isActive;
 
   return {
