@@ -23,21 +23,48 @@ export interface ProductoFormData {
   categoryId?: string;
 }
 
-export function useProductos() {
+export function useProductos(companyId?: string) {
   const { data: session } = useSession();
   const currentUser = useCurrentUser();
   const [productos, setProductos] = useState<Producto[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Determinar el companyId efectivo para las operaciones CRUD
+  const getEffectiveCompanyId = () => {
+    // Si se pasa companyId como parámetro (desde useDataWithCompany), usarlo
+    if (companyId) {
+      return companyId;
+    }
+    
+    // Si no hay companyId pasado, usar la lógica del usuario actual
+    const isImpersonating = currentUser?.impersonating !== null;
+    
+    if (isImpersonating) {
+      // Cuando impersono, uso el companyId del usuario impersonado
+      return currentUser?.companyId || null;
+    } else if (currentUser?.role === "SUPERADMIN") {
+      // SUPERADMIN sin impersonation: si no hay companyId seleccionado, no puede crear
+      return null;
+    } else {
+      // Usuario normal usa su companyId
+      return currentUser?.companyId || null;
+    }
+  };
+
   const loadProductos = async () => {
+    const effectiveCompanyId = getEffectiveCompanyId();
+    
+    if (!effectiveCompanyId) {
+      setIsLoading(false);
+      return;
+    }
+
     try {
       setIsLoading(true);
       setError(null);
       
-      // Pasar companyId del usuario actual (considerando impersonation)
-      const url = currentUser?.companyId ? `/api/products?companyId=${currentUser.companyId}` : "/api/products";
-      const response = await fetch(url);
+      const response = await fetch(`/api/products?companyId=${effectiveCompanyId}`);
       if (!response.ok) {
         throw new Error("Error al cargar productos");
       }
@@ -54,12 +81,18 @@ export function useProductos() {
 
   const createProducto = async (productoData: ProductoFormData) => {
     try {
+      const effectiveCompanyId = getEffectiveCompanyId();
+      
+      if (!effectiveCompanyId) {
+        throw new Error("No se puede crear el producto: CompanyId no disponible");
+      }
+
       const response = await fetch("/api/test-products", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...productoData,
-          companyId: currentUser?.companyId
+          companyId: effectiveCompanyId
         }),
       });
 
@@ -80,10 +113,19 @@ export function useProductos() {
 
   const updateProducto = async (id: string, productoData: ProductoFormData) => {
     try {
+      const effectiveCompanyId = getEffectiveCompanyId();
+      
+      if (!effectiveCompanyId) {
+        throw new Error("No se puede actualizar el producto: CompanyId no disponible");
+      }
+
       const response = await fetch(`/api/products/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(productoData),
+        body: JSON.stringify({
+          ...productoData,
+          companyId: effectiveCompanyId
+        }),
       });
 
       if (!response.ok) {

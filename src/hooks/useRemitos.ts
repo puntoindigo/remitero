@@ -39,21 +39,48 @@ export interface RemitoFormData {
   items: RemitoItem[];
 }
 
-export function useRemitos() {
+export function useRemitos(companyId?: string) {
   const { data: session } = useSession();
   const currentUser = useCurrentUser();
   const [remitos, setRemitos] = useState<Remito[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Determinar el companyId efectivo para las operaciones CRUD
+  const getEffectiveCompanyId = () => {
+    // Si se pasa companyId como parámetro (desde useDataWithCompany), usarlo
+    if (companyId) {
+      return companyId;
+    }
+    
+    // Si no hay companyId pasado, usar la lógica del usuario actual
+    const isImpersonating = currentUser?.impersonating !== null;
+    
+    if (isImpersonating) {
+      // Cuando impersono, uso el companyId del usuario impersonado
+      return currentUser?.companyId || null;
+    } else if (currentUser?.role === "SUPERADMIN") {
+      // SUPERADMIN sin impersonation: si no hay companyId seleccionado, no puede crear
+      return null;
+    } else {
+      // Usuario normal usa su companyId
+      return currentUser?.companyId || null;
+    }
+  };
+
   const loadRemitos = async () => {
+    const effectiveCompanyId = getEffectiveCompanyId();
+    
+    if (!effectiveCompanyId) {
+      setIsLoading(false);
+      return;
+    }
+
     try {
       setIsLoading(true);
       setError(null);
       
-      // Pasar companyId del usuario actual (considerando impersonation)
-      const url = currentUser?.companyId ? `/api/remitos?companyId=${currentUser.companyId}` : "/api/remitos";
-      const response = await fetch(url);
+      const response = await fetch(`/api/remitos?companyId=${effectiveCompanyId}`);
       if (!response.ok) {
         throw new Error("Error al cargar remitos");
       }
@@ -70,10 +97,19 @@ export function useRemitos() {
 
   const createRemito = async (remitoData: RemitoFormData) => {
     try {
+      const effectiveCompanyId = getEffectiveCompanyId();
+      
+      if (!effectiveCompanyId) {
+        throw new Error("No se puede crear el remito: CompanyId no disponible");
+      }
+
       const response = await fetch("/api/remitos", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(remitoData),
+        body: JSON.stringify({
+          ...remitoData,
+          companyId: effectiveCompanyId
+        }),
       });
 
       if (!response.ok) {

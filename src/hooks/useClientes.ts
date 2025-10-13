@@ -20,21 +20,48 @@ export interface ClienteFormData {
   address?: string;
 }
 
-export function useClientes() {
+export function useClientes(companyId?: string) {
   const { data: session } = useSession();
   const currentUser = useCurrentUser();
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Determinar el companyId efectivo para las operaciones CRUD
+  const getEffectiveCompanyId = () => {
+    // Si se pasa companyId como parámetro (desde useDataWithCompany), usarlo
+    if (companyId) {
+      return companyId;
+    }
+    
+    // Si no hay companyId pasado, usar la lógica del usuario actual
+    const isImpersonating = currentUser?.impersonating !== null;
+    
+    if (isImpersonating) {
+      // Cuando impersono, uso el companyId del usuario impersonado
+      return currentUser?.companyId || null;
+    } else if (currentUser?.role === "SUPERADMIN") {
+      // SUPERADMIN sin impersonation: si no hay companyId seleccionado, no puede crear
+      return null;
+    } else {
+      // Usuario normal usa su companyId
+      return currentUser?.companyId || null;
+    }
+  };
+
   const loadClientes = async () => {
+    const effectiveCompanyId = getEffectiveCompanyId();
+    
+    if (!effectiveCompanyId) {
+      setIsLoading(false);
+      return;
+    }
+
     try {
       setIsLoading(true);
       setError(null);
       
-      // Pasar companyId del usuario actual (considerando impersonation)
-      const url = currentUser?.companyId ? `/api/clients?companyId=${currentUser.companyId}` : "/api/clients";
-      const response = await fetch(url);
+      const response = await fetch(`/api/clients?companyId=${effectiveCompanyId}`);
       if (!response.ok) {
         throw new Error("Error al cargar clientes");
       }
@@ -51,12 +78,18 @@ export function useClientes() {
 
   const createCliente = async (clienteData: ClienteFormData) => {
     try {
+      const effectiveCompanyId = getEffectiveCompanyId();
+      
+      if (!effectiveCompanyId) {
+        throw new Error("No se puede crear el cliente: CompanyId no disponible");
+      }
+
       const response = await fetch("/api/clients", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...clienteData,
-          companyId: currentUser?.companyId
+          companyId: effectiveCompanyId
         }),
       });
 
@@ -77,12 +110,18 @@ export function useClientes() {
 
   const updateCliente = async (id: string, clienteData: ClienteFormData) => {
     try {
+      const effectiveCompanyId = getEffectiveCompanyId();
+      
+      if (!effectiveCompanyId) {
+        throw new Error("No se puede actualizar el cliente: CompanyId no disponible");
+      }
+
       const response = await fetch(`/api/clients/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...clienteData,
-          companyId: currentUser?.companyId
+          companyId: effectiveCompanyId
         }),
       });
 
