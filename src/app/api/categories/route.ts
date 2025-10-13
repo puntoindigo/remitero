@@ -95,7 +95,9 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { name, description, companyId } = body;
+    const { name, companyId } = body;
+
+    console.log('Creating category with:', { name, companyId, sessionUser: session.user });
 
     // Validaciones básicas
     if (!name) {
@@ -110,6 +112,17 @@ export async function POST(request: NextRequest) {
     if (session.user.role !== 'SUPERADMIN' && !companyId) {
       finalCompanyId = session.user.companyId;
     }
+
+    // Validar que tenemos un companyId válido
+    if (!finalCompanyId) {
+      console.log('No finalCompanyId found:', { companyId, sessionUserCompanyId: session.user.companyId, role: session.user.role });
+      return NextResponse.json({ 
+        error: "Datos faltantes", 
+        message: "CompanyId es requerido para crear la categoría." 
+      }, { status: 400 });
+    }
+
+    console.log('Final companyId:', finalCompanyId);
 
     // Verificar que no exista una categoría con el mismo nombre en la empresa
     const { data: existingCategory } = await supabaseAdmin
