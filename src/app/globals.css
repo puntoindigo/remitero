@@ -529,10 +529,11 @@ table th:last-child {
 }
 
 table td {
-  padding: 8px 12px;
-  font-size: 11px;
+  padding: 12px 16px;
+  font-size: 14px;
   border-bottom: 1px solid #f1f3f4;
   border-right: 1px solid #f1f3f4;
+  vertical-align: middle;
 }
 
 table td:last-child {
@@ -584,16 +585,17 @@ table tbody tr:last-child td {
 .action-buttons button,
 .action-buttons .btn-link {
   height: 32px;
+  width: 32px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 4px 8px;
-  font-size: 10px;
+  padding: 0;
+  font-size: 12px;
   font-weight: 600;
-  border-radius: 3px;
+  border-radius: 4px;
   transition: background-color 0.2s;
   text-decoration: none;
-  border: none;
+  border: 1px solid #d1d5db;
   cursor: pointer;
 }
 
@@ -601,6 +603,7 @@ table tbody tr:last-child td {
   width: 32px;
   height: 32px;
   padding: 0;
+  border: 1px solid #d1d5db;
 }
 
 .action-buttons .btn-link {
@@ -1014,7 +1017,8 @@ button svg,
 }
 
 /* Fix para iconos en tablas */
-table svg {
+table svg,
+.data-table svg {
   width: 16px !important;
   height: 16px !important;
   max-width: 16px !important;
@@ -2879,9 +2883,10 @@ form svg {
 }
 
 .data-table td {
-  padding: 0.75rem;
+  padding: 12px 16px;
   border-bottom: 1px solid #f3f4f6;
-  vertical-align: top;
+  vertical-align: middle;
+  font-size: 14px;
 }
 
 .data-table tr:hover {
@@ -2901,18 +2906,30 @@ form svg {
   display: flex;
   gap: 0.5rem;
   justify-content: center;
+  align-items: center;
 }
 
 .action-button {
-  padding: 0.375rem;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.2s;
-  display: flex;
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
+  padding: 0;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  background: white;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 12px;
 }
+
+.action-button:hover {
+  background: #f3f4f6;
+  color: #1f2937;
+}
+
 
 .edit-button {
   background: #f3f4f6;
@@ -2927,22 +2944,25 @@ form svg {
 .delete-button {
   background: #fef2f2;
   color: #dc2626;
+  border-color: #fecaca;
 }
 
 .delete-button:hover {
   background: #fee2e2;
   color: #b91c1c;
+  border-color: #fca5a5;
 }
 
 .print-button {
   background: #f0f9ff;
   color: #0369a1;
-  border: 1px solid #bae6fd;
+  border-color: #bae6fd;
 }
 
 .print-button:hover {
   background: #e0f2fe;
   color: #0c4a6e;
+  border-color: #7dd3fc;
 }
 
 /* Pagination Component Styles */
