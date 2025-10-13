@@ -110,11 +110,6 @@ function ProductosContentFixed() {
     loadData();
   }, [companyId]);
 
-  // Limpiar campo de búsqueda cuando cambie la empresa
-  useEffect(() => {
-    setSearchTerm('');
-  }, [companyId, setSearchTerm]);
-
   // Filtrar productos por categoría
   const filteredProductos = selectedCategoryId 
     ? productos.filter(producto => producto.category?.id === selectedCategoryId)
@@ -152,6 +147,11 @@ function ProductosContentFixed() {
     newButtonText: "Nuevo Producto",
     searchPlaceholder: "Buscar productos..."
   });
+
+  // Limpiar campo de búsqueda cuando cambie la empresa
+  useEffect(() => {
+    setSearchTerm('');
+  }, [companyId, setSearchTerm]);
 
   const handleStockChange = async (productId: string, newStock: string) => {
     try {
