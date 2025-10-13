@@ -367,7 +367,8 @@ function ProductosContentFixed() {
                           padding: '0.5rem 0.5rem 0.5rem 2.5rem',
                           border: '1px solid #d1d5db',
                           borderRadius: '0.375rem',
-                          fontSize: '0.875rem'
+                          fontSize: '0.875rem',
+                          backgroundImage: 'none' // Remover imagen de fondo para evitar lupas duplicadas
                         }}
                       />
                       <div style={{

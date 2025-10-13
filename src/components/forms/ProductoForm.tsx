@@ -88,11 +88,12 @@ export function ProductoForm({
     >
       <div className="form-row">
         <div className="form-group">
-          <label>Nombre del producto *</label>
+          <label className="form-label-large">Nombre del producto *</label>
           <input
             {...register("name")}
             type="text"
             placeholder="Ingresa el nombre del producto"
+            className="form-input-standard"
           />
           {errors.name && (
             <p className="error-message">{errors.name.message}</p>
@@ -100,15 +101,16 @@ export function ProductoForm({
         </div>
 
         <div className="form-group">
-          <label>Precio *</label>
-          <div className="price-input">
-            <span className="price-symbol">$</span>
+          <label className="form-label-large">Precio *</label>
+          <div className="price-input-standard">
+            <span className="price-symbol-standard">$</span>
             <input
               {...register("price", { valueAsNumber: true })}
               type="number"
               step="0.01"
               min="0"
               placeholder="0.00"
+              className="form-input-standard"
             />
           </div>
           {errors.price && (
@@ -119,7 +121,7 @@ export function ProductoForm({
 
       <div className="form-row">
         <div className="form-group">
-          <label>Categoría</label>
+          <label className="form-label-large">Categoría</label>
           <FilterableSelect
             options={[
               { id: "", name: "Sin categoría" },
@@ -129,12 +131,13 @@ export function ProductoForm({
             onChange={(value) => setValue("categoryId", value)}
             placeholder="Seleccionar categoría"
             searchFields={["name"]}
+            className="form-select-standard"
           />
         </div>
 
         <div className="form-group">
-          <label>Estado de stock</label>
-          <select {...register("stock")}>
+          <label className="form-label-large">Estado de stock</label>
+          <select {...register("stock")} className="form-select-standard">
             <option value="IN_STOCK">Con stock</option>
             <option value="OUT_OF_STOCK">Sin stock</option>
           </select>
@@ -142,11 +145,12 @@ export function ProductoForm({
       </div>
 
       <div className="form-group">
-        <label>Descripción</label>
+        <label className="form-label-large">Descripción</label>
         <textarea
           {...register("description")}
           placeholder="Descripción del producto (opcional)"
           rows={3}
+          className="form-textarea-standard"
         />
         {errors.description && (
           <p className="error-message">{errors.description.message}</p>
