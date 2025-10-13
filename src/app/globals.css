@@ -234,9 +234,11 @@ form, .form-section {
 .vercel-select-container {
   position: relative;
   width: 100%;
-  background: transparent;
-  border: none;
-  box-shadow: none;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
 }
 
 .vercel-select-trigger {
@@ -3175,6 +3177,28 @@ form svg {
   font-size: 14px !important;
   line-height: 20px !important;
   min-height: 48px !important;
+}
+
+/* Remover cualquier estilo de contenedor del FilterableSelect en formularios */
+.form-group .vercel-select-container {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+}
+
+.form-group .vercel-select-container * {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.form-group .vercel-select-trigger {
+  background: white !important;
+  border: 1px solid #d1d5db !important;
+  border-radius: 6px !important;
 }
 
 /* Badge styles for roles */
