@@ -111,11 +111,12 @@ export function UsuarioForm({
     >
       <div className="form-row">
         <div className="form-group">
-          <label>Nombre</label>
+          <label className="form-label-large">Nombre</label>
           <input
             {...register("name")}
             type="text"
             placeholder="Nombre del usuario"
+            className="form-input-standard"
           />
           {errors.name && (
             <p className="error-message">{errors.name.message}</p>
@@ -123,12 +124,13 @@ export function UsuarioForm({
         </div>
 
         <div className="form-group">
-          <label>Email</label>
+          <label className="form-label-large">Email</label>
           <input
             {...register("email")}
             type="email"
             placeholder="email@ejemplo.com"
             autoComplete="email"
+            className="form-input-standard"
           />
           {errors.email && (
             <p className="error-message">{errors.email.message}</p>
@@ -138,12 +140,13 @@ export function UsuarioForm({
 
       <div className="form-row">
         <div className="form-group">
-          <label>Contraseña {!editingUser && "*"}</label>
+          <label className="form-label-large">Contraseña {!editingUser && "*"}</label>
           <input
             {...register("password")}
             type="password"
             placeholder={editingUser ? "Dejar vacío para mantener la actual" : "Contraseña"}
             autoComplete={editingUser ? "new-password" : "new-password"}
+            className="form-input-standard"
           />
           {errors.password && (
             <p className="error-message">{errors.password.message}</p>
@@ -151,8 +154,8 @@ export function UsuarioForm({
         </div>
 
         <div className="form-group">
-          <label>Rol</label>
-          <select {...register("role")}>
+          <label className="form-label-large">Rol</label>
+          <select {...register("role")} className="form-select-standard">
             <option value="USER">Usuario</option>
             <option value="ADMIN">Administrador</option>
             {session?.user?.role === "SUPERADMIN" && <option value="SUPERADMIN">Super Admin</option>}
@@ -165,11 +168,12 @@ export function UsuarioForm({
 
       <div className="form-row">
         <div className="form-group">
-          <label>Teléfono</label>
+          <label className="form-label-large">Teléfono</label>
           <input
             {...register("phone")}
             type="tel"
             placeholder="+54 11 1234-5678"
+            className="form-input-standard"
           />
           {errors.phone && (
             <p className="error-message">{errors.phone.message}</p>
@@ -177,11 +181,12 @@ export function UsuarioForm({
         </div>
 
         <div className="form-group">
-          <label>Dirección</label>
+          <label className="form-label-large">Dirección</label>
           <input
             {...register("address")}
             type="text"
             placeholder="Corrientes 1234, Rosario"
+            className="form-input-standard"
           />
           {errors.address && (
             <p className="error-message">{errors.address.message}</p>
@@ -192,8 +197,8 @@ export function UsuarioForm({
       {session?.user?.role === "SUPERADMIN" && (
         <div className="form-row">
           <div className="form-group">
-            <label>Empresa</label>
-            <select {...register("companyId")}>
+            <label className="form-label-large">Empresa</label>
+            <select {...register("companyId")} className="form-select-standard">
               <option value="">Seleccionar Empresa</option>
               {companies.map((company) => (
                 <option key={company.id} value={company.id}>

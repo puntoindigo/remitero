@@ -144,13 +144,21 @@ function UsuariosContent() {
       render: (usuario) => (
         <div className="usuario-info">
           <div className="usuario-name">{usuario.name}</div>
-          {usuario.email && (
-            <div className="usuario-email text-sm text-gray-500">
-              <Mail className="h-3 w-3 inline mr-2" />
-              {usuario.email}
-            </div>
-          )}
         </div>
+      )
+    },
+    {
+      key: 'email',
+      label: 'Email',
+      render: (usuario) => (
+        usuario.email ? (
+          <div className="email-info">
+            <Mail className="h-3 w-3 inline" />
+            &nbsp;{usuario.email}
+          </div>
+        ) : (
+          <span className="text-gray-400">Sin email</span>
+        )
       )
     },
     {
@@ -158,7 +166,7 @@ function UsuariosContent() {
       label: 'Rol',
       render: (usuario) => (
         <span className={`badge ${usuario.role === 'SUPERADMIN' ? 'badge-superadmin' : 
-          usuario.role === 'ADMIN' ? 'badge-admin' : 'badge-user'}`}>
+          usuario.role === 'ADMIN' ? 'badge-admin' : 'badge-user'}`} style={{ padding: '4%' }}>
           {usuario.role}
         </span>
       )
@@ -169,8 +177,8 @@ function UsuariosContent() {
       render: (usuario) => (
         usuario.company ? (
           <div className="company-info">
-            <Building2 className="h-3 w-3 inline mr-2" />
-            {usuario.company.name}
+            <Building2 className="h-3 w-3 inline" />
+            &nbsp;{usuario.company.name}
           </div>
         ) : (
           <span className="text-gray-400">Sin empresa</span>
@@ -188,24 +196,6 @@ function UsuariosContent() {
         minute: '2-digit',
         hour12: false
       })
-    },
-    {
-      key: 'actions',
-      label: 'Acciones',
-      render: (usuario) => (
-        <div className="flex gap-2">
-          {canImpersonate(usuario) && (
-            <button
-              onClick={() => handleImpersonate(usuario)}
-              className="btn small primary"
-              title="Impersonar usuario"
-            >
-              <Users className="h-4 w-4 mr-2" />
-              Impersonar
-            </button>
-          )}
-        </div>
-      )
     }
   ];
 
@@ -239,7 +229,10 @@ function UsuariosContent() {
           <div className="category-filter-wrapper" style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1rem' }}>
             {shouldShowCompanySelector && empresas.length > 0 && (
               <FilterableSelect
-                options={empresas}
+                options={[
+                  { id: "", name: "Todas las empresas" },
+                  ...empresas
+                ]}
                 value={selectedCompanyId}
                 onChange={setSelectedCompanyId}
                 placeholder="Seleccionar empresa"
@@ -258,6 +251,19 @@ function UsuariosContent() {
             onEdit={(usuario) => handleEdit(usuario)}
             onDelete={handleDeleteUsuario}
             actionsColumnLabel="Acciones"
+            customActions={(usuario) => (
+              <div className="flex gap-2">
+                {canImpersonate(usuario) && (
+                  <button
+                    onClick={() => handleImpersonate(usuario)}
+                    className="btn small primary"
+                    title="Impersonar usuario"
+                  >
+                    <Users className="h-4 w-4" />
+                  </button>
+                )}
+              </div>
+            )}
           />
           <Pagination {...paginationConfig} />
         </div>
