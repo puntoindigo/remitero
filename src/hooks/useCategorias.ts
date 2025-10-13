@@ -23,8 +23,32 @@ export function useCategorias(companyId?: string) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Determinar el companyId efectivo para las operaciones CRUD
+  const getEffectiveCompanyId = () => {
+    // Si se pasa companyId como parámetro (desde useDataWithCompany), usarlo
+    if (companyId) {
+      return companyId;
+    }
+    
+    // Si no hay companyId pasado, usar la lógica del usuario actual
+    const isImpersonating = currentUser?.impersonating !== null;
+    
+    if (isImpersonating) {
+      // Cuando impersono, uso el companyId del usuario impersonado
+      return currentUser?.companyId || null;
+    } else if (currentUser?.role === "SUPERADMIN") {
+      // SUPERADMIN sin impersonation: si no hay companyId seleccionado, no puede crear
+      return null;
+    } else {
+      // Usuario normal usa su companyId
+      return currentUser?.companyId || null;
+    }
+  };
+
   const loadCategorias = async () => {
-    if (!companyId) {
+    const effectiveCompanyId = getEffectiveCompanyId();
+    
+    if (!effectiveCompanyId) {
       setIsLoading(false);
       return;
     }
@@ -33,7 +57,7 @@ export function useCategorias(companyId?: string) {
       setIsLoading(true);
       setError(null);
       
-      const response = await fetch(`/api/categories?companyId=${companyId}`);
+      const response = await fetch(`/api/categories?companyId=${effectiveCompanyId}`);
       if (!response.ok) {
         throw new Error("Error al cargar categorías");
       }
@@ -50,12 +74,18 @@ export function useCategorias(companyId?: string) {
 
   const createCategoria = async (data: CategoriaFormData) => {
     try {
+      const effectiveCompanyId = getEffectiveCompanyId();
+      
+      if (!effectiveCompanyId) {
+        throw new Error("No se puede crear la categoría: CompanyId no disponible");
+      }
+
       const response = await fetch("/api/categories", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
           name: data.name,
-          companyId: companyId
+          companyId: effectiveCompanyId
         }),
       });
 
@@ -76,12 +106,18 @@ export function useCategorias(companyId?: string) {
 
   const updateCategoria = async (id: string, data: CategoriaFormData) => {
     try {
+      const effectiveCompanyId = getEffectiveCompanyId();
+      
+      if (!effectiveCompanyId) {
+        throw new Error("No se puede actualizar la categoría: CompanyId no disponible");
+      }
+
       const response = await fetch(`/api/categories/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
           name: data.name,
-          companyId: companyId
+          companyId: effectiveCompanyId
         }),
       });
 
