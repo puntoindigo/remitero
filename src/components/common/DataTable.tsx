@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Edit, Trash2, Plus } from "lucide-react";
+import { Edit, Trash2, Plus, Printer } from "lucide-react";
 
 export interface DataTableColumn<T> {
   key: string;
@@ -20,6 +20,7 @@ export interface DataTableProps<T> {
   emptyIcon?: React.ReactNode;
   onEdit?: (item: T) => void;
   onDelete?: (item: T) => void;
+  onPrint?: (item: T) => void;
   onNew?: () => void;
   newButtonText?: string;
   newButtonIcon?: React.ReactNode;
@@ -44,6 +45,7 @@ export function DataTable<T>({
   emptyIcon,
   onEdit,
   onDelete,
+  onPrint,
   onNew,
   newButtonText = "Nuevo",
   newButtonIcon = <Plus className="h-4 w-4 mr-2" />,
@@ -122,7 +124,7 @@ export function DataTable<T>({
                   {column.label}
                 </th>
               ))}
-              {showActions && (onEdit || onDelete) && (
+              {showActions && (onEdit || onDelete || onPrint) && (
                 <th className="actions-column">{actionsColumnLabel}</th>
               )}
             </tr>
@@ -141,9 +143,18 @@ export function DataTable<T>({
                     }
                   </td>
                 ))}
-                {showActions && (onEdit || onDelete) && (
+                {showActions && (onEdit || onDelete || onPrint) && (
                   <td className="actions-cell">
                     <div className="action-buttons">
+                      {onPrint && (
+                        <button
+                          onClick={() => onPrint(item)}
+                          className="action-button print-button"
+                          title="Imprimir"
+                        >
+                          <Printer className="h-4 w-4" />
+                        </button>
+                      )}
                       {onEdit && (
                         <button
                           onClick={() => onEdit(item)}

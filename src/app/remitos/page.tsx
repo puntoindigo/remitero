@@ -94,6 +94,7 @@ function RemitosContent() {
     itemsPerPage: 10,
     onEdit: handleEditRemito,
     onDelete: (remito) => handleDeleteRequest(remito.id, `Remito #${remito.number}`),
+    onPrint: handlePrintRemito,
     onNew: handleNewRemito,
     getItemId: (remito) => remito.id,
     emptyMessage: "No hay remitos",
@@ -232,15 +233,27 @@ function RemitosContent() {
         throw new Error('Error al guardar el remito');
       }
 
+      const result = await response.json();
       await loadData();
       handleCloseForm();
       showSuccess(editingRemito ? "Remito actualizado correctamente" : "Remito creado correctamente");
+      
+      // Abrir impresión automáticamente después de crear un nuevo remito
+      if (!editingRemito && result.id) {
+        setTimeout(() => {
+          window.open(`/remitos/${result.id}/print`, '_blank');
+        }, 1000);
+      }
     } catch (error: any) {
       console.error('Error saving remito:', error);
       showError("Error al guardar el remito", error.message);
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handlePrintRemito = (remito: Remito) => {
+    window.open(`/remitos/${remito.id}/print`, '_blank');
   };
 
   // Lógica simplificada: mostrar contenido si hay companyId o si es SUPERADMIN sin impersonar

@@ -106,7 +106,7 @@ function ProductosContent() {
     searchFields: ['name', 'description'],
     itemsPerPage: 10,
     onEdit: handleEditProduct,
-    onDelete: handleDeleteRequest,
+    onDelete: (producto) => handleDeleteRequest(producto.id, producto.name),
     onNew: handleNewProduct,
     getItemId: (product) => product.id,
     emptyMessage: "No hay productos",

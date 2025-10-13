@@ -76,7 +76,7 @@ function UsuariosContent() {
     searchFields: ['name', 'email', 'role'],
     itemsPerPage: 10,
     onEdit: handleEdit,
-    onDelete: handleDeleteRequest,
+    onDelete: (usuario) => handleDeleteRequest(usuario.id, usuario.name),
     onNew: handleNew,
     getItemId: (usuario) => usuario.id,
     emptyMessage: "No hay usuarios",

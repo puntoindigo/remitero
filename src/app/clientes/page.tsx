@@ -63,7 +63,7 @@ function ClientesContent() {
     searchFields: ['name', 'email', 'phone', 'address'],
     itemsPerPage: 10,
     onEdit: handleEdit,
-    onDelete: handleDeleteRequest,
+    onDelete: (cliente) => handleDeleteRequest(cliente.id, cliente.name),
     onNew: handleNew,
     getItemId: (cliente) => cliente.id,
     emptyMessage: "No hay clientes",

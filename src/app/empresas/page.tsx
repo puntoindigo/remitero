@@ -50,7 +50,7 @@ function EmpresasContent() {
     searchFields: ['name'],
     itemsPerPage: 10,
     onEdit: handleEdit,
-    onDelete: handleDeleteRequest,
+    onDelete: (empresa) => handleDeleteRequest(empresa.id, empresa.name),
     onNew: handleNew,
     getItemId: (empresa) => empresa.id,
     emptyMessage: "No hay empresas",

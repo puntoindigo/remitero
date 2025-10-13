@@ -63,7 +63,7 @@ function CategoriasContent() {
     searchFields: ['name', 'description'],
     itemsPerPage: 10,
     onEdit: handleEdit,
-    onDelete: handleDeleteRequest,
+    onDelete: (categoria) => handleDeleteRequest(categoria.id, categoria.name),
     onNew: handleNew,
     getItemId: (categoria) => categoria.id,
     emptyMessage: "No hay categorías",

@@ -10,6 +10,7 @@ export interface CRUDTableConfig<T> {
   itemsPerPage?: number;
   onEdit?: (item: T) => void;
   onDelete?: (item: T) => void;
+  onPrint?: (item: T) => void;
   onNew?: () => void;
   getItemId?: (item: T) => string;
   emptyMessage?: string;
@@ -26,6 +27,7 @@ export function useCRUDTable<T>({
   itemsPerPage = 10,
   onEdit,
   onDelete,
+  onPrint,
   onNew,
   getItemId = (item: any) => item.id,
   emptyMessage = "No hay datos",
@@ -61,6 +63,7 @@ export function useCRUDTable<T>({
     searchPlaceholder,
     onEdit,
     onDelete,
+    onPrint,
     onNew,
     getItemId,
     emptyMessage,
@@ -69,7 +72,7 @@ export function useCRUDTable<T>({
     newButtonText,
     showSearch: true,
     showNewButton: !!onNew,
-    showActions: !!(onEdit || onDelete)
+    showActions: !!(onEdit || onDelete || onPrint)
   }), [
     paginatedData,
     loading,
@@ -78,6 +81,7 @@ export function useCRUDTable<T>({
     searchPlaceholder,
     onEdit,
     onDelete,
+    onPrint,
     onNew,
     getItemId,
     emptyMessage,

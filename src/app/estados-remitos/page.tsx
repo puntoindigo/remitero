@@ -84,7 +84,7 @@ function EstadosRemitosContent() {
     searchFields: ['name', 'description'],
     itemsPerPage: 10,
     onEdit: handleEditEstado,
-    onDelete: handleDeleteRequest,
+    onDelete: (estado) => handleDeleteRequest(estado.id, estado.name),
     onNew: handleNewEstado,
     getItemId: (estado) => estado.id,
     emptyMessage: "No hay estados de remitos",

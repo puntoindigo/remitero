@@ -2934,6 +2934,17 @@ form svg {
   color: #b91c1c;
 }
 
+.print-button {
+  background: #f0f9ff;
+  color: #0369a1;
+  border: 1px solid #bae6fd;
+}
+
+.print-button:hover {
+  background: #e0f2fe;
+  color: #0c4a6e;
+}
+
 /* Pagination Component Styles */
 .pagination-container {
   display: flex;
