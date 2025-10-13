@@ -121,7 +121,18 @@ function ClientesContent() {
   };
 
   // Lógica para mostrar contenido: si hay companyId o si es SUPERADMIN con empresa seleccionada
-  const shouldShowContent = companyId || (session?.user?.role === "SUPERADMIN" && selectedCompanyId);
+  const shouldShowContent = companyId !== null;
+  
+  // Debug logs temporales
+  console.log('Clientes Debug:', {
+    companyId,
+    selectedCompanyId,
+    shouldShowCompanySelector,
+    shouldShowContent,
+    clientesCount: clientes?.length || 0,
+    isLoading,
+    error
+  });
 
   // Definir columnas para el DataTable
   const columns: DataTableColumn<Cliente>[] = [
