@@ -97,10 +97,10 @@ function ClientesContent() {
   };
 
   const handleDelete = async () => {
-    if (!editingCliente) return;
+    if (!showDeleteConfirm) return;
     
     try {
-      await deleteCliente(editingCliente.id);
+      await deleteCliente(showDeleteConfirm.id);
       handleCancelDelete();
       showSuccess("Cliente eliminado correctamente");
     } catch (error: any) {
@@ -109,8 +109,8 @@ function ClientesContent() {
     }
   };
 
-  // Lógica simplificada: mostrar contenido si hay companyId o si es SUPERADMIN sin impersonar
-  const needsCompanySelection = !companyId && session?.user?.role === "SUPERADMIN";
+  // Lógica para mostrar contenido: si hay companyId o si es SUPERADMIN con empresa seleccionada
+  const shouldShowContent = companyId || (session?.user?.role === "SUPERADMIN" && selectedCompanyId);
 
   // Definir columnas para el DataTable
   const columns: DataTableColumn<Cliente>[] = [
@@ -219,7 +219,7 @@ function ClientesContent() {
           </div>
 
           {/* DataTable con paginación */}
-          {!needsCompanySelection && (
+          {shouldShowContent && (
             <>
               <DataTable
                 {...tableConfig}
