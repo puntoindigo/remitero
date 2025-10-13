@@ -109,8 +109,8 @@ function ProductosContentFixed() {
     loadData();
   }, [companyId]);
 
-  // Función de eliminación con useCallback para evitar problemas de hoisting
-  const handleDeleteProduct = useCallback((producto: Product) => {
+  // Función de eliminación
+  const handleDeleteProduct = (producto: Product) => {
     console.log('handleDeleteProduct called with:', producto);
     console.log('Product ID:', producto.id, 'Type:', typeof producto.id);
     console.log('Product name:', producto.name, 'Type:', typeof producto.name);
@@ -126,7 +126,7 @@ function ProductosContentFixed() {
     console.log('Calling handleDeleteRequest with:', { id: producto.id, name: productName });
     
     handleDeleteRequest(producto.id, productName);
-  }, [handleDeleteRequest, showError]);
+  };
 
   // CRUD Table configuration
   const {
