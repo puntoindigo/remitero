@@ -85,7 +85,11 @@ function ProductosContentFixed() {
       const productsResponse = await fetch(`/api/products?companyId=${companyId}`);
       if (productsResponse.ok) {
         const productsData = await productsResponse.json();
-        setProductos(productsData || []);
+        // Filtrar productos que tengan datos mínimos requeridos
+        const validProducts = (productsData || []).filter((product: any) => 
+          product && product.id && product.name && product.name.trim() !== ''
+        );
+        setProductos(validProducts);
       }
 
       // Cargar categorías
@@ -192,6 +196,11 @@ function ProductosContentFixed() {
       if (response.ok) {
         const newProduct = await response.json();
         
+        // Validar que el producto tenga los datos mínimos requeridos
+        if (!newProduct || !newProduct.id || !newProduct.name || newProduct.name.trim() === '') {
+          throw new Error('El producto creado no tiene los datos válidos');
+        }
+        
         if (editingProduct) {
           // Actualizar producto existente
           setProductos(prev => prev.map(p => p.id === editingProduct.id ? newProduct : p));
@@ -203,7 +212,8 @@ function ProductosContentFixed() {
         handleCloseForm();
         showSuccess(editingProduct ? "Producto actualizado correctamente" : "Producto creado correctamente");
       } else {
-        throw new Error('Error al guardar producto');
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Error al guardar producto');
       }
     } catch (error: any) {
       showError("Error", error instanceof Error ? error.message : "Error al guardar producto");
@@ -243,7 +253,10 @@ function ProductosContentFixed() {
     {
       key: 'price',
       label: 'Precio',
-      render: (producto) => `$${(producto.price || 0).toFixed(2)}`
+      render: (producto) => {
+        const price = producto.price || 0;
+        return `$${typeof price === 'number' ? price.toFixed(2) : '0.00'}`;
+      }
     },
     {
       key: 'stock',
