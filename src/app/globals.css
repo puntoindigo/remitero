@@ -234,6 +234,9 @@ form, .form-section {
 .vercel-select-container {
   position: relative;
   width: 100%;
+  background: transparent;
+  border: none;
+  box-shadow: none;
 }
 
 .vercel-select-trigger {
@@ -241,9 +244,9 @@ form, .form-section {
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  padding: 8px 12px;
+  padding: 12px 16px;
   background: #ffffff;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #d1d5db;
   border-radius: 6px;
   font-size: 14px;
   line-height: 20px;
@@ -251,7 +254,7 @@ form, .form-section {
   cursor: pointer;
   transition: all 0.15s ease;
   outline: none;
-  min-height: 36px;
+  min-height: 48px;
   font-weight: normal;
 }
 
