@@ -176,10 +176,11 @@ export default function Header() {
       {/* Modal de confirmación de logout */}
       <DeleteConfirmModal
         isOpen={showLogoutConfirm}
-        onClose={handleCancelLogout}
+        onCancel={handleCancelLogout}
         onConfirm={handleLogout}
         title="Confirmar Salida"
         message="¿Estás seguro de que deseas cerrar sesión?"
+        confirmButtonText="Aceptar"
       />
     </header>
   );

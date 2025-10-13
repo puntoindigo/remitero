@@ -9,6 +9,7 @@ interface DeleteConfirmModalProps {
   title?: string;
   message?: string;
   itemName?: string;
+  confirmButtonText?: string;
 }
 
 export default function DeleteConfirmModal({
@@ -17,7 +18,8 @@ export default function DeleteConfirmModal({
   onCancel,
   title = "Confirmar eliminación",
   message = "¿Estás seguro de que deseas eliminar este elemento?",
-  itemName
+  itemName,
+  confirmButtonText = "Eliminar"
 }: DeleteConfirmModalProps) {
   if (!isOpen) return null;
 
@@ -112,7 +114,7 @@ export default function DeleteConfirmModal({
               fontSize: '14px'
             }}
           >
-            Eliminar
+            {confirmButtonText}
           </button>
         </div>
       </div>
