@@ -111,8 +111,18 @@ function ProductosContentFixed() {
 
   // Función de eliminación con useCallback para evitar problemas de hoisting
   const handleDeleteProduct = useCallback((producto: Product) => {
+    console.log('handleDeleteProduct called with:', producto);
+    console.log('Product ID:', producto.id, 'Type:', typeof producto.id);
+    console.log('Product name:', producto.name, 'Type:', typeof producto.name);
+    
+    if (!producto.id || typeof producto.id !== 'string') {
+      console.error('Invalid product ID:', producto.id);
+      showError("Error", "ID de producto inválido");
+      return;
+    }
+    
     handleDeleteRequest(producto.id, producto.name);
-  }, [handleDeleteRequest]);
+  }, [handleDeleteRequest, showError]);
 
   // CRUD Table configuration
   const {
@@ -163,7 +173,16 @@ function ProductosContentFixed() {
   const handleDelete = async () => {
     if (!showDeleteConfirm) return;
     
+    // Validar que el ID sea válido
+    if (!showDeleteConfirm.id || typeof showDeleteConfirm.id !== 'string') {
+      console.error('Invalid product ID for deletion:', showDeleteConfirm);
+      showError("Error", "ID de producto inválido para eliminación");
+      handleCancelDelete();
+      return;
+    }
+    
     try {
+      console.log('Deleting product with ID:', showDeleteConfirm.id);
       const response = await fetch(`/api/products/${showDeleteConfirm.id}`, {
         method: 'DELETE'
       });
@@ -173,7 +192,8 @@ function ProductosContentFixed() {
         showSuccess("Producto eliminado correctamente");
         await loadData();
       } else {
-        throw new Error('Error al eliminar producto');
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Error al eliminar producto');
       }
     } catch (error: any) {
       handleCancelDelete();
