@@ -19,7 +19,6 @@ import { useDataWithCompanySimple } from "@/hooks/useDataWithCompanySimple";
 import { DataTable, type DataTableColumn } from "@/components/common/DataTable";
 import { useCRUDTable } from "@/hooks/useCRUDTable";
 import { Pagination } from "@/components/common/Pagination";
-import { FilterableSelect } from "@/components/common/FilterableSelect";
 
 interface Product {
   id: string;
