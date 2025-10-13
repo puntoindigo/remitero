@@ -339,30 +339,74 @@ function ProductosContentFixed() {
                 className="w-64"
               />
             )}
-            
-            <FilterableSelect
-              options={[
-                { id: "", name: "Todas las categorías" },
-                ...categorias
-              ]}
-              value={selectedCategoryId}
-              onChange={setSelectedCategoryId}
-              placeholder="Filtrar por categoría"
-              searchFields={["name"]}
-              className="w-64"
-            />
           </div>
 
           {/* DataTable con paginación */}
-          <DataTable
-            {...tableConfig}
-            columns={columns}
-            showSearch={true}
-            showNewButton={true}
-            onEdit={(producto) => handleEditProduct(producto)}
-            onDelete={handleDeleteProduct}
-            actionsColumnLabel="Acciones"
-          />
+          <div className="data-table-with-filters">
+            <div className="search-and-filter-row" style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1rem' }}>
+              <div className="search-field" style={{ flex: 1 }}>
+                <input
+                  type="text"
+                  placeholder="Buscar productos..."
+                  value={tableConfig.searchValue || ''}
+                  onChange={(e) => tableConfig.onSearchChange?.(e.target.value)}
+                  className="search-input"
+                  style={{
+                    width: '100%',
+                    padding: '0.5rem',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '0.375rem',
+                    fontSize: '0.875rem'
+                  }}
+                />
+              </div>
+              <div className="category-filter" style={{ minWidth: '200px' }}>
+                <FilterableSelect
+                  options={[
+                    { id: "", name: "Todas las categorías" },
+                    ...categorias
+                  ]}
+                  value={selectedCategoryId}
+                  onChange={setSelectedCategoryId}
+                  placeholder="Filtrar por categoría"
+                  searchFields={["name"]}
+                  className="w-full"
+                />
+              </div>
+              {tableConfig.onNew && (
+                <button
+                  onClick={tableConfig.onNew}
+                  className="new-button"
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    padding: '0.5rem 1rem',
+                    backgroundColor: '#3b82f6',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '0.375rem',
+                    cursor: 'pointer',
+                    fontSize: '0.875rem',
+                    fontWeight: '500'
+                  }}
+                >
+                  <Plus className="h-4 w-4" />
+                  {tableConfig.newButtonText || 'Nuevo'}
+                </button>
+              )}
+            </div>
+            
+            <DataTable
+              {...tableConfig}
+              columns={columns}
+              showSearch={false}
+              showNewButton={false}
+              onEdit={(producto) => handleEditProduct(producto)}
+              onDelete={handleDeleteProduct}
+              actionsColumnLabel="Acciones"
+            />
+          </div>
           <Pagination {...paginationConfig} />
         </div>
 
