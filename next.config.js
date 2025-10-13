@@ -6,6 +6,8 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  // Configurar el directorio raíz para evitar conflictos con lockfiles
+  outputFileTracingRoot: __dirname,
 }
 
 module.exports = nextConfig

@@ -9,6 +9,7 @@ import DeleteConfirmModal from "@/components/common/DeleteConfirmModal";
 import { useMessageModal } from "@/hooks/useMessageModal";
 import { useCRUDPage } from "@/hooks/useCRUDPage";
 import { useEstadosRemitos, EstadoRemito, EstadoRemitoFormData } from "@/hooks/useEstadosRemitos";
+import { EstadoRemitoForm } from "@/components/forms/EstadoRemitoForm";
 import { useEmpresas, type Empresa } from "@/hooks/useEmpresas";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useDataWithCompany } from "@/hooks/useDataWithCompany";
@@ -196,77 +197,14 @@ function EstadosRemitosContent() {
   return (
     <main className="main-content">
       <div className="px-4 py-6 sm:px-0">
-        {/* Formulario Modal */}
-        {showForm && (
-          <div className="estados-modal-overlay">
-            <div className="estados-modal">
-              <h2>{editingEstado ? 'Editar Estado' : 'Nuevo Estado'}</h2>
-              <form onSubmit={(e) => {
-                e.preventDefault();
-                const formData = new FormData(e.currentTarget);
-                const data: EstadoRemitoFormData = {
-                  name: formData.get('name') as string,
-                  description: formData.get('description') as string,
-                  color: formData.get('color') as string,
-                  is_active: formData.get('isActive') === 'on'
-                };
-                onSubmit(data);
-              }}>
-                <div className="estados-form-row">
-                  <div className="estados-form-group">
-                    <label htmlFor="name">Nombre *</label>
-                    <input
-                      type="text"
-                      id="name"
-                      name="name"
-                      defaultValue={editingEstado?.name || ''}
-                      required
-                      placeholder="Ej: Enviado, Entregado, Cancelado"
-                    />
-                  </div>
-                  <div className="estados-form-group">
-                    <label htmlFor="color">Color *</label>
-                    <input
-                      type="color"
-                      id="color"
-                      name="color"
-                      defaultValue={editingEstado?.color || '#3b82f6'}
-                      required
-                    />
-                  </div>
-                </div>
-                <div className="estados-form-group">
-                  <label htmlFor="description">Descripción</label>
-                  <textarea
-                    id="description"
-                    name="description"
-                    defaultValue={editingEstado?.description || ''}
-                    placeholder="Descripción opcional del estado"
-                    rows={3}
-                  />
-                </div>
-                <div className="estados-form-group">
-                  <label className="checkbox-label">
-                    <input
-                      type="checkbox"
-                      name="isActive"
-                      defaultChecked={editingEstado?.is_active !== false}
-                    />
-                    Estado activo
-                  </label>
-                </div>
-                <div className="estados-modal-actions">
-                  <button type="button" onClick={handleCloseForm}>
-                    Cancelar
-                  </button>
-                  <button type="submit" className="submit" disabled={isSubmitting}>
-                    {isSubmitting ? 'Guardando...' : (editingEstado ? 'Actualizar' : 'Crear')}
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
+        {/* Formulario */}
+        <EstadoRemitoForm
+          isOpen={showForm}
+          onClose={handleCloseForm}
+          onSubmit={onSubmit}
+          isSubmitting={isSubmitting}
+          editingEstado={editingEstado}
+        />
 
         <div className="form-section">
           <h2>Gestión de Estados de Remitos</h2>
