@@ -48,6 +48,8 @@ export function useCRUDPage<T extends { id: string }>() {
    * Muestra el modal de confirmación de eliminación
    */
   const handleDeleteRequest = (id: string, name: string) => {
+    console.log('handleDeleteRequest called with:', { id, name });
+    console.log('ID type:', typeof id, 'Name type:', typeof name);
     setShowDeleteConfirm({ id, name });
   };
 

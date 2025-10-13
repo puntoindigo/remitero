@@ -121,7 +121,11 @@ function ProductosContentFixed() {
       return;
     }
     
-    handleDeleteRequest(producto.id, producto.name);
+    // Asegurar que el nombre no sea undefined
+    const productName = producto.name || 'Producto sin nombre';
+    console.log('Calling handleDeleteRequest with:', { id: producto.id, name: productName });
+    
+    handleDeleteRequest(producto.id, productName);
   }, [handleDeleteRequest, showError]);
 
   // CRUD Table configuration
@@ -136,7 +140,11 @@ function ProductosContentFixed() {
     onEdit: handleEditProduct,
     onDelete: handleDeleteProduct,
     onNew: handleNewProduct,
-    getItemId: (product) => product.id,
+    getItemId: (product) => {
+      console.log('getItemId called with product:', product);
+      console.log('Product ID:', product.id, 'Type:', typeof product.id);
+      return product.id;
+    },
     emptyMessage: "No hay productos",
     emptySubMessage: "Comienza creando un nuevo producto.",
     emptyIcon: <Package className="empty-icon" />,
