@@ -196,6 +196,23 @@ function UsuariosContent() {
         minute: '2-digit',
         hour12: false
       })
+    },
+    {
+      key: 'actions',
+      label: 'Acciones',
+      render: (usuario) => (
+        <div className="flex gap-2">
+          {canImpersonate(usuario) && (
+            <button
+              onClick={() => handleImpersonate(usuario)}
+              className="btn small primary"
+              title="Impersonar usuario"
+            >
+              <Users className="h-4 w-4" />
+            </button>
+          )}
+        </div>
+      )
     }
   ];
 
@@ -251,19 +268,6 @@ function UsuariosContent() {
             onEdit={(usuario) => handleEdit(usuario)}
             onDelete={handleDeleteUsuario}
             actionsColumnLabel="Acciones"
-            customActions={(usuario) => (
-              <div className="flex gap-2">
-                {canImpersonate(usuario) && (
-                  <button
-                    onClick={() => handleImpersonate(usuario)}
-                    className="btn small primary"
-                    title="Impersonar usuario"
-                  >
-                    <Users className="h-4 w-4" />
-                  </button>
-                )}
-              </div>
-            )}
           />
           <Pagination {...paginationConfig} />
         </div>
