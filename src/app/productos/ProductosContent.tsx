@@ -132,18 +132,35 @@ function ProductosContentFixed() {
 
   const handleStockChange = async (productId: string, newStock: string) => {
     try {
-      await updateStock(productId, newStock);
-      await loadData();
+      const response = await fetch(`/api/products/${productId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ stock: newStock }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Error al actualizar el stock');
+      }
+
+      // Actualizar el estado local inmediatamente
+      setProductos(prevProducts =>
+        prevProducts.map(product =>
+          product.id === productId ? { ...product, stock: newStock } : product
+        )
+      );
     } catch (error) {
       console.error('Error updating stock:', error);
+      showError('Error', 'No se pudo actualizar el stock del producto');
     }
   };
 
   const handleDelete = async () => {
-    if (!editingProduct) return;
+    if (!showDeleteConfirm) return;
     
     try {
-      const response = await fetch(`/api/products/${editingProduct.id}`, {
+      const response = await fetch(`/api/products/${showDeleteConfirm.id}`, {
         method: 'DELETE'
       });
       
@@ -173,9 +190,18 @@ function ProductosContentFixed() {
       });
 
       if (response.ok) {
+        const newProduct = await response.json();
+        
+        if (editingProduct) {
+          // Actualizar producto existente
+          setProductos(prev => prev.map(p => p.id === editingProduct.id ? newProduct : p));
+        } else {
+          // Agregar nuevo producto al principio de la lista
+          setProductos(prev => [newProduct, ...prev]);
+        }
+        
         handleCloseForm();
         showSuccess(editingProduct ? "Producto actualizado correctamente" : "Producto creado correctamente");
-        await loadData();
       } else {
         throw new Error('Error al guardar producto');
       }
@@ -236,7 +262,16 @@ function ProductosContentFixed() {
     {
       key: 'createdAt',
       label: 'Registrado',
-      render: (producto) => formatDate(producto.createdAt)
+      render: (producto) => {
+        const date = new Date(producto.createdAt);
+        return date.toLocaleString('es-AR', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+      }
     }
   ];
 
