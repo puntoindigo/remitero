@@ -110,10 +110,10 @@ function UsuariosContent() {
   };
 
   const handleDelete = async () => {
-    if (!editingUser) return;
+    if (!showDeleteConfirm) return;
     
     try {
-      await deleteUsuario(editingUser.id);
+      await deleteUsuario(showDeleteConfirm.id);
       handleCancelDelete();
       showSuccess("Usuario eliminado correctamente");
     } catch (error: any) {
@@ -256,7 +256,7 @@ function UsuariosContent() {
             showSearch={true}
             showNewButton={true}
             onEdit={(usuario) => handleEdit(usuario)}
-            onDelete={(usuario) => handleDeleteRequest(usuario)}
+            onDelete={handleDeleteUsuario}
             actionsColumnLabel="Acciones"
           />
           <Pagination {...paginationConfig} />
