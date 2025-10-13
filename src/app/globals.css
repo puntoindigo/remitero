@@ -337,7 +337,7 @@ form, .form-section {
   left: 0;
   right: 0;
   z-index: 9999;
-  margin-top: 2px;
+  margin-top: 0px;
   background: #ffffff;
   border: 1px solid #e5e7eb;
   border-radius: 6px;

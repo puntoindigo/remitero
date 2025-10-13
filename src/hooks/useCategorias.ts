@@ -95,7 +95,7 @@ export function useCategorias(companyId?: string) {
       }
 
       const newCategoria = await response.json();
-      setCategorias(prev => [...prev, newCategoria]);
+      setCategorias(prev => [newCategoria, ...prev]);
       return newCategoria;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Error al crear categoría";

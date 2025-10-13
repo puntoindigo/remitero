@@ -125,8 +125,17 @@ function CategoriasContent() {
     },
     {
       key: 'createdAt',
-      label: 'Fecha de Creación',
-      render: (categoria) => formatDate(categoria.createdAt)
+      label: 'Registrado',
+      render: (categoria) => {
+        const date = new Date(categoria.createdAt);
+        return date.toLocaleString('es-AR', { 
+          year: 'numeric', 
+          month: '2-digit', 
+          day: '2-digit', 
+          hour: '2-digit', 
+          minute: '2-digit' 
+        });
+      }
     }
   ];
 
