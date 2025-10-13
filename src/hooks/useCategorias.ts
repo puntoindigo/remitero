@@ -15,21 +15,23 @@ export interface CategoriaFormData {
   name: string;
 }
 
-export function useCategorias() {
+export function useCategorias(companyId?: string) {
   const { data: session } = useSession();
-  const currentUser = useCurrentUser();
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const loadCategorias = async () => {
+    if (!companyId) {
+      setIsLoading(false);
+      return;
+    }
+
     try {
       setIsLoading(true);
       setError(null);
       
-      // Pasar companyId del usuario actual (considerando impersonation)
-      const url = currentUser?.companyId ? `/api/categories?companyId=${currentUser.companyId}` : "/api/categories";
-      const response = await fetch(url);
+      const response = await fetch(`/api/categories?companyId=${companyId}`);
       if (!response.ok) {
         throw new Error("Error al cargar categorías");
       }
@@ -121,7 +123,7 @@ export function useCategorias() {
 
   useEffect(() => {
     loadCategorias();
-  }, [currentUser?.companyId]);
+  }, [companyId]);
 
   return {
     categorias,

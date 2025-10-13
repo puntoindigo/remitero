@@ -100,6 +100,9 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { name, address, phone, email, companyId } = body;
 
+    console.log('POST /api/clients - Request body:', body);
+    console.log('POST /api/clients - Session user:', session.user);
+
     // Validaciones básicas
     if (!name) {
       return NextResponse.json({ 
@@ -112,6 +115,15 @@ export async function POST(request: NextRequest) {
     let finalCompanyId = companyId;
     if (session.user.role !== 'SUPERADMIN' && !companyId) {
       finalCompanyId = session.user.companyId;
+    }
+
+    console.log('POST /api/clients - Final companyId:', finalCompanyId);
+
+    if (!finalCompanyId) {
+      return NextResponse.json({ 
+        error: "Datos faltantes", 
+        message: "CompanyId es requerido." 
+      }, { status: 400 });
     }
 
     // Verificar que no exista un cliente con el mismo nombre en la empresa
