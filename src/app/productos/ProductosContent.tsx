@@ -311,6 +311,34 @@ function ProductosContentFixed() {
     return <div className="loading">Cargando...</div>;
   }
 
+  // Si necesita selección de empresa, mostrar solo el selector
+  if (needsCompanySelection) {
+    return (
+      <main className="main-content">
+        <div className="px-4 py-6 sm:px-0">
+          <div className="form-section">
+            <h2>Gestión de Productos</h2>
+            <div className="company-selector-wrapper" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '200px' }}>
+              <div style={{ textAlign: 'center' }}>
+                <p style={{ marginBottom: '1rem', color: '#6b7280' }}>Selecciona una empresa para ver los productos</p>
+                {empresas.length > 0 && (
+                  <FilterableSelect
+                    options={empresas}
+                    value={selectedCompanyId}
+                    onChange={setSelectedCompanyId}
+                    placeholder="Seleccionar empresa"
+                    searchFields={["name"]}
+                    className="w-64"
+                  />
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main className="main-content">
       <div className="px-4 py-6 sm:px-0">
@@ -344,7 +372,7 @@ function ProductosContentFixed() {
           {/* DataTable con paginación */}
           <div className="data-table-with-filters">
             <div className="search-and-filter-row" style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1rem' }}>
-              <div className="search-field" style={{ flex: 1 }}>
+              <div className="search-field" style={{ flex: 1, position: 'relative' }}>
                 <input
                   type="text"
                   placeholder="Buscar productos..."
@@ -353,12 +381,25 @@ function ProductosContentFixed() {
                   className="search-input"
                   style={{
                     width: '100%',
-                    padding: '0.5rem',
+                    padding: '0.5rem 0.5rem 0.5rem 2.5rem',
                     border: '1px solid #d1d5db',
                     borderRadius: '0.375rem',
                     fontSize: '0.875rem'
                   }}
                 />
+                <div style={{
+                  position: 'absolute',
+                  left: '0.75rem',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  color: '#9ca3af',
+                  pointerEvents: 'none'
+                }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <path d="m21 21-4.35-4.35"></path>
+                  </svg>
+                </div>
               </div>
               <div className="category-filter" style={{ minWidth: '200px' }}>
                 <FilterableSelect
