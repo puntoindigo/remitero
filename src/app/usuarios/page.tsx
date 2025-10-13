@@ -3,7 +3,7 @@
 import React, { useState, useEffect, Suspense, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
-import { Plus, Users, Building2, Mail, Phone } from "lucide-react";
+import { Plus, Users, Building2, Mail, Phone, Edit, Trash2 } from "lucide-react";
 import { formatDate } from "@/lib/utils/formatters";
 import FilterableSelect from "@/components/common/FilterableSelect";
 import { MessageModal } from "@/components/common/MessageModal";
@@ -202,6 +202,20 @@ function UsuariosContent() {
       label: 'Acciones',
       render: (usuario) => (
         <div className="flex gap-2">
+          <button
+            onClick={() => handleEdit(usuario)}
+            className="btn small secondary"
+            title="Editar usuario"
+          >
+            <Edit className="h-4 w-4" />
+          </button>
+          <button
+            onClick={() => handleDeleteUsuario(usuario)}
+            className="btn small danger"
+            title="Eliminar usuario"
+          >
+            <Trash2 className="h-4 w-4" />
+          </button>
           {canImpersonate(usuario) && (
             <button
               onClick={() => handleImpersonate(usuario)}
@@ -265,9 +279,7 @@ function UsuariosContent() {
             columns={columns}
             showSearch={true}
             showNewButton={true}
-            onEdit={(usuario) => handleEdit(usuario)}
-            onDelete={handleDeleteUsuario}
-            actionsColumnLabel="Acciones"
+            showActions={false}
           />
           <Pagination {...paginationConfig} />
         </div>
