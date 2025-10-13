@@ -243,7 +243,7 @@ function ProductosContentFixed() {
     {
       key: 'price',
       label: 'Precio',
-      render: (producto) => `$${producto.price.toFixed(2)}`
+      render: (producto) => `$${(producto.price || 0).toFixed(2)}`
     },
     {
       key: 'stock',
