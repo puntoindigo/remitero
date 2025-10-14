@@ -273,12 +273,69 @@ function UsuariosContent() {
             </div>
           )}
 
+          {/* Barra de búsqueda y botón nuevo - siempre visible */}
+          <div className="search-and-action-row" style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1rem', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+              {/* Campo de búsqueda manual */}
+              <div style={{ width: '300px', position: 'relative' }}>
+                <input
+                  type="text"
+                  placeholder="Buscar usuarios..."
+                  value={tableConfig.searchValue || ''}
+                  onChange={(e) => tableConfig.onSearchChange?.(e.target.value)}
+                  className="search-input"
+                  style={{
+                    width: '100%',
+                    padding: '0.5rem 0.5rem 0.5rem 2.5rem',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '0.375rem',
+                    fontSize: '0.875rem',
+                    backgroundImage: 'none'
+                  }}
+                />
+                <div style={{
+                  position: 'absolute',
+                  left: '0.75rem',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  color: '#9ca3af',
+                  pointerEvents: 'none'
+                }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <path d="m21 21-4.35-4.35"></path>
+                  </svg>
+                </div>
+              </div>
+            </div>
+            <button
+              onClick={handleNew}
+              className="new-button"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                padding: '0.5rem 1rem',
+                backgroundColor: '#3b82f6',
+                color: 'white',
+                border: 'none',
+                borderRadius: '0.375rem',
+                cursor: 'pointer',
+                fontSize: '0.875rem',
+                fontWeight: '500'
+              }}
+            >
+              <Plus className="h-4 w-4" />
+              Nuevo Usuario
+            </button>
+          </div>
+
           {/* DataTable con paginación */}
           <DataTable
             {...tableConfig}
             columns={columns}
-            showSearch={true}
-            showNewButton={true}
+            showSearch={false}
+            showNewButton={false}
             showActions={false}
           />
           <Pagination {...paginationConfig} />
