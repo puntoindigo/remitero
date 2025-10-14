@@ -122,17 +122,21 @@ export default function Header() {
           <ReceiptText className="h-4 w-4" />
           Remitos
         </NavLink>
-        <NavLink href="/productos">
-          <Package className="h-4 w-4" />
-          Productos
-        </NavLink>
         <NavLink href="/clientes">
           <ShoppingBag className="h-4 w-4" />
           Clientes
         </NavLink>
+        <NavLink href="/productos">
+          <Package className="h-4 w-4" />
+          Productos
+        </NavLink>
         <NavLink href="/categorias">
           <Tag className="h-4 w-4" />
           Categorías
+        </NavLink>
+        <NavLink href="/estados-remitos">
+          <Tag className="h-4 w-4" />
+          Estados
         </NavLink>
         <NavLink href="/usuarios" roles={['SUPERADMIN', 'ADMIN']}>
           <Users className="h-4 w-4" />
@@ -141,11 +145,6 @@ export default function Header() {
         <NavLink href="/empresas" roles={['SUPERADMIN']}>
           <Building2 className="h-4 w-4" />
           Empresas
-        </NavLink>
-        
-        <NavLink href="/estados-remitos">
-          <Tag className="h-4 w-4" />
-          Estados
         </NavLink>
       </nav>
       

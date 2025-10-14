@@ -11,7 +11,7 @@ import { useCRUDPage } from "@/hooks/useCRUDPage";
 import { useEstadosRemitos, EstadoRemito, EstadoRemitoFormData } from "@/hooks/useEstadosRemitos";
 import { EstadoRemitoForm } from "@/components/forms/EstadoRemitoForm";
 import { useEmpresas, type Empresa } from "@/hooks/useEmpresas";
-import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { useCurrentUserSimple } from "@/hooks/useCurrentUserSimple";
 import { useDataWithCompany } from "@/hooks/useDataWithCompany";
 import { DataTable, type DataTableColumn } from "@/components/common/DataTable";
 import { useCRUDTable } from "@/hooks/useCRUDTable";
@@ -20,7 +20,7 @@ import { LoadingSpinner } from "@/components/common/LoadingSpinner";
 
 function EstadosRemitosContent() {
   const { data: session } = useSession();
-  const currentUser = useCurrentUser();
+  const currentUser = useCurrentUserSimple();
   
   // Hook centralizado para manejo de companyId
   const {

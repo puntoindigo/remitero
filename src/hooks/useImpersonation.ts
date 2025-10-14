@@ -87,7 +87,8 @@ export const useImpersonation = () => {
   const canImpersonate = (usuario: any) => {
     return ['ADMIN', 'SUPERADMIN'].includes(session?.user?.role || '') && 
            !impersonationData?.isActive && 
-           usuario.id !== session?.user?.id;
+           usuario.id !== session?.user?.id &&
+           usuario.role !== 'SUPERADMIN'; // No se puede impersonar a superusuarios
   };
   const isCurrentlyImpersonating = impersonationData?.isActive;
 
