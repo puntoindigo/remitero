@@ -22,6 +22,11 @@ function EstadosRemitosContent() {
   const { data: session } = useSession();
   const currentUser = useCurrentUserSimple();
 
+  // Verificar sesión primero
+  if (!session) {
+    return <LoadingSpinner message="Cargando..." />;
+  }
+
   // Prevenir errores de client-side exception
   if (!currentUser) {
     return (

@@ -48,6 +48,11 @@ function RemitosContent() {
   const router = useRouter();
   const pathname = usePathname();
 
+  // Verificar sesión primero
+  if (!session) {
+    return <LoadingSpinner message="Cargando..." />;
+  }
+
   // Prevenir errores de client-side exception
   if (!currentUser) {
     return (
@@ -301,10 +306,6 @@ function RemitosContent() {
       })
     }
   ];
-
-  if (!session) {
-    return <LoadingSpinner message="Cargando..." />;
-  }
 
   return (
     <main className="main-content">

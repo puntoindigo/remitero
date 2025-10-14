@@ -31,6 +31,16 @@ export function useDataWithCompanySimple() {
     }
   }, [selectedCompanyId]);
 
+  // Verificar que currentUser esté disponible
+  if (!currentUser) {
+    return {
+      companyId: null,
+      selectedCompanyId: "",
+      setSelectedCompanyId: () => {},
+      shouldShowCompanySelector: false
+    };
+  }
+
   const isImpersonating = currentUser?.impersonating !== null;
   
   // El companyId efectivo es:
