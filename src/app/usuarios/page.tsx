@@ -251,6 +251,7 @@ function UsuariosContent() {
           isSubmitting={isSubmitting}
           editingUser={editingUser}
           companies={empresas}
+          companyId={companyId}
         />
 
         <div className="form-section">
