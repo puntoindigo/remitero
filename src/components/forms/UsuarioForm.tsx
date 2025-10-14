@@ -6,6 +6,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useSession } from "next-auth/react";
 import { FormModal } from "@/components/common/FormModal";
+import { PasswordGeneratorModal } from "@/components/common/PasswordGeneratorModal";
+import { Key } from "lucide-react";
 
 const userSchema = z.object({
   name: z.string().min(1, "El nombre es requerido"),
@@ -47,6 +49,7 @@ export function UsuarioForm({
   companyId
 }: UsuarioFormProps) {
   const { data: session } = useSession();
+  const [showPasswordGenerator, setShowPasswordGenerator] = React.useState(false);
   
   const {
     register,
@@ -150,7 +153,7 @@ export function UsuarioForm({
 
         <div className="form-group">
           <label className="form-label-large">
-            Email
+            Email *
             {errors.email && (
               <span style={{ color: '#ef4444', marginLeft: '8px', fontSize: '0.875rem', fontWeight: 'normal' }}>
                 {errors.email.message}
@@ -170,13 +173,26 @@ export function UsuarioForm({
       <div className="form-row">
         <div className="form-group">
           <label className="form-label-large">Contraseña {!editingUser && "*"}</label>
-          <input
-            {...register("password")}
-            type="password"
-            placeholder={editingUser ? "Dejar vacío para mantener la actual" : "Contraseña"}
-            autoComplete={editingUser ? "new-password" : "new-password"}
-            className="form-input-standard"
-          />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <input
+              {...register("password")}
+              type="password"
+              placeholder={editingUser ? "Dejar vacío para mantener la actual" : "Contraseña"}
+              autoComplete={editingUser ? "new-password" : "new-password"}
+              className="form-input-standard"
+              style={{ flex: 1 }}
+            />
+            {!editingUser && (
+              <button
+                type="button"
+                onClick={() => setShowPasswordGenerator(true)}
+                className="btn small secondary"
+                title="Generar contraseña automática"
+              >
+                <Key className="h-4 w-4" />
+              </button>
+            )}
+          </div>
           {errors.password && (
             <p className="error-message">{errors.password.message}</p>
           )}
@@ -242,6 +258,16 @@ export function UsuarioForm({
           <div style={{ flex: 1 }}></div>
         </div>
       )}
+
+      {/* Modal del generador de contraseñas */}
+      <PasswordGeneratorModal
+        isOpen={showPasswordGenerator}
+        onClose={() => setShowPasswordGenerator(false)}
+        onPasswordGenerated={(password) => {
+          setValue("password", password);
+          setShowPasswordGenerator(false);
+        }}
+      />
     </FormModal>
   );
 }
