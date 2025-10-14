@@ -26,7 +26,7 @@ export default function Header() {
   const pathname = usePathname();
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
-  if (!session) {
+  if (!session || !currentUser) {
     return (
       <header className="header">
         <div className="header-left">

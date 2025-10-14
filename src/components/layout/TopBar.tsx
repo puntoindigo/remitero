@@ -13,7 +13,7 @@ export default function TopBar() {
   const { stopImpersonation, isImpersonating } = useImpersonation();
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
-  if (!session) {
+  if (!session || !currentUser) {
     return null;
   }
 
