@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useCurrentUserSimple } from "./useCurrentUserSimple";
 
 export interface EstadoRemito {
@@ -92,7 +92,7 @@ export function useEstadosRemitos(companyId?: string) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const loadEstados = async () => {
+  const loadEstados = useCallback(async () => {
     try {
       setIsLoading(true);
       setError(null);
@@ -121,11 +121,11 @@ export function useEstadosRemitos(companyId?: string) {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [companyId]);
 
   useEffect(() => {
     loadEstados();
-  }, [companyId]);
+  }, [loadEstados]);
 
   const createEstado = async (estadoData: EstadoRemitoFormData) => {
     try {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { useCurrentUserSimple } from "./useCurrentUserSimple";
 
@@ -68,7 +68,7 @@ export function useRemitos(companyId?: string) {
     }
   };
 
-  const loadRemitos = async () => {
+  const loadRemitos = useCallback(async () => {
     const effectiveCompanyId = getEffectiveCompanyId();
     
     if (!effectiveCompanyId) {
@@ -93,7 +93,7 @@ export function useRemitos(companyId?: string) {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [companyId, currentUser]);
 
   const createRemito = async (remitoData: RemitoFormData) => {
     try {
@@ -215,7 +215,7 @@ export function useRemitos(companyId?: string) {
 
   useEffect(() => {
     loadRemitos();
-  }, [currentUser?.companyId]);
+  }, [loadRemitos]);
 
   return {
     remitos,

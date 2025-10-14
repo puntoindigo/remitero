@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { useCurrentUserSimple } from "./useCurrentUserSimple";
 
@@ -45,7 +45,7 @@ export function useCategorias(companyId?: string) {
     }
   };
 
-  const loadCategorias = async () => {
+  const loadCategorias = useCallback(async () => {
     const effectiveCompanyId = getEffectiveCompanyId();
     
     if (!effectiveCompanyId) {
@@ -70,7 +70,7 @@ export function useCategorias(companyId?: string) {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [companyId, currentUser]);
 
   const createCategoria = async (data: CategoriaFormData) => {
     try {
@@ -161,7 +161,7 @@ export function useCategorias(companyId?: string) {
 
   useEffect(() => {
     loadCategorias();
-  }, [companyId]);
+  }, [loadCategorias]);
 
   return {
     categorias,

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { useCurrentUserSimple } from "./useCurrentUserSimple";
 
@@ -64,7 +64,7 @@ export function useProductos(companyId?: string) {
     }
   };
 
-  const loadProductos = async () => {
+  const loadProductos = useCallback(async () => {
     const effectiveCompanyId = getEffectiveCompanyId();
     
     if (!effectiveCompanyId) {
@@ -89,7 +89,7 @@ export function useProductos(companyId?: string) {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [companyId, currentUser]);
 
   const createProducto = async (productoData: ProductoFormData) => {
     try {
@@ -207,7 +207,7 @@ export function useProductos(companyId?: string) {
 
   useEffect(() => {
     loadProductos();
-  }, [currentUser?.companyId]);
+  }, [loadProductos]);
 
   return {
     productos,

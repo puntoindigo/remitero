@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { useCurrentUserSimple } from "./useCurrentUserSimple";
 
@@ -62,7 +62,7 @@ export function useClientes(companyId?: string) {
     }
   };
 
-  const loadClientes = async () => {
+  const loadClientes = useCallback(async () => {
     const effectiveCompanyId = getEffectiveCompanyId();
     
     if (!effectiveCompanyId) {
@@ -88,7 +88,7 @@ export function useClientes(companyId?: string) {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [companyId, currentUser]);
 
   const createCliente = async (clienteData: ClienteFormData) => {
     try {
@@ -179,7 +179,7 @@ export function useClientes(companyId?: string) {
 
   useEffect(() => {
     loadClientes();
-  }, [currentUser?.companyId, companyId]);
+  }, [loadClientes]);
 
   return {
     clientes,
