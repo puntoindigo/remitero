@@ -15,13 +15,13 @@ import {
   LogOut,
   FileText
 } from "lucide-react";
-import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { useCurrentUserSimple } from "@/hooks/useCurrentUserSimple";
 import { useImpersonation } from "@/hooks/useImpersonation";
 import DeleteConfirmModal from "@/components/common/DeleteConfirmModal";
 
 export default function Header() {
   const { data: session } = useSession();
-  const currentUser = useCurrentUser();
+  const currentUser = useCurrentUserSimple();
   const { stopImpersonation, isImpersonating } = useImpersonation();
   const pathname = usePathname();
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);

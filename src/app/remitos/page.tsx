@@ -41,7 +41,7 @@ interface Remito {
   updatedAt: string;
 }
 
-function RemitosContentFixed() {
+function RemitosContent() {
   const { data: session } = useSession();
   const currentUser = useCurrentUserSimple();
   const searchParams = useSearchParams();
@@ -382,7 +382,7 @@ export default function RemitosPageFixed() {
         </div>
       </main>
     }>
-      <RemitosContentFixed />
+      <RemitosContent />
     </Suspense>
   );
 }

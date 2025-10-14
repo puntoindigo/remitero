@@ -36,7 +36,7 @@ interface Category {
   name: string;
 }
 
-function ProductosContentFixed() {
+function ProductosContent() {
   const { data: session } = useSession();
   const currentUser = useCurrentUserSimple();
   const searchParams = useSearchParams();
@@ -503,4 +503,4 @@ function ProductosContentFixed() {
   );
 }
 
-export default ProductosContentFixed;
+export default ProductosContent;

@@ -3,13 +3,13 @@
 import { signOut, useSession } from "next-auth/react";
 import { useState } from "react";
 import { LogOut, User, Shield, UserCheck } from "lucide-react";
-import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { useCurrentUserSimple } from "@/hooks/useCurrentUserSimple";
 import { useImpersonation } from "@/hooks/useImpersonation";
 import DeleteConfirmModal from "@/components/common/DeleteConfirmModal";
 
 export default function TopBar() {
   const { data: session } = useSession();
-  const currentUser = useCurrentUser();
+  const currentUser = useCurrentUserSimple();
   const { stopImpersonation, isImpersonating } = useImpersonation();
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
