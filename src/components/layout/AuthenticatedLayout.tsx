@@ -3,7 +3,7 @@
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import TopBar from "./TopBar";
 import Header from "./Header";
 import { LoadingSpinner } from "@/components/common/LoadingSpinner";
@@ -16,7 +16,6 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
   const pathname = usePathname();
   const { data: session, status } = useSession();
   const router = useRouter();
-  const isMountedRef = useRef(true);
   
   // Rutas que no requieren autenticación
   const publicRoutes = ["/auth/login", "/auth/error"];
@@ -27,26 +26,14 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
     return <>{children}</>;
   }
 
-  // Cleanup al desmontar
-  useEffect(() => {
-    return () => {
-      isMountedRef.current = false;
-    };
-  }, []);
-
-  // Verificación simple de sesión
-  useEffect(() => {
-    if (isMountedRef.current && status === "unauthenticated") {
-      // Usar setTimeout para evitar actualizaciones durante el renderizado
-      const timeoutId = setTimeout(() => {
-        if (isMountedRef.current) {
-          router.push("/auth/login");
-        }
-      }, 0);
-      
-      return () => clearTimeout(timeoutId);
+  // Redirección simple sin useEffect
+  if (status === "unauthenticated") {
+    // Usar window.location para evitar problemas con React
+    if (typeof window !== 'undefined') {
+      window.location.href = "/auth/login";
     }
-  }, [status, router]);
+    return null;
+  }
 
   // Mostrar loading mientras verifica sesión
   if (status === "loading") {
@@ -57,8 +44,8 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
     );
   }
 
-  // Si no hay sesión, no renderizar nada (se está redirigiendo)
-  if (status === "unauthenticated" || !session) {
+  // Si no hay sesión, no renderizar nada
+  if (!session) {
     return null;
   }
 
