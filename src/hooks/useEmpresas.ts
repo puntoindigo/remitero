@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
 
 export interface Empresa {
@@ -28,7 +28,7 @@ export function useEmpresas() {
     };
   }
 
-  const loadEmpresas = async () => {
+  const loadEmpresas = useCallback(async () => {
     try {
       setIsLoading(true);
       setError(null);
@@ -47,7 +47,7 @@ export function useEmpresas() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
   const createEmpresa = async (name: string) => {
     try {
