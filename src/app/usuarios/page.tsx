@@ -273,39 +273,12 @@ function UsuariosContent() {
             </div>
           )}
 
-          {/* Barra de búsqueda y botón nuevo */}
-          <div className="search-and-action-row" style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1rem', justifyContent: 'space-between' }}>
-            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-              {/* El campo de búsqueda se maneja automáticamente por el DataTable */}
-            </div>
-            <button
-              onClick={handleNew}
-              className="new-button"
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                padding: '0.5rem 1rem',
-                backgroundColor: '#3b82f6',
-                color: 'white',
-                border: 'none',
-                borderRadius: '0.375rem',
-                cursor: 'pointer',
-                fontSize: '0.875rem',
-                fontWeight: '500'
-              }}
-            >
-              <Plus className="h-4 w-4" />
-              Nuevo Usuario
-            </button>
-          </div>
-
           {/* DataTable con paginación */}
           <DataTable
             {...tableConfig}
             columns={columns}
             showSearch={true}
-            showNewButton={false}
+            showNewButton={true}
             showActions={false}
           />
           <Pagination {...paginationConfig} />
