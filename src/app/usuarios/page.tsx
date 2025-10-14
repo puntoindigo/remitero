@@ -257,20 +257,42 @@ function UsuariosContent() {
           <h2>Gestión de Usuarios</h2>
           
           {/* Filtros adicionales */}
-          <div className="category-filter-wrapper" style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1rem' }}>
-            {shouldShowCompanySelector && empresas.length > 0 && (
-              <FilterableSelect
-                options={[
-                  { id: "", name: "Todas las empresas" },
-                  ...empresas
-                ]}
-                value={selectedCompanyId}
-                onChange={setSelectedCompanyId}
-                placeholder="Seleccionar empresa"
-                searchFields={["name"]}
-                className="w-64"
-              />
-            )}
+          <div className="category-filter-wrapper" style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1rem', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+              {shouldShowCompanySelector && empresas.length > 0 && (
+                <FilterableSelect
+                  options={[
+                    { id: "", name: "Todas las empresas" },
+                    ...empresas
+                  ]}
+                  value={selectedCompanyId}
+                  onChange={setSelectedCompanyId}
+                  placeholder="Seleccionar empresa"
+                  searchFields={["name"]}
+                  className="w-64"
+                />
+              )}
+            </div>
+            <button
+              onClick={handleNew}
+              className="new-button"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                padding: '0.5rem 1rem',
+                backgroundColor: '#3b82f6',
+                color: 'white',
+                border: 'none',
+                borderRadius: '0.375rem',
+                cursor: 'pointer',
+                fontSize: '0.875rem',
+                fontWeight: '500'
+              }}
+            >
+              <Plus className="h-4 w-4" />
+              Nuevo Usuario
+            </button>
           </div>
 
           {/* DataTable con paginación */}
@@ -278,7 +300,7 @@ function UsuariosContent() {
             {...tableConfig}
             columns={columns}
             showSearch={true}
-            showNewButton={true}
+            showNewButton={false}
             showActions={false}
           />
           <Pagination {...paginationConfig} />
