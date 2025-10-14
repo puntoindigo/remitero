@@ -209,8 +209,8 @@ export function UsuarioForm({
       </div>
 
       {shouldShowCompanyField && (
-        <div className="form-row">
-          <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+        <div className="form-row" style={{ flexDirection: 'column' }}>
+          <div className="form-group" style={{ width: '100%' }}>
             <label className="form-label-large">Empresa</label>
             <select {...register("companyId")} className="form-select-standard">
               <option value="">Seleccionar Empresa</option>
