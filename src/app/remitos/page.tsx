@@ -81,14 +81,16 @@ function RemitosContent() {
   } = useDataWithCompanySimple();
   
   const [remitos, setRemitos] = useState<Remito[]>([]);
-  const { estados: estadosActivos } = useEstadosByCompany(companyId);
+  
+  // Hooks condicionales - solo ejecutar si companyId está disponible
+  const { estados: estadosActivos } = useEstadosByCompany(companyId || undefined);
   const { empresas } = useEmpresas();
   
   // Hook para productos
-  const { productos: products } = useProductos(companyId);
+  const { productos: products } = useProductos(companyId || undefined);
   
   // Hook para clientes
-  const { clientes: clients, setClientes } = useClientes(companyId);
+  const { clientes: clients, setClientes } = useClientes(companyId || undefined);
   const [isLoading, setIsLoading] = useState(true);
 
   // CRUD State Management

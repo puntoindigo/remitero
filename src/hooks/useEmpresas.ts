@@ -16,6 +16,18 @@ export function useEmpresas() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Verificar que la sesión esté disponible
+  if (!session) {
+    return {
+      empresas: [],
+      isLoading: true,
+      error: null,
+      createEmpresa: async () => {},
+      updateEmpresa: async () => {},
+      deleteEmpresa: async () => {}
+    };
+  }
+
   const loadEmpresas = async () => {
     try {
       setIsLoading(true);

@@ -30,6 +30,18 @@ export function useProductos(companyId?: string) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Verificar que la sesión y el usuario estén disponibles
+  if (!session || !currentUser) {
+    return {
+      productos: [],
+      isLoading: true,
+      error: null,
+      createProducto: async () => {},
+      updateProducto: async () => {},
+      deleteProducto: async () => {}
+    };
+  }
+
   // Determinar el companyId efectivo para las operaciones CRUD
   const getEffectiveCompanyId = () => {
     // Si se pasa companyId como parámetro (desde useDataWithCompany), usarlo

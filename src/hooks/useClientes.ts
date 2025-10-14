@@ -27,6 +27,19 @@ export function useClientes(companyId?: string) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Verificar que la sesión y el usuario estén disponibles
+  if (!session || !currentUser) {
+    return {
+      clientes: [],
+      setClientes: () => {},
+      isLoading: true,
+      error: null,
+      createCliente: async () => {},
+      updateCliente: async () => {},
+      deleteCliente: async () => {}
+    };
+  }
+
   // Determinar el companyId efectivo para las operaciones CRUD
   const getEffectiveCompanyId = () => {
     // Si se pasa companyId como parámetro (desde useDataWithCompany), usarlo
