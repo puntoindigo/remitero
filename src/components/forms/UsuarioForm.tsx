@@ -149,7 +149,14 @@ export function UsuarioForm({
         </div>
 
         <div className="form-group">
-          <label className="form-label-large">Email</label>
+          <label className="form-label-large">
+            Email
+            {errors.email && (
+              <span style={{ color: '#ef4444', marginLeft: '8px', fontSize: '0.875rem', fontWeight: 'normal' }}>
+                {errors.email.message}
+              </span>
+            )}
+          </label>
           <input
             {...register("email")}
             type="email"
@@ -157,9 +164,6 @@ export function UsuarioForm({
             autoComplete="email"
             className="form-input-standard"
           />
-          {errors.email && (
-            <p className="error-message">{errors.email.message}</p>
-          )}
         </div>
       </div>
 
