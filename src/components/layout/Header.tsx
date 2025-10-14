@@ -108,7 +108,9 @@ export default function Header() {
     <header className="header">
       <div className="header-left">
         <h1>{currentUser.companyName || 'Sistema de Remitos'}</h1>
-        <span className="company-name">Sistema de Remitos</span>
+        {currentUser.companyName && (
+          <span className="company-name">Sistema de Remitos</span>
+        )}
       </div>
       
       <nav className="main-nav">
@@ -148,29 +150,7 @@ export default function Header() {
       </nav>
       
       <div className="header-right">
-        <span className="user-info">
-          {currentUser.name} ({currentUser.role})
-          {currentUser.isImpersonating && (
-            <span className="impersonation-indicator"> [IMPERSONANDO]</span>
-          )}
-        </span>
-        
-        {currentUser.isImpersonating ? (
-          <button 
-            onClick={handleStopImpersonation} 
-            className="logout-button impersonation-logout"
-            disabled={isImpersonating}
-            title="Volver a mi cuenta de administrador"
-          >
-            <LogOut className="h-4 w-4" />
-            Volver a Admin
-          </button>
-        ) : (
-          <button onClick={handleLogoutRequest} className="logout-button">
-            <LogOut className="h-4 w-4" />
-            Salir
-          </button>
-        )}
+        {/* Información del usuario movida al TopBar */}
       </div>
 
       {/* Modal de confirmación de logout */}

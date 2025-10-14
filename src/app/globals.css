@@ -3251,7 +3251,7 @@ form svg {
 
 /* TopBar Styles */
 .topbar {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   position: relative;
@@ -3292,7 +3292,7 @@ form svg {
 }
 
 .user-name {
-  font-weight: 600;
+  font-weight: 400;
   color: white;
 }
 

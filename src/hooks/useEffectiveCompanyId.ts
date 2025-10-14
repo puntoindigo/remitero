@@ -1,7 +1,7 @@
 "use client";
 
 import { useCurrentUser } from "./useCurrentUser";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 /**
  * Hook que maneja el companyId efectivo considerando impersonation y selección de empresa
@@ -14,6 +14,27 @@ import { useState } from "react";
 export function useEffectiveCompanyId() {
   const currentUser = useCurrentUser();
   const [selectedCompanyId, setSelectedCompanyId] = useState<string>("");
+
+  // Cargar selección de empresa desde sessionStorage al inicializar
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedCompanyId = sessionStorage.getItem('selectedCompanyId');
+      if (savedCompanyId) {
+        setSelectedCompanyId(savedCompanyId);
+      }
+    }
+  }, []);
+
+  // Guardar selección de empresa en sessionStorage cuando cambie
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      if (selectedCompanyId) {
+        sessionStorage.setItem('selectedCompanyId', selectedCompanyId);
+      } else {
+        sessionStorage.removeItem('selectedCompanyId');
+      }
+    }
+  }, [selectedCompanyId]);
 
   const isImpersonating = currentUser?.impersonating !== null;
   
