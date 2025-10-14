@@ -3,7 +3,7 @@
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import TopBar from "./TopBar";
 import Header from "./Header";
 import { LoadingSpinner } from "@/components/common/LoadingSpinner";
@@ -16,6 +16,7 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
   const pathname = usePathname();
   const { data: session, status } = useSession();
   const router = useRouter();
+  const isMountedRef = useRef(true);
   
   // Rutas que no requieren autenticación
   const publicRoutes = ["/auth/login", "/auth/error"];
@@ -28,10 +29,17 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
 
   // Verificación simple de sesión
   useEffect(() => {
-    if (status === "unauthenticated") {
+    if (isMountedRef.current && status === "unauthenticated") {
       router.push("/auth/login");
     }
   }, [status, router]);
+
+  // Cleanup al desmontar
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
   // Mostrar loading mientras verifica sesión
   if (status === "loading") {
