@@ -186,16 +186,14 @@ export function UsuarioForm({
               className="form-input-standard"
               style={{ flex: 1 }}
             />
-            {!editingUser && (
-              <button
-                type="button"
-                onClick={() => setShowPasswordGenerator(true)}
-                className="btn small secondary"
-                title="Generar contraseña automática"
-              >
-                <Key className="h-4 w-4" />
-              </button>
-            )}
+            <button
+              type="button"
+              onClick={() => setShowPasswordGenerator(true)}
+              className="btn small secondary"
+              title="Generar contraseña automática"
+            >
+              <Key className="h-4 w-4" />
+            </button>
           </div>
           {errors.password && (
             <p className="error-message">{errors.password.message}</p>

@@ -3,6 +3,7 @@
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Remito } from "@/lib/types";
+import { LoadingSpinner } from "@/components/common/LoadingSpinner";
 
 export default function PrintRemito() {
   const params = useParams();
@@ -92,7 +93,7 @@ export default function PrintRemito() {
   }, [remito, loading]);
 
   if (loading) {
-    return <div className="loading">Cargando remito...</div>;
+    return <LoadingSpinner message="Cargando remito..." />;
   }
 
   if (!remito) {

@@ -69,7 +69,14 @@ export default function TopBar() {
           <div className="topbar-right">
             <div className="user-info-topbar">
               <div className="user-details">
-                <span className="user-name">{currentUser.name}</span>
+                <span className="user-name">
+                  {currentUser.isImpersonating 
+                    ? (typeof window !== 'undefined' && localStorage.getItem('impersonation') 
+                        ? JSON.parse(localStorage.getItem('impersonation')!).originalAdmin?.name 
+                        : 'Admin')
+                    : currentUser.name
+                  }
+                </span>
                 {currentUser.role !== 'USER' && (
                   <div className="user-role">
                     {getRoleIcon()}

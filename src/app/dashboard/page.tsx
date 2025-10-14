@@ -5,6 +5,8 @@ import { useState, useEffect } from "react"
 import { FileText, Package, Users, Building2, Tag, ShoppingBag, Plus, Eye } from "lucide-react"
 import Link from "next/link"
 import { useCurrentUserSimple } from "@/hooks/useCurrentUserSimple"
+import { useEmpresas } from "@/hooks/useEmpresas"
+import FilterableSelect from "@/components/common/FilterableSelect"
 
 interface DashboardStats {
   remitos: {
@@ -32,6 +34,8 @@ interface TodayStats {
 export default function DashboardPage() {
   const { data: session } = useSession()
   const currentUser = useCurrentUserSimple()
+  const { empresas } = useEmpresas()
+  const [selectedCompanyId, setSelectedCompanyId] = useState<string>("")
   const [stats, setStats] = useState<DashboardStats>({
     remitos: { total: 0, pendientes: 0, preparados: 0, entregados: 0 },
     productos: { total: 0, conStock: 0, sinStock: 0 },
@@ -46,17 +50,43 @@ export default function DashboardPage() {
   })
   const [isLoading, setIsLoading] = useState(true)
 
+  // Cargar selección de empresa desde sessionStorage al inicializar
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedCompanyId = sessionStorage.getItem('selectedCompanyId');
+      if (savedCompanyId) {
+        setSelectedCompanyId(savedCompanyId);
+      }
+    }
+  }, []);
+
+  // Guardar selección de empresa en sessionStorage cuando cambie
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      if (selectedCompanyId) {
+        sessionStorage.setItem('selectedCompanyId', selectedCompanyId);
+      } else {
+        sessionStorage.removeItem('selectedCompanyId');
+      }
+    }
+  }, [selectedCompanyId]);
+
   useEffect(() => {
     const loadStats = async () => {
-      if (!currentUser?.companyId) return
+      // Determinar el companyId efectivo
+      const effectiveCompanyId = currentUser?.role === "SUPERADMIN" 
+        ? (selectedCompanyId || null)
+        : currentUser?.companyId;
+      
+      if (!effectiveCompanyId) return
       
       try {
         // Cargar estadísticas principales
         const [remitosRes, productosRes, clientesRes, categoriasRes] = await Promise.all([
-          fetch(`/api/remitos?companyId=${currentUser.companyId}`),
-          fetch(`/api/products?companyId=${currentUser.companyId}`),
-          fetch(`/api/clients?companyId=${currentUser.companyId}`),
-          fetch(`/api/categories?companyId=${currentUser.companyId}`)
+          fetch(`/api/remitos?companyId=${effectiveCompanyId}`),
+          fetch(`/api/products?companyId=${effectiveCompanyId}`),
+          fetch(`/api/clients?companyId=${effectiveCompanyId}`),
+          fetch(`/api/categories?companyId=${effectiveCompanyId}`)
         ])
 
         const [remitos, productos, clientes, categorias] = await Promise.all([
@@ -132,7 +162,7 @@ export default function DashboardPage() {
     }
 
     loadStats()
-  }, [currentUser?.companyId])
+  }, [currentUser?.companyId, currentUser?.role, selectedCompanyId])
 
   // Funciones helper para generar enlaces y nombres
   const getNewLink = (title: string) => {
@@ -246,6 +276,19 @@ export default function DashboardPage() {
           <p className="mt-2 text-gray-600">
             Bienvenido, {currentUser?.name}
           </p>
+          
+          {/* Selector de empresa para SUPERADMIN */}
+          {currentUser?.role === "SUPERADMIN" && empresas.length > 0 && (
+            <div className="mt-4">
+              <FilterableSelect
+                options={empresas}
+                value={selectedCompanyId}
+                onChange={setSelectedCompanyId}
+                placeholder="Seleccionar empresa"
+                className="w-full max-w-md"
+              />
+            </div>
+          )}
         </div>
 
         <div className="dashboard-grid">

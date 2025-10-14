@@ -17,6 +17,7 @@ import { useEmpresas } from "@/hooks/useEmpresas";
 import { DataTable, type DataTableColumn } from "@/components/common/DataTable";
 import { useCRUDTable } from "@/hooks/useCRUDTable";
 import { Pagination } from "@/components/common/Pagination";
+import { LoadingSpinner } from "@/components/common/LoadingSpinner";
 
 interface Remito {
   id: string;
@@ -260,7 +261,7 @@ function RemitosContent() {
   if (isLoading) {
     return (
       <main className="main-content">
-        <div className="loading">Cargando remitos...</div>
+        <LoadingSpinner message="Cargando remitos..." />
       </main>
     );
   }

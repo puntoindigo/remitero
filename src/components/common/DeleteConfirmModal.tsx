@@ -75,11 +75,11 @@ export default function DeleteConfirmModal({
           </button>
         </div>
         <div className="modal-body" style={{ padding: '20px' }}>
-          <p style={{ margin: '0 0 10px 0', color: '#374151' }}>{message}</p>
+          <p style={{ margin: '0 0 10px 0', color: '#374151', fontSize: '16px' }}>{message}</p>
           {itemName && (
-            <p style={{ margin: '10px 0', fontWeight: '500', color: '#111827' }}>"{itemName}"</p>
+            <p style={{ margin: '10px 0', fontWeight: '500', color: '#111827', fontSize: '16px' }}>"{itemName}"</p>
           )}
-          <p style={{ margin: '10px 0 0 0', fontSize: '14px', color: '#6b7280' }}>
+          <p style={{ margin: '10px 0 0 0', fontSize: '16px', color: '#6b7280' }}>
             Esta acción no se puede deshacer.
           </p>
         </div>
