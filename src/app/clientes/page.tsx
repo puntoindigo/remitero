@@ -12,7 +12,7 @@ import { useMessageModal } from "@/hooks/useMessageModal";
 import { useClientes, type Cliente } from "@/hooks/useClientes";
 import { useEmpresas, type Empresa } from "@/hooks/useEmpresas";
 import { useCRUDPage } from "@/hooks/useCRUDPage";
-import { useDataWithCompany } from "@/hooks/useDataWithCompany";
+import { useDataWithCompanySimple } from "@/hooks/useDataWithCompanySimple";
 import { useCurrentUserSimple } from "@/hooks/useCurrentUserSimple";
 import { DataTable, type DataTableColumn } from "@/components/common/DataTable";
 import { useCRUDTable } from "@/hooks/useCRUDTable";
@@ -29,7 +29,7 @@ function ClientesContent() {
     selectedCompanyId,
     setSelectedCompanyId,
     shouldShowCompanySelector
-  } = useDataWithCompany();
+  } = useDataWithCompanySimple();
   
   const {
     editingItem: editingCliente,
@@ -123,9 +123,13 @@ function ClientesContent() {
     }
   };
 
-  // Lógica para mostrar contenido: si hay companyId o si es SUPERADMIN con empresa seleccionada
-  const shouldShowContent = companyId !== null;
+  // Lógica corregida: 
+  // - ADMIN y USER siempre tienen companyId (vinculados a empresa)
+  // - SUPERADMIN puede no tener empresa seleccionada (necesita seleccionar)
   const needsCompanySelection = !companyId && currentUser?.role === "SUPERADMIN";
+  
+  // Verificar si hay un problema con los datos del usuario
+  const hasDataIssue = !companyId && currentUser?.role !== "SUPERADMIN";
 
   // Definir columnas para el DataTable
   const columns: DataTableColumn<Cliente>[] = [
@@ -204,6 +208,20 @@ function ClientesContent() {
     );
   }
 
+  // Verificar si hay un problema con los datos del usuario
+  if (hasDataIssue) {
+    return (
+      <main className="main-content">
+        <div className="form-section">
+          <div className="text-center py-8">
+            <h2 className="text-xl font-semibold text-red-600 mb-2">Error de Configuración</h2>
+            <p className="text-gray-600">Tu usuario no está vinculado a ninguna empresa. Contacta al administrador.</p>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main className="main-content">
       <div className="px-4 py-6 sm:px-0">
@@ -239,7 +257,7 @@ function ClientesContent() {
               <Users className="empty-icon" />
               <p>Para ver los clientes, primero selecciona una empresa.</p>
             </div>
-          ) : shouldShowContent ? (
+          ) : (
             <>
               <div style={{ marginBottom: '1rem' }}>
                 <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', justifyContent: 'space-between' }}>

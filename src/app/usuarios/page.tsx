@@ -14,7 +14,7 @@ import { useUsuarios, type Usuario } from "@/hooks/useUsuarios";
 import { useEmpresas, type Empresa } from "@/hooks/useEmpresas";
 import { useCRUDPage } from "@/hooks/useCRUDPage";
 import { useImpersonation } from "@/hooks/useImpersonation";
-import { useDataWithCompany } from "@/hooks/useDataWithCompany";
+import { useDataWithCompanySimple } from "@/hooks/useDataWithCompanySimple";
 import { DataTable, type DataTableColumn } from "@/components/common/DataTable";
 import { useCRUDTable } from "@/hooks/useCRUDTable";
 import { Pagination } from "@/components/common/Pagination";
@@ -30,7 +30,7 @@ function UsuariosContent() {
     selectedCompanyId,
     setSelectedCompanyId,
     shouldShowCompanySelector
-  } = useDataWithCompany();
+  } = useDataWithCompanySimple();
 
   // Leer companyId de los searchParams si está presente
   const companyIdFromParams = searchParams.get('companyId');
