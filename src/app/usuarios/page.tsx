@@ -297,7 +297,7 @@ function UsuariosContent() {
                   className="search-input"
                   style={{
                     width: '100%',
-                    padding: '0.5rem 0.5rem 0.5rem 2.5rem',
+                    padding: '0.5rem 2.5rem 0.5rem 2.5rem',
                     border: '1px solid #d1d5db',
                     borderRadius: '0.375rem',
                     fontSize: '0.875rem',
@@ -317,6 +317,41 @@ function UsuariosContent() {
                     <path d="m21 21-4.35-4.35"></path>
                   </svg>
                 </div>
+                {(tableConfig.searchValue || '').length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => tableConfig.onSearchChange?.('')}
+                    style={{
+                      position: 'absolute',
+                      right: '0.75rem',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      color: '#9ca3af',
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      padding: '0.25rem',
+                      borderRadius: '0.25rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.color = '#6b7280';
+                      e.currentTarget.style.backgroundColor = '#f3f4f6';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.color = '#9ca3af';
+                      e.currentTarget.style.backgroundColor = 'transparent';
+                    }}
+                    title="Limpiar búsqueda"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <line x1="18" y1="6" x2="6" y2="18"></line>
+                      <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                  </button>
+                )}
               </div>
             </div>
             <button

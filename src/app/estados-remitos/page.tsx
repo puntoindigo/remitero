@@ -224,16 +224,25 @@ function EstadosRemitosContent() {
           </div>
 
           {/* DataTable con paginación */}
-          <DataTable
-            {...tableConfig}
-            columns={columns}
-            showSearch={true}
-            showNewButton={true}
-            onEdit={(estado) => handleEditEstado(estado)}
-            onDelete={handleDeleteEstado}
-            actionsColumnLabel="Acciones"
-          />
-          <Pagination {...paginationConfig} />
+          {needsCompanySelection ? (
+            <div className="empty-state">
+              <Tag className="empty-icon" />
+              <p>Para ver los estados, primero selecciona una empresa.</p>
+            </div>
+          ) : (
+            <>
+              <DataTable
+                {...tableConfig}
+                columns={columns}
+                showSearch={true}
+                showNewButton={true}
+                onEdit={(estado) => handleEditEstado(estado)}
+                onDelete={handleDeleteEstado}
+                actionsColumnLabel="Acciones"
+              />
+              <Pagination {...paginationConfig} />
+            </>
+          )}
         </div>
 
         {/* Modal de confirmación de eliminación */}

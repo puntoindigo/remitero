@@ -303,7 +303,6 @@ function RemitosContentFixed() {
         {needsCompanySelection ? (
           <div className="empty-state">
             <FileText className="empty-icon" />
-            <h3>Selecciona una empresa</h3>
             <p>Para ver los remitos, primero selecciona una empresa.</p>
           </div>
         ) : (

@@ -74,7 +74,7 @@ export function MessageModal({ isOpen, onClose, type, title, message, details }:
       <div className="modal max-w-md">
         <div className="modal-content">
           <div className={`flex items-center mb-4 p-4 rounded-lg ${styles.bgColor} ${styles.borderColor} border`}>
-            <span className={`text-2xl mr-3 ${styles.iconColor}`}>
+            <span className={`text-4xl mr-4 ${styles.iconColor}`} style={{ fontSize: '2.5rem' }}>
               {styles.icon}
             </span>
             <h3 className={`text-lg font-semibold ${styles.titleColor}`}>

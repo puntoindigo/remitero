@@ -3,6 +3,7 @@ import "./globals.css";
 import { Providers } from "@/components/providers";
 import AuthSessionProvider from "@/components/providers/SessionProvider";
 import Header from "@/components/layout/Header";
+import TopBar from "@/components/layout/TopBar";
 import EnvironmentBannerWrapper from "@/components/common/EnvironmentBannerWrapper";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
@@ -18,6 +19,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <AuthSessionProvider>
           {/* <EnvironmentBannerWrapper /> */}
+          <TopBar />
           <Header />
           <div className="container">
             <Providers>{children}</Providers>

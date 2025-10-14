@@ -179,7 +179,12 @@ function CategoriasContent() {
           </div>
 
           {/* DataTable con paginación */}
-          {!needsCompanySelection && (
+          {needsCompanySelection ? (
+            <div className="empty-state">
+              <Tag className="empty-icon" />
+              <p>Para ver las categorías, primero selecciona una empresa.</p>
+            </div>
+          ) : (
             <>
               <DataTable
                 {...tableConfig}
