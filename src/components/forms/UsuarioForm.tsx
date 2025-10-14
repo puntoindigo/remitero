@@ -209,8 +209,8 @@ export function UsuarioForm({
       </div>
 
       {shouldShowCompanyField && (
-        <div className="form-row" style={{ flexDirection: 'column' }}>
-          <div className="form-group" style={{ width: '100%' }}>
+        <div className="form-row">
+          <div className="form-group" style={{ flex: 1 }}>
             <label className="form-label-large">Empresa</label>
             <select {...register("companyId")} className="form-select-standard">
               <option value="">Seleccionar Empresa</option>
@@ -224,6 +224,7 @@ export function UsuarioForm({
               <p className="error-message">{errors.companyId.message}</p>
             )}
           </div>
+          <div style={{ flex: 1 }}></div>
         </div>
       )}
     </FormModal>

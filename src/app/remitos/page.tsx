@@ -139,7 +139,18 @@ function RemitosContentFixed() {
 
   const handleStatusChange = async (remitoId: string, newStatusId: string) => {
     try {
-      await updateStatus(remitoId, newStatusId);
+      const response = await fetch(`/api/remitos/${remitoId}/status`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: newStatusId }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Error al actualizar el estado');
+      }
+
       await loadData();
     } catch (error) {
       console.error('Error updating status:', error);
@@ -156,7 +167,7 @@ function RemitosContentFixed() {
       
       if (response.ok) {
         handleCancelDelete();
-        showSuccess("Remito eliminado correctamente");
+        showSuccess("Remito eliminado correctamente", "Éxito");
         await loadData();
       } else {
         throw new Error('Error al eliminar remito');
@@ -181,7 +192,7 @@ function RemitosContentFixed() {
 
       if (response.ok) {
         handleCloseForm();
-        showSuccess(editingRemito ? "Remito actualizado correctamente" : "Remito creado correctamente");
+        showSuccess(editingRemito ? "Remito actualizado correctamente" : "Remito creado correctamente", "Éxito");
         await loadData();
         
         // Si es un nuevo remito, abrir la página de impresión
@@ -208,30 +219,25 @@ function RemitosContentFixed() {
       key: 'number',
       label: 'Número',
       render: (remito) => (
-        <div>
-          <div className="font-medium">#{remito.number}</div>
-          <div className="text-sm text-gray-500">
-            {new Date(remito.createdAt).toLocaleDateString('es-AR', {
-              year: 'numeric',
-              month: '2-digit',
-              day: '2-digit',
-              hour: '2-digit',
-              minute: '2-digit'
-            })}
-          </div>
-        </div>
+        <div className="font-medium">#{remito.number}</div>
       )
     },
     {
       key: 'client',
       label: 'Cliente',
       render: (remito) => (
-        <div>
-          <div className="font-medium">{remito.client.name}</div>
-          {remito.client.email && (
-            <div className="text-sm text-gray-500">{remito.client.email}</div>
-          )}
-        </div>
+        <div className="font-medium">{remito.client.name}</div>
+      )
+    },
+    {
+      key: 'email',
+      label: 'Email',
+      render: (remito) => (
+        remito.client.email ? (
+          <div className="text-sm text-gray-600">{remito.client.email}</div>
+        ) : (
+          <span className="text-gray-400">Sin email</span>
+        )
       )
     },
     {
@@ -255,6 +261,18 @@ function RemitosContentFixed() {
       key: 'total',
       label: 'Total',
       render: (remito) => `$${remito.total.toFixed(2)}`
+    },
+    {
+      key: 'createdAt',
+      label: 'Registrado',
+      render: (remito) => new Date(remito.createdAt).toLocaleString('es-AR', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+      })
     }
   ];
 
@@ -319,7 +337,7 @@ function RemitosContentFixed() {
         {/* Modal de confirmación de eliminación */}
         <DeleteConfirmModal
           isOpen={!!showDeleteConfirm}
-          onClose={handleCancelDelete}
+          onCancel={handleCancelDelete}
           onConfirm={handleDelete}
           title="Eliminar Remito"
           message={`¿Estás seguro de que deseas eliminar el remito "${showDeleteConfirm?.name}"?`}
