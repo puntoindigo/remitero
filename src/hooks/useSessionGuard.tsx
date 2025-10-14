@@ -19,6 +19,7 @@ export function useSessionGuard() {
 
     // Si no hay sesión, redirigir al login
     if (status === "unauthenticated" || !session) {
+      console.log("No hay sesión, redirigiendo al login");
       router.push("/auth/login");
       return;
     }
