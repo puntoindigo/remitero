@@ -119,9 +119,14 @@ export function useEmpresas() {
   };
 
   useEffect(() => {
-    if (session?.user?.role === "SUPERADMIN") {
+    if (!session) {
+      setIsLoading(false);
+      return;
+    }
+    
+    if (session.user?.role === "SUPERADMIN") {
       loadEmpresas();
-    } else if (session?.user) {
+    } else if (session.user) {
       setIsLoading(false);
     }
   }, [session, loadEmpresas]);

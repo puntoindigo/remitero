@@ -26,8 +26,12 @@ export const useCurrentUserSimple = () => {
   }
 
   // Si no hay impersonation, devolver el usuario de la sesión
+  if (!session?.user) {
+    return null;
+  }
+  
   return {
-    ...session?.user,
+    ...session.user,
     impersonating: null,
     isImpersonating: false
   };
