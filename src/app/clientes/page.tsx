@@ -20,7 +20,6 @@ import { Pagination } from "@/components/common/Pagination";
 import { LoadingSpinner } from "@/components/common/LoadingSpinner";
 
 function ClientesContent() {
-  const { data: session } = useSession();
   const currentUser = useCurrentUserSimple();
   
   // Hook centralizado para manejo de companyId

@@ -37,7 +37,6 @@ interface Category {
 }
 
 function ProductosContent() {
-  const { data: session } = useSession();
   const currentUser = useCurrentUserSimple();
   const searchParams = useSearchParams();
   const router = useRouter();

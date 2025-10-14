@@ -2,11 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Providers } from "@/components/providers";
 import AuthSessionProvider from "@/components/providers/SessionProvider";
-import Header from "@/components/layout/Header";
-import TopBar from "@/components/layout/TopBar";
+import AuthenticatedLayout from "@/components/layout/AuthenticatedLayout";
 import EnvironmentBannerWrapper from "@/components/common/EnvironmentBannerWrapper";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
 
 export const metadata: Metadata = {
   title: "Sistema de Remitos",
@@ -19,11 +16,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <AuthSessionProvider>
           {/* <EnvironmentBannerWrapper /> */}
-          <TopBar />
-          <Header />
-          <div className="container">
+          <AuthenticatedLayout>
             <Providers>{children}</Providers>
-          </div>
+          </AuthenticatedLayout>
         </AuthSessionProvider>
       </body>
     </html>

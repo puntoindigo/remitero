@@ -42,16 +42,10 @@ interface Remito {
 }
 
 function RemitosContent() {
-  const { data: session } = useSession();
   const currentUser = useCurrentUserSimple();
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
-
-  // Verificar sesión primero
-  if (!session) {
-    return <LoadingSpinner message="Cargando..." />;
-  }
 
   // Prevenir errores de client-side exception
   if (!currentUser) {

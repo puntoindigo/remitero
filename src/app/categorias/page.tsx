@@ -20,7 +20,6 @@ import { LoadingSpinner } from "@/components/common/LoadingSpinner";
 import { useCurrentUserSimple } from "@/hooks/useCurrentUserSimple";
 
 function CategoriasContent() {
-  const { data: session } = useSession();
   const currentUser = useCurrentUserSimple();
   
   // Verificar permisos - solo ADMIN y SUPERADMIN pueden acceder

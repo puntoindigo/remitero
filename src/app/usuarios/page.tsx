@@ -21,7 +21,7 @@ import { Pagination } from "@/components/common/Pagination";
 import { LoadingSpinner } from "@/components/common/LoadingSpinner";
 
 function UsuariosContent() {
-  const { data: session } = useSession();
+  const currentUser = useCurrentUserSimple();
   const searchParams = useSearchParams();
   
   // Hook centralizado para manejo de companyId
