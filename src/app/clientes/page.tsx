@@ -13,7 +13,7 @@ import { useClientes, type Cliente } from "@/hooks/useClientes";
 import { useEmpresas, type Empresa } from "@/hooks/useEmpresas";
 import { useCRUDPage } from "@/hooks/useCRUDPage";
 import { useDataWithCompany } from "@/hooks/useDataWithCompany";
-import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { useCurrentUserSimple } from "@/hooks/useCurrentUserSimple";
 import { DataTable, type DataTableColumn } from "@/components/common/DataTable";
 import { useCRUDTable } from "@/hooks/useCRUDTable";
 import { Pagination } from "@/components/common/Pagination";
@@ -21,7 +21,7 @@ import { LoadingSpinner } from "@/components/common/LoadingSpinner";
 
 function ClientesContent() {
   const { data: session } = useSession();
-  const currentUser = useCurrentUser();
+  const currentUser = useCurrentUserSimple();
   
   // Hook centralizado para manejo de companyId
   const {

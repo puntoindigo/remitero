@@ -4,7 +4,7 @@ import { useSession } from "next-auth/react"
 import { useState, useEffect } from "react"
 import { FileText, Package, Users, Building2, Tag, ShoppingBag, Plus, Eye } from "lucide-react"
 import Link from "next/link"
-import { useCurrentUser } from "@/hooks/useCurrentUser"
+import { useCurrentUserSimple } from "@/hooks/useCurrentUserSimple"
 
 interface DashboardStats {
   remitos: {
@@ -31,7 +31,7 @@ interface TodayStats {
 
 export default function DashboardPage() {
   const { data: session } = useSession()
-  const currentUser = useCurrentUser()
+  const currentUser = useCurrentUserSimple()
   const [stats, setStats] = useState<DashboardStats>({
     remitos: { total: 0, pendientes: 0, preparados: 0, entregados: 0 },
     productos: { total: 0, conStock: 0, sinStock: 0 },

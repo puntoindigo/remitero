@@ -209,34 +209,18 @@ function UsuariosContent() {
       })
     },
     {
-      key: 'actions',
-      label: 'Acciones',
+      key: 'impersonate',
+      label: 'Impersonar',
       render: (usuario) => (
-        <div className="flex gap-3">
+        canImpersonate(usuario) ? (
           <button
-            onClick={() => handleEdit(usuario)}
-            className="btn small secondary"
-            title="Editar usuario"
+            onClick={() => handleImpersonate(usuario)}
+            className="btn small primary"
+            title="Impersonar usuario"
           >
-            <Edit className="h-4 w-4" />
+            <Users className="h-4 w-4" />
           </button>
-          <button
-            onClick={() => handleDeleteUsuario(usuario)}
-            className="btn small danger"
-            title="Eliminar usuario"
-          >
-            <Trash2 className="h-4 w-4" />
-          </button>
-          {canImpersonate(usuario) && (
-            <button
-              onClick={() => handleImpersonate(usuario)}
-              className="btn small primary"
-              title="Impersonar usuario"
-            >
-              <Users className="h-4 w-4" />
-            </button>
-          )}
-        </div>
+        ) : null
       )
     }
   ];
@@ -383,7 +367,9 @@ function UsuariosContent() {
             columns={columns}
             showSearch={false}
             showNewButton={false}
-            showActions={false}
+            onEdit={(usuario) => handleEdit(usuario)}
+            onDelete={handleDeleteUsuario}
+            actionsColumnLabel="Acciones"
           />
           <Pagination {...paginationConfig} />
         </div>
