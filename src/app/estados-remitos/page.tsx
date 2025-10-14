@@ -12,7 +12,7 @@ import { useEstadosRemitos, EstadoRemito, EstadoRemitoFormData } from "@/hooks/u
 import { EstadoRemitoForm } from "@/components/forms/EstadoRemitoForm";
 import { useEmpresas, type Empresa } from "@/hooks/useEmpresas";
 import { useCurrentUserSimple } from "@/hooks/useCurrentUserSimple";
-import { useDataWithCompany } from "@/hooks/useDataWithCompany";
+import { useDataWithCompanySimple } from "@/hooks/useDataWithCompanySimple";
 import { DataTable, type DataTableColumn } from "@/components/common/DataTable";
 import { useCRUDTable } from "@/hooks/useCRUDTable";
 import { Pagination } from "@/components/common/Pagination";
@@ -42,7 +42,7 @@ function EstadosRemitosContent() {
     selectedCompanyId,
     setSelectedCompanyId,
     shouldShowCompanySelector
-  } = useDataWithCompany();
+  } = useDataWithCompanySimple();
 
   // Verificar permisos - solo ADMIN y SUPERADMIN pueden ver esta página
   if (!currentUser || !['ADMIN', 'SUPERADMIN'].includes(currentUser.role)) {
@@ -146,8 +146,13 @@ function EstadosRemitosContent() {
     }
   };
 
-  // Lógica simplificada: mostrar contenido si hay companyId o si es SUPERADMIN sin impersonar
+  // Lógica corregida: 
+  // - ADMIN y USER siempre tienen companyId (vinculados a empresa)
+  // - SUPERADMIN puede no tener empresa seleccionada (necesita seleccionar)
   const needsCompanySelection = !companyId && currentUser?.role === "SUPERADMIN";
+  
+  // Verificar si hay un problema con los datos del usuario
+  const hasDataIssue = !companyId && currentUser?.role !== "SUPERADMIN";
 
   // Definir columnas para el DataTable
   const columns: DataTableColumn<EstadoRemito>[] = [
@@ -192,6 +197,20 @@ function EstadosRemitosContent() {
       <main className="main-content">
         <div className="form-section">
           <LoadingSpinner message="Cargando estados..." />
+        </div>
+      </main>
+    );
+  }
+
+  // Verificar si hay un problema con los datos del usuario
+  if (hasDataIssue) {
+    return (
+      <main className="main-content">
+        <div className="form-section">
+          <div className="text-center py-8">
+            <h2 className="text-xl font-semibold text-red-600 mb-2">Error de Configuración</h2>
+            <p className="text-gray-600">Tu usuario no está vinculado a ninguna empresa. Contacta al administrador.</p>
+          </div>
         </div>
       </main>
     );
