@@ -359,7 +359,7 @@ function ClientesContent() {
               />
               <Pagination {...paginationConfig} />
             </>
-          ) : null}
+          )}
         </div>
 
         {/* Modal de confirmación de eliminación */}

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
-import { useCurrentUser } from "./useCurrentUser";
+import { useCurrentUserSimple } from "./useCurrentUserSimple";
 
 export interface RemitoItem {
   product_id?: string;
@@ -41,7 +41,7 @@ export interface RemitoFormData {
 
 export function useRemitos(companyId?: string) {
   const { data: session } = useSession();
-  const currentUser = useCurrentUser();
+  const currentUser = useCurrentUserSimple();
   const [remitos, setRemitos] = useState<Remito[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

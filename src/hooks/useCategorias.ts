@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
-import { useCurrentUser } from "./useCurrentUser";
+import { useCurrentUserSimple } from "./useCurrentUserSimple";
 
 export interface Categoria {
   id: string;
@@ -18,7 +18,7 @@ export interface CategoriaFormData {
 
 export function useCategorias(companyId?: string) {
   const { data: session } = useSession();
-  const currentUser = useCurrentUser();
+  const currentUser = useCurrentUserSimple();
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

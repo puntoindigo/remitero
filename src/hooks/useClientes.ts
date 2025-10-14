@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
-import { useCurrentUser } from "./useCurrentUser";
+import { useCurrentUserSimple } from "./useCurrentUserSimple";
 
 export interface Cliente {
   id: string;
@@ -22,7 +22,7 @@ export interface ClienteFormData {
 
 export function useClientes(companyId?: string) {
   const { data: session } = useSession();
-  const currentUser = useCurrentUser();
+  const currentUser = useCurrentUserSimple();
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

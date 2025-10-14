@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { useCurrentUser } from "./useCurrentUser";
+import { useCurrentUserSimple } from "./useCurrentUserSimple";
 
 export interface EstadoRemito {
   id: string;
@@ -87,7 +87,7 @@ const ESTADOS_PREDEFINIDOS: EstadoRemito[] = [
 ];
 
 export function useEstadosRemitos(companyId?: string) {
-  const currentUser = useCurrentUser();
+  const currentUser = useCurrentUserSimple();
   const [estados, setEstados] = useState<EstadoRemito[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

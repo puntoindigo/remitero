@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
-import { useCurrentUser } from "./useCurrentUser";
+import { useCurrentUserSimple } from "./useCurrentUserSimple";
 
 export interface Producto {
   id: string;
@@ -25,7 +25,7 @@ export interface ProductoFormData {
 
 export function useProductos(companyId?: string) {
   const { data: session } = useSession();
-  const currentUser = useCurrentUser();
+  const currentUser = useCurrentUserSimple();
   const [productos, setProductos] = useState<Producto[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
