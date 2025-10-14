@@ -300,6 +300,20 @@ function RemitosContentFixed() {
           )}
         </div>
 
+        {/* Botón Nuevo independiente */}
+        {!needsCompanySelection && (
+          <div style={{ marginBottom: '1rem' }}>
+            <button
+              onClick={handleNew}
+              className="btn primary"
+              disabled={isSubmitting}
+            >
+              <Plus className="h-4 w-4" />
+              Nuevo Remito
+            </button>
+          </div>
+        )}
+
         {/* Contenido principal */}
         {needsCompanySelection ? (
           <div className="empty-state">
@@ -313,7 +327,7 @@ function RemitosContentFixed() {
               {...tableConfig}
               columns={columns}
               showSearch={true}
-              showNewButton={true}
+              showNewButton={false} // Deshabilitar botón nuevo (ya tenemos uno independiente)
             />
             <Pagination {...paginationConfig} />
           </>

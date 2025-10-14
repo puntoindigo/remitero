@@ -116,7 +116,7 @@ export default function Header() {
       <nav className="main-nav">
         <NavLink href="/dashboard" roles={['ADMIN', 'USER']}>
           <LayoutDashboard className="h-4 w-4" />
-          Dashboard
+          Tablero
         </NavLink>
         <NavLink href="/remitos">
           <ReceiptText className="h-4 w-4" />
@@ -130,11 +130,11 @@ export default function Header() {
           <Package className="h-4 w-4" />
           Productos
         </NavLink>
-        <NavLink href="/categorias">
+        <NavLink href="/categorias" roles={['SUPERADMIN', 'ADMIN']}>
           <Tag className="h-4 w-4" />
           Categorías
         </NavLink>
-        <NavLink href="/estados-remitos">
+        <NavLink href="/estados-remitos" roles={['SUPERADMIN', 'ADMIN']}>
           <Tag className="h-4 w-4" />
           Estados
         </NavLink>

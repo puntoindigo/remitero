@@ -5,13 +5,14 @@ import { createPortal } from "react-dom";
 import { ChevronDown, X, Search } from "lucide-react";
 
 interface FilterableSelectProps {
-  options: Array<{ id: string; name: string; [key: string]: any }>;
+  options: Array<{ id: string; name: string; color?: string; [key: string]: any }>;
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
   searchFields?: string[];
   className?: string;
   disabled?: boolean;
+  showColors?: boolean;
 }
 
 export default function FilterableSelect({
@@ -21,7 +22,8 @@ export default function FilterableSelect({
   placeholder = "Seleccionar...",
   searchFields = ["name"],
   className = "",
-  disabled = false
+  disabled = false,
+  showColors = false
 }: FilterableSelectProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -153,7 +155,23 @@ export default function FilterableSelect({
                 type="button"
                 onClick={() => handleSelect(option.id)}
                 className={`vercel-select-option ${value === option.id ? 'vercel-select-option-selected' : ''}`}
+                style={showColors && option.color ? { 
+                  borderLeft: `4px solid ${option.color}`,
+                  paddingLeft: '8px'
+                } : {}}
               >
+                {showColors && option.color && (
+                  <span 
+                    style={{ 
+                      display: 'inline-block',
+                      width: '12px',
+                      height: '12px',
+                      borderRadius: '50%',
+                      backgroundColor: option.color,
+                      marginRight: '8px'
+                    }}
+                  />
+                )}
                 {option.name}
               </button>
             ))
@@ -174,6 +192,18 @@ export default function FilterableSelect({
         className={`vercel-select-trigger ${isOpen ? 'vercel-select-open' : ''} ${disabled ? 'vercel-select-disabled' : ''}`}
       >
         <span className={`vercel-select-value ${value ? 'vercel-select-has-value' : ''}`}>
+          {showColors && selectedOption?.color && (
+            <span 
+              style={{ 
+                display: 'inline-block',
+                width: '12px',
+                height: '12px',
+                borderRadius: '50%',
+                backgroundColor: selectedOption.color,
+                marginRight: '8px'
+              }}
+            />
+          )}
           {displayText}
         </span>
         <div className="vercel-select-actions">

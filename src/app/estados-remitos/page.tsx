@@ -22,6 +22,20 @@ function EstadosRemitosContent() {
   const { data: session } = useSession();
   const currentUser = useCurrentUserSimple();
   
+  // Verificar permisos - solo ADMIN y SUPERADMIN pueden acceder
+  if (currentUser?.role === 'USER') {
+    return (
+      <main className="main-content">
+        <div className="form-section">
+          <div className="text-center py-8">
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">Acceso Denegado</h2>
+            <p className="text-gray-600">No tienes permisos para acceder a esta sección.</p>
+          </div>
+        </div>
+      </main>
+    );
+  }
+  
   // Hook centralizado para manejo de companyId
   const {
     companyId,

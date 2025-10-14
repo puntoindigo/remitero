@@ -17,9 +17,25 @@ import { DataTable, type DataTableColumn } from "@/components/common/DataTable";
 import { useCRUDTable } from "@/hooks/useCRUDTable";
 import { Pagination } from "@/components/common/Pagination";
 import { LoadingSpinner } from "@/components/common/LoadingSpinner";
+import { useCurrentUserSimple } from "@/hooks/useCurrentUserSimple";
 
 function CategoriasContent() {
   const { data: session } = useSession();
+  const currentUser = useCurrentUserSimple();
+  
+  // Verificar permisos - solo ADMIN y SUPERADMIN pueden acceder
+  if (currentUser?.role === 'USER') {
+    return (
+      <main className="main-content">
+        <div className="form-section">
+          <div className="text-center py-8">
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">Acceso Denegado</h2>
+            <p className="text-gray-600">No tienes permisos para acceder a esta sección.</p>
+          </div>
+        </div>
+      </main>
+    );
+  }
   
   // Hook centralizado para manejo de companyId
   const {
@@ -180,6 +196,20 @@ function CategoriasContent() {
             )}
           </div>
 
+          {/* Botón Nuevo independiente */}
+          {!needsCompanySelection && (
+            <div style={{ marginBottom: '1rem' }}>
+              <button
+                onClick={handleNew}
+                className="btn primary"
+                disabled={isSubmitting}
+              >
+                <Plus className="h-4 w-4" />
+                Nueva Categoría
+              </button>
+            </div>
+          )}
+
           {/* DataTable con paginación */}
           {needsCompanySelection ? (
             <div className="empty-state">
@@ -192,7 +222,7 @@ function CategoriasContent() {
                 {...tableConfig}
                 columns={columns}
                 showSearch={true} // Habilitar búsqueda
-                showNewButton={true} // Habilitar botón nuevo
+                showNewButton={false} // Deshabilitar botón nuevo (ya tenemos uno independiente)
               />
               <Pagination {...paginationConfig} />
             </>

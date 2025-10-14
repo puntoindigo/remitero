@@ -284,11 +284,16 @@ export function RemitoFormComplete({
           <label style={{ minWidth: '80px', marginBottom: 0 }}>Estado *</label>
           <div style={{ flex: 1 }}>
             <FilterableSelect
-              options={estados.map(estado => ({ id: estado.id, name: estado.name }))}
+              options={estados.map(estado => ({ 
+                id: estado.id, 
+                name: estado.name,
+                color: estado.color 
+              }))}
               value={watch("status") || ""}
               onChange={(value) => setValue("status", value)}
               placeholder="Seleccionar estado"
               searchFields={["name"]}
+              showColors={true}
             />
             {errors.status && (
               <p className="error-message">{errors.status.message}</p>
