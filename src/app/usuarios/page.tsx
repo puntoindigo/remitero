@@ -30,6 +30,16 @@ function UsuariosContent() {
     setSelectedCompanyId,
     shouldShowCompanySelector
   } = useDataWithCompany();
+
+  // Leer companyId de los searchParams si está presente
+  const companyIdFromParams = searchParams.get('companyId');
+  
+  // Efecto para establecer la empresa seleccionada desde los parámetros
+  React.useEffect(() => {
+    if (companyIdFromParams && shouldShowCompanySelector) {
+      setSelectedCompanyId(companyIdFromParams);
+    }
+  }, [companyIdFromParams, shouldShowCompanySelector, setSelectedCompanyId]);
   
   // Hook para manejar estado del formulario modal
   const {
@@ -201,7 +211,7 @@ function UsuariosContent() {
       key: 'actions',
       label: 'Acciones',
       render: (usuario) => (
-        <div className="flex gap-2">
+        <div className="flex gap-3">
           <button
             onClick={() => handleEdit(usuario)}
             className="btn small secondary"

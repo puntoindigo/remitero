@@ -187,7 +187,7 @@ export default function DashboardPage() {
     <main className="main-content">
       <div className="px-4 py-6 sm:px-0">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Tablero de Control</h1>
           <p className="mt-2 text-gray-600">
             Bienvenido, {currentUser?.name}
           </p>

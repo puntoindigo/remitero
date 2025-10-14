@@ -119,12 +119,12 @@ function EstadosRemitosContent() {
   };
 
   const handleDelete = async () => {
-    if (!editingEstado) return;
+    if (!showDeleteConfirm) return;
     
     try {
-      await deleteEstado(editingEstado.id);
+      await deleteEstado(showDeleteConfirm.id);
       handleCancelDelete();
-      showSuccess("Estado eliminado correctamente");
+      showSuccess("Estado eliminado correctamente", "Éxito");
     } catch (error: any) {
       handleCancelDelete();
       showError("Error", error instanceof Error ? error.message : "Error al eliminar estado");
@@ -230,7 +230,7 @@ function EstadosRemitosContent() {
             showSearch={true}
             showNewButton={true}
             onEdit={(estado) => handleEditEstado(estado)}
-            onDelete={(estado) => handleDeleteRequest(estado)}
+            onDelete={handleDeleteEstado}
             actionsColumnLabel="Acciones"
           />
           <Pagination {...paginationConfig} />
