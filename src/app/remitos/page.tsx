@@ -158,10 +158,10 @@ function RemitosContentFixed() {
   };
 
   const handleDelete = async () => {
-    if (!editingRemito) return;
+    if (!showDeleteConfirm) return;
     
     try {
-      const response = await fetch(`/api/remitos/${editingRemito.id}`, {
+      const response = await fetch(`/api/remitos/${showDeleteConfirm.id}`, {
         method: 'DELETE'
       });
       
