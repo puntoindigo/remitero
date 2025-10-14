@@ -96,10 +96,10 @@ function UsuariosContent() {
     try {
       if (editingUser) {
         await updateUsuario(editingUser.id, data);
-        showSuccess("Usuario actualizado correctamente");
+        showSuccess("Éxito", "Usuario actualizado correctamente");
       } else {
         await createUsuario(data);
-        showSuccess("Usuario creado correctamente");
+        showSuccess("Éxito", "Usuario creado correctamente");
       }
       handleCloseForm();
     } catch (error: any) {
@@ -130,7 +130,7 @@ function UsuariosContent() {
 
     try {
       await startImpersonation(usuario.id);
-      showSuccess("Impersonación iniciada", `Ahora estás viendo como ${usuario.name}`);
+      showSuccess("Éxito", `Impersonación iniciada. Ahora estás viendo como ${usuario.name}`);
     } catch (error: any) {
       showError("Error", error.message);
     }
