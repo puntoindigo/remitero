@@ -3,9 +3,10 @@
 import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Trash2 } from "lucide-react";
+import { Trash2, Plus } from "lucide-react";
 import FilterableSelect from "@/components/common/FilterableSelect";
 import { FormModal } from "@/components/common/FormModal";
+import { ClienteForm } from "@/components/forms/ClienteForm";
 import { remitoSchema, type RemitoForm } from "@/lib/validations";
 
 interface RemitoItem {
@@ -26,6 +27,8 @@ interface RemitoFormCompleteProps {
   clients?: any[];
   products?: any[];
   estados?: any[];
+  companyId?: string;
+  onClientCreated?: (newClient: any) => void;
 }
 
 export function RemitoFormComplete({
@@ -36,12 +39,16 @@ export function RemitoFormComplete({
   editingRemito,
   clients = [],
   products = [],
-  estados = []
+  estados = [],
+  companyId,
+  onClientCreated
 }: RemitoFormCompleteProps) {
   const [items, setItems] = useState<RemitoItem[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<string>("");
   const [quantity, setQuantity] = useState<number>(1);
   const [showNotes, setShowNotes] = useState<boolean>(false);
+  const [showClientForm, setShowClientForm] = useState<boolean>(false);
+  const [isSubmittingClient, setIsSubmittingClient] = useState<boolean>(false);
 
   const {
     register,
@@ -155,6 +162,53 @@ export function RemitoFormComplete({
     onSubmit(formData);
   };
 
+  const handleNewClient = () => {
+    setShowClientForm(true);
+  };
+
+  const handleCloseClientForm = () => {
+    setShowClientForm(false);
+  };
+
+  const handleSubmitClient = async (clientData: any) => {
+    if (!companyId) return;
+    
+    setIsSubmittingClient(true);
+    try {
+      const response = await fetch('/api/clients', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...clientData,
+          companyId: companyId
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Error al crear cliente');
+      }
+
+      const newClient = await response.json();
+      
+      // Llamar al callback para actualizar la lista de clientes
+      if (onClientCreated) {
+        onClientCreated(newClient);
+      }
+      
+      // Seleccionar el nuevo cliente en el formulario
+      setValue("clientId", newClient.id);
+      
+      // Cerrar el modal de cliente
+      setShowClientForm(false);
+    } catch (error) {
+      console.error('Error creating client:', error);
+    } finally {
+      setIsSubmittingClient(false);
+    }
+  };
+
   const handleCancel = () => {
     reset();
     setItems([]);
@@ -185,17 +239,41 @@ export function RemitoFormComplete({
       <div className="form-group" style={{ marginBottom: '1.5rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <label style={{ minWidth: '80px', marginBottom: 0 }}>Cliente *</label>
-          <div style={{ flex: 1 }}>
-            <FilterableSelect
-              options={clients.map(client => ({ id: client.id, name: client.name }))}
-              value={watch("clientId") || ""}
-              onChange={(value) => setValue("clientId", value)}
-              placeholder="Seleccionar cliente"
-              searchFields={["name"]}
-            />
-            {errors.clientId && (
-              <p className="error-message">{errors.clientId.message}</p>
-            )}
+          <div style={{ flex: 1, display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+            <div style={{ flex: 1 }}>
+              <FilterableSelect
+                options={clients.map(client => ({ id: client.id, name: client.name }))}
+                value={watch("clientId") || ""}
+                onChange={(value) => setValue("clientId", value)}
+                placeholder="Seleccionar cliente"
+                searchFields={["name"]}
+              />
+              {errors.clientId && (
+                <p className="error-message">{errors.clientId.message}</p>
+              )}
+            </div>
+            <button
+              type="button"
+              onClick={handleNewClient}
+              className="btn small secondary"
+              title="Agregar nuevo cliente"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.25rem',
+                padding: '0.5rem',
+                backgroundColor: '#6b7280',
+                color: 'white',
+                border: 'none',
+                borderRadius: '0.375rem',
+                cursor: 'pointer',
+                fontSize: '0.75rem',
+                fontWeight: '500',
+                minWidth: 'auto'
+              }}
+            >
+              <Plus className="h-3 w-3" />
+            </button>
           </div>
         </div>
       </div>
@@ -392,6 +470,15 @@ export function RemitoFormComplete({
           />
         )}
       </div>
+
+      {/* Modal para nuevo cliente */}
+      <ClienteForm
+        isOpen={showClientForm}
+        onClose={handleCloseClientForm}
+        onSubmit={handleSubmitClient}
+        isSubmitting={isSubmittingClient}
+        companyId={companyId}
+      />
     </FormModal>
   );
 }

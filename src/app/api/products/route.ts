@@ -18,6 +18,7 @@ export async function GET(request: NextRequest) {
     // Obtener companyId de los query parameters (para impersonation)
     const { searchParams } = new URL(request.url);
     const companyId = searchParams.get('companyId');
+    const countToday = searchParams.get('countToday') === 'true';
     
 
     let query = supabaseAdmin
@@ -41,6 +42,41 @@ export async function GET(request: NextRequest) {
 
     // Determinar qué companyId usar
     const effectiveCompanyId = companyId || session.user.companyId;
+
+    if (countToday) {
+      // Si solo necesitamos el conteo de hoy
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const tomorrow = new Date(today);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+
+      let countQuery = supabaseAdmin
+        .from('products')
+        .select('id', { count: 'exact', head: true })
+        .gte('created_at', today.toISOString())
+        .lt('created_at', tomorrow.toISOString());
+
+      if (session.user.role !== 'SUPERADMIN') {
+        if (!effectiveCompanyId) {
+          return NextResponse.json({ 
+            error: "No autorizado", 
+            message: "Usuario no asociado a una empresa." 
+          }, { status: 401 });
+        }
+        countQuery = countQuery.eq('company_id', effectiveCompanyId);
+      } else if (effectiveCompanyId) {
+        countQuery = countQuery.eq('company_id', effectiveCompanyId);
+      }
+
+      const { count, error } = await countQuery;
+      
+      if (error) {
+        console.error('Error counting products today:', error);
+        return NextResponse.json({ error: "Error al contar productos" }, { status: 500 });
+      }
+
+      return NextResponse.json({ count: count || 0 });
+    }
 
     // Solo SUPERADMIN puede ver productos de todas las empresas
     if (session.user.role !== 'SUPERADMIN') {

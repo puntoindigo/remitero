@@ -20,6 +20,7 @@ export async function GET(request: NextRequest) {
     // Obtener companyId de los query parameters
     const { searchParams } = new URL(request.url);
     const companyId = searchParams.get('companyId');
+    const countToday = searchParams.get('countToday') === 'true';
 
     let query = supabaseAdmin
       .from('users')
@@ -46,6 +47,43 @@ export async function GET(request: NextRequest) {
       companyId,
       userCompanyId: session.user.companyId
     });
+
+    if (countToday) {
+      // Si solo necesitamos el conteo de hoy
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const tomorrow = new Date(today);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+
+      let countQuery = supabaseAdmin
+        .from('users')
+        .select('id', { count: 'exact', head: true })
+        .gte('created_at', today.toISOString())
+        .lt('created_at', tomorrow.toISOString());
+
+      if (session.user.role === 'SUPERADMIN') {
+        if (companyId) {
+          countQuery = countQuery.eq('company_id', companyId);
+        }
+      } else {
+        if (!session.user.companyId) {
+          return NextResponse.json({ 
+            error: "No autorizado", 
+            message: "Usuario no asociado a una empresa." 
+          }, { status: 401 });
+        }
+        countQuery = countQuery.eq('company_id', session.user.companyId);
+      }
+
+      const { count, error } = await countQuery;
+      
+      if (error) {
+        console.error('Error counting users today:', error);
+        return NextResponse.json({ error: "Error al contar usuarios" }, { status: 500 });
+      }
+
+      return NextResponse.json({ count: count || 0 });
+    }
 
     if (session.user.role === 'SUPERADMIN') {
       // SUPERADMIN puede ver todos los usuarios o filtrar por empresa

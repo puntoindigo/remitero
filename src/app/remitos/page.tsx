@@ -63,7 +63,7 @@ function RemitosContentFixed() {
   const { productos: products } = useProductos(companyId);
   
   // Hook para clientes
-  const { clientes: clients } = useClientes(companyId);
+  const { clientes: clients, setClientes } = useClientes(companyId);
   const [isLoading, setIsLoading] = useState(true);
 
   // CRUD State Management
@@ -329,6 +329,11 @@ function RemitosContentFixed() {
           clients={clients || []}
           products={products || []}
           estados={estadosActivos || []}
+          companyId={companyId || undefined}
+          onClientCreated={(newClient) => {
+            // Actualizar la lista de clientes agregando el nuevo cliente al principio
+            setClientes(prev => [newClient, ...(prev || [])]);
+          }}
         />
 
         {/* Modal de confirmación de eliminación */}

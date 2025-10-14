@@ -22,6 +22,13 @@ interface DashboardStats {
   categorias: number;
 }
 
+interface TodayStats {
+  usuarios: number;
+  clientes: number;
+  productos: number;
+  categorias: number;
+}
+
 export default function DashboardPage() {
   const { data: session } = useSession()
   const currentUser = useCurrentUser()
@@ -31,6 +38,12 @@ export default function DashboardPage() {
     clientes: 0,
     categorias: 0
   })
+  const [todayStats, setTodayStats] = useState<TodayStats>({
+    usuarios: 0,
+    clientes: 0,
+    productos: 0,
+    categorias: 0
+  })
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
@@ -38,6 +51,7 @@ export default function DashboardPage() {
       if (!currentUser?.companyId) return
       
       try {
+        // Cargar estadísticas principales
         const [remitosRes, productosRes, clientesRes, categoriasRes] = await Promise.all([
           fetch(`/api/remitos?companyId=${currentUser.companyId}`),
           fetch(`/api/products?companyId=${currentUser.companyId}`),
@@ -50,6 +64,21 @@ export default function DashboardPage() {
           productosRes.json(),
           clientesRes.json(),
           categoriasRes.json()
+        ])
+
+        // Cargar conteos de hoy
+        const [usuariosTodayRes, clientesTodayRes, productosTodayRes, categoriasTodayRes] = await Promise.all([
+          fetch(`/api/users?companyId=${currentUser.companyId}&countToday=true`),
+          fetch(`/api/clients?companyId=${currentUser.companyId}&countToday=true`),
+          fetch(`/api/products?companyId=${currentUser.companyId}&countToday=true`),
+          fetch(`/api/categories?companyId=${currentUser.companyId}&countToday=true`)
+        ])
+
+        const [usuariosToday, clientesToday, productosToday, categoriasToday] = await Promise.all([
+          usuariosTodayRes.json(),
+          clientesTodayRes.json(),
+          productosTodayRes.json(),
+          categoriasTodayRes.json()
         ])
 
         // Debug logs
@@ -86,6 +115,14 @@ export default function DashboardPage() {
           productos: productosStats,
           clientes: clientesArray.length,
           categorias: categoriasArray.length
+        })
+
+        // Establecer conteos de hoy
+        setTodayStats({
+          usuarios: usuariosToday.count || 0,
+          clientes: clientesToday.count || 0,
+          productos: productosToday.count || 0,
+          categorias: categoriasToday.count || 0
         })
       } catch (error) {
         console.error('Error loading dashboard stats:', error)
@@ -148,7 +185,8 @@ export default function DashboardPage() {
       stats: [
         { label: "Total", value: stats.productos.total, link: "/productos" },
         { label: "Con Stock", value: stats.productos.conStock, link: "/productos?stock=IN_STOCK" },
-        { label: "Sin Stock", value: stats.productos.sinStock, link: "/productos?stock=OUT_OF_STOCK" }
+        { label: "Sin Stock", value: stats.productos.sinStock, link: "/productos?stock=OUT_OF_STOCK" },
+        ...(todayStats.productos > 0 ? [{ label: "Nuevos hoy", value: todayStats.productos, link: "/productos" }] : [])
       ]
     },
     {
@@ -158,7 +196,8 @@ export default function DashboardPage() {
       textColor: "text-purple-600",
       bgColor: "bg-purple-50",
       stats: [
-        { label: "Total", value: stats.clientes, link: "/clientes" }
+        { label: "Total", value: stats.clientes, link: "/clientes" },
+        ...(todayStats.clientes > 0 ? [{ label: "Nuevos hoy", value: todayStats.clientes, link: "/clientes" }] : [])
       ]
     },
     {
@@ -168,10 +207,26 @@ export default function DashboardPage() {
       textColor: "text-orange-600",
       bgColor: "bg-orange-50",
       stats: [
-        { label: "Total", value: stats.categorias, link: "/categorias" }
+        { label: "Total", value: stats.categorias, link: "/categorias" },
+        ...(todayStats.categorias > 0 ? [{ label: "Nuevos hoy", value: todayStats.categorias, link: "/categorias" }] : [])
       ]
     }
   ]
+
+  // Agregar tarjeta de usuarios solo si el usuario es ADMIN o SUPERADMIN
+  if (currentUser?.role === 'ADMIN' || currentUser?.role === 'SUPERADMIN') {
+    cards.push({
+      title: "Usuarios",
+      icon: Building2,
+      color: "bg-indigo-500",
+      textColor: "text-indigo-600",
+      bgColor: "bg-indigo-50",
+      stats: [
+        { label: "Total", value: 0, link: "/usuarios" }, // TODO: Agregar conteo total de usuarios
+        ...(todayStats.usuarios > 0 ? [{ label: "Nuevos hoy", value: todayStats.usuarios, link: "/usuarios" }] : [])
+      ]
+    })
+  }
 
   if (isLoading) {
     return (
