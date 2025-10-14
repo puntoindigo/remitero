@@ -120,17 +120,6 @@ export function PasswordGeneratorModal({
             )}
           </div>
 
-          <div style={{ marginBottom: '1.5rem' }}>
-            <label className="form-label-large">Personalizar contraseña:</label>
-            <input
-              type="text"
-              value={generatedPassword}
-              onChange={(e) => setGeneratedPassword(e.target.value)}
-              className="form-input-standard"
-              style={{ marginTop: '0.5rem', fontFamily: 'monospace' }}
-              placeholder="Modifica la contraseña manualmente"
-            />
-          </div>
 
           <div style={{ 
             display: 'flex', 

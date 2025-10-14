@@ -139,16 +139,20 @@ export function UsuarioForm({
     >
       <div className="form-row">
         <div className="form-group">
-          <label className="form-label-large">Nombre</label>
+          <label className="form-label-large">
+            Nombre
+            {errors.name && (
+              <span style={{ color: '#ef4444', marginLeft: '8px', fontSize: '0.875rem', fontWeight: 'normal' }}>
+                {errors.name.message}
+              </span>
+            )}
+          </label>
           <input
             {...register("name")}
             type="text"
             placeholder="Nombre del usuario"
             className="form-input-standard"
           />
-          {errors.name && (
-            <p className="error-message">{errors.name.message}</p>
-          )}
         </div>
 
         <div className="form-group">
