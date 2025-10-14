@@ -6,15 +6,31 @@ import { useState, useEffect } from "react";
 export const useCurrentUserSimple = () => {
   const { data: session } = useSession();
   const [impersonationData, setImpersonationData] = useState<any>(null);
+  const [isClient, setIsClient] = useState(false);
 
-  // Obtener datos de impersonation del localStorage
+  // Marcar que estamos en el cliente
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const data = localStorage.getItem('impersonation');
-      const parsed = data ? JSON.parse(data) : null;
-      setImpersonationData(parsed);
-    }
+    setIsClient(true);
   }, []);
+
+  // Obtener datos de impersonation del localStorage solo en el cliente
+  useEffect(() => {
+    if (isClient && typeof window !== 'undefined') {
+      try {
+        const data = localStorage.getItem('impersonation');
+        const parsed = data ? JSON.parse(data) : null;
+        setImpersonationData(parsed);
+      } catch (error) {
+        console.error('Error parsing impersonation data:', error);
+        setImpersonationData(null);
+      }
+    }
+  }, [isClient]);
+
+  // Si no estamos en el cliente o no hay sesión, devolver null
+  if (!isClient || !session?.user) {
+    return null;
+  }
 
   // Si hay impersonation activa, devolver el usuario impersonado con el ID del admin
   if (impersonationData?.isActive && impersonationData?.targetUser) {
@@ -23,11 +39,6 @@ export const useCurrentUserSimple = () => {
       impersonating: impersonationData.originalAdmin?.id, // ID del SUPERADMIN que impersona
       isImpersonating: true
     };
-  }
-
-  // Si no hay impersonation, devolver el usuario de la sesión
-  if (!session?.user) {
-    return null;
   }
   
   return {
