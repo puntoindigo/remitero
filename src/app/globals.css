@@ -1195,6 +1195,7 @@ button svg,
   border-top: 1px solid #e5e7eb;
 }
 
+.error-boundary-copy-btn,
 .error-boundary-retry-btn,
 .error-boundary-close-btn {
   display: flex;
@@ -1207,6 +1208,15 @@ button svg,
   cursor: pointer;
   transition: all 0.2s;
   border: none;
+}
+
+.error-boundary-copy-btn {
+  background: #10b981;
+  color: white;
+}
+
+.error-boundary-copy-btn:hover {
+  background: #059669;
 }
 
 .error-boundary-retry-btn {

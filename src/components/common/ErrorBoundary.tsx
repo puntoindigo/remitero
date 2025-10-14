@@ -1,7 +1,7 @@
 "use client";
 
 import React, { Component, ErrorInfo, ReactNode } from 'react';
-import { AlertTriangle, X, RefreshCw } from 'lucide-react';
+import { AlertTriangle, X, RefreshCw, Copy, Check } from 'lucide-react';
 
 interface Props {
   children: ReactNode;
@@ -11,6 +11,7 @@ interface State {
   hasError: boolean;
   error: Error | null;
   errorInfo: ErrorInfo | null;
+  copied: boolean;
 }
 
 class ErrorBoundary extends Component<Props, State> {
@@ -19,7 +20,8 @@ class ErrorBoundary extends Component<Props, State> {
     this.state = {
       hasError: false,
       error: null,
-      errorInfo: null
+      errorInfo: null,
+      copied: false
     };
   }
 
@@ -27,7 +29,8 @@ class ErrorBoundary extends Component<Props, State> {
     return {
       hasError: true,
       error,
-      errorInfo: null
+      errorInfo: null,
+      copied: false
     };
   }
 
@@ -45,7 +48,8 @@ class ErrorBoundary extends Component<Props, State> {
     this.setState({
       hasError: false,
       error: null,
-      errorInfo: null
+      errorInfo: null,
+      copied: false
     });
   };
 
@@ -53,8 +57,52 @@ class ErrorBoundary extends Component<Props, State> {
     this.setState({
       hasError: false,
       error: null,
-      errorInfo: null
+      errorInfo: null,
+      copied: false
     });
+  };
+
+  handleCopyError = async () => {
+    const { error, errorInfo } = this.state;
+    
+    const errorText = `
+ERROR REPORT
+============
+
+Message: ${error?.message || 'Unknown error'}
+
+Stack Trace:
+${error?.stack || 'No stack trace available'}
+
+Component Stack:
+${errorInfo?.componentStack || 'No component stack available'}
+
+Timestamp: ${new Date().toISOString()}
+URL: ${typeof window !== 'undefined' ? window.location.href : 'Unknown'}
+    `.trim();
+
+    try {
+      await navigator.clipboard.writeText(errorText);
+      this.setState({ copied: true });
+      
+      // Reset copied state after 2 seconds
+      setTimeout(() => {
+        this.setState({ copied: false });
+      }, 2000);
+    } catch (err) {
+      console.error('Failed to copy error to clipboard:', err);
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = errorText;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      this.setState({ copied: true });
+      setTimeout(() => {
+        this.setState({ copied: false });
+      }, 2000);
+    }
   };
 
   render() {
@@ -111,6 +159,22 @@ class ErrorBoundary extends Component<Props, State> {
               </div>
               
               <div className="error-boundary-actions">
+                <button 
+                  onClick={this.handleCopyError}
+                  className="error-boundary-copy-btn"
+                >
+                  {this.state.copied ? (
+                    <>
+                      <Check className="h-4 w-4" />
+                      ¡Copiado!
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="h-4 w-4" />
+                      Copiar Error
+                    </>
+                  )}
+                </button>
                 <button 
                   onClick={this.handleRetry}
                   className="error-boundary-retry-btn"
