@@ -256,22 +256,27 @@ function UsuariosContent() {
         <div className="form-section">
           <h2>Gestión de Usuarios</h2>
           
-          {/* Filtros adicionales */}
-          <div className="category-filter-wrapper" style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1rem', justifyContent: 'space-between' }}>
+          {/* Selector de empresa - siempre arriba, ancho completo */}
+          {shouldShowCompanySelector && empresas.length > 0 && (
+            <div className="company-selector-wrapper" style={{ marginBottom: '1rem' }}>
+              <FilterableSelect
+                options={[
+                  { id: "", name: "Todas las empresas" },
+                  ...empresas
+                ]}
+                value={selectedCompanyId}
+                onChange={setSelectedCompanyId}
+                placeholder="Seleccionar empresa"
+                searchFields={["name"]}
+                className="w-full"
+              />
+            </div>
+          )}
+
+          {/* Barra de búsqueda y botón nuevo */}
+          <div className="search-and-action-row" style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1rem', justifyContent: 'space-between' }}>
             <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-              {shouldShowCompanySelector && empresas.length > 0 && (
-                <FilterableSelect
-                  options={[
-                    { id: "", name: "Todas las empresas" },
-                    ...empresas
-                  ]}
-                  value={selectedCompanyId}
-                  onChange={setSelectedCompanyId}
-                  placeholder="Seleccionar empresa"
-                  searchFields={["name"]}
-                  className="w-64"
-                />
-              )}
+              {/* El campo de búsqueda se maneja automáticamente por el DataTable */}
             </div>
             <button
               onClick={handleNew}
