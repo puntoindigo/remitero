@@ -282,12 +282,9 @@ function RemitosContentFixed() {
 
   return (
     <main className="main-content">
-      <div className="page-container">
-        <div className="page-header">
-          <h1>Gestión de Remitos</h1>
-          <h2>Administra los remitos de la empresa</h2>
-        </div>
-
+      <div className="form-section">
+        <h2>Gestión de Remitos</h2>
+        
         {/* Filtros adicionales */}
         <div className="category-filter-wrapper" style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1rem' }}>
           {shouldShowCompanySelector && empresas.length > 0 && (
