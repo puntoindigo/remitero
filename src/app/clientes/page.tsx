@@ -13,12 +13,14 @@ import { useClientes, type Cliente } from "@/hooks/useClientes";
 import { useEmpresas, type Empresa } from "@/hooks/useEmpresas";
 import { useCRUDPage } from "@/hooks/useCRUDPage";
 import { useDataWithCompany } from "@/hooks/useDataWithCompany";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { DataTable, type DataTableColumn } from "@/components/common/DataTable";
 import { useCRUDTable } from "@/hooks/useCRUDTable";
 import { Pagination } from "@/components/common/Pagination";
 
 function ClientesContent() {
   const { data: session } = useSession();
+  const currentUser = useCurrentUser();
   
   // Hook centralizado para manejo de companyId
   const {
