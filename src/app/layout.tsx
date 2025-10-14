@@ -4,6 +4,7 @@ import { Providers } from "@/components/providers";
 import AuthSessionProvider from "@/components/providers/SessionProvider";
 import AuthenticatedLayout from "@/components/layout/AuthenticatedLayout";
 import EnvironmentBannerWrapper from "@/components/common/EnvironmentBannerWrapper";
+import ErrorBoundary from "@/components/common/ErrorBoundary";
 
 export const metadata: Metadata = {
   title: "Sistema de Remitos",
@@ -14,12 +15,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="es">
       <body>
-        <AuthSessionProvider>
-          {/* <EnvironmentBannerWrapper /> */}
-          <AuthenticatedLayout>
-            <Providers>{children}</Providers>
-          </AuthenticatedLayout>
-        </AuthSessionProvider>
+        <ErrorBoundary>
+          <AuthSessionProvider>
+            {/* <EnvironmentBannerWrapper /> */}
+            <AuthenticatedLayout>
+              <Providers>{children}</Providers>
+            </AuthenticatedLayout>
+          </AuthSessionProvider>
+        </ErrorBoundary>
       </body>
     </html>
   );
