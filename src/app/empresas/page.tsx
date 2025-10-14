@@ -17,6 +17,7 @@ import { Pagination } from "@/components/common/Pagination";
 import { LoadingSpinner } from "@/components/common/LoadingSpinner";
 
 function EmpresasContent() {
+  const { data: session } = useSession();
   const {
     editingItem: editingCompany,
     showForm,
