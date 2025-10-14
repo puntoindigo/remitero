@@ -124,7 +124,7 @@ export function useEmpresas() {
     } else if (session?.user) {
       setIsLoading(false);
     }
-  }, [session]);
+  }, [session, loadEmpresas]);
 
   return {
     empresas,

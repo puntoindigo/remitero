@@ -63,7 +63,7 @@ export function useUsuarios(companyId?: string) {
       // Agregar companyId si no está presente y el usuario es ADMIN
       const userDataWithCompany = {
         ...userData,
-        companyId: userData.companyId || (session?.user?.role === 'ADMIN' ? session.user.companyId : undefined)
+        companyId: userData.companyId || (session?.user?.role === 'ADMIN' ? session?.user?.companyId : undefined)
       };
       
       const response = await fetch("/api/users", {
@@ -92,7 +92,7 @@ export function useUsuarios(companyId?: string) {
       // Agregar companyId si no está presente y el usuario es ADMIN
       const userDataWithCompany = {
         ...userData,
-        companyId: userData.companyId || (session?.user?.role === 'ADMIN' ? session.user.companyId : undefined)
+        companyId: userData.companyId || (session?.user?.role === 'ADMIN' ? session?.user?.companyId : undefined)
       };
       
       const response = await fetch(`/api/users/${id}`, {
