@@ -16,6 +16,7 @@ import { useDataWithCompany } from "@/hooks/useDataWithCompany";
 import { DataTable, type DataTableColumn } from "@/components/common/DataTable";
 import { useCRUDTable } from "@/hooks/useCRUDTable";
 import { Pagination } from "@/components/common/Pagination";
+import { LoadingSpinner } from "@/components/common/LoadingSpinner";
 
 function CategoriasContent() {
   const { data: session } = useSession();
@@ -133,7 +134,8 @@ function CategoriasContent() {
           month: '2-digit', 
           day: '2-digit', 
           hour: '2-digit', 
-          minute: '2-digit' 
+          minute: '2-digit',
+          hour12: false
         });
       }
     }
@@ -143,7 +145,7 @@ function CategoriasContent() {
     return (
       <main className="main-content">
         <div className="form-section">
-          <div className="loading">Cargando categorías...</div>
+          <LoadingSpinner message="Cargando categorías..." />
         </div>
       </main>
     );

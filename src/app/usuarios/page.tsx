@@ -18,6 +18,7 @@ import { useDataWithCompany } from "@/hooks/useDataWithCompany";
 import { DataTable, type DataTableColumn } from "@/components/common/DataTable";
 import { useCRUDTable } from "@/hooks/useCRUDTable";
 import { Pagination } from "@/components/common/Pagination";
+import { LoadingSpinner } from "@/components/common/LoadingSpinner";
 
 function UsuariosContent() {
   const { data: session } = useSession();
@@ -244,7 +245,7 @@ function UsuariosContent() {
     return (
       <main className="main-content">
         <div className="form-section">
-          <div className="loading">Cargando usuarios...</div>
+          <LoadingSpinner message="Cargando usuarios..." />
         </div>
       </main>
     );

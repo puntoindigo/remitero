@@ -16,6 +16,7 @@ import { useDataWithCompany } from "@/hooks/useDataWithCompany";
 import { DataTable, type DataTableColumn } from "@/components/common/DataTable";
 import { useCRUDTable } from "@/hooks/useCRUDTable";
 import { Pagination } from "@/components/common/Pagination";
+import { LoadingSpinner } from "@/components/common/LoadingSpinner";
 
 function EstadosRemitosContent() {
   const { data: session } = useSession();
@@ -176,7 +177,7 @@ function EstadosRemitosContent() {
     return (
       <main className="main-content">
         <div className="form-section">
-          <div className="loading">Cargando estados...</div>
+          <LoadingSpinner message="Cargando estados..." />
         </div>
       </main>
     );
@@ -228,23 +229,6 @@ function EstadosRemitosContent() {
             <div className="empty-state">
               <Tag className="empty-icon" />
               <p>Para ver los estados, primero selecciona una empresa.</p>
-              <button
-                onClick={handleNewEstado}
-                className="new-button"
-                style={{
-                  marginTop: '1rem',
-                  padding: '0.5rem 1rem',
-                  backgroundColor: '#3b82f6',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '0.375rem',
-                  cursor: 'pointer',
-                  fontSize: '0.875rem',
-                  fontWeight: '500'
-                }}
-              >
-                Nuevo Estado
-              </button>
             </div>
           ) : (
             <>

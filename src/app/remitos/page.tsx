@@ -20,6 +20,7 @@ import { useClientes } from "@/hooks/useClientes";
 import { DataTable, type DataTableColumn } from "@/components/common/DataTable";
 import { useCRUDTable } from "@/hooks/useCRUDTable";
 import { Pagination } from "@/components/common/Pagination";
+import { LoadingSpinner } from "@/components/common/LoadingSpinner";
 import { RemitoFormComplete } from "@/components/forms/RemitoFormComplete";
 
 interface Remito {
@@ -277,7 +278,7 @@ function RemitosContentFixed() {
   ];
 
   if (!session) {
-    return <div className="loading">Cargando...</div>;
+    return <LoadingSpinner message="Cargando..." />;
   }
 
   return (

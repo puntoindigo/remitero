@@ -19,6 +19,7 @@ import { useDataWithCompanySimple } from "@/hooks/useDataWithCompanySimple";
 import { DataTable, type DataTableColumn } from "@/components/common/DataTable";
 import { useCRUDTable } from "@/hooks/useCRUDTable";
 import { Pagination } from "@/components/common/Pagination";
+import { LoadingSpinner } from "@/components/common/LoadingSpinner";
 
 interface Product {
   id: string;
@@ -315,7 +316,7 @@ function ProductosContentFixed() {
   ];
 
   if (!session) {
-    return <div className="loading">Cargando...</div>;
+    return <LoadingSpinner message="Cargando..." />;
   }
 
   return (

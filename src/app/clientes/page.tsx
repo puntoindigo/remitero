@@ -17,6 +17,7 @@ import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { DataTable, type DataTableColumn } from "@/components/common/DataTable";
 import { useCRUDTable } from "@/hooks/useCRUDTable";
 import { Pagination } from "@/components/common/Pagination";
+import { LoadingSpinner } from "@/components/common/LoadingSpinner";
 
 function ClientesContent() {
   const { data: session } = useSession();
@@ -197,7 +198,7 @@ function ClientesContent() {
     return (
       <main className="main-content">
         <div className="form-section">
-          <div className="loading">Cargando clientes...</div>
+          <LoadingSpinner message="Cargando clientes..." />
         </div>
       </main>
     );

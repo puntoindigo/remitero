@@ -1,7 +1,7 @@
 "use client";
 
 import { useCurrentUserSimple } from "./useCurrentUserSimple";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 /**
  * Hook simplificado que proporciona el companyId efectivo sin dependencias circulares
@@ -9,6 +9,27 @@ import { useState } from "react";
 export function useDataWithCompanySimple() {
   const currentUser = useCurrentUserSimple();
   const [selectedCompanyId, setSelectedCompanyId] = useState<string>("");
+
+  // Cargar selección de empresa desde sessionStorage al inicializar
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedCompanyId = sessionStorage.getItem('selectedCompanyId');
+      if (savedCompanyId) {
+        setSelectedCompanyId(savedCompanyId);
+      }
+    }
+  }, []);
+
+  // Guardar selección de empresa en sessionStorage cuando cambie
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      if (selectedCompanyId) {
+        sessionStorage.setItem('selectedCompanyId', selectedCompanyId);
+      } else {
+        sessionStorage.removeItem('selectedCompanyId');
+      }
+    }
+  }, [selectedCompanyId]);
 
   const isImpersonating = currentUser?.impersonating !== null;
   
