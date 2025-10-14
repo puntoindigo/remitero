@@ -14,6 +14,7 @@ import { useCRUDPage } from "@/hooks/useCRUDPage";
 import { DataTable, type DataTableColumn } from "@/components/common/DataTable";
 import { useCRUDTable } from "@/hooks/useCRUDTable";
 import { Pagination } from "@/components/common/Pagination";
+import { LoadingSpinner } from "@/components/common/LoadingSpinner";
 
 function EmpresasContent() {
   const { data: session } = useSession();
@@ -157,7 +158,7 @@ function EmpresasContent() {
       <main className="main-content">
         <div className="form-section">
           <h2>Gestión de Empresas</h2>
-          <p>Cargando...</p>
+          <LoadingSpinner message="Cargando empresas..." />
         </div>
       </main>
     );
@@ -219,7 +220,7 @@ function EmpresasContent() {
 
 export default function EmpresasPage() {
   return (
-    <Suspense fallback={<div>Cargando...</div>}>
+    <Suspense fallback={<LoadingSpinner message="Cargando empresas..." />}>
       <EmpresasContent />
     </Suspense>
   );

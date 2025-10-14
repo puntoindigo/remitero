@@ -47,6 +47,31 @@ function RemitosContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
+
+  // Prevenir errores de client-side exception
+  if (!currentUser) {
+    return (
+      <main className="main-content">
+        <div className="form-section">
+          <LoadingSpinner message="Cargando usuario..." />
+        </div>
+      </main>
+    );
+  }
+
+  // Verificar permisos - solo ADMIN y SUPERADMIN pueden acceder
+  if (currentUser?.role === 'USER') {
+    return (
+      <main className="main-content">
+        <div className="form-section">
+          <div className="text-center py-8">
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">Acceso Denegado</h2>
+            <p className="text-gray-600">No tienes permisos para acceder a esta sección.</p>
+          </div>
+        </div>
+      </main>
+    );
+  }
   
   // Hook centralizado para manejo de companyId
   const {
@@ -237,7 +262,7 @@ function RemitosContent() {
         remito.client.email ? (
           <div className="text-sm text-gray-600">{remito.client.email}</div>
         ) : (
-          <span className="text-gray-400">Sin email</span>
+          <span className="text-muted">Sin email</span>
         )
       )
     },

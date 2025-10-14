@@ -1046,6 +1046,12 @@ button svg,
   background: #2563eb;
 }
 
+/* Estilos para textos de datos faltantes */
+.text-muted {
+  color: #9ca3af;
+  font-style: italic;
+}
+
 /* Fix para iconos de error */
 .text-red-600 svg {
   width: 16px !important;

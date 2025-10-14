@@ -215,8 +215,8 @@ function CategoriasContent() {
             )}
           </div>
 
-          {/* Botón Nuevo independiente */}
-          {!needsCompanySelection && (
+          {/* Botón Nuevo independiente - siempre visible cuando hay empresa seleccionada */}
+          {companyId && (
             <div style={{ marginBottom: '1rem' }}>
               <button
                 onClick={handleNew}

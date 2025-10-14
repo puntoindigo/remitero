@@ -168,7 +168,7 @@ function UsuariosContent() {
             &nbsp;{usuario.email}
           </div>
         ) : (
-          <span className="text-gray-400">Sin email</span>
+          <span className="text-muted">Sin email</span>
         )
       )
     },

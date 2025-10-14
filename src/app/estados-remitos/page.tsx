@@ -21,6 +21,17 @@ import { LoadingSpinner } from "@/components/common/LoadingSpinner";
 function EstadosRemitosContent() {
   const { data: session } = useSession();
   const currentUser = useCurrentUserSimple();
+
+  // Prevenir errores de client-side exception
+  if (!currentUser) {
+    return (
+      <main className="main-content">
+        <div className="form-section">
+          <LoadingSpinner message="Cargando usuario..." />
+        </div>
+      </main>
+    );
+  }
   
   // Verificar permisos - solo ADMIN y SUPERADMIN pueden acceder
   if (currentUser?.role === 'USER') {
@@ -160,12 +171,7 @@ function EstadosRemitosContent() {
       key: 'name',
       label: 'Nombre',
       render: (estado) => (
-        <div className="estado-info">
-          <div className="estado-name">{estado.name}</div>
-          {estado.description && (
-            <div className="estado-description">{estado.description}</div>
-          )}
-        </div>
+        <div className="estado-name">{estado.name}</div>
       )
     },
     {
@@ -183,11 +189,27 @@ function EstadosRemitosContent() {
     },
     {
       key: 'is_active',
-      label: 'Estado',
+      label: 'Activo',
       render: (estado) => (
-        <span className={`badge ${estado.is_active ? 'badge-success' : 'badge-inactive'}`}>
+        <span className={`badge ${estado.is_active ? 'badge-success' : 'badge-inactive'}`} style={{ padding: '4%' }}>
           {estado.is_active ? 'Activo' : 'Inactivo'}
         </span>
+      )
+    },
+    {
+      key: 'createdAt',
+      label: 'Registrado',
+      render: (estado) => (
+        <div className="text-sm text-gray-600">
+          {new Date(estado.createdAt).toLocaleString('es-AR', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+          })}
+        </div>
       )
     }
   ];

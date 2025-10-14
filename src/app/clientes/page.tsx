@@ -152,7 +152,7 @@ function ClientesContent() {
             &nbsp;{cliente.email}
           </div>
         ) : (
-          <span className="text-gray-400">Sin email</span>
+          <span className="text-muted">Sin email</span>
         )
       )
     },
@@ -166,7 +166,7 @@ function ClientesContent() {
             &nbsp;{cliente.phone}
           </div>
         ) : (
-          <span className="text-gray-400">Sin teléfono</span>
+          <span className="text-muted">Sin teléfono</span>
         )
       )
     },
@@ -180,7 +180,7 @@ function ClientesContent() {
             &nbsp;{cliente.address}
           </div>
         ) : (
-          <span className="text-gray-400">Sin dirección</span>
+          <span className="text-muted">Sin dirección</span>
         )
       )
     },
