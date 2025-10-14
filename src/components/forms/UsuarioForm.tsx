@@ -71,7 +71,11 @@ export function UsuarioForm({
   // Observar el valor del rol para mostrar/ocultar empresa
   const selectedRole = watch("role");
   const isCurrentUserSuperAdmin = session?.user?.role === "SUPERADMIN";
-  const shouldShowCompanyField = isCurrentUserSuperAdmin && selectedRole !== "SUPERADMIN";
+  // Mostrar campo de empresa solo si:
+  // 1. El usuario actual es SUPERADMIN
+  // 2. El rol seleccionado no es SUPERADMIN
+  // 3. No hay companyId específico (se seleccionó "Todas las empresas")
+  const shouldShowCompanyField = isCurrentUserSuperAdmin && selectedRole !== "SUPERADMIN" && !companyId;
 
   // Limpiar companyId cuando el rol es SUPERADMIN
   React.useEffect(() => {
@@ -79,6 +83,13 @@ export function UsuarioForm({
       setValue("companyId", "");
     }
   }, [selectedRole, setValue]);
+
+  // Establecer companyId automáticamente cuando se proporciona
+  React.useEffect(() => {
+    if (companyId && !editingUser) {
+      setValue("companyId", companyId);
+    }
+  }, [companyId, setValue, editingUser]);
 
   // Reset form when editingUser changes
   React.useEffect(() => {
