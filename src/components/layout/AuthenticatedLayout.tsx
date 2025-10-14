@@ -27,19 +27,26 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
     return <>{children}</>;
   }
 
-  // Verificación simple de sesión
-  useEffect(() => {
-    if (isMountedRef.current && status === "unauthenticated") {
-      router.push("/auth/login");
-    }
-  }, [status, router]);
-
   // Cleanup al desmontar
   useEffect(() => {
     return () => {
       isMountedRef.current = false;
     };
   }, []);
+
+  // Verificación simple de sesión
+  useEffect(() => {
+    if (isMountedRef.current && status === "unauthenticated") {
+      // Usar setTimeout para evitar actualizaciones durante el renderizado
+      const timeoutId = setTimeout(() => {
+        if (isMountedRef.current) {
+          router.push("/auth/login");
+        }
+      }, 0);
+      
+      return () => clearTimeout(timeoutId);
+    }
+  }, [status, router]);
 
   // Mostrar loading mientras verifica sesión
   if (status === "loading") {
