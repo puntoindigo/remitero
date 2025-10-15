@@ -4,7 +4,7 @@ import { useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
 
 export const useCurrentUserSimple = () => {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const [impersonationData, setImpersonationData] = useState<any>(null);
   const [isClient, setIsClient] = useState(false);
 
@@ -27,8 +27,18 @@ export const useCurrentUserSimple = () => {
     }
   }, [isClient]);
 
-  // Si no estamos en el cliente o no hay sesión, devolver null
-  if (!isClient || !session?.user) {
+  // Si no estamos en el cliente, devolver null durante SSR
+  if (!isClient) {
+    return null;
+  }
+
+  // Si la sesión está cargando, devolver null
+  if (status === "loading") {
+    return null;
+  }
+
+  // Si no hay sesión, devolver null
+  if (!session?.user) {
     return null;
   }
 
