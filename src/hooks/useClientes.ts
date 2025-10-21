@@ -137,6 +137,13 @@ export function useClientes(companyId?: string) {
   };
 
   const loadClientes = useCallback(async () => {
+    // Verificar que currentUser esté disponible antes de continuar
+    if (!currentUser) {
+      setClientes([]);
+      setIsLoading(false);
+      return;
+    }
+    
     const effectiveCompanyId = getEffectiveCompanyId();
     
     if (!effectiveCompanyId) {
