@@ -177,12 +177,12 @@ function EstadosRemitosContent() {
       key: 'color',
       label: 'Color',
       render: (estado) => (
-        <div className="flex items-center gap-2">
+        <div style={{ display: 'inline-flex', alignItems: 'center', whiteSpace: 'nowrap' }}>
           <div 
             className="w-4 h-4 rounded-full border"
-            style={{ backgroundColor: estado.color }}
+            style={{ backgroundColor: estado.color, marginRight: '4px' }}
           ></div>
-          <span className="text-sm text-gray-600">{estado.color}</span>
+          <span className="text-sm text-gray-600 font-mono">{estado.color}</span>
         </div>
       )
     },
@@ -196,18 +196,18 @@ function EstadosRemitosContent() {
       )
     },
     {
-      key: 'createdAt',
+      key: 'created_at',
       label: 'Registrado',
       render: (estado) => (
         <div className="text-sm text-gray-600">
-          {new Date(estado.createdAt).toLocaleString('es-AR', {
+          {estado.created_at ? new Date(estado.created_at).toLocaleString('es-AR', {
             year: 'numeric',
             month: '2-digit',
             day: '2-digit',
             hour: '2-digit',
             minute: '2-digit',
             hour12: false
-          })}
+          }) : 'N/A'}
         </div>
       )
     }

@@ -208,13 +208,20 @@ export default function FilterableSelect({
         </span>
         <div className="vercel-select-actions">
           {value && (
-            <button
-              type="button"
+            <div
               onClick={handleClear}
               className="vercel-select-clear"
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  handleClear();
+                }
+              }}
             >
               <X className="vercel-select-clear-icon" />
-            </button>
+            </div>
           )}
           <ChevronDown className={`vercel-select-chevron ${isOpen ? 'vercel-select-chevron-open' : ''}`} />
         </div>

@@ -27,19 +27,6 @@ export function useClientes(companyId?: string) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Verificar que la sesión y el usuario estén disponibles
-  if (!session || !currentUser) {
-    return {
-      clientes: [],
-      setClientes: () => {},
-      isLoading: true,
-      error: null,
-      createCliente: async () => {},
-      updateCliente: async () => {},
-      deleteCliente: async () => {}
-    };
-  }
-
   // Determinar el companyId efectivo para las operaciones CRUD
   const getEffectiveCompanyId = () => {
     // Si se pasa companyId como parámetro (desde useDataWithCompany), usarlo
@@ -61,34 +48,6 @@ export function useClientes(companyId?: string) {
       return currentUser?.companyId || null;
     }
   };
-
-  const loadClientes = useCallback(async () => {
-    const effectiveCompanyId = getEffectiveCompanyId();
-    
-    if (!effectiveCompanyId) {
-      setClientes([]);
-      setIsLoading(false);
-      return;
-    }
-
-    try {
-      setIsLoading(true);
-      setError(null);
-      
-      const response = await fetch(`/api/clients?companyId=${effectiveCompanyId}`);
-      if (!response.ok) {
-        throw new Error("Error al cargar clientes");
-      }
-      
-      const data = await response.json();
-      setClientes(data || []);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Error desconocido");
-      console.error("Error loading clientes:", err);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [companyId, currentUser]);
 
   const createCliente = async (clienteData: ClienteFormData) => {
     try {
@@ -176,6 +135,35 @@ export function useClientes(companyId?: string) {
       throw new Error(errorMessage);
     }
   };
+
+  const loadClientes = useCallback(async () => {
+    const effectiveCompanyId = getEffectiveCompanyId();
+    
+    if (!effectiveCompanyId) {
+      setClientes([]);
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      setError(null);
+      
+      const response = await fetch(`/api/clients?companyId=${effectiveCompanyId}`);
+      if (!response.ok) {
+        throw new Error("Error al cargar clientes");
+      }
+      
+      const data = await response.json();
+      setClientes(Array.isArray(data) ? data : []);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Error desconocido");
+      console.error("Error loading clientes:", err);
+      setClientes([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [companyId, currentUser?.id, currentUser?.role, currentUser?.companyId, currentUser?.impersonating]);
 
   useEffect(() => {
     loadClientes();

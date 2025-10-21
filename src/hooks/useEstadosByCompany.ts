@@ -14,18 +14,11 @@ export function useEstadosByCompany(companyId?: string) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Si no hay companyId, retornar estado vacío
-  if (!companyId) {
-    return {
-      estados: [],
-      isLoading: false,
-      error: null
-    };
-  }
-
   const loadEstados = async () => {
     if (!companyId) {
       setEstados([]);
+      setIsLoading(false);
+      setError(null);
       return;
     }
 
@@ -54,6 +47,16 @@ export function useEstadosByCompany(companyId?: string) {
   useEffect(() => {
     loadEstados();
   }, [companyId]);
+
+  // Si no hay companyId, retornar estado vacío
+  if (!companyId) {
+    return {
+      estados: [],
+      isLoading: false,
+      error: null,
+      reload: loadEstados
+    };
+  }
 
   return {
     estados,

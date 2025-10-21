@@ -32,30 +32,35 @@ export function useSessionGuard() {
     }
   }, [session, status, router]);
 
-  // Retornar el estado de carga
-  if (status === "loading") {
-    return {
-      isLoading: true,
-      session: null,
-      shouldRender: false
-    };
-  }
+  // Calcular el estado sin early returns
+  const getSessionState = () => {
+    // Retornar el estado de carga
+    if (status === "loading") {
+      return {
+        isLoading: true,
+        session: null,
+        shouldRender: false
+      };
+    }
 
-  // Si no hay sesión, no renderizar nada (se está redirigiendo)
-  if (status === "unauthenticated" || !session) {
+    // Si no hay sesión, no renderizar nada (se está redirigiendo)
+    if (status === "unauthenticated" || !session) {
+      return {
+        isLoading: false,
+        session: null,
+        shouldRender: false
+      };
+    }
+
+    // Sesión válida
     return {
       isLoading: false,
-      session: null,
-      shouldRender: false
+      session,
+      shouldRender: true
     };
-  }
-
-  // Sesión válida
-  return {
-    isLoading: false,
-    session,
-    shouldRender: true
   };
+
+  return getSessionState();
 }
 
 /**

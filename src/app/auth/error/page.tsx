@@ -4,6 +4,7 @@ import { useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { AlertCircle, ArrowLeft } from "lucide-react"
 import { Suspense } from "react"
+import { LoadingSpinner } from "@/components/common/LoadingSpinner"
 
 const errorMessages = {
   Configuration: "Error de configuración del servidor",
@@ -75,10 +76,7 @@ export default function AuthErrorPage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Cargando...</p>
-        </div>
+        <LoadingSpinner message="Cargando..." size="lg" />
       </div>
     }>
       <ErrorContent />

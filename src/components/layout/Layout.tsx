@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { useEffect } from "react"
 import Header from "./Header"
 import ImpersonationBanner from "../common/ImpersonationBanner"
+import { LoadingSpinner } from "../common/LoadingSpinner"
 
 interface LayoutProps {
   children: React.ReactNode
@@ -26,10 +27,7 @@ export default function Layout({ children }: LayoutProps) {
   if (status === "loading") {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Cargando...</p>
-        </div>
+        <LoadingSpinner message="Cargando..." size="lg" />
       </div>
     )
   }

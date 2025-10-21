@@ -2,6 +2,7 @@
 
 import React from "react";
 import { Edit, Trash2, Plus, Printer } from "lucide-react";
+import { LoadingSpinner } from "./LoadingSpinner";
 
 export interface DataTableColumn<T> {
   key: string;
@@ -64,7 +65,7 @@ export function DataTable<T>({
   if (loading) {
     return (
       <div className="data-table-container">
-        <div className="loading">Cargando datos...</div>
+        <LoadingSpinner message="Cargando datos..." />
       </div>
     );
   }

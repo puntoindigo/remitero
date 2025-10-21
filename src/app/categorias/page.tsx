@@ -17,6 +17,7 @@ import { DataTable, type DataTableColumn } from "@/components/common/DataTable";
 import { useCRUDTable } from "@/hooks/useCRUDTable";
 import { Pagination } from "@/components/common/Pagination";
 import { LoadingSpinner } from "@/components/common/LoadingSpinner";
+import { ABMHeader } from "@/components/common/ABMHeader";
 import { useCurrentUserSimple } from "@/hooks/useCurrentUserSimple";
 
 function CategoriasContent() {
@@ -200,38 +201,25 @@ function CategoriasContent() {
         <div className="form-section">
           <h2>Gestión de Categorías</h2>
           
-          {/* Filtros adicionales */}
-          <div className="category-filter-wrapper" style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1rem' }}>
-            {shouldShowCompanySelector && empresas.length > 0 && (
-              <FilterableSelect
-                options={empresas}
-                value={selectedCompanyId}
-                onChange={setSelectedCompanyId}
-                placeholder="Seleccionar empresa"
-                searchFields={["name"]}
-                className="w-64"
-              />
-            )}
-          </div>
-
-          {/* Botón Nuevo independiente - siempre visible cuando hay empresa seleccionada */}
-          {companyId && (
-            <div style={{ marginBottom: '1rem' }}>
-              <button
-                onClick={handleNew}
-                className="btn primary"
-                disabled={isSubmitting}
-              >
-                <Plus className="h-4 w-4" />
-                Nueva Categoría
-              </button>
-            </div>
-          )}
+          {/* Header con selector de empresa, búsqueda y botón Nuevo */}
+          <ABMHeader
+            showCompanySelector={shouldShowCompanySelector}
+            companies={empresas}
+            selectedCompanyId={selectedCompanyId}
+            onCompanyChange={setSelectedCompanyId}
+            showNewButton={!!companyId}
+            newButtonText="Nueva Categoría"
+            onNewClick={handleNew}
+            isSubmitting={isSubmitting}
+            searchPlaceholder="Buscar categorías..."
+            searchValue={searchTerm}
+            onSearchChange={setSearchTerm}
+          />
 
           {/* DataTable con paginación */}
           {needsCompanySelection ? (
             <div className="empty-state">
-              <Tag className="empty-icon" />
+              <Package className="empty-icon" />
               <p>Para ver las categorías, primero selecciona una empresa.</p>
             </div>
           ) : (

@@ -70,7 +70,7 @@ export function useCategorias(companyId?: string) {
     } finally {
       setIsLoading(false);
     }
-  }, [companyId, currentUser]);
+  }, [companyId, currentUser?.id, currentUser?.role, currentUser?.companyId, currentUser?.impersonating]);
 
   const createCategoria = async (data: CategoriaFormData) => {
     try {

@@ -21,6 +21,7 @@ import { DataTable, type DataTableColumn } from "@/components/common/DataTable";
 import { useCRUDTable } from "@/hooks/useCRUDTable";
 import { Pagination } from "@/components/common/Pagination";
 import { LoadingSpinner } from "@/components/common/LoadingSpinner";
+import { ABMHeader } from "@/components/common/ABMHeader";
 import { RemitoFormComplete } from "@/components/forms/RemitoFormComplete";
 
 interface Remito {
@@ -146,7 +147,9 @@ function RemitosContent() {
   // CRUD Table configuration
   const {
     tableConfig,
-    paginationConfig
+    paginationConfig,
+    searchTerm,
+    setSearchTerm
   } = useCRUDTable({
     data: remitos,
     loading: isLoading,
@@ -308,33 +311,20 @@ function RemitosContent() {
       <div className="form-section">
         <h2>Gestión de Remitos</h2>
         
-        {/* Filtros adicionales */}
-        <div className="category-filter-wrapper" style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1rem' }}>
-          {shouldShowCompanySelector && empresas.length > 0 && (
-            <FilterableSelect
-              options={empresas}
-              value={selectedCompanyId}
-              onChange={setSelectedCompanyId}
-              placeholder="Seleccionar empresa"
-              searchFields={["name"]}
-              className="w-64"
-            />
-          )}
-        </div>
-
-        {/* Botón Nuevo independiente */}
-        {!needsCompanySelection && (
-          <div style={{ marginBottom: '1rem' }}>
-            <button
-              onClick={handleNew}
-              className="btn primary"
-              disabled={isSubmitting}
-            >
-              <Plus className="h-4 w-4" />
-              Nuevo Remito
-            </button>
-          </div>
-        )}
+        {/* Header con selector de empresa, búsqueda y botón Nuevo */}
+        <ABMHeader
+          showCompanySelector={shouldShowCompanySelector}
+          companies={empresas}
+          selectedCompanyId={selectedCompanyId}
+          onCompanyChange={setSelectedCompanyId}
+          showNewButton={!needsCompanySelection}
+          newButtonText="Nuevo Remito"
+          onNewClick={handleNewRemito}
+          isSubmitting={isSubmitting}
+          searchPlaceholder="Buscar remitos..."
+          searchValue={searchTerm}
+          onSearchChange={setSearchTerm}
+        />
 
         {/* Contenido principal */}
         {needsCompanySelection ? (
