@@ -3646,3 +3646,48 @@ form svg {
     display: none;
   }
 }
+
+/* Estilos para desplegable de estados de remitos - igual al de stock */
+.remito-status-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.remito-status-color-box {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  border: 1px solid #d1d5db;
+  flex-shrink: 0;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.remito-status-select {
+  padding: 4px 8px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-width: 120px;
+  flex: 1;
+}
+
+.remito-status-select:hover {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 1px #3b82f6;
+}
+
+.remito-status-select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+
+.remito-status-select:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

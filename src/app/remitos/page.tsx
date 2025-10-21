@@ -273,19 +273,49 @@ function RemitosContent() {
     {
       key: 'status',
       label: 'Estado',
-      render: (remito) => (
-        <select
-          value={remito.status.id}
-          onChange={(e) => handleStatusChange(remito.id, e.target.value)}
-          className="status-select"
-        >
-          {estadosActivos?.map((estado) => (
-            <option key={estado.id} value={estado.id}>
-              {estado.name}
-            </option>
-          ))}
-        </select>
-      )
+      render: (remito) => {
+        // Validación para evitar errores de undefined
+        if (!remito.status || !estadosActivos) {
+          return <div className="text-gray-500">Sin estado</div>;
+        }
+        
+        const isChanging = statusChanging === remito.id;
+        
+        return (
+          <div className="remito-status-container">
+            {/* Cuadro de color del estado actual */}
+            <div 
+              className="remito-status-color-box"
+              style={{ backgroundColor: remito.status.color || '#ffffff' }}
+              title={`Color del estado: ${remito.status.color || '#ffffff'}`}
+            />
+            
+            {/* Desplegable de estados */}
+            <div className="relative flex-1">
+              <select
+                value={remito.status.id}
+                onChange={(e) => handleStatusChange(remito.id, e.target.value)}
+                className="remito-status-select"
+                disabled={isChanging}
+              >
+                {estadosActivos.map((estado) => (
+                  <option 
+                    key={estado.id} 
+                    value={estado.id}
+                  >
+                    {estado.name}
+                  </option>
+                ))}
+              </select>
+              {isChanging && (
+                <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-75 rounded">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                </div>
+              )}
+            </div>
+          </div>
+        );
+      }
     },
     {
       key: 'total',
