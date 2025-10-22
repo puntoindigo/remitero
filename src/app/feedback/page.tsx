@@ -58,6 +58,26 @@ const mockFeedbacks: FeedbackItem[] = [
     createdAt: '2025-10-21T14:15:00Z',
     category: 'UI/UX',
     tools: ['React', 'CSS', 'Components']
+  },
+  {
+    id: '5',
+    title: 'Corregir error de Next.js params en API routes',
+    content: 'Los API routes están usando params.id sin await. Necesita corregir para usar await params en Next.js 15.',
+    status: 'pending',
+    priority: 'high',
+    createdAt: '2025-10-21T14:10:00Z',
+    category: 'Bug Fix',
+    tools: ['Next.js', 'API Routes', 'TypeScript']
+  },
+  {
+    id: '6',
+    title: 'Instalar módulo critters faltante',
+    content: 'El módulo critters no está instalado y causa errores 500. Necesita instalarlo para que funcione correctamente.',
+    status: 'pending',
+    priority: 'medium',
+    createdAt: '2025-10-21T14:05:00Z',
+    category: 'Dependencies',
+    tools: ['npm', 'Node.js', 'Dependencies']
   }
 ];
 
@@ -75,8 +95,16 @@ export default function FeedbackPage() {
 
   const filteredFeedbacks = feedbacks.filter(feedback => {
     if (filter === 'all') return true;
-    return feedback.status === filter;
+    if (filter === 'pending') return feedback.status === 'pending';
+    if (filter === 'processing') return feedback.status === 'processing';
+    if (filter === 'completed') return feedback.status === 'completed';
+    return true;
   });
+
+  // Filtrar solo items activos (pending y processing) para procesamiento
+  const activeFeedbacks = feedbacks.filter(feedback => 
+    feedback.status === 'pending' || feedback.status === 'processing'
+  );
 
   const handleProcessFeedback = async (feedbackId: string) => {
     const feedback = feedbacks.find(f => f.id === feedbackId);
@@ -104,6 +132,14 @@ export default function FeedbackPage() {
     setFeedbacks(prev => prev.map(f => 
       f.id === feedbackId ? { ...f, status: 'completed' as const } : f
     ));
+  };
+
+  const handleProcessAllActive = async () => {
+    for (const feedback of activeFeedbacks) {
+      if (feedback.status === 'pending') {
+        await handleProcessFeedback(feedback.id);
+      }
+    }
   };
 
   const getStatusCounts = () => {
@@ -172,27 +208,40 @@ export default function FeedbackPage() {
           </div>
         </div>
 
-        {/* Filtros */}
+        {/* Filtros y acciones */}
         <div className="mb-6">
-          <div className="flex space-x-4">
-            {[
-              { key: 'all', label: 'Todos' },
-              { key: 'pending', label: 'Pendientes' },
-              { key: 'processing', label: 'Procesando' },
-              { key: 'completed', label: 'Completados' }
-            ].map(({ key, label }) => (
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div className="flex space-x-4">
+              {[
+                { key: 'all', label: 'Todos' },
+                { key: 'pending', label: 'Pendientes' },
+                { key: 'processing', label: 'Procesando' },
+                { key: 'completed', label: 'Completados' }
+              ].map(({ key, label }) => (
+                <button
+                  key={key}
+                  onClick={() => setFilter(key as any)}
+                  className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                    filter === key
+                      ? 'bg-blue-500 text-white'
+                      : 'bg-white text-gray-700 hover:bg-gray-50'
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+            
+            {/* Botón para procesar todos los activos */}
+            {activeFeedbacks.length > 0 && (
               <button
-                key={key}
-                onClick={() => setFilter(key as any)}
-                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                  filter === key
-                    ? 'bg-blue-500 text-white'
-                    : 'bg-white text-gray-700 hover:bg-gray-50'
-                }`}
+                onClick={handleProcessAllActive}
+                className="flex items-center space-x-2 px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors text-sm font-medium"
               >
-                {label}
+                <Play className="h-4 w-4" />
+                <span>Procesar Todos los Activos ({activeFeedbacks.length})</span>
               </button>
-            ))}
+            )}
           </div>
         </div>
 

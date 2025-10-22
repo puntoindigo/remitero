@@ -32,7 +32,19 @@ export async function POST(request: NextRequest) {
   try {
     const { feedbackId, feedback }: { feedbackId: string; feedback: FeedbackItem } = await request.json();
     
-    console.log(`🔄 Procesando feedback: ${feedback.title}`);
+    // Solo procesar items activos (pending o processing)
+    if (feedback.status !== 'pending' && feedback.status !== 'processing') {
+      return NextResponse.json({
+        success: false,
+        message: `Feedback "${feedback.title}" no está activo (estado: ${feedback.status})`,
+        changes: [],
+        errors: [`Solo se procesan items con estado 'pending' o 'processing'`],
+        filesModified: [],
+        codeChanges: []
+      });
+    }
+    
+    console.log(`🔄 Procesando feedback activo: ${feedback.title} (${feedback.status})`);
     
     const result = await processFeedbackReal(feedback);
     
@@ -83,6 +95,12 @@ async function processFeedbackReal(feedback: FeedbackItem): Promise<ProcessingRe
       case 'loading-spinner':
         await processLoadingSpinnerFix(analysis, changes, filesModified, codeChanges);
         break;
+      case 'nextjs-params':
+        await processNextJSParamsFix(analysis, changes, filesModified, codeChanges);
+        break;
+      case 'dependencies':
+        await processDependenciesFix(analysis, changes, filesModified, codeChanges);
+        break;
       default:
         await processGenericFix(analysis, changes, filesModified, codeChanges);
     }
@@ -125,6 +143,14 @@ function analyzeFeedbackContent(content: string) {
   
   if (lowerContent.includes('loading') || lowerContent.includes('cargando')) {
     return { type: 'loading-spinner', target: 'loading-components' };
+  }
+  
+  if (lowerContent.includes('params') && lowerContent.includes('await')) {
+    return { type: 'nextjs-params', target: 'api-routes' };
+  }
+  
+  if (lowerContent.includes('critters') || lowerContent.includes('módulo')) {
+    return { type: 'dependencies', target: 'package-json' };
   }
   
   return { type: 'generic', target: 'unknown' };
@@ -357,6 +383,81 @@ async function searchAndReplaceLoadingText(dirPath: string, changes: string[], f
             newCode: '<LoadingSpinner message="Cargando..." />',
             description: 'Reemplazar texto hardcodeado por componente LoadingSpinner'
           });
+        }
+      }
+    }
+  } catch (error) {
+    // Ignorar errores de directorios que no existen
+  }
+}
+
+async function processNextJSParamsFix(analysis: any, changes: string[], filesModified: string[], codeChanges: any[]) {
+  try {
+    // Buscar archivos de API routes que usen params.id sin await
+    const apiPath = path.join(process.cwd(), 'src/app/api');
+    await searchAndFixParamsUsage(apiPath, changes, filesModified, codeChanges);
+  } catch (error) {
+    throw new Error(`Error procesando Next.js params fix: ${error}`);
+  }
+}
+
+async function processDependenciesFix(analysis: any, changes: string[], filesModified: string[], codeChanges: any[]) {
+  try {
+    // Instalar módulo critters
+    const { exec } = require('child_process');
+    const util = require('util');
+    const execAsync = util.promisify(exec);
+    
+    try {
+      await execAsync('npm install critters');
+      changes.push('Módulo critters instalado exitosamente');
+      filesModified.push('package.json');
+      codeChanges.push({
+        file: 'package.json',
+        line: 1,
+        oldCode: '',
+        newCode: 'critters dependency added',
+        description: 'Instalar módulo critters faltante'
+      });
+    } catch (installError) {
+      changes.push('Error al instalar critters, pero se intentó');
+      // No usar errors aquí ya que no está definido en este scope
+    }
+  } catch (error) {
+    throw new Error(`Error procesando dependencies fix: ${error}`);
+  }
+}
+
+async function searchAndFixParamsUsage(dirPath: string, changes: string[], filesModified: string[], codeChanges: any[]) {
+  try {
+    const files = await fs.readdir(dirPath, { withFileTypes: true });
+    
+    for (const file of files) {
+      const fullPath = path.join(dirPath, file.name);
+      
+      if (file.isDirectory()) {
+        await searchAndFixParamsUsage(fullPath, changes, filesModified, codeChanges);
+      } else if (file.name.endsWith('.ts') && file.name.includes('route')) {
+        const content = await fs.readFile(fullPath, 'utf-8');
+        
+        if (content.includes('params.id') && !content.includes('await params')) {
+          const newContent = content.replace(
+            /const (\w+) = params\.(\w+);/g,
+            'const { $2: $1 } = await params;'
+          );
+          
+          if (newContent !== content) {
+            await fs.writeFile(fullPath, newContent);
+            changes.push(`Corregido uso de params en ${file.name}`);
+            filesModified.push(fullPath);
+            codeChanges.push({
+              file: fullPath,
+              line: content.split('\n').findIndex(line => line.includes('params.')) + 1,
+              oldCode: content.match(/const \w+ = params\.\w+;/)?.[0] || '',
+              newCode: newContent.match(/const \{ \w+: \w+ \} = await params;/)?.[0] || '',
+              description: 'Corregir uso de params para Next.js 15'
+            });
+          }
         }
       }
     }
