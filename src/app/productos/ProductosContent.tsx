@@ -386,10 +386,9 @@ function ProductosContent() {
                   onDelete={handleDeleteProduct}
                   actionsColumnLabel="Acciones"
                 />
-              </div>
-              <Pagination {...paginationConfig} />
-            </>
-          ) : null}
+                <Pagination {...paginationConfig} />
+              </>
+            ) : null}
         </div>
 
         {/* Modal de confirmación de eliminación */}
