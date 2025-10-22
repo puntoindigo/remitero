@@ -69,7 +69,8 @@ export default function FeedbackPage() {
     processFeedback,
     markCompleted,
     isProcessing,
-    getResult
+    getResult,
+    results
   } = useFeedbackProcessor();
 
   const filteredFeedbacks = feedbacks.filter(feedback => {
@@ -211,6 +212,7 @@ export default function FeedbackPage() {
                 feedbacks={filteredFeedbacks}
                 onProcessFeedback={handleProcessFeedback}
                 onMarkCompleted={handleMarkCompleted}
+                processingResults={results}
               />
             )}
           </div>

@@ -18,6 +18,14 @@ interface ProcessingResult {
   message: string;
   changes?: string[];
   errors?: string[];
+  filesModified?: string[];
+  codeChanges?: Array<{
+    file: string;
+    line: number;
+    oldCode: string;
+    newCode: string;
+    description: string;
+  }>;
 }
 
 export function useFeedbackProcessor() {
@@ -26,29 +34,32 @@ export function useFeedbackProcessor() {
 
   const analyzeFeedback = useCallback(async (feedback: FeedbackItem): Promise<ProcessingResult> => {
     try {
-      // Simular análisis del feedback
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Aquí implementarías la lógica de análisis real
-      // Por ahora, simulamos diferentes tipos de feedback
-      const analysis = {
-        success: true,
-        message: `Feedback "${feedback.title}" analizado exitosamente`,
-        changes: [
-          'Se identificó el problema en el código',
-          'Se aplicaron las correcciones necesarias',
-          'Se verificó la funcionalidad'
-        ],
-        errors: []
-      };
+      // Llamar al API real para procesar el feedback
+      const response = await fetch('/api/feedback/process', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          feedbackId: feedback.id,
+          feedback: feedback
+        })
+      });
 
-      return analysis;
+      if (!response.ok) {
+        throw new Error(`Error del servidor: ${response.status}`);
+      }
+
+      const result = await response.json();
+      return result;
     } catch (error) {
       return {
         success: false,
         message: `Error al procesar feedback: ${error}`,
         changes: [],
-        errors: [error instanceof Error ? error.message : 'Error desconocido']
+        errors: [error instanceof Error ? error.message : 'Error desconocido'],
+        filesModified: [],
+        codeChanges: []
       };
     }
   }, []);
@@ -109,6 +120,7 @@ export function useFeedbackProcessor() {
     markCompleted,
     isProcessing,
     getResult,
+    results,
     processing: Array.from(processing)
   };
 }

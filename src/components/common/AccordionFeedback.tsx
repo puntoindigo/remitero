@@ -14,16 +14,33 @@ interface FeedbackItem {
   tools: string[];
 }
 
+interface ProcessingResult {
+  success: boolean;
+  message: string;
+  changes?: string[];
+  errors?: string[];
+  filesModified?: string[];
+  codeChanges?: Array<{
+    file: string;
+    line: number;
+    oldCode: string;
+    newCode: string;
+    description: string;
+  }>;
+}
+
 interface AccordionFeedbackProps {
   feedbacks: FeedbackItem[];
   onProcessFeedback: (feedbackId: string) => void;
   onMarkCompleted: (feedbackId: string) => void;
+  processingResults?: Map<string, ProcessingResult>;
 }
 
 export function AccordionFeedback({ 
   feedbacks, 
   onProcessFeedback, 
-  onMarkCompleted 
+  onMarkCompleted,
+  processingResults = new Map()
 }: AccordionFeedbackProps) {
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
 
@@ -146,6 +163,80 @@ export function AccordionFeedback({
                     <h4 className="font-medium text-gray-900 mb-2">Contenido del Feedback:</h4>
                     <p className="text-gray-700 whitespace-pre-wrap">{feedback.content}</p>
                   </div>
+                  
+                  {/* Mostrar resultados del procesamiento */}
+                  {processingResults.has(feedback.id) && (
+                    <div className="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-4">
+                      <h4 className="font-medium text-blue-900 mb-3">Resultados del Procesamiento:</h4>
+                      {(() => {
+                        const result = processingResults.get(feedback.id)!;
+                        return (
+                          <div className="space-y-3">
+                            <div className={`p-3 rounded-md ${result.success ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                              <strong>Estado:</strong> {result.message}
+                            </div>
+                            
+                            {result.changes && result.changes.length > 0 && (
+                              <div>
+                                <h5 className="font-medium text-gray-900 mb-2">Cambios Aplicados:</h5>
+                                <ul className="list-disc list-inside space-y-1 text-sm">
+                                  {result.changes.map((change, index) => (
+                                    <li key={index} className="text-gray-700">{change}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+                            
+                            {result.filesModified && result.filesModified.length > 0 && (
+                              <div>
+                                <h5 className="font-medium text-gray-900 mb-2">Archivos Modificados:</h5>
+                                <ul className="list-disc list-inside space-y-1 text-sm">
+                                  {result.filesModified.map((file, index) => (
+                                    <li key={index} className="text-blue-700 font-mono">{file}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+                            
+                            {result.codeChanges && result.codeChanges.length > 0 && (
+                              <div>
+                                <h5 className="font-medium text-gray-900 mb-2">Cambios de Código:</h5>
+                                <div className="space-y-2">
+                                  {result.codeChanges.map((change, index) => (
+                                    <div key={index} className="bg-white p-3 rounded border">
+                                      <div className="text-sm font-medium text-gray-900">{change.file}:{change.line}</div>
+                                      <div className="text-xs text-gray-600 mb-2">{change.description}</div>
+                                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+                                        <div>
+                                          <div className="font-medium text-red-600">Código Anterior:</div>
+                                          <pre className="bg-red-50 p-2 rounded text-red-800 whitespace-pre-wrap">{change.oldCode}</pre>
+                                        </div>
+                                        <div>
+                                          <div className="font-medium text-green-600">Código Nuevo:</div>
+                                          <pre className="bg-green-50 p-2 rounded text-green-800 whitespace-pre-wrap">{change.newCode}</pre>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                            
+                            {result.errors && result.errors.length > 0 && (
+                              <div>
+                                <h5 className="font-medium text-red-900 mb-2">Errores:</h5>
+                                <ul className="list-disc list-inside space-y-1 text-sm">
+                                  {result.errors.map((error, index) => (
+                                    <li key={index} className="text-red-700">{error}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })()}
+                    </div>
+                  )}
                   
                   <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
                     <div>
