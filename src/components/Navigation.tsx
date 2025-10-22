@@ -8,8 +8,7 @@ import {
   FileText, 
   Users, 
   Tag,
-  Box,
-  MessageSquare
+  Box
 } from 'lucide-react';
 
 interface NavigationProps {
@@ -22,7 +21,6 @@ const tabs = [
   { id: 'clientes', label: 'Clientes', icon: Users },
   { id: 'productos', label: 'Productos', icon: Package },
   { id: 'remitos', label: 'Remitos', icon: FileText },
-  { id: 'feedback', label: 'Feedback', icon: MessageSquare },
 ];
 
 export function Navigation({ activeTab, onTabChange }: NavigationProps) {
