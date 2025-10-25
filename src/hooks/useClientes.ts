@@ -64,6 +64,9 @@ export function useClientes(companyId?: string) {
           ...clienteData,
           companyId: effectiveCompanyId
         }),
+      }).catch(error => {
+        console.error('Network error:', error);
+        throw new Error("Error de conexión al crear cliente");
       });
 
       if (!response.ok) {
@@ -121,6 +124,9 @@ export function useClientes(companyId?: string) {
     try {
       const response = await fetch(`/api/clients/${id}`, {
         method: "DELETE",
+      }).catch(error => {
+        console.error('Network error:', error);
+        throw new Error("Error de conexión con clientes");
       });
 
       if (!response.ok) {
@@ -156,7 +162,10 @@ export function useClientes(companyId?: string) {
       setIsLoading(true);
       setError(null);
       
-      const response = await fetch(`/api/clients?companyId=${effectiveCompanyId}`);
+      const response = await fetch(`/api/clients?companyId=${effectiveCompanyId}`).catch(error => {
+        console.error('Network error:', error);
+        throw new Error("Error de conexión con clientes");
+      });
       if (!response.ok) {
         throw new Error("Error al cargar clientes");
       }

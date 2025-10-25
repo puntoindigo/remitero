@@ -77,7 +77,10 @@ export function useProductos(companyId?: string) {
       setIsLoading(true);
       setError(null);
       
-      const response = await fetch(`/api/products?companyId=${effectiveCompanyId}`);
+      const response = await fetch(`/api/products?companyId=${effectiveCompanyId}`).catch(error => {
+        console.error('Network error:', error);
+        throw new Error("Error de conexión con productos");
+      });
       if (!response.ok) {
         throw new Error("Error al cargar productos");
       }
@@ -191,6 +194,9 @@ export function useProductos(companyId?: string) {
     try {
       const response = await fetch(`/api/products/${id}`, {
         method: "DELETE",
+      }).catch(error => {
+        console.error('Network error:', error);
+        throw new Error("Error de conexión con productos");
       });
 
       if (!response.ok) {

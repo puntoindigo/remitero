@@ -80,7 +80,10 @@ export function useRemitos(companyId?: string) {
       setIsLoading(true);
       setError(null);
       
-      const response = await fetch(`/api/remitos?companyId=${effectiveCompanyId}`);
+      const response = await fetch(`/api/remitos?companyId=${effectiveCompanyId}`).catch(error => {
+        console.error('Network error:', error);
+        throw new Error("Error de conexión con remitos");
+      });
       if (!response.ok) {
         throw new Error("Error al cargar remitos");
       }
@@ -185,6 +188,9 @@ export function useRemitos(companyId?: string) {
     try {
       const response = await fetch(`/api/remitos/${id}`, {
         method: "DELETE",
+      }).catch(error => {
+        console.error('Network error:', error);
+        throw new Error("Error de conexión con remitos");
       });
 
       if (!response.ok) {
@@ -202,7 +208,10 @@ export function useRemitos(companyId?: string) {
 
   const getRemitoById = async (id: string): Promise<Remito | null> => {
     try {
-      const response = await fetch(`/api/remitos/${id}`);
+      const response = await fetch(`/api/remitos/${id}`).catch(error => {
+        console.error('Network error:', error);
+        throw new Error("Error de conexión con remitos");
+      });
       if (!response.ok) {
         throw new Error("Error al cargar remito");
       }

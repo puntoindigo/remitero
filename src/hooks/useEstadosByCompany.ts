@@ -26,7 +26,10 @@ export function useEstadosByCompany(companyId?: string) {
       setIsLoading(true);
       setError(null);
       
-      const response = await fetch(`/api/estados-remitos?companyId=${companyId}`);
+      const response = await fetch(`/api/estados-remitos?companyId=${companyId}`).catch(error => {
+        console.error('Network error:', error);
+        throw new Error("Error de conexión con estados");
+      });
       if (!response.ok) {
         throw new Error("Error al cargar estados");
       }

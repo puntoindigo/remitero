@@ -33,7 +33,10 @@ export function useEmpresas() {
       setIsLoading(true);
       setError(null);
       
-      const response = await fetch("/api/companies");
+      const response = await fetch("/api/companies").catch(error => {
+        console.error('Network error:', error);
+        throw new Error("Error de conexión con empresas");
+      });
       
       if (!response.ok) {
         throw new Error(`Error al cargar empresas: ${response.status}`);
@@ -103,6 +106,9 @@ export function useEmpresas() {
     try {
       const response = await fetch(`/api/companies/${id}`, {
         method: "DELETE",
+      }).catch(error => {
+        console.error('Network error:', error);
+        throw new Error("Error de conexión con empresas");
       });
 
       if (!response.ok) {

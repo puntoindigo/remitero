@@ -55,6 +55,9 @@ export const useImpersonation = () => {
         headers: {
           'Content-Type': 'application/json',
         },
+      }).catch(error => {
+        console.error('Network error:', error);
+        throw new Error("Error de conexión de red");
       });
 
       if (!response.ok) {

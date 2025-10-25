@@ -105,7 +105,10 @@ export function useEstadosRemitos(companyId?: string) {
 
       // Pasar companyId del usuario actual (considerando impersonation)
       const url = companyId ? `/api/estados-remitos?companyId=${companyId}` : "/api/estados-remitos";
-      const response = await fetch(url);
+      const response = await fetch(url).catch(error => {
+        console.error('Network error:', error);
+        throw new Error("Error de conexión de red");
+      });
       
       if (!response.ok) {
         throw new Error("Error al cargar estados de remitos");
@@ -185,6 +188,9 @@ export function useEstadosRemitos(companyId?: string) {
     try {
       const response = await fetch(`/api/estados-remitos/${id}`, {
         method: "DELETE",
+      }).catch(error => {
+        console.error('Network error:', error);
+        throw new Error("Error de conexión con estados");
       });
 
       if (!response.ok) {

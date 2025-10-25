@@ -39,7 +39,10 @@ export function useUsuarios(companyId?: string) {
       const usersUrl = companyId ? `/api/users?companyId=${companyId}` : '/api/users';
       console.log('Loading usuarios from:', usersUrl);
       
-      const response = await fetch(usersUrl);
+      const response = await fetch(usersUrl).catch(error => {
+        console.error('Network error:', error);
+        throw new Error("Error de conexión de red");
+      });
       
       if (!response.ok) {
         const errorData = await response.json();
@@ -124,6 +127,9 @@ export function useUsuarios(companyId?: string) {
     try {
       const response = await fetch(`/api/users/${id}`, {
         method: "DELETE",
+      }).catch(error => {
+        console.error('Network error:', error);
+        throw new Error("Error de conexión con usuarios");
       });
 
       if (!response.ok) {
