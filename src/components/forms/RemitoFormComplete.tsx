@@ -184,7 +184,7 @@ export function RemitoFormComplete({
           ...clientData,
           companyId: companyId
         }),
-      });
+      })
             .catch(error => {
                 console.error('Error fetching clients:', error);
                 throw new Error('Error de conexión con clientes');
