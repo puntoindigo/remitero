@@ -4,6 +4,7 @@ import React from 'react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/Button';
 import { ThemeSelector } from '@/components/common/ThemeSelector';
+import { UserPanel } from '@/components/common/UserPanel';
 import { 
   Package, 
   FileText, 
@@ -60,7 +61,7 @@ export function Navigation({ activeTab, onTabChange }: NavigationProps) {
             <span className="px-2 py-1 bg-gray-800 text-xs font-medium rounded text-gray-300">
               BETA
             </span>
-            <div className="w-8 h-8 bg-gray-700 rounded-full"></div>
+            <UserPanel />
           </div>
         </div>
       </div>
