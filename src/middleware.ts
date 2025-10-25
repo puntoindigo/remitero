@@ -1,56 +1,45 @@
-import { withAuth } from "next-auth/middleware"
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
+import { getToken } from "next-auth/jwt"
 
-export default withAuth(
-  function middleware(req) {
-    const token = req.nextauth.token
-    const { pathname } = req.nextUrl
+export default async function middleware(req: NextRequest) {
+  const { pathname } = req.nextUrl
 
-    // Rutas que requieren autenticación
-    if (pathname.startsWith("/dashboard") || 
-        pathname.startsWith("/remitos") || 
-        pathname.startsWith("/productos") || 
-        pathname.startsWith("/clientes") || 
-        pathname.startsWith("/categorias") ||
-        pathname.startsWith("/usuarios")) {
-      
-      if (!token) {
-        return NextResponse.redirect(new URL("/auth/login", req.url))
-      }
+  // Rutas completamente públicas - NO pasan por autenticación
+  if (pathname.startsWith("/auth") || 
+      pathname === "/" || 
+      pathname.startsWith("/manual")) {
+    return NextResponse.next()
+  }
 
-      // Verificar roles para rutas específicas
-      if (pathname.startsWith("/usuarios") && 
-          token.role !== "SUPERADMIN" && 
-          token.role !== "ADMIN") {
-        return NextResponse.redirect(new URL("/dashboard", req.url))
-      }
+  // Para rutas protegidas, verificar autenticación
+  const token = await getToken({ req })
 
-      if (pathname.startsWith("/empresas") && token.role !== "SUPERADMIN") {
-        return NextResponse.redirect(new URL("/dashboard", req.url))
-      }
+  if (pathname.startsWith("/dashboard") || 
+      pathname.startsWith("/remitos") || 
+      pathname.startsWith("/productos") || 
+      pathname.startsWith("/clientes") || 
+      pathname.startsWith("/categorias") ||
+      pathname.startsWith("/usuarios") ||
+      pathname.startsWith("/empresas")) {
+    
+    if (!token) {
+      return NextResponse.redirect(new URL("/auth/login", req.url))
     }
 
-    return NextResponse.next()
-  },
-  {
-    callbacks: {
-      authorized: ({ token, req }) => {
-        const { pathname } = req.nextUrl
-        
-        // Rutas públicas - NO requieren autenticación
-        if (pathname.startsWith("/auth") || 
-            pathname === "/" || 
-            pathname.startsWith("/manual") ||
-            pathname === "/manual") {
-          return true
-        }
+    // Verificar roles para rutas específicas
+    if (pathname.startsWith("/usuarios") && 
+        token.role !== "SUPERADMIN" && 
+        token.role !== "ADMIN") {
+      return NextResponse.redirect(new URL("/dashboard", req.url))
+    }
 
-        // Rutas protegidas requieren token
-        return !!token
-      },
-    },
+    if (pathname.startsWith("/empresas") && token.role !== "SUPERADMIN") {
+      return NextResponse.redirect(new URL("/dashboard", req.url))
+    }
   }
-)
+
+  return NextResponse.next()
+}
 
 export const config = {
   matcher: [
