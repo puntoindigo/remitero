@@ -945,7 +945,7 @@
                 
                 <div class="form-group">
                     <label class="form-label" for="errorConsole">Mensaje de error (si aparece en consola):</label>
-                    <textarea id="errorConsole" class="form-textarea" placeholder="Pega aquí cualquier mensaje de error que aparezca en la consola del navegador (F12 > Console)"></textarea>
+                    <textarea id="errorConsole" class="form-textarea" placeholder="Pega aquí cualquier mensaje de error que aparezca en la consola del navegador (F12 > Console)" onblur="processConsoleErrorOnBlur()"></textarea>
                 </div>
                 
                 <div class="form-group">
@@ -1082,9 +1082,73 @@
             const browserInfo = `${navigator.userAgent.split(' ')[0]} ${navigator.userAgent.split(' ')[1] || ''}`;
             document.getElementById('browserInfo').value = browserInfo;
             
+            // Agregar listener para auto-detectar tipo de error cuando se pega en consola
+            const consoleInput = document.getElementById('errorConsole');
+            consoleInput.addEventListener('paste', function(e) {
+                setTimeout(() => {
+                    const pastedText = consoleInput.value;
+                    if (pastedText && pastedText.trim()) {
+                        autoDetectErrorType(pastedText);
+                    }
+                }, 100);
+            });
+            
             // Mostrar modal
             modal.classList.add('active');
             document.body.style.overflow = 'hidden';
+        }
+
+        // Función para procesar error de consola automáticamente al perder foco
+        function processConsoleErrorOnBlur() {
+            const consoleError = document.getElementById('errorConsole').value;
+            
+            if (!consoleError || !consoleError.trim()) {
+                return; // No hacer nada si está vacío
+            }
+            
+            // Auto-detectar y llenar todos los campos
+            autoDetectErrorType(consoleError);
+            
+            // Generar solución automáticamente
+            setTimeout(() => {
+                generateSolution();
+            }, 500); // Pequeño delay para que se complete el llenado de campos
+        }
+
+        // Función para auto-detectar tipo de error
+        function autoDetectErrorType(consoleError) {
+            const errorTypeSelect = document.getElementById('errorType');
+            const descriptionInput = document.getElementById('errorDescription');
+            const stepsInput = document.getElementById('errorSteps');
+            
+            // Auto-detectar tipo de error
+            let detectedType = 'javascript';
+            if (consoleError.includes('TypeError') || consoleError.includes('ReferenceError') || consoleError.includes('SyntaxError')) {
+                detectedType = 'javascript';
+            } else if (consoleError.includes('fetch') || consoleError.includes('network') || consoleError.includes('Failed to fetch')) {
+                detectedType = 'network';
+            } else if (consoleError.includes('render') || consoleError.includes('component') || consoleError.includes('React')) {
+                detectedType = 'ui';
+            } else if (consoleError.includes('performance') || consoleError.includes('slow') || consoleError.includes('timeout')) {
+                detectedType = 'performance';
+            } else if (consoleError.includes('auth') || consoleError.includes('login') || consoleError.includes('session')) {
+                detectedType = 'functionality';
+            }
+            
+            // Establecer tipo de error
+            errorTypeSelect.value = detectedType;
+            
+            // Auto-generar descripción si está vacía
+            if (!descriptionInput.value || descriptionInput.value.trim() === '') {
+                const firstLine = consoleError.split('\n')[0];
+                descriptionInput.value = `Error detectado en consola: ${firstLine}`;
+            }
+            
+            // Auto-generar pasos si están vacíos
+            if (!stepsInput.value || stepsInput.value.trim() === '') {
+                const firstLine = consoleError.split('\n')[0];
+                stepsInput.value = `1. Abrir la aplicación\n2. Realizar la acción que causa el error\n3. Verificar la consola del navegador (F12)\n4. El error aparece: ${firstLine}`;
+            }
         }
 
         // Función para cerrar modal de feedback
@@ -1108,9 +1172,16 @@
             const errorConsole = document.getElementById('errorConsole').value;
             const browserInfo = document.getElementById('browserInfo').value;
             
-            if (!errorType || !errorDescription || !errorSteps) {
-                alert('Por favor completa todos los campos obligatorios');
-                return;
+            // Si hay error de consola, procesar automáticamente sin validaciones
+            if (errorConsole && errorConsole.trim()) {
+                // Los campos ya fueron auto-completados por processConsoleErrorOnBlur
+                // No necesitamos validaciones adicionales
+            } else {
+                // Validación normal si no hay error de consola
+                if (!errorType || !errorDescription || !errorSteps) {
+                    alert('Por favor completa todos los campos obligatorios');
+                    return;
+                }
             }
             
             // Mostrar loading
