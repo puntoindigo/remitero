@@ -28,7 +28,7 @@ export async function PUT(
       }, { status: 401 });
     }
 
-    const remitoId = params.id;
+    const remitoId = params?.id;
     const body = await request.json();
     const { status: statusId } = body;
 

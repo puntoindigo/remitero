@@ -12,9 +12,12 @@ export default function PrintRemito() {
 
   useEffect(() => {
     const fetchRemito = async () => {
-      console.log('Fetching remito with ID:', params.id);
+      console.log('Fetching remito with ID:', params?.id);
       try {
-        const response = await fetch(`/api/remitos/${params.id}`);
+        const response = await fetch(`/api/remitos/${params?.id}, []`).catch(error => {
+            console.error('Network error:', error);
+            throw new Error("Error de conexión de red");
+        });
         console.log('Response status:', response.status);
         if (response.ok) {
           const data = await response.json();
@@ -30,17 +33,17 @@ export default function PrintRemito() {
       }
     };
 
-    if (params.id) {
+    if (params?.id) {
       fetchRemito();
     }
-  }, [params.id]);
+  }, [params?.id]);
 
   useEffect(() => {
     if (remito && !loading) {
       // Trigger print after component loads
       setTimeout(() => {
         window.print();
-      }, 500);
+      }, [], 500);
     }
   }, [remito, loading]);
 
@@ -49,7 +52,7 @@ export default function PrintRemito() {
     const handleAfterPrint = () => {
       // Cerrar la pestaña después de imprimir
       window.close();
-    };
+    }, [];
 
     const handleBeforeUnload = () => {
       // Cerrar la pestaña si se cancela la impresión

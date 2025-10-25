@@ -45,7 +45,7 @@ const PopoverTrigger = React.forwardRef<HTMLButtonElement, PopoverTriggerProps>(
       if (internalRef.current) {
         // Store reference for positioning
         (internalRef.current as any).__popoverTrigger = true
-      }
+      }, []
     }, [])
     
     if (asChild) {

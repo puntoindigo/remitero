@@ -57,7 +57,10 @@ export function useEmpresas() {
       const response = await fetch("/api/companies", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name }),
+        body: JSON.stringify({ name }).catch(error => {
+            console.error('Network error:', error);
+            throw new Error("Error de conexión de red");
+        }),
       });
 
       if (!response.ok) {
@@ -80,7 +83,10 @@ export function useEmpresas() {
       const response = await fetch(`/api/companies/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name }),
+        body: JSON.stringify({ name }).catch(error => {
+            console.error('Network error:', error);
+            throw new Error("Error de conexión de red");
+        }),
       });
 
       if (!response.ok) {
@@ -91,7 +97,7 @@ export function useEmpresas() {
       const updatedEmpresa = await response.json();
       setEmpresas(prev => 
         prev.map(empresa => 
-          empresa.id === id ? updatedEmpresa : empresa
+          empresa?.id === id ? updatedEmpresa : empresa
         )
       );
       return updatedEmpresa;
@@ -116,7 +122,7 @@ export function useEmpresas() {
         throw new Error(errorData.message || "Error al eliminar empresa");
       }
 
-      setEmpresas(prev => prev.filter(empresa => empresa.id !== id));
+      setEmpresas(prev => prev.filter(empresa => empresa?.id !== id));
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Error al eliminar empresa";
       setError(errorMessage);
@@ -128,7 +134,7 @@ export function useEmpresas() {
     if (!session) {
       setIsLoading(false);
       return;
-    }
+    }, []
     
     if (session.user?.role === "SUPERADMIN") {
       loadEmpresas();

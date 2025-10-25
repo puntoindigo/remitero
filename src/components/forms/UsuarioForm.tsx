@@ -84,28 +84,28 @@ export function UsuarioForm({
   React.useEffect(() => {
     if (selectedRole === "SUPERADMIN") {
       setValue("companyId", "");
-    }
+    }, []
   }, [selectedRole, setValue]);
 
   // Establecer companyId automáticamente cuando se proporciona
   React.useEffect(() => {
     if (companyId && !editingUser) {
       setValue("companyId", companyId);
-    }
+    }, []
   }, [companyId, setValue, editingUser]);
 
   // Reset form when editingUser changes
   React.useEffect(() => {
     if (editingUser) {
       reset({
-        name: editingUser.name,
-        email: editingUser.email,
+        name: editingUser?.name,
+        email: editingUser?.email,
         password: "",
         role: editingUser.role,
         phone: editingUser.phone || "",
         address: editingUser.address || "",
         companyId: editingUser.companyId || companyId || ""
-      });
+      }, []);
     } else {
       reset({
         name: "",
@@ -141,9 +141,9 @@ export function UsuarioForm({
         <div className="form-group">
           <label className="form-label-large">
             Nombre
-            {errors.name && (
+            {errors?.name && (
               <span style={{ color: '#ef4444', marginLeft: '8px', fontSize: '0.875rem', fontWeight: 'normal' }}>
-                {errors.name.message}
+                {errors?.name.message}
               </span>
             )}
           </label>
@@ -158,9 +158,9 @@ export function UsuarioForm({
         <div className="form-group">
           <label className="form-label-large">
             Email *
-            {errors.email && (
+            {errors?.email && (
               <span style={{ color: '#ef4444', marginLeft: '8px', fontSize: '0.875rem', fontWeight: 'normal' }}>
-                {errors.email.message}
+                {errors?.email.message}
               </span>
             )}
           </label>
@@ -248,8 +248,8 @@ export function UsuarioForm({
             <select {...register("companyId")} className="form-select-standard">
               <option value="">Seleccionar Empresa</option>
               {companies.map((company) => (
-                <option key={company.id} value={company.id}>
-                  {company.name}
+                <option key={company?.id} value={company?.id}>
+                  {company?.name}
                 </option>
               ))}
             </select>

@@ -102,7 +102,7 @@ function EstadosRemitosContent() {
 
   // Función de eliminación con useCallback para evitar problemas de hoisting
   const handleDeleteEstado = useCallback((estado: EstadoRemito) => {
-    handleDeleteRequest(estado.id, estado.name);
+    handleDeleteRequest(estado?.id, estado?.name);
   }, [handleDeleteRequest]);
 
   // CRUD Table configuration
@@ -117,7 +117,7 @@ function EstadosRemitosContent() {
     onEdit: handleEditEstado,
     onDelete: handleDeleteEstado,
     onNew: handleNewEstado,
-    getItemId: (estado) => estado.id,
+    getItemId: (estado) => estado?.id,
     emptyMessage: "No hay estados de remitos",
     emptySubMessage: "Comienza creando un nuevo estado.",
     emptyIcon: <Tag className="empty-icon" />,
@@ -129,7 +129,7 @@ function EstadosRemitosContent() {
     setIsSubmitting(true);
     try {
       if (editingEstado) {
-        await updateEstado(editingEstado.id, data);
+        await updateEstado(editingEstado?.id, data);
         showSuccess("Estado actualizado correctamente");
       } else {
         await createEstado(data);
@@ -147,7 +147,7 @@ function EstadosRemitosContent() {
     if (!showDeleteConfirm) return;
     
     try {
-      await deleteEstado(showDeleteConfirm.id);
+      await deleteEstado(showDeleteConfirm?.id);
       handleCancelDelete();
       showSuccess("Estado eliminado correctamente", "Éxito");
     } catch (error: any) {
@@ -170,7 +170,7 @@ function EstadosRemitosContent() {
       key: 'name',
       label: 'Nombre',
       render: (estado) => (
-        <div className="estado-name">{estado.name}</div>
+        <div className="estado-name">{estado?.name}</div>
       )
     },
     {
@@ -266,7 +266,7 @@ function EstadosRemitosContent() {
           
           {/* Filtros adicionales */}
           <div className="category-filter-wrapper" style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1rem' }}>
-            {shouldShowCompanySelector && empresas.length > 0 && (
+            {shouldShowCompanySelector && empresas?.length > 0 && (
               <FilterableSelect
                 options={empresas}
                 value={selectedCompanyId}

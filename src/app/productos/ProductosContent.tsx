@@ -90,18 +90,24 @@ function ProductosContent() {
       setIsLoading(true);
       
       // Cargar productos
-      const productsResponse = await fetch(`/api/products?companyId=${companyId}`);
+      const productsResponse = await fetch(`/api/products?companyId=${companyId}`).catch(error => {
+            console.error('Network error:', error);
+            throw new Error("Error de conexión de red");
+        });
       if (productsResponse.ok) {
         const productsData = await productsResponse.json();
         // Filtrar productos que tengan datos mínimos requeridos
         const validProducts = (productsData || []).filter((product: any) => 
-          product && product.id && product.name && product.name.trim() !== ''
+          product && product?.id && product?.name && product?.name.trim() !== ''
         );
         setProductos(validProducts);
       }
 
       // Cargar categorías
-      const categoriesResponse = await fetch(`/api/categories?companyId=${companyId}`);
+      const categoriesResponse = await fetch(`/api/categories?companyId=${companyId}`).catch(error => {
+            console.error('Network error:', error);
+            throw new Error("Error de conexión de red");
+        });
       if (categoriesResponse.ok) {
         const categoriesData = await categoriesResponse.json();
         setCategorias(categoriesData || []);
@@ -124,13 +130,13 @@ function ProductosContent() {
 
   // Función de eliminación
   const handleDeleteProduct = (producto: Product) => {
-    if (!producto.id || typeof producto.id !== 'string') {
+    if (!producto?.id || typeof producto?.id !== 'string') {
       showError("Error", "ID de producto inválido");
       return;
-    }
+    }, []
     
-    const productName = producto.name || 'Producto sin nombre';
-    handleDeleteRequest(producto.id, productName);
+    const productName = producto?.name || 'Producto sin nombre';
+    handleDeleteRequest(producto?.id, productName);
   };
 
   // CRUD Table configuration
@@ -147,7 +153,7 @@ function ProductosContent() {
     onEdit: handleEditProduct,
     onDelete: handleDeleteProduct,
     onNew: handleNewProduct,
-    getItemId: (product) => product.id,
+    getItemId: (product) => product?.id,
     emptyMessage: "No hay productos",
     emptySubMessage: "Comienza creando un nuevo producto.",
     emptyIcon: <Package className="empty-icon" />,
@@ -162,12 +168,15 @@ function ProductosContent() {
 
   const handleStockChange = async (productId: string, newStock: string) => {
     try {
-      const response = await fetch(`/api/products/${productId}`, {
+      const response = await fetch(`/api/products/${productId}, []`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ stock: newStock }),
+        body: JSON.stringify({ stock: newStock }).catch(error => {
+            console.error('Network error:', error);
+            throw new Error("Error de conexión de red");
+        }),
       });
 
       if (!response.ok) {
@@ -177,7 +186,7 @@ function ProductosContent() {
       // Actualizar el estado local inmediatamente
       setProductos(prevProducts =>
         prevProducts.map(product =>
-          product.id === productId ? { ...product, stock: newStock } : product
+          product?.id === productId ? { ...product, stock: newStock } : product
         )
       );
     } catch (error) {
@@ -189,16 +198,19 @@ function ProductosContent() {
   const handleDelete = async () => {
     if (!showDeleteConfirm) return;
     
-    if (!showDeleteConfirm.id || typeof showDeleteConfirm.id !== 'string') {
+    if (!showDeleteConfirm?.id || typeof showDeleteConfirm?.id !== 'string') {
       showError("Error", "ID de producto inválido para eliminación");
       handleCancelDelete();
       return;
     }
     
     try {
-      const response = await fetch(`/api/products/${showDeleteConfirm.id}`, {
+      const response = await fetch(`/api/products/${showDeleteConfirm?.id}`, {
         method: 'DELETE'
-      });
+      }).catch(error => {
+            console.error('Network error:', error);
+            throw new Error("Error de conexión de red");
+        });
       
       if (response.ok) {
         handleCancelDelete();
@@ -217,26 +229,29 @@ function ProductosContent() {
   const onSubmit = async (data: ProductForm) => {
     setIsSubmitting(true);
     try {
-      const url = editingProduct ? `/api/products/${editingProduct.id}` : '/api/products';
+      const url = editingProduct ? `/api/products/${editingProduct?.id}` : '/api/products';
       const method = editingProduct ? 'PUT' : 'POST';
       
       const response = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...data, companyId })
+        body: JSON.stringify({ ...data, companyId }).catch(error => {
+            console.error('Network error:', error);
+            throw new Error("Error de conexión de red");
+        })
       });
 
       if (response.ok) {
         const newProduct = await response.json();
         
         // Validar que el producto tenga los datos mínimos requeridos
-        if (!newProduct || !newProduct.id || !newProduct.name || newProduct.name.trim() === '') {
+        if (!newProduct || !newProduct?.id || !newProduct?.name || newProduct?.name.trim() === '') {
           throw new Error('El producto creado no tiene los datos válidos');
         }
         
         if (editingProduct) {
           // Actualizar producto existente
-          setProductos(prev => prev.map(p => p.id === editingProduct.id ? newProduct : p));
+          setProductos(prev => prev.map(p => p?.id === editingProduct?.id ? newProduct : p));
         } else {
           // Agregar nuevo producto al principio de la lista
           setProductos(prev => [newProduct, ...prev]);
@@ -265,7 +280,7 @@ function ProductosContent() {
       label: 'Producto',
       render: (producto) => (
         <div>
-          <div className="font-medium">{producto.name}</div>
+          <div className="font-medium">{producto?.name}</div>
           {producto.description && (
             <div className="text-sm text-gray-500">{producto.description}</div>
           )}
@@ -297,7 +312,7 @@ function ProductosContent() {
       render: (producto) => (
         <select
           value={producto.stock || 'OUT_OF_STOCK'}
-          onChange={(e) => handleStockChange(producto.id, e.target.value)}
+          onChange={(e) => handleStockChange(producto?.id, e.target.value)}
           className="status-select"
         >
           <option value="IN_STOCK">✅ En Stock</option>

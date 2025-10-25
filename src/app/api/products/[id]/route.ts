@@ -26,7 +26,7 @@ export async function PUT(
       }, { status: 401 });
     }
 
-    const productId = params.id;
+    const productId = params?.id;
     const body = await request.json();
     const { name, description, price, stock, categoryId } = body;
 
@@ -65,7 +65,7 @@ export async function PUT(
 
     // Preparar datos de actualización
     const updateData: any = {};
-    if (name !== undefined) updateData.name = name;
+    if (name !== undefined) updateData?.name = name;
     if (description !== undefined) updateData.description = description;
     if (price !== undefined) {
       if (price <= 0) {
@@ -88,7 +88,7 @@ export async function PUT(
     if (categoryId !== undefined) updateData.category_id = categoryId || null;
 
     // Verificar que el nombre no esté en uso por otro producto de la misma empresa
-    if (name && name !== existingProduct.name) {
+    if (name && name !== existingProduct?.name) {
       const { data: nameProduct } = await supabaseAdmin
         .from('products')
         .select('id')
@@ -166,7 +166,7 @@ export async function DELETE(
       }, { status: 401 });
     }
 
-    const productId = params.id;
+    const productId = params?.id;
 
     // Verificar que el producto existe y el usuario tiene acceso
     const { data: existingProduct, error: fetchError } = await supabaseAdmin
@@ -197,7 +197,7 @@ export async function DELETE(
       .eq('product_id', productId)
       .limit(1);
 
-    if (remitoItems && remitoItems.length > 0) {
+    if (remitoItems && remitoItems?.length > 0) {
       return NextResponse.json({ 
         error: "No se puede eliminar",
         message: "Este producto está siendo utilizado en remitos y no puede ser eliminado."

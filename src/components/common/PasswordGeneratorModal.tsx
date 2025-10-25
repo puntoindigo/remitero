@@ -33,13 +33,13 @@ export function PasswordGeneratorModal({
   useEffect(() => {
     if (isOpen) {
       generateNewPassword();
-    }
+    }, []
   }, [isOpen]);
 
   const generateNewPassword = () => {
-    const word1 = words[Math.floor(Math.random() * words.length)];
-    const word2 = words[Math.floor(Math.random() * words.length)];
-    const separator = separators[Math.floor(Math.random() * separators.length)];
+    const word1 = words[Math.floor(Math.random() * words?.length)];
+    const word2 = words[Math.floor(Math.random() * words?.length)];
+    const separator = separators[Math.floor(Math.random() * separators?.length)];
     const numbers = Math.floor(Math.random() * 999) + 1; // 1-999
     
     // Crear contraseña: palabra1 + separador + palabra2 + números

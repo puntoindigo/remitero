@@ -57,11 +57,11 @@ export function ClienteForm({
   React.useEffect(() => {
     if (editingCliente) {
       reset({
-        name: editingCliente.name,
-        email: editingCliente.email || "",
+        name: editingCliente?.name,
+        email: editingCliente?.email || "",
         phone: editingCliente.phone || "",
         address: editingCliente.address || ""
-      });
+      }, []);
     } else {
       reset({
         name: "",
@@ -99,8 +99,8 @@ export function ClienteForm({
             placeholder="Ingresa el nombre del cliente"
             className="form-input-standard"
           />
-          {errors.name && (
-            <p className="error-message">{errors.name.message}</p>
+          {errors?.name && (
+            <p className="error-message">{errors?.name.message}</p>
           )}
         </div>
 
@@ -112,8 +112,8 @@ export function ClienteForm({
             placeholder="cliente@email.com"
             className="form-input-standard"
           />
-          {errors.email && (
-            <p className="error-message">{errors.email.message}</p>
+          {errors?.email && (
+            <p className="error-message">{errors?.email.message}</p>
           )}
         </div>
       </div>

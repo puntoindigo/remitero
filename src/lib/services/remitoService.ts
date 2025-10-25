@@ -2,7 +2,10 @@ import { RemitoForm } from "@/lib/validations"
 
 export class RemitoService {
   static async getRemitos(companyId: string) {
-    const response = await fetch("/api/remitos")
+    const response = await fetch("/api/remitos").catch(error => {
+            console.error('Network error:', error);
+            throw new Error("Error de conexión de red");
+        })
     if (!response.ok) {
       throw new Error("Error al cargar los remitos")
     }
@@ -15,7 +18,10 @@ export class RemitoService {
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify(data)
+      body: JSON.stringify(data).catch(error => {
+            console.error('Network error:', error);
+            throw new Error("Error de conexión de red");
+        })
     })
     
     if (!response.ok) {
@@ -27,7 +33,10 @@ export class RemitoService {
   }
 
   static async getRemitoById(id: string, companyId: string) {
-    const response = await fetch(`/api/remitos/${id}`)
+    const response = await fetch(`/api/remitos/${id}`).catch(error => {
+            console.error('Network error:', error);
+            throw new Error("Error de conexión de red");
+        })
     if (!response.ok) {
       throw new Error("Error al cargar el remito")
     }
@@ -45,7 +54,10 @@ export class RemitoService {
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({ status })
+      body: JSON.stringify({ status }).catch(error => {
+            console.error('Network error:', error);
+            throw new Error("Error de conexión de red");
+        })
     })
     
     if (!response.ok) {
@@ -59,7 +71,10 @@ export class RemitoService {
   static async deleteRemito(id: string, companyId: string) {
     const response = await fetch(`/api/remitos/${id}`, {
       method: "DELETE"
-    })
+    }).catch(error => {
+            console.error('Network error:', error);
+            throw new Error("Error de conexión de red");
+        })
     
     if (!response.ok) {
       const error = await response.json()

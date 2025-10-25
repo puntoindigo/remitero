@@ -37,7 +37,7 @@ export default function FilterableSelect({
   useEffect(() => {
     if (!searchTerm.trim()) {
       setFilteredOptions(options);
-    } else {
+    }, [] else {
       const term = searchTerm.toLowerCase();
       const filtered = options.filter((option) =>
         searchFields.some((field) => {
@@ -53,8 +53,8 @@ export default function FilterableSelect({
   }, [searchTerm, options, searchFields]);
 
   // Obtener el texto del elemento seleccionado
-  const selectedOption = options.find(option => option.id === value);
-  const displayText = selectedOption ? selectedOption.name : placeholder;
+  const selectedOption = options.find(option => option?.id === value);
+  const displayText = selectedOption ? selectedOption?.name : placeholder;
 
   const updateDropdownPosition = () => {
     if (triggerRef.current) {
@@ -88,7 +88,7 @@ export default function FilterableSelect({
       return () => {
         window.removeEventListener('scroll', updateDropdownPosition, true);
         window.removeEventListener('resize', updateDropdownPosition);
-      };
+      }, [];
     }
   }, [isOpen]);
 
@@ -110,7 +110,7 @@ export default function FilterableSelect({
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsOpen(false);
         setSearchTerm("");
-      }
+      }, []
     };
 
     document.addEventListener("mousedown", handleClickOutside);
@@ -144,17 +144,17 @@ export default function FilterableSelect({
           />
         </div>
         <div className="vercel-select-options">
-          {filteredOptions.length === 0 ? (
+          {filteredOptions?.length === 0 ? (
             <div className="vercel-select-empty">
               No se encontraron opciones
             </div>
           ) : (
             filteredOptions.map((option) => (
               <button
-                key={option.id}
+                key={option?.id}
                 type="button"
-                onClick={() => handleSelect(option.id)}
-                className={`vercel-select-option ${value === option.id ? 'vercel-select-option-selected' : ''}`}
+                onClick={() => handleSelect(option?.id)}
+                className={`vercel-select-option ${value === option?.id ? 'vercel-select-option-selected' : ''}`}
                 style={showColors && option.color ? { 
                   borderLeft: `4px solid ${option.color}`,
                   paddingLeft: '8px'
@@ -172,7 +172,7 @@ export default function FilterableSelect({
                     }}
                   />
                 )}
-                {option.name}
+                {option?.name}
               </button>
             ))
           )}

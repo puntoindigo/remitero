@@ -26,7 +26,7 @@ export default function EnvironmentBanner({ environment }: EnvironmentBannerProp
       initialX = card.offsetLeft;
       initialY = card.offsetTop;
       card.style.cursor = 'grabbing';
-    };
+    }, [];
 
     const handleMouseMove = (e: MouseEvent) => {
       if (!isDragging) return;

@@ -63,6 +63,9 @@ export function useClientes(companyId?: string) {
         body: JSON.stringify({
           ...clienteData,
           companyId: effectiveCompanyId
+        }).catch(error => {
+            console.error('Network error:', error);
+            throw new Error("Error de conexión de red");
         }),
       }).catch(error => {
         console.error('Network error:', error);
@@ -98,6 +101,9 @@ export function useClientes(companyId?: string) {
         body: JSON.stringify({
           ...clienteData,
           companyId: effectiveCompanyId
+        }).catch(error => {
+            console.error('Network error:', error);
+            throw new Error("Error de conexión de red");
         }),
       });
 
@@ -109,7 +115,7 @@ export function useClientes(companyId?: string) {
       const updatedCliente = await response.json();
       setClientes(prev => 
         prev.map(cliente => 
-          cliente.id === id ? updatedCliente : cliente
+          cliente?.id === id ? updatedCliente : cliente
         )
       );
       return updatedCliente;
@@ -134,7 +140,7 @@ export function useClientes(companyId?: string) {
         throw new Error(errorData.message || "Error al eliminar cliente");
       }
 
-      setClientes(prev => prev.filter(cliente => cliente.id !== id));
+      setClientes(prev => prev.filter(cliente => cliente?.id !== id));
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Error al eliminar cliente";
       setError(errorMessage);
@@ -193,5 +199,5 @@ export function useClientes(companyId?: string) {
     createCliente,
     updateCliente,
     deleteCliente,
-  };
+  }, [];
 }

@@ -26,7 +26,7 @@ export async function PUT(
       }, { status: 401 });
     }
 
-    const categoryId = params.id;
+    const categoryId = params?.id;
     const body = await request.json();
     const { name } = body;
 
@@ -61,7 +61,7 @@ export async function PUT(
     }
 
     // Verificar que el nombre no esté en uso por otra categoría de la misma empresa
-    if (name !== existingCategory.name) {
+    if (name !== existingCategory?.name) {
       const { data: nameCategory } = await supabaseAdmin
         .from('categories')
         .select('id')
@@ -139,7 +139,7 @@ export async function DELETE(
       }, { status: 401 });
     }
 
-    const categoryId = params.id;
+    const categoryId = params?.id;
 
     // Verificar que la categoría existe y el usuario tiene acceso
     const { data: existingCategory, error: fetchError } = await supabaseAdmin
@@ -170,7 +170,7 @@ export async function DELETE(
       .eq('category_id', categoryId)
       .limit(1);
 
-    if (products && products.length > 0) {
+    if (products && products?.length > 0) {
       return NextResponse.json({ 
         error: "No se puede eliminar",
         message: "Esta categoría está siendo utilizada en productos y no puede ser eliminada."

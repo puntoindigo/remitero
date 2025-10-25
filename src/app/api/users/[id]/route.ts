@@ -19,7 +19,7 @@ export async function GET(
       }, { status: 401 });
     }
 
-    const userId = params.id;
+    const userId = params?.id;
 
     // Verificar permisos de visualización
     if (session.user.role === 'SUPERADMIN') {
@@ -97,7 +97,7 @@ export async function PUT(
       }, { status: 401 });
     }
 
-    const userId = params.id;
+    const userId = params?.id;
     const body = await request.json();
     const { name, email, password, role, address, phone, companyId } = body;
 
@@ -141,7 +141,7 @@ export async function PUT(
     }
 
     // Verificar que el email no esté en uso por otro usuario
-    if (email && email !== existingUser.email) {
+    if (email && email !== existingUser?.email) {
       const { data: emailUser } = await supabaseAdmin
         .from('users')
         .select('id')
@@ -159,8 +159,8 @@ export async function PUT(
 
     // Preparar datos de actualización
     const updateData: any = {};
-    if (name) updateData.name = name;
-    if (email) updateData.email = email;
+    if (name) updateData?.name = name;
+    if (email) updateData?.email = email;
     if (role) updateData.role = role;
     if (address !== undefined) updateData.address = address;
     if (phone !== undefined) updateData.phone = phone;
@@ -168,7 +168,7 @@ export async function PUT(
 
     // Hash de la contraseña si se proporciona
     if (password && password.trim() !== '') {
-      if (password.length < 6) {
+      if (password?.length < 6) {
         return NextResponse.json({ 
           error: "Contraseña inválida", 
           message: "La contraseña debe tener al menos 6 caracteres." 
@@ -230,7 +230,7 @@ export async function DELETE(
       }, { status: 401 });
     }
 
-    const userId = params.id;
+    const userId = params?.id;
 
     // Verificar permisos de eliminación
     if (session.user.role === 'SUPERADMIN') {

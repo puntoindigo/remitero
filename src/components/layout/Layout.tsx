@@ -21,7 +21,7 @@ export default function Layout({ children }: LayoutProps) {
     if (!session) {
       router.push("/auth/login")
       return
-    }
+    }, []
   }, [session, status, router])
 
   if (status === "loading") {

@@ -15,7 +15,7 @@ export function MessageModal({ isOpen, onClose, type, title, message, details }:
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
-    } else {
+    }, [] else {
       document.body.style.overflow = 'unset';
     }
 

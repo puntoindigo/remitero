@@ -14,7 +14,10 @@ export const useImpersonation = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ targetUserId }),
+        body: JSON.stringify({ targetUserId }).catch(error => {
+            console.error('Network error:', error);
+            throw new Error("Error de conexión de red");
+        }),
       });
 
       const data = await response.json();
@@ -90,7 +93,7 @@ export const useImpersonation = () => {
   const canImpersonate = (usuario: any) => {
     return ['ADMIN', 'SUPERADMIN'].includes(session?.user?.role || '') && 
            !impersonationData?.isActive && 
-           usuario.id !== session?.user?.id &&
+           usuario?.id !== session?.user?.id &&
            usuario.role !== 'SUPERADMIN'; // No se puede impersonar a superusuarios
   };
   const isCurrentlyImpersonating = impersonationData?.isActive;

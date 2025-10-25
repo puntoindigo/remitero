@@ -45,7 +45,7 @@ function UsuariosContent() {
   React.useEffect(() => {
     if (companyIdFromParams && shouldShowCompanySelector) {
       setSelectedCompanyId(companyIdFromParams);
-    }
+    }, []
   }, [companyIdFromParams, shouldShowCompanySelector, setSelectedCompanyId]);
   
   // Hook para manejar estado del formulario modal
@@ -78,14 +78,14 @@ function UsuariosContent() {
   
   // Cargar empresas cuando se abre el formulario
   useEffect(() => {
-    if (showForm && empresas.length === 0) {
+    if (showForm && empresas?.length === 0) {
       loadEmpresas();
-    }
-  }, [showForm, empresas.length, loadEmpresas]);
+    }, []
+  }, [showForm, empresas?.length, loadEmpresas]);
 
   // Función de eliminación con useCallback para evitar problemas de hoisting
   const handleDeleteUsuario = useCallback((usuario: Usuario) => {
-    handleDeleteRequest(usuario.id, usuario.name);
+    handleDeleteRequest(usuario?.id, usuario?.name);
   }, [handleDeleteRequest]);
 
   // CRUD Table configuration
@@ -100,7 +100,7 @@ function UsuariosContent() {
     onEdit: handleEdit,
     onDelete: handleDeleteUsuario,
     onNew: handleNew,
-    getItemId: (usuario) => usuario.id,
+    getItemId: (usuario) => usuario?.id,
     emptyMessage: "No hay usuarios",
     emptySubMessage: "Comienza creando un nuevo usuario.",
     emptyIcon: <Users className="empty-icon" />,
@@ -112,7 +112,7 @@ function UsuariosContent() {
     setIsSubmitting(true);
     try {
       if (editingUser) {
-        await updateUsuario(editingUser.id, data);
+        await updateUsuario(editingUser?.id, data);
         showSuccess("Éxito", "Usuario actualizado correctamente");
       } else {
         await createUsuario(data);
@@ -130,7 +130,7 @@ function UsuariosContent() {
     if (!showDeleteConfirm) return;
     
     try {
-      await deleteUsuario(showDeleteConfirm.id);
+      await deleteUsuario(showDeleteConfirm?.id);
       handleCancelDelete();
       showSuccess("Usuario eliminado correctamente");
     } catch (error: any) {
@@ -146,8 +146,8 @@ function UsuariosContent() {
     }
 
     try {
-      await startImpersonation(usuario.id);
-      showSuccess("Éxito", `Impersonación iniciada. Ahora estás viendo como ${usuario.name}`);
+      await startImpersonation(usuario?.id);
+      showSuccess("Éxito", `Impersonación iniciada. Ahora estás viendo como ${usuario?.name}`);
     } catch (error: any) {
       showError("Error", error.message);
     }
@@ -160,7 +160,7 @@ function UsuariosContent() {
       label: 'Usuario',
       render: (usuario) => (
         <div className="usuario-info">
-          <div className="usuario-name">{usuario.name}</div>
+          <div className="usuario-name">{usuario?.name}</div>
         </div>
       )
     },
@@ -168,10 +168,10 @@ function UsuariosContent() {
       key: 'email',
       label: 'Email',
       render: (usuario) => (
-        usuario.email ? (
+        usuario?.email ? (
           <div className="email-info">
             <Mail className="h-3 w-3 inline" />
-            &nbsp;{usuario.email}
+            &nbsp;{usuario?.email}
           </div>
         ) : (
           <span className="text-muted">Sin email</span>
@@ -259,7 +259,7 @@ function UsuariosContent() {
           <h2>Gestión de Usuarios</h2>
           
           {/* Selector de empresa - siempre arriba, ancho completo */}
-          {shouldShowCompanySelector && empresas.length > 0 && (
+          {shouldShowCompanySelector && empresas?.length > 0 && (
             <div className="company-selector-wrapper" style={{ marginBottom: '1rem' }}>
               <FilterableSelect
                 options={[

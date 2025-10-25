@@ -134,10 +134,13 @@ export function useEstadosRemitos(companyId?: string) {
     try {
       const response = await fetch("/api/estados-remitos", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json" }, [],
         body: JSON.stringify({
           ...estadoData,
           companyId: currentUser?.companyId
+        }).catch(error => {
+            console.error('Network error:', error);
+            throw new Error("Error de conexión de red");
         }),
       });
 
@@ -164,6 +167,9 @@ export function useEstadosRemitos(companyId?: string) {
         body: JSON.stringify({
           ...estadoData,
           companyId: currentUser?.companyId
+        }).catch(error => {
+            console.error('Network error:', error);
+            throw new Error("Error de conexión de red");
         }),
       });
 
@@ -174,7 +180,7 @@ export function useEstadosRemitos(companyId?: string) {
 
       const updatedEstado = await response.json();
       setEstados(prev => prev.map(estado => 
-        estado.id === id ? updatedEstado : estado
+        estado?.id === id ? updatedEstado : estado
       ));
       return updatedEstado;
     } catch (err) {
@@ -198,7 +204,7 @@ export function useEstadosRemitos(companyId?: string) {
         throw new Error(errorData.message || "Error al eliminar estado");
       }
 
-      setEstados(prev => prev.filter(estado => estado.id !== id));
+      setEstados(prev => prev.filter(estado => estado?.id !== id));
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Error al eliminar estado";
       setError(errorMessage);
@@ -207,7 +213,7 @@ export function useEstadosRemitos(companyId?: string) {
   };
 
   const getEstadoById = (id: string) => {
-    return estados.find(estado => estado.id === id);
+    return estados.find(estado => estado?.id === id);
   };
 
   const estadosActivos = useMemo(() => {

@@ -74,7 +74,7 @@ export default function TopBar() {
                     ? (typeof window !== 'undefined' && localStorage.getItem('impersonation') 
                         ? JSON.parse(localStorage.getItem('impersonation')!).originalAdmin?.name 
                         : 'Admin')
-                    : currentUser.name
+                    : currentUser?.name
                   }
                 </span>
                 {currentUser.role !== 'USER' && (
@@ -86,7 +86,7 @@ export default function TopBar() {
                 {currentUser.isImpersonating && (
                   <div className="impersonation-info">
                     <span className="impersonation-text">
-                      Como: {currentUser.name}
+                      Como: {currentUser?.name}
                     </span>
                   </div>
                 )}

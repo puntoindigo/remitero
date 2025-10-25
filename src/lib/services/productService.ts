@@ -2,7 +2,10 @@ import { ProductForm } from "@/lib/validations"
 
 export class ProductService {
   static async getProducts(companyId: string) {
-    const response = await fetch("/api/products")
+    const response = await fetch("/api/products").catch(error => {
+            console.error('Network error:', error);
+            throw new Error("Error de conexión de red");
+        })
     if (!response.ok) {
       throw new Error("Error al cargar los productos")
     }
@@ -15,7 +18,10 @@ export class ProductService {
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify(data)
+      body: JSON.stringify(data).catch(error => {
+            console.error('Network error:', error);
+            throw new Error("Error de conexión de red");
+        })
     })
     
     if (!response.ok) {
@@ -32,7 +38,10 @@ export class ProductService {
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify(data)
+      body: JSON.stringify(data).catch(error => {
+            console.error('Network error:', error);
+            throw new Error("Error de conexión de red");
+        })
     })
     
     if (!response.ok) {
@@ -46,7 +55,10 @@ export class ProductService {
   static async deleteProduct(id: string, companyId: string) {
     const response = await fetch(`/api/products/${id}`, {
       method: "DELETE"
-    })
+    }).catch(error => {
+            console.error('Network error:', error);
+            throw new Error("Error de conexión de red");
+        })
     
     if (!response.ok) {
       const error = await response.json()
@@ -57,7 +69,10 @@ export class ProductService {
   }
 
   static async getProductById(id: string, companyId: string) {
-    const response = await fetch(`/api/products/${id}`)
+    const response = await fetch(`/api/products/${id}`).catch(error => {
+            console.error('Network error:', error);
+            throw new Error("Error de conexión de red");
+        })
     if (!response.ok) {
       throw new Error("Error al cargar el producto")
     }

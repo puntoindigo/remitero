@@ -125,7 +125,10 @@ function RemitosContent() {
 
     try {
       setIsLoading(true);
-      const response = await fetch(`/api/remitos?companyId=${companyId}`);
+      const response = await fetch(`/api/remitos?companyId=${companyId}`).catch(error => {
+            console.error('Network error:', error);
+            throw new Error("Error de conexión de red");
+        });
       if (response.ok) {
         const data = await response.json();
         setRemitos(data || []);
@@ -143,11 +146,11 @@ function RemitosContent() {
 
   // Función de eliminación con useCallback para evitar problemas de hoisting
   const handleDeleteRemito = useCallback((remito: Remito) => {
-    handleDeleteRequest(remito.id, `Remito #${remito.number}`);
+    handleDeleteRequest(remito?.id, `Remito #${remito.number}, []`);
   }, [handleDeleteRequest]);
 
   const handlePrintRemito = useCallback((remito: Remito) => {
-    window.open(`/remitos/${remito.id}/print`, '_blank');
+    window.open(`/remitos/${remito?.id}/print`, '_blank');
   }, []);
 
   // CRUD Table configuration
@@ -159,13 +162,13 @@ function RemitosContent() {
   } = useCRUDTable({
     data: remitos,
     loading: isLoading,
-    searchFields: ['number', 'client.name'],
+    searchFields: ['number', 'client?.name'],
     itemsPerPage: 10,
     onEdit: handleEditRemito,
     onDelete: handleDeleteRemito,
     onPrint: handlePrintRemito,
     onNew: handleNewRemito,
-    getItemId: (remito) => remito.id,
+    getItemId: (remito) => remito?.id,
     emptyMessage: "No hay remitos",
     emptySubMessage: "Comienza creando un nuevo remito.",
     emptyIcon: <FileText className="empty-icon" />,
@@ -180,7 +183,10 @@ function RemitosContent() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ status: newStatusId }),
+        body: JSON.stringify({ status: newStatusId }).catch(error => {
+            console.error('Network error:', error);
+            throw new Error("Error de conexión de red");
+        }),
       });
 
       if (!response.ok) {
@@ -197,9 +203,12 @@ function RemitosContent() {
     if (!showDeleteConfirm) return;
     
     try {
-      const response = await fetch(`/api/remitos/${showDeleteConfirm.id}`, {
+      const response = await fetch(`/api/remitos/${showDeleteConfirm?.id}`, {
         method: 'DELETE'
-      });
+      }).catch(error => {
+            console.error('Network error:', error);
+            throw new Error("Error de conexión de red");
+        });
       
       if (response.ok) {
         handleCancelDelete();
@@ -217,13 +226,16 @@ function RemitosContent() {
   const handleSubmit = async (data: any) => {
     setIsSubmitting(true);
     try {
-      const url = editingRemito ? `/api/remitos/${editingRemito.id}` : '/api/remitos';
+      const url = editingRemito ? `/api/remitos/${editingRemito?.id}` : '/api/remitos';
       const method = editingRemito ? 'PUT' : 'POST';
       
       const response = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...data, companyId })
+        body: JSON.stringify({ ...data, companyId }).catch(error => {
+            console.error('Network error:', error);
+            throw new Error("Error de conexión de red");
+        })
       });
 
       if (response.ok) {
@@ -234,7 +246,7 @@ function RemitosContent() {
         // Si es un nuevo remito, abrir la página de impresión
         if (!editingRemito) {
           const newRemito = await response.json();
-          window.open(`/remitos/${newRemito.id}/print`, '_blank');
+          window.open(`/remitos/${newRemito?.id}/print`, '_blank');
         }
       } else {
         throw new Error('Error al guardar remito');
@@ -285,7 +297,7 @@ function RemitosContent() {
           return <div className="text-gray-500">Sin estado</div>;
         }
         
-        const isChanging = statusChanging === remito.id;
+        const isChanging = statusChanging === remito?.id;
         
         return (
           <div className="remito-status-container">
@@ -300,16 +312,16 @@ function RemitosContent() {
             <div className="relative flex-1">
               <select
                 value={remito.status.id}
-                onChange={(e) => handleStatusChange(remito.id, e.target.value)}
+                onChange={(e) => handleStatusChange(remito?.id, e.target.value)}
                 className="remito-status-select"
                 disabled={isChanging}
               >
                 {estadosActivos.map((estado) => (
                   <option 
-                    key={estado.id} 
-                    value={estado.id}
+                    key={estado?.id} 
+                    value={estado?.id}
                   >
-                    {estado.name}
+                    {estado?.name}
                   </option>
                 ))}
               </select>

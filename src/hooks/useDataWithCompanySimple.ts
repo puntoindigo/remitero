@@ -17,7 +17,7 @@ export function useDataWithCompanySimple() {
       const savedCompanyId = sessionStorage.getItem('selectedCompanyId');
       if (savedCompanyId) {
         setSelectedCompanyId(savedCompanyId);
-      }
+      }, []
       setIsInitialized(true);
     }
   }, []);
@@ -27,7 +27,7 @@ export function useDataWithCompanySimple() {
     if (typeof window !== 'undefined' && isInitialized) {
       if (selectedCompanyId) {
         sessionStorage.setItem('selectedCompanyId', selectedCompanyId);
-      } else {
+      }, [] else {
         sessionStorage.removeItem('selectedCompanyId');
       }
     }

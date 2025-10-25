@@ -56,12 +56,12 @@ export function ProductoForm({
 
   useEffect(() => {
     if (editingProduct) {
-      setValue("name", editingProduct.name);
+      setValue("name", editingProduct?.name);
       setValue("description", editingProduct.description || "");
       setValue("price", editingProduct.price);
       setValue("stock", editingProduct.stock || "OUT_OF_STOCK");
       setValue("categoryId", editingProduct.categoryId || "");
-    } else {
+    }, [] else {
       reset({
         name: "",
         description: "",
@@ -95,8 +95,8 @@ export function ProductoForm({
             placeholder="Ingresa el nombre del producto"
             className="form-input-standard"
           />
-          {errors.name && (
-            <p className="error-message">{errors.name.message}</p>
+          {errors?.name && (
+            <p className="error-message">{errors?.name.message}</p>
           )}
         </div>
 
@@ -125,7 +125,7 @@ export function ProductoForm({
           <FilterableSelect
             options={[
               { id: "", name: "Sin categoría" },
-              ...categories.map(cat => ({ id: cat.id, name: cat.name }))
+              ...categories.map(cat => ({ id: cat?.id, name: cat?.name }))
             ]}
             value={watch("categoryId") || ""}
             onChange={(value) => setValue("categoryId", value)}

@@ -44,7 +44,7 @@ export default function LoginPage() {
       setValue("email", savedEmail)
       setValue("password", savedPassword)
       setValue("rememberMe", true)
-    }
+    }, []
   }, [setValue])
 
   const onSubmit = async (data: LoginForm) => {
@@ -53,7 +53,7 @@ export default function LoginPage() {
 
     try {
       const result = await signIn("credentials", {
-        email: data.email,
+        email: data?.email,
         password: data.password,
         redirect: false
       })
@@ -74,7 +74,7 @@ export default function LoginPage() {
       } else {
         // Guardar o limpiar credenciales según el checkbox
         if (data.rememberMe) {
-          localStorage.setItem("rememberedEmail", data.email)
+          localStorage.setItem("rememberedEmail", data?.email)
           localStorage.setItem("rememberedPassword", data.password)
           localStorage.setItem("rememberMe", "true")
         } else {
@@ -129,12 +129,12 @@ export default function LoginPage() {
                 className="login-input"
                 placeholder="admin@remitero.com"
               />
-              {errors.email && (
+              {errors?.email && (
                 <p className="text-sm text-red-600 flex items-center mt-2">
                   <svg className="h-4 w-4 mr-1 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                   </svg>
-                  {errors.email.message}
+                  {errors?.email.message}
                 </p>
               )}
             </div>

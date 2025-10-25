@@ -43,8 +43,8 @@ export function CategoriaForm({
   React.useEffect(() => {
     if (editingCategoria) {
       reset({ 
-        name: editingCategoria.name
-      });
+        name: editingCategoria?.name
+      }, []);
     } else {
       reset({ 
         name: ""
@@ -78,8 +78,8 @@ export function CategoriaForm({
           placeholder="Ingresa el nombre de la categoría"
           className="form-input-standard"
         />
-        {errors.name && (
-          <p className="error-message">{errors.name.message}</p>
+        {errors?.name && (
+          <p className="error-message">{errors?.name.message}</p>
         )}
       </div>
     </FormModal>

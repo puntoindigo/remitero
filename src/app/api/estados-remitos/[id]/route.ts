@@ -17,7 +17,7 @@ export async function PUT(
       }, { status: 401 });
     }
 
-    const estadoId = params.id;
+    const estadoId = params?.id;
     const body = await request.json();
     const { name, description, color, icon, is_active, sort_order } = body;
 
@@ -140,7 +140,7 @@ export async function DELETE(
       }, { status: 401 });
     }
 
-    const estadoId = params.id;
+    const estadoId = params?.id;
 
     // Verificar que el usuario tenga companyId (excepto SUPERADMIN)
     if (session.user.role !== 'SUPERADMIN' && !session.user.companyId) {
@@ -178,10 +178,10 @@ export async function DELETE(
     const { data: remitosUsingEstado } = await supabaseAdmin
       .from('remitos')
       .select('id')
-      .eq('status', existingEstado.name.toUpperCase())
+      .eq('status', existingEstado?.name.toUpperCase())
       .limit(1);
 
-    if (remitosUsingEstado && remitosUsingEstado.length > 0) {
+    if (remitosUsingEstado && remitosUsingEstado?.length > 0) {
       return NextResponse.json({ 
         error: "Estado en uso",
         message: "No se puede eliminar el estado porque hay remitos que lo están usando."

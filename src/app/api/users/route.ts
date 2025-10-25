@@ -124,7 +124,7 @@ export async function GET(request: NextRequest) {
       count: users?.length || 0, 
       companyId, 
       userRole: session.user.role,
-      users: users?.map(u => ({ id: u.id, name: u.name, company_id: u.company_id }))
+      users: users?.map(u => ({ id: u?.id, name: u?.name, company_id: u.company_id }))
     });
 
     return NextResponse.json(transformUsers(users));
@@ -167,7 +167,7 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
-    if (password.length < 6) {
+    if (password?.length < 6) {
       return NextResponse.json({ 
         error: "Contraseña inválida", 
         message: "La contraseña debe tener al menos 6 caracteres." 
@@ -233,9 +233,9 @@ export async function POST(request: NextRequest) {
     }
 
     console.log('User created successfully:', { 
-      id: newUser.id, 
-      name: newUser.name, 
-      email: newUser.email,
+      id: newUser?.id, 
+      name: newUser?.name, 
+      email: newUser?.email,
       company_id: newUser.company_id,
       role: newUser.role
     });
@@ -249,8 +249,8 @@ export async function POST(request: NextRequest) {
         role: session.user.role
       },
       'Usuario',
-      newUser.id,
-      `Usuario: ${newUser.name} (${newUser.email}) - Rol: ${newUser.role}`
+      newUser?.id,
+      `Usuario: ${newUser?.name} (${newUser?.email}) - Rol: ${newUser.role}`
     );
 
     return NextResponse.json(transformUser(newUser), { status: 201 });

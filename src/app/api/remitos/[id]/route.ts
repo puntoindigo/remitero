@@ -18,7 +18,7 @@ export async function GET(
       }, { status: 401 });
     }
 
-    const remitoId = params.id;
+    const remitoId = params?.id;
 
     // Obtener el remito con todas sus relaciones
     const { data: remito, error } = await supabaseAdmin
@@ -108,7 +108,7 @@ export async function PUT(
       }, { status: 401 });
     }
 
-    const remitoId = params.id;
+    const remitoId = params?.id;
     const body = await request.json();
     console.log('PUT /api/remitos/[id] - Request body:', JSON.stringify(body, null, 2));
     const { clientId, status, notes, items, companyId } = body;
@@ -123,7 +123,7 @@ export async function PUT(
     }
 
     console.log('Validating items:', items);
-    if (!items || !Array.isArray(items) || items.length === 0) {
+    if (!items || !Array.isArray(items) || items?.length === 0) {
       return NextResponse.json({ 
         error: "Datos faltantes", 
         message: "Debe incluir al menos un item en el remito." 
@@ -310,7 +310,7 @@ export async function DELETE(
       }, { status: 401 });
     }
 
-    const remitoId = params.id;
+    const remitoId = params?.id;
 
     // Verificar que el remito existe y pertenece a la empresa del usuario
     const { data: remito, error: remitoError } = await supabaseAdmin

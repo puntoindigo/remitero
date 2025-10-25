@@ -96,7 +96,7 @@ export async function GET(request: NextRequest) {
     }
 
     console.log('Raw remitos from database:', remitos?.length || 0, 'remitos');
-    if (remitos && remitos.length > 0) {
+    if (remitos && remitos?.length > 0) {
       console.log('First remito structure:', {
         id: remitos[0].id,
         hasRemitoItems: !!remitos[0].remito_items,
@@ -152,7 +152,7 @@ export async function POST(request: NextRequest) {
     }
 
     console.log('Validating items:', items);
-    if (!items || !Array.isArray(items) || items.length === 0) {
+    if (!items || !Array.isArray(items) || items?.length === 0) {
       return NextResponse.json({ 
         error: "Datos faltantes", 
         message: "Debe incluir al menos un item en el remito." 
@@ -248,12 +248,12 @@ export async function POST(request: NextRequest) {
       }, { status: 500 });
     }
 
-    console.log('Remito created successfully with ID:', newRemito.id);
+    console.log('Remito created successfully with ID:', newRemito?.id);
 
     // Crear los items del remito
     console.log('Creating remito items:', items);
     const remitoItems = items.map((item: any) => ({
-      remito_id: newRemito.id,
+      remito_id: newRemito?.id,
       product_id: item.product_id || null,
       quantity: parseInt(item.quantity) || 1,
       product_name: item.product_name || '',
@@ -271,7 +271,7 @@ export async function POST(request: NextRequest) {
     if (itemsError) {
       console.error('Error creating remito items:', itemsError);
       // Intentar eliminar el remito creado
-      await supabaseAdmin.from('remitos').delete().eq('id', newRemito.id);
+      await supabaseAdmin.from('remitos').delete().eq('id', newRemito?.id);
       return NextResponse.json({ 
         error: "Error interno del servidor",
         message: "No se pudieron crear los items del remito."
@@ -319,7 +319,7 @@ export async function POST(request: NextRequest) {
           )
         )
       `)
-      .eq('id', newRemito.id)
+      .eq('id', newRemito?.id)
       .single();
 
     if (fetchError) {

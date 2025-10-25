@@ -80,7 +80,7 @@ export function RemitoFormComplete({
           quantity: item.quantity || 1,
           unit_price: item.unit_price || item.product?.price || 0,
           line_total: item.line_total || (item.quantity * item.unit_price) || 0
-        })));
+        }, [])));
       }
       
       setShowNotes(!!editingRemito.notes);
@@ -94,7 +94,7 @@ export function RemitoFormComplete({
       // Set default status if available
       const defaultStatus = estados.find(e => e.is_default);
       if (defaultStatus) {
-        setValue("status", defaultStatus.id);
+        setValue("status", defaultStatus?.id);
       }
     }
   }, [editingRemito, setValue, reset, estados]);
@@ -105,15 +105,15 @@ export function RemitoFormComplete({
   const handleAddProduct = () => {
     if (!selectedProduct || quantity <= 0) return;
 
-    const product = products.find(p => p.id === selectedProduct);
+    const product = products.find(p => p?.id === selectedProduct);
     if (!product) return;
 
     const unitPrice = Number(product.price);
     const lineTotal = unitPrice * quantity;
 
     const newItem: RemitoItem = {
-      product_id: product.id,
-      product_name: product.name,
+      product_id: product?.id,
+      product_name: product?.name,
       product_desc: product.description || '',
       quantity,
       unit_price: unitPrice,
@@ -142,7 +142,7 @@ export function RemitoFormComplete({
   };
 
   const handleFormSubmit = (data: RemitoForm) => {
-    if (items.length === 0) {
+    if (items?.length === 0) {
       return;
     }
 
@@ -183,6 +183,9 @@ export function RemitoFormComplete({
         body: JSON.stringify({
           ...clientData,
           companyId: companyId
+        }).catch(error => {
+            console.error('Network error:', error);
+            throw new Error("Error de conexión de red");
         }),
       })
             .catch(error => {
@@ -202,7 +205,7 @@ export function RemitoFormComplete({
       }
       
       // Seleccionar el nuevo cliente en el formulario
-      setValue("clientId", newClient.id);
+      setValue("clientId", newClient?.id);
       
       // Cerrar el modal de cliente
       setShowClientForm(false);
@@ -224,7 +227,7 @@ export function RemitoFormComplete({
 
   // Filtrar productos que ya están en el remito
   const availableProducts = products.filter(p => 
-    !items.some(item => item.product_id === p.id)
+    !items.some(item => item.product_id === p?.id)
   );
 
   return (
@@ -246,7 +249,7 @@ export function RemitoFormComplete({
           <div style={{ flex: 1, display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
             <div style={{ flex: 1 }}>
               <FilterableSelect
-                options={clients.map(client => ({ id: client.id, name: client.name }))}
+                options={clients.map(client => ({ id: client?.id, name: client?.name }))}
                 value={watch("clientId") || ""}
                 onChange={(value) => setValue("clientId", value)}
                 placeholder="Seleccionar cliente"
@@ -289,8 +292,8 @@ export function RemitoFormComplete({
           <div style={{ flex: 1 }}>
             <FilterableSelect
               options={estados.map(estado => ({ 
-                id: estado.id, 
-                name: estado.name,
+                id: estado?.id, 
+                name: estado?.name,
                 color: estado.color 
               }))}
               value={watch("status") || ""}
@@ -369,21 +372,21 @@ export function RemitoFormComplete({
               <td>
                 <FilterableSelect
                   options={availableProducts.map(product => ({ 
-                    id: product.id, 
-                    name: product.name
+                    id: product?.id, 
+                    name: product?.name
                   }))}
                   value={selectedProduct}
                   onChange={(value) => {
                     setSelectedProduct(value);
                     // Auto-agregar producto al seleccionar
                     if (value && quantity > 0) {
-                      const product = products.find(p => p.id === value);
+                      const product = products.find(p => p?.id === value);
                       if (product) {
                         const unitPrice = Number(product.price);
                         const lineTotal = unitPrice * quantity;
                         const newItem: RemitoItem = {
-                          product_id: product.id,
-                          product_name: product.name,
+                          product_id: product?.id,
+                          product_name: product?.name,
                           product_desc: product.description || '',
                           quantity,
                           unit_price: unitPrice,
@@ -411,7 +414,7 @@ export function RemitoFormComplete({
               <td style={{ fontSize: '14px' }}>
                 {selectedProduct && (
                   (() => {
-                    const product = products.find(p => p.id === selectedProduct);
+                    const product = products.find(p => p?.id === selectedProduct);
                     return product ? 
                       (Number(product.price) || 0).toLocaleString('es-AR', { 
                         style: 'currency', 
@@ -424,7 +427,7 @@ export function RemitoFormComplete({
               <td style={{ fontSize: '14px' }}>
                 {selectedProduct && (
                   (() => {
-                    const product = products.find(p => p.id === selectedProduct);
+                    const product = products.find(p => p?.id === selectedProduct);
                     return product ? 
                       ((Number(product.price) || 0) * quantity).toLocaleString('es-AR', { 
                         style: 'currency', 

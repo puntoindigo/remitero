@@ -9,7 +9,7 @@ export const useLocalStorage = () => {
   }, [data]);
 
   const updateData = (newData: Partial<FormData>) => {
-    setData(prev => ({ ...prev, ...newData }));
+    setData(prev => ({ ...prev, ...newData }, []));
   };
 
   const addCategoria = (categoria: Omit<FormData['categorias'][0], 'id' | 'createdAt' | 'updatedAt'>) => {
@@ -30,7 +30,7 @@ export const useLocalStorage = () => {
     setData(prev => ({
       ...prev,
       categorias: prev.categorias.map(c => 
-        c.id === id ? { ...c, ...updates, updatedAt: new Date() } : c
+        c?.id === id ? { ...c, ...updates, updatedAt: new Date() } : c
       )
     }));
   };
@@ -38,7 +38,7 @@ export const useLocalStorage = () => {
   const deleteCategoria = (id: string) => {
     setData(prev => ({
       ...prev,
-      categorias: prev.categorias.filter(c => c.id !== id)
+      categorias: prev.categorias.filter(c => c?.id !== id)
     }));
   };
 
@@ -60,7 +60,7 @@ export const useLocalStorage = () => {
     setData(prev => ({
       ...prev,
       clientes: prev.clientes.map(c => 
-        c.id === id ? { ...c, ...updates, updatedAt: new Date() } : c
+        c?.id === id ? { ...c, ...updates, updatedAt: new Date() } : c
       )
     }));
   };
@@ -68,7 +68,7 @@ export const useLocalStorage = () => {
   const deleteCliente = (id: string) => {
     setData(prev => ({
       ...prev,
-      clientes: prev.clientes.filter(c => c.id !== id)
+      clientes: prev.clientes.filter(c => c?.id !== id)
     }));
   };
 
@@ -90,7 +90,7 @@ export const useLocalStorage = () => {
     setData(prev => ({
       ...prev,
       productos: prev.productos.map(p => 
-        p.id === id ? { ...p, ...updates, updatedAt: new Date() } : p
+        p?.id === id ? { ...p, ...updates, updatedAt: new Date() } : p
       )
     }));
   };
@@ -98,7 +98,7 @@ export const useLocalStorage = () => {
   const deleteProducto = (id: string) => {
     setData(prev => ({
       ...prev,
-      productos: prev.productos.filter(p => p.id !== id)
+      productos: prev.productos.filter(p => p?.id !== id)
     }));
   };
 
@@ -121,7 +121,7 @@ export const useLocalStorage = () => {
     setData(prev => ({
       ...prev,
       remitos: prev.remitos.map(r => 
-        r.id === id ? { ...r, ...updates, updatedAt: new Date() } : r
+        r?.id === id ? { ...r, ...updates, updatedAt: new Date() } : r
       )
     }));
   };
@@ -129,7 +129,7 @@ export const useLocalStorage = () => {
   const deleteRemito = (id: string) => {
     setData(prev => ({
       ...prev,
-      remitos: prev.remitos.filter(r => r.id !== id)
+      remitos: prev.remitos.filter(r => r?.id !== id)
     }));
   };
 

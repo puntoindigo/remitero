@@ -42,7 +42,7 @@ export function EmpresaForm({
   // Reset form when editingEmpresa changes
   React.useEffect(() => {
     if (editingEmpresa) {
-      reset({ name: editingEmpresa.name });
+      reset({ name: editingEmpresa?.name }, []);
     } else {
       reset({ name: "" });
     }
@@ -73,8 +73,8 @@ export function EmpresaForm({
           type="text"
           placeholder="Nombre de la empresa"
         />
-        {errors.name && (
-          <p className="error-message">{errors.name.message}</p>
+        {errors?.name && (
+          <p className="error-message">{errors?.name.message}</p>
         )}
       </div>
     </FormModal>

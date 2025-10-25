@@ -109,6 +109,9 @@ export function useProductos(companyId?: string) {
         body: JSON.stringify({
           ...productoData,
           companyId: effectiveCompanyId
+        }).catch(error => {
+            console.error('Network error:', error);
+            throw new Error("Error de conexión de red");
         }),
       });
 
@@ -141,6 +144,9 @@ export function useProductos(companyId?: string) {
         body: JSON.stringify({
           ...productoData,
           companyId: effectiveCompanyId
+        }).catch(error => {
+            console.error('Network error:', error);
+            throw new Error("Error de conexión de red");
         }),
       });
 
@@ -152,7 +158,7 @@ export function useProductos(companyId?: string) {
       const updatedProducto = await response.json();
       setProductos(prev => 
         prev.map(producto => 
-          producto.id === id ? updatedProducto : producto
+          producto?.id === id ? updatedProducto : producto
         )
       );
       return updatedProducto;
@@ -168,7 +174,10 @@ export function useProductos(companyId?: string) {
       const response = await fetch(`/api/products/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ stock: newStock }),
+        body: JSON.stringify({ stock: newStock }).catch(error => {
+            console.error('Network error:', error);
+            throw new Error("Error de conexión de red");
+        }),
       });
 
       if (!response.ok) {
@@ -179,7 +188,7 @@ export function useProductos(companyId?: string) {
       const updatedProducto = await response.json();
       setProductos(prev => 
         prev.map(producto => 
-          producto.id === id ? updatedProducto : producto
+          producto?.id === id ? updatedProducto : producto
         )
       );
       return updatedProducto;
@@ -204,7 +213,7 @@ export function useProductos(companyId?: string) {
         throw new Error(errorData.message || "Error al eliminar producto");
       }
 
-      setProductos(prev => prev.filter(producto => producto.id !== id));
+      setProductos(prev => prev.filter(producto => producto?.id !== id));
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Error al eliminar producto";
       setError(errorMessage);
@@ -225,5 +234,5 @@ export function useProductos(companyId?: string) {
     updateProducto,
     updateStock,
     deleteProducto,
-  };
+  }, [];
 }

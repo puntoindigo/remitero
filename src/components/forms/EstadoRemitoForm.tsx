@@ -55,11 +55,11 @@ export function EstadoRemitoForm({
   React.useEffect(() => {
     if (editingEstado) {
       reset({
-        name: editingEstado.name,
+        name: editingEstado?.name,
         description: editingEstado.description || "",
         color: editingEstado.color,
         is_active: editingEstado.is_active
-      });
+      }, []);
     } else {
       reset({
         name: "",
@@ -99,8 +99,8 @@ export function EstadoRemitoForm({
             className="form-input-standard"
             required
           />
-          {errors.name && (
-            <p className="error-message">{errors.name.message}</p>
+          {errors?.name && (
+            <p className="error-message">{errors?.name.message}</p>
           )}
         </div>
         <div className="form-group">

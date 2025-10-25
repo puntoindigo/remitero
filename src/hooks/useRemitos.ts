@@ -112,6 +112,9 @@ export function useRemitos(companyId?: string) {
         body: JSON.stringify({
           ...remitoData,
           companyId: effectiveCompanyId
+        }).catch(error => {
+            console.error('Network error:', error);
+            throw new Error("Error de conexión de red");
         }),
       });
 
@@ -135,7 +138,10 @@ export function useRemitos(companyId?: string) {
       const response = await fetch(`/api/remitos/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(remitoData),
+        body: JSON.stringify(remitoData).catch(error => {
+            console.error('Network error:', error);
+            throw new Error("Error de conexión de red");
+        }),
       });
 
       if (!response.ok) {
@@ -146,7 +152,7 @@ export function useRemitos(companyId?: string) {
       const updatedRemito = await response.json();
       setRemitos(prev => 
         prev.map(remito => 
-          remito.id === id ? updatedRemito : remito
+          remito?.id === id ? updatedRemito : remito
         )
       );
       return updatedRemito;
@@ -162,7 +168,10 @@ export function useRemitos(companyId?: string) {
       const response = await fetch(`/api/remitos/${id}/status`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status }),
+        body: JSON.stringify({ status }).catch(error => {
+            console.error('Network error:', error);
+            throw new Error("Error de conexión de red");
+        }),
       });
 
       if (!response.ok) {
@@ -173,7 +182,7 @@ export function useRemitos(companyId?: string) {
       const updatedRemito = await response.json();
       setRemitos(prev => 
         prev.map(remito => 
-          remito.id === id ? updatedRemito : remito
+          remito?.id === id ? updatedRemito : remito
         )
       );
       return updatedRemito;
@@ -198,7 +207,7 @@ export function useRemitos(companyId?: string) {
         throw new Error(errorData.message || "Error al eliminar remito");
       }
 
-      setRemitos(prev => prev.filter(remito => remito.id !== id));
+      setRemitos(prev => prev.filter(remito => remito?.id !== id));
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Error al eliminar remito";
       setError(errorMessage);
@@ -236,5 +245,5 @@ export function useRemitos(companyId?: string) {
     updateRemitoStatus,
     deleteRemito,
     getRemitoById,
-  };
+  }, [];
 }

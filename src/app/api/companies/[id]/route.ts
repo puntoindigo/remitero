@@ -26,7 +26,7 @@ export async function PUT(
       }, { status: 403 });
     }
 
-    const companyId = params.id;
+    const companyId = params?.id;
     const body = await request.json();
     const { name } = body;
 
@@ -53,7 +53,7 @@ export async function PUT(
     }
 
     // Verificar que el nombre no esté en uso por otra empresa
-    if (name !== existingCompany.name) {
+    if (name !== existingCompany?.name) {
       const { data: nameCompany } = await supabaseAdmin
         .from('companies')
         .select('id')
@@ -121,7 +121,7 @@ export async function DELETE(
       }, { status: 403 });
     }
 
-    const companyId = params.id;
+    const companyId = params?.id;
 
     // Verificar que la empresa existe
     const { data: existingCompany, error: fetchError } = await supabaseAdmin
@@ -144,7 +144,7 @@ export async function DELETE(
       .eq('company_id', companyId)
       .limit(1);
 
-    if (users && users.length > 0) {
+    if (users && users?.length > 0) {
       return NextResponse.json({ 
         error: "No se puede eliminar",
         message: "Esta empresa tiene usuarios asociados y no puede ser eliminada."

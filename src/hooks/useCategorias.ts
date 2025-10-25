@@ -89,8 +89,11 @@ export function useCategorias(companyId?: string) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
-          name: data.name,
+          name: data?.name,
           companyId: effectiveCompanyId
+        }).catch(error => {
+            console.error('Network error:', error);
+            throw new Error("Error de conexión de red");
         }),
       }).catch(error => {
         console.error('Network error:', error);
@@ -124,8 +127,11 @@ export function useCategorias(companyId?: string) {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
-          name: data.name,
+          name: data?.name,
           companyId: effectiveCompanyId
+        }).catch(error => {
+            console.error('Network error:', error);
+            throw new Error("Error de conexión de red");
         }),
       }).catch(error => {
         console.error('Network error:', error);
@@ -140,7 +146,7 @@ export function useCategorias(companyId?: string) {
       const updatedCategoria = await response.json();
       setCategorias(prev => 
         prev.map(categoria => 
-          categoria.id === id ? updatedCategoria : categoria
+          categoria?.id === id ? updatedCategoria : categoria
         )
       );
       return updatedCategoria;
@@ -165,7 +171,7 @@ export function useCategorias(companyId?: string) {
         throw new Error(errorData.message || "Error al eliminar categoría");
       }
 
-      setCategorias(prev => prev.filter(categoria => categoria.id !== id));
+      setCategorias(prev => prev.filter(categoria => categoria?.id !== id));
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Error al eliminar categoría";
       setError(errorMessage);
@@ -185,5 +191,5 @@ export function useCategorias(companyId?: string) {
     createCategoria,
     updateCategoria,
     deleteCategoria,
-  };
+  }, [];
 }

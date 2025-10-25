@@ -72,7 +72,10 @@ export function useUsuarios(companyId?: string) {
       const response = await fetch("/api/users", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(userDataWithCompany),
+        body: JSON.stringify(userDataWithCompany).catch(error => {
+            console.error('Network error:', error);
+            throw new Error("Error de conexión de red");
+        }),
       });
 
       if (!response.ok) {
@@ -101,7 +104,10 @@ export function useUsuarios(companyId?: string) {
       const response = await fetch(`/api/users/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(userDataWithCompany),
+        body: JSON.stringify(userDataWithCompany).catch(error => {
+            console.error('Network error:', error);
+            throw new Error("Error de conexión de red");
+        }),
       });
 
       if (!response.ok) {
@@ -112,7 +118,7 @@ export function useUsuarios(companyId?: string) {
       const updatedUsuario = await response.json();
       setUsuarios(prev => 
         prev.map(usuario => 
-          usuario.id === id ? updatedUsuario : usuario
+          usuario?.id === id ? updatedUsuario : usuario
         )
       );
       return updatedUsuario;
@@ -137,7 +143,7 @@ export function useUsuarios(companyId?: string) {
         throw new Error(errorData.message || "Error al eliminar usuario");
       }
 
-      setUsuarios(prev => prev.filter(usuario => usuario.id !== id));
+      setUsuarios(prev => prev.filter(usuario => usuario?.id !== id));
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Error al eliminar usuario";
       setError(errorMessage);
@@ -157,5 +163,5 @@ export function useUsuarios(companyId?: string) {
     createUsuario,
     updateUsuario,
     deleteUsuario,
-  };
+  }, [];
 }

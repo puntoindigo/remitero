@@ -56,7 +56,7 @@ export default function DashboardPage() {
       const savedCompanyId = sessionStorage.getItem('selectedCompanyId');
       if (savedCompanyId) {
         setSelectedCompanyId(savedCompanyId);
-      }
+      }, []
     }
   }, []);
 
@@ -65,7 +65,7 @@ export default function DashboardPage() {
     if (typeof window !== 'undefined') {
       if (selectedCompanyId) {
         sessionStorage.setItem('selectedCompanyId', selectedCompanyId);
-      } else {
+      }, [] else {
         sessionStorage.removeItem('selectedCompanyId');
       }
     }
@@ -83,7 +83,7 @@ export default function DashboardPage() {
       try {
         // Cargar estadísticas principales
         const [remitosRes, productosRes, clientesRes, categoriasRes] = await Promise.all([
-          fetch(`/api/remitos?companyId=${effectiveCompanyId}`),
+          fetch(`/api/remitos?companyId=${effectiveCompanyId}, []`),
           fetch(`/api/products?companyId=${effectiveCompanyId}`),
           fetch(`/api/clients?companyId=${effectiveCompanyId}`),
           fetch(`/api/categories?companyId=${effectiveCompanyId}`)
@@ -113,10 +113,10 @@ export default function DashboardPage() {
 
         // Debug logs
         console.log('Dashboard API responses:', {
-          remitos: Array.isArray(remitos) ? `Array(${remitos.length})` : typeof remitos,
-          productos: Array.isArray(productos) ? `Array(${productos.length})` : typeof productos,
-          clientes: Array.isArray(clientes) ? `Array(${clientes.length})` : typeof clientes,
-          categorias: Array.isArray(categorias) ? `Array(${categorias.length})` : typeof categorias
+          remitos: Array.isArray(remitos) ? `Array(${remitos?.length})` : typeof remitos,
+          productos: Array.isArray(productos) ? `Array(${productos?.length})` : typeof productos,
+          clientes: Array.isArray(clientes) ? `Array(${clientes?.length})` : typeof clientes,
+          categorias: Array.isArray(categorias) ? `Array(${categorias?.length})` : typeof categorias
         })
 
         // Validar que las respuestas sean arrays
@@ -127,7 +127,7 @@ export default function DashboardPage() {
 
         // Procesar estadísticas de remitos
         const remitosStats = {
-          total: remitosArray.length,
+          total: remitosArray?.length,
           pendientes: remitosArray.filter((r: any) => r.status === 'PENDIENTE').length,
           preparados: remitosArray.filter((r: any) => r.status === 'PREPARADO').length,
           entregados: remitosArray.filter((r: any) => r.status === 'ENTREGADO').length
@@ -135,7 +135,7 @@ export default function DashboardPage() {
 
         // Procesar estadísticas de productos
         const productosStats = {
-          total: productosArray.length,
+          total: productosArray?.length,
           conStock: productosArray.filter((p: any) => p.stock === 'IN_STOCK').length,
           sinStock: productosArray.filter((p: any) => p.stock === 'OUT_OF_STOCK').length
         }
@@ -143,8 +143,8 @@ export default function DashboardPage() {
         setStats({
           remitos: remitosStats,
           productos: productosStats,
-          clientes: clientesArray.length,
-          categorias: categoriasArray.length
+          clientes: clientesArray?.length,
+          categorias: categoriasArray?.length
         })
 
         // Establecer conteos de hoy
@@ -278,7 +278,7 @@ export default function DashboardPage() {
           </p>
           
           {/* Selector de empresa para SUPERADMIN */}
-          {currentUser?.role === "SUPERADMIN" && empresas.length > 0 && (
+          {currentUser?.role === "SUPERADMIN" && empresas?.length > 0 && (
             <div className="mt-4">
               <FilterableSelect
                 options={empresas}

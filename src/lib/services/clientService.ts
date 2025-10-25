@@ -2,7 +2,10 @@ import { ClientForm } from "@/lib/validations"
 
 export class ClientService {
   static async getClients(companyId: string) {
-    const response = await fetch("/api/clients")
+    const response = await fetch("/api/clients").catch(error => {
+            console.error('Network error:', error);
+            throw new Error("Error de conexión de red");
+        })
     if (!response.ok) {
       throw new Error("Error al cargar los clientes")
     }
@@ -15,7 +18,10 @@ export class ClientService {
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify(data)
+      body: JSON.stringify(data).catch(error => {
+            console.error('Network error:', error);
+            throw new Error("Error de conexión de red");
+        })
     })
     
     if (!response.ok) {
@@ -32,7 +38,10 @@ export class ClientService {
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify(data)
+      body: JSON.stringify(data).catch(error => {
+            console.error('Network error:', error);
+            throw new Error("Error de conexión de red");
+        })
     })
     
     if (!response.ok) {
@@ -46,7 +55,10 @@ export class ClientService {
   static async deleteClient(id: string, companyId: string) {
     const response = await fetch(`/api/clients/${id}`, {
       method: "DELETE"
-    })
+    }).catch(error => {
+            console.error('Network error:', error);
+            throw new Error("Error de conexión de red");
+        })
     
     if (!response.ok) {
       const error = await response.json()
@@ -57,7 +69,10 @@ export class ClientService {
   }
 
   static async getClientById(id: string, companyId: string) {
-    const response = await fetch(`/api/clients/${id}`)
+    const response = await fetch(`/api/clients/${id}`).catch(error => {
+            console.error('Network error:', error);
+            throw new Error("Error de conexión de red");
+        })
     if (!response.ok) {
       throw new Error("Error al cargar el cliente")
     }

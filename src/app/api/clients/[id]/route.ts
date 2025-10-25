@@ -26,7 +26,7 @@ export async function PUT(
       }, { status: 401 });
     }
 
-    const clientId = params.id;
+    const clientId = params?.id;
     const body = await request.json();
     const { name, address, phone, email } = body;
 
@@ -61,7 +61,7 @@ export async function PUT(
     }
 
     // Verificar que el nombre no esté en uso por otro cliente de la misma empresa
-    if (name !== existingClient.name) {
+    if (name !== existingClient?.name) {
       const { data: nameClient } = await supabaseAdmin
         .from('clients')
         .select('id')
@@ -138,7 +138,7 @@ export async function DELETE(
       }, { status: 401 });
     }
 
-    const clientId = params.id;
+    const clientId = params?.id;
 
     // Verificar que el cliente existe y el usuario tiene acceso
     const { data: existingClient, error: fetchError } = await supabaseAdmin
@@ -169,7 +169,7 @@ export async function DELETE(
       .eq('client_id', clientId)
       .limit(1);
 
-    if (remitos && remitos.length > 0) {
+    if (remitos && remitos?.length > 0) {
       return NextResponse.json({ 
         error: "No se puede eliminar",
         message: "Este cliente está siendo utilizado en remitos y no puede ser eliminado."
