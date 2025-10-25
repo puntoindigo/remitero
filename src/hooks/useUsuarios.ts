@@ -72,10 +72,10 @@ export function useUsuarios(companyId?: string) {
       const response = await fetch("/api/users", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(userDataWithCompany).catch(error => {
-            console.error('Network error:', error);
-            throw new Error("Error de conexión de red");
-        }),
+        body: JSON.stringify(userDataWithCompany)
+      }).catch(error => {
+        console.error('Network error:', error);
+        throw new Error("Error de conexión de red");
       });
 
       if (!response.ok) {
@@ -104,10 +104,10 @@ export function useUsuarios(companyId?: string) {
       const response = await fetch(`/api/users/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(userDataWithCompany).catch(error => {
-            console.error('Network error:', error);
-            throw new Error("Error de conexión de red");
-        }),
+        body: JSON.stringify(userDataWithCompany)
+      }).catch(error => {
+        console.error('Network error:', error);
+        throw new Error("Error de conexión de red");
       });
 
       if (!response.ok) {
