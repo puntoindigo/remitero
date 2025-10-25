@@ -84,14 +84,14 @@ export function UsuarioForm({
   React.useEffect(() => {
     if (selectedRole === "SUPERADMIN") {
       setValue("companyId", "");
-    }, []
+    }
   }, [selectedRole, setValue]);
 
   // Establecer companyId automáticamente cuando se proporciona
   React.useEffect(() => {
     if (companyId && !editingUser) {
       setValue("companyId", companyId);
-    }, []
+    }
   }, [companyId, setValue, editingUser]);
 
   // Reset form when editingUser changes

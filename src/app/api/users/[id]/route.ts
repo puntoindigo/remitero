@@ -159,8 +159,8 @@ export async function PUT(
 
     // Preparar datos de actualización
     const updateData: any = {};
-    if (name) updateData?.name = name;
-    if (email) updateData?.email = email;
+    if (name) updateData.name = name;
+    if (email) updateData.email = email;
     if (role) updateData.role = role;
     if (address !== undefined) updateData.address = address;
     if (phone !== undefined) updateData.phone = phone;

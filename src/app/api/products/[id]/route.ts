@@ -65,7 +65,7 @@ export async function PUT(
 
     // Preparar datos de actualización
     const updateData: any = {};
-    if (name !== undefined) updateData?.name = name;
+    if (name !== undefined) updateData.name = name;
     if (description !== undefined) updateData.description = description;
     if (price !== undefined) {
       if (price <= 0) {

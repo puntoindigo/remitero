@@ -45,7 +45,7 @@ function UsuariosContent() {
   React.useEffect(() => {
     if (companyIdFromParams && shouldShowCompanySelector) {
       setSelectedCompanyId(companyIdFromParams);
-    }, []
+    }
   }, [companyIdFromParams, shouldShowCompanySelector, setSelectedCompanyId]);
   
   // Hook para manejar estado del formulario modal
@@ -80,7 +80,7 @@ function UsuariosContent() {
   useEffect(() => {
     if (showForm && empresas?.length === 0) {
       loadEmpresas();
-    }, []
+    }
   }, [showForm, empresas?.length, loadEmpresas]);
 
   // Función de eliminación con useCallback para evitar problemas de hoisting

@@ -52,7 +52,7 @@ export default function PrintRemito() {
     const handleAfterPrint = () => {
       // Cerrar la pestaña después de imprimir
       window.close();
-    }, [];
+    };
 
     const handleBeforeUnload = () => {
       // Cerrar la pestaña si se cancela la impresión

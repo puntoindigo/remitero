@@ -133,7 +133,7 @@ function ProductosContent() {
     if (!producto?.id || typeof producto?.id !== 'string') {
       showError("Error", "ID de producto inválido");
       return;
-    }, []
+    }
     
     const productName = producto?.name || 'Producto sin nombre';
     handleDeleteRequest(producto?.id, productName);

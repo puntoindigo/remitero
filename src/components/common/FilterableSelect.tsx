@@ -37,7 +37,7 @@ export default function FilterableSelect({
   useEffect(() => {
     if (!searchTerm.trim()) {
       setFilteredOptions(options);
-    }, [] else {
+    } else {
       const term = searchTerm.toLowerCase();
       const filtered = options.filter((option) =>
         searchFields.some((field) => {
@@ -110,7 +110,7 @@ export default function FilterableSelect({
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsOpen(false);
         setSearchTerm("");
-      }, []
+      }
     };
 
     document.addEventListener("mousedown", handleClickOutside);

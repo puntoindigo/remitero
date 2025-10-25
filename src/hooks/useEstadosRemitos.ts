@@ -134,7 +134,7 @@ export function useEstadosRemitos(companyId?: string) {
     try {
       const response = await fetch("/api/estados-remitos", {
         method: "POST",
-        headers: { "Content-Type": "application/json" }, [],
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...estadoData,
           companyId: currentUser?.companyId

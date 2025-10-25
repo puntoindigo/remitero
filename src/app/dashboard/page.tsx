@@ -56,7 +56,7 @@ export default function DashboardPage() {
       const savedCompanyId = sessionStorage.getItem('selectedCompanyId');
       if (savedCompanyId) {
         setSelectedCompanyId(savedCompanyId);
-      }, []
+      }
     }
   }, []);
 
@@ -65,7 +65,7 @@ export default function DashboardPage() {
     if (typeof window !== 'undefined') {
       if (selectedCompanyId) {
         sessionStorage.setItem('selectedCompanyId', selectedCompanyId);
-      }, [] else {
+      } else {
         sessionStorage.removeItem('selectedCompanyId');
       }
     }

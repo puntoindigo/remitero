@@ -134,7 +134,7 @@ export function useEmpresas() {
     if (!session) {
       setIsLoading(false);
       return;
-    }, []
+    }
     
     if (session.user?.role === "SUPERADMIN") {
       loadEmpresas();

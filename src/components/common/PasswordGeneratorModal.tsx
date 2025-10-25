@@ -33,7 +33,7 @@ export function PasswordGeneratorModal({
   useEffect(() => {
     if (isOpen) {
       generateNewPassword();
-    }, []
+    }
   }, [isOpen]);
 
   const generateNewPassword = () => {

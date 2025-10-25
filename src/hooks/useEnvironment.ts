@@ -16,7 +16,7 @@ export function useEnvironment(): Environment {
         if (hostname === 'localhost' || hostname === '127.0.0.1') {
           setEnvironment('development');
           return;
-        }, []
+        }
         
         // Detectar si es preview (remitero-dev.vercel.app)
         if (hostname === 'remitero-dev.vercel.app') {

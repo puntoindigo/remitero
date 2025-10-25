@@ -61,7 +61,7 @@ export function ProductoForm({
       setValue("price", editingProduct.price);
       setValue("stock", editingProduct.stock || "OUT_OF_STOCK");
       setValue("categoryId", editingProduct.categoryId || "");
-    }, [] else {
+    } else {
       reset({
         name: "",
         description: "",

@@ -44,7 +44,7 @@ export default function LoginPage() {
       setValue("email", savedEmail)
       setValue("password", savedPassword)
       setValue("rememberMe", true)
-    }, []
+    }
   }, [setValue])
 
   const onSubmit = async (data: LoginForm) => {

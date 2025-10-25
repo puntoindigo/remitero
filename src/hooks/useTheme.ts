@@ -47,7 +47,7 @@ export function useTheme(): UseThemeReturn {
     const savedTheme = localStorage.getItem('theme') as Theme;
     if (savedTheme && THEMES[savedTheme]) {
       setCurrentThemeState(savedTheme);
-    }, []
+    }
     setIsThemeLoaded(true);
   }, []);
 
