@@ -366,7 +366,7 @@
         }
         
         .modal-content {
-            background: white;
+            background: #2d3748;
             border-radius: 12px;
             padding: 30px;
             max-width: 600px;
@@ -375,6 +375,7 @@
             overflow-y: auto;
             transform: scale(0.9);
             transition: transform 0.3s ease;
+            color: #e2e8f0;
         }
         
         .modal-overlay.active .modal-content {
@@ -387,13 +388,13 @@
             align-items: center;
             margin-bottom: 20px;
             padding-bottom: 15px;
-            border-bottom: 2px solid #e2e8f0;
+            border-bottom: 2px solid #4a5568;
         }
         
         .modal-title {
             font-size: 1.5rem;
             font-weight: 600;
-            color: #2d3748;
+            color: #e2e8f0;
         }
         
         .modal-close {
@@ -401,15 +402,15 @@
             border: none;
             font-size: 1.5rem;
             cursor: pointer;
-            color: #718096;
+            color: #a0aec0;
             padding: 5px;
             border-radius: 50%;
             transition: all 0.2s ease;
         }
         
         .modal-close:hover {
-            background: #f7fafc;
-            color: #2d3748;
+            background: #4a5568;
+            color: #e2e8f0;
         }
         
         .form-group {
@@ -419,50 +420,55 @@
         .form-label {
             display: block;
             font-weight: 600;
-            color: #2d3748;
+            color: #e2e8f0;
             margin-bottom: 8px;
         }
         
         .form-input {
             width: 100%;
             padding: 12px;
-            border: 2px solid #e2e8f0;
+            border: 2px solid #4a5568;
             border-radius: 8px;
             font-size: 1rem;
+            background: #1a202c;
+            color: #e2e8f0;
             transition: border-color 0.2s ease;
         }
         
         .form-input:focus {
             outline: none;
             border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
         }
         
         .form-textarea {
             width: 100%;
             padding: 12px;
-            border: 2px solid #e2e8f0;
+            border: 2px solid #4a5568;
             border-radius: 8px;
             font-size: 1rem;
             min-height: 120px;
             resize: vertical;
             font-family: inherit;
+            background: #1a202c;
+            color: #e2e8f0;
             transition: border-color 0.2s ease;
         }
         
         .form-textarea:focus {
             outline: none;
             border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
         }
         
         .form-select {
             width: 100%;
             padding: 12px;
-            border: 2px solid #e2e8f0;
+            border: 2px solid #4a5568;
             border-radius: 8px;
             font-size: 1rem;
-            background: white;
+            background: #1a202c;
+            color: #e2e8f0;
             cursor: pointer;
             transition: border-color 0.2s ease;
         }
@@ -470,7 +476,7 @@
         .form-select:focus {
             outline: none;
             border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
         }
         
         .modal-actions {
@@ -479,7 +485,15 @@
             justify-content: flex-end;
             margin-top: 30px;
             padding-top: 20px;
-            border-top: 1px solid #e2e8f0;
+            border-top: 1px solid #4a5568;
+            position: sticky;
+            bottom: 0;
+            background: #2d3748;
+            padding: 20px 0;
+            margin: 20px -30px 0 -30px;
+            padding-left: 30px;
+            padding-right: 30px;
+            z-index: 10;
         }
         
         .btn {
@@ -546,6 +560,45 @@
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
+        }
+        
+        /* Botón flotante siempre visible */
+        .floating-submit {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1001;
+            animation: slideInUp 0.3s ease;
+        }
+        
+        .floating-btn {
+            padding: 15px 25px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+            border: none;
+            border-radius: 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 180px;
+        }
+        
+        .floating-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(102, 126, 234, 0.6);
+        }
+        
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
         
         @media (max-width: 768px) {
@@ -921,6 +974,11 @@
                 </div>
                 
                 <div class="form-group">
+                    <label class="form-label" for="errorConsole">🔍 Mensaje de error (si aparece en consola):</label>
+                    <textarea id="errorConsole" class="form-textarea" placeholder="Pega aquí cualquier mensaje de error que aparezca en la consola del navegador (F12 > Console)" onblur="processConsoleErrorOnBlur()"></textarea>
+                </div>
+                
+                <div class="form-group">
                     <label class="form-label" for="errorType">Tipo de error:</label>
                     <select id="errorType" class="form-select" required>
                         <option value="">Selecciona el tipo de error</option>
@@ -944,11 +1002,6 @@
                 </div>
                 
                 <div class="form-group">
-                    <label class="form-label" for="errorConsole">Mensaje de error (si aparece en consola):</label>
-                    <textarea id="errorConsole" class="form-textarea" placeholder="Pega aquí cualquier mensaje de error que aparezca en la consola del navegador (F12 > Console)" onblur="processConsoleErrorOnBlur()"></textarea>
-                </div>
-                
-                <div class="form-group">
                     <label class="form-label" for="browserInfo">Información del navegador:</label>
                     <input type="text" id="browserInfo" class="form-input" placeholder="Ej: Chrome 120, Firefox 119, Safari 17, etc.">
                 </div>
@@ -964,7 +1017,14 @@
                         <span id="generateText">🔧 Generar Solución</span>
                         <span id="generateLoading" class="loading" style="display: none;"></span>
                     </button>
-                    <button type="submit" class="btn btn-primary" id="submitBtn" style="display: none;">Enviar Reporte</button>
+                    <button type="submit" class="btn btn-primary" id="submitBtn" style="display: none;">📤 Enviar Reporte</button>
+                </div>
+                
+                <!-- Botón flotante de envío siempre visible -->
+                <div class="floating-submit" id="floatingSubmit" style="display: none;">
+                    <button type="submit" class="btn btn-primary floating-btn">
+                        📤 Enviar Reporte
+                    </button>
                 </div>
             </form>
         </div>
@@ -1162,6 +1222,9 @@
             document.getElementById('solutionPreview').style.display = 'none';
             document.getElementById('generateBtn').style.display = 'inline-block';
             document.getElementById('submitBtn').style.display = 'none';
+            
+            // Ocultar botón flotante
+            document.getElementById('floatingSubmit').style.display = 'none';
         }
 
         // Función para generar solución
@@ -1213,9 +1276,12 @@
                     document.getElementById('solutionContent').innerHTML = data.solution;
                     document.getElementById('solutionPreview').style.display = 'block';
                     
-                    // Mostrar botón de envío
+                    // Mostrar botón de envío normal
                     document.getElementById('generateBtn').style.display = 'none';
                     document.getElementById('submitBtn').style.display = 'inline-block';
+                    
+                    // Mostrar botón flotante
+                    document.getElementById('floatingSubmit').style.display = 'block';
                     
                     // Guardar análisis para envío
                     window.currentAnalysis = data.analysis;
@@ -1233,6 +1299,9 @@
                 document.getElementById('solutionPreview').style.display = 'block';
                 document.getElementById('generateBtn').style.display = 'none';
                 document.getElementById('submitBtn').style.display = 'inline-block';
+                
+                // Mostrar botón flotante
+                document.getElementById('floatingSubmit').style.display = 'block';
             } finally {
                 // Restaurar botón
                 document.getElementById('generateText').style.display = 'inline';
