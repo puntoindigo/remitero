@@ -245,5 +245,5 @@ export function useRemitos(companyId?: string) {
     updateRemitoStatus,
     deleteRemito,
     getRemitoById,
-  }, [];
+  };
 }

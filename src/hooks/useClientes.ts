@@ -199,5 +199,5 @@ export function useClientes(companyId?: string) {
     createCliente,
     updateCliente,
     deleteCliente,
-  }, [];
+  };
 }

@@ -234,5 +234,5 @@ export function useProductos(companyId?: string) {
     updateProducto,
     updateStock,
     deleteProducto,
-  }, [];
+  };
 }

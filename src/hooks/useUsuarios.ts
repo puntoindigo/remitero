@@ -163,5 +163,5 @@ export function useUsuarios(companyId?: string) {
     createUsuario,
     updateUsuario,
     deleteUsuario,
-  }, [];
+  };
 }
