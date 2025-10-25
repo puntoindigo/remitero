@@ -860,8 +860,6 @@
                 <span class="accordion-icon">▼</span>
             </button>
             <div class="accordion-content">
-                <h2>🔐 1. Autenticación y Sesión</h2>
-                
                 <h3>1.1 Login</h3>
                 <div class="test-item" data-test="login-valid">
                     <div class="test-controls">
@@ -1409,8 +1407,15 @@
             const testsInSection = section.querySelectorAll('[data-test]');
             const completedTests = section.querySelectorAll('[data-test].completed');
             
+            console.log('Verificando sección:', {
+                totalTests: testsInSection.length,
+                completedTests: completedTests.length,
+                section: section
+            });
+            
             // Si todas las pruebas están completadas, colapsar la sección
             if (testsInSection.length === completedTests.length && testsInSection.length > 0) {
+                console.log('¡Sección completada! Colapsando...');
                 section.classList.add('section-completed');
                 addSectionToggle(section);
             } else {
@@ -1501,8 +1506,10 @@
                 removeToggleButton(testItem);
             }
             
-            // Verificar si toda la sección está completada
-            checkSectionCompletion(testItem);
+            // Verificar si toda la sección está completada (con delay para que se aplique la clase)
+            setTimeout(() => {
+                checkSectionCompletion(testItem);
+            }, 100);
             
             // Guardar resultado
             testResults[testId] = status;
