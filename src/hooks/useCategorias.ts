@@ -191,5 +191,5 @@ export function useCategorias(companyId?: string) {
     createCategoria,
     updateCategoria,
     deleteCategoria,
-  }, [];
+  };
 }
