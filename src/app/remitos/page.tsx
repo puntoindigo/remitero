@@ -95,6 +95,7 @@ function RemitosContent() {
   // Hook para clientes
   const { clientes: clients, setClientes } = useClientes(companyId || undefined);
   const [isLoading, setIsLoading] = useState(true);
+  const [statusChanging, setStatusChanging] = useState<string | null>(null);
   
   // Loading state management
   const { loading: loadingState, startLoading, stopLoading } = useLoading();
