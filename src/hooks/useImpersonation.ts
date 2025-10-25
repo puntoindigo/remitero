@@ -14,10 +14,10 @@ export const useImpersonation = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ targetUserId }).catch(error => {
-            console.error('Network error:', error);
-            throw new Error("Error de conexión de red");
-        }),
+        body: JSON.stringify({ targetUserId })
+      }).catch(error => {
+        console.error('Network error:', error);
+        throw new Error("Error de conexión de red");
       });
 
       const data = await response.json();
