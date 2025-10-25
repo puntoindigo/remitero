@@ -65,6 +65,9 @@ function CategoriasContent() {
   const { modalState, showSuccess, showError, closeModal } = useMessageModal();
   
   const { empresas } = useEmpresas();
+  
+  // Estado para búsqueda
+  const [searchTerm, setSearchTerm] = useState("");
 
   const { 
     categorias, 
