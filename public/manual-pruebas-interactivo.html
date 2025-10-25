@@ -238,6 +238,88 @@
             transform: translateY(-1px);
         }
         
+        /* Sistema de notificaciones elegantes */
+        .notification-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10000;
+            pointer-events: none;
+        }
+        
+        .notification {
+            background: white;
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin-bottom: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            border-left: 4px solid #48bb78;
+            max-width: 400px;
+            pointer-events: auto;
+            transform: translateX(100%);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification.success {
+            border-left-color: #48bb78;
+            background: #f0fff4;
+        }
+        
+        .notification.error {
+            border-left-color: #f56565;
+            background: #fff5f5;
+        }
+        
+        .notification.warning {
+            border-left-color: #ed8936;
+            background: #fffaf0;
+        }
+        
+        .notification.info {
+            border-left-color: #4299e1;
+            background: #ebf8ff;
+        }
+        
+        .notification-icon {
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+        
+        .notification-content {
+            flex: 1;
+            font-size: 0.9rem;
+            color: #2d3748;
+            line-height: 1.4;
+        }
+        
+        .notification-close {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            color: #a0aec0;
+            cursor: pointer;
+            padding: 0;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s ease;
+        }
+        
+        .notification-close:hover {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+        
         .test-controls {
             position: absolute;
             top: 15px;
@@ -1109,8 +1191,49 @@
         </div>
     </div>
 
+    <!-- Contenedor de notificaciones -->
+    <div class="notification-container" id="notificationContainer"></div>
+
     <script>
         let testResults = {};
+        
+        // Sistema de notificaciones elegantes
+        function showNotification(message, type = 'info', duration = 4000) {
+            const container = document.getElementById('notificationContainer');
+            
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            
+            const icons = {
+                success: '✅',
+                error: '❌',
+                warning: '⚠️',
+                info: 'ℹ️'
+            };
+            
+            notification.innerHTML = `
+                <div class="notification-icon">${icons[type] || icons.info}</div>
+                <div class="notification-content">${message}</div>
+                <button class="notification-close" onclick="this.parentElement.remove()">×</button>
+            `;
+            
+            container.appendChild(notification);
+            
+            // Animar entrada
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 100);
+            
+            // Auto-remover después de la duración
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    if (notification.parentElement) {
+                        notification.remove();
+                    }
+                }, 300);
+            }, duration);
+        }
         
         // Cargar resultados guardados al iniciar
         function loadTestResults() {
@@ -1165,7 +1288,7 @@
                 });
                 
                 updateStats();
-                alert('✅ Todos los resultados han sido limpiados.');
+                showNotification('✅ Todos los resultados han sido limpiados.', 'success');
             }
         }
         
@@ -1466,7 +1589,7 @@
             } else {
                 // Validación normal si no hay error de consola
                 if (!errorType || !errorDescription || !errorSteps) {
-                    alert('Por favor completa todos los campos obligatorios');
+                    showNotification('Por favor completa todos los campos obligatorios', 'error');
                     return;
                 }
             }
@@ -1724,10 +1847,10 @@ ${formData.analysis ? `\n🔍 Análisis del código:\n${JSON.stringify(formData.
                 
                 try {
                     await navigator.clipboard.writeText(reportText);
-                    alert('✅ Reporte guardado localmente y copiado al portapapeles. Se enviará cuando se restablezca la conexión.');
+                    showNotification('✅ Reporte guardado localmente y copiado al portapapeles. Se enviará cuando se restablezca la conexión.', 'success');
                 } catch (clipboardError) {
                     console.warn('No se pudo copiar al portapapeles:', clipboardError);
-                    alert('✅ Reporte guardado localmente. Se enviará cuando se restablezca la conexión.');
+                    showNotification('✅ Reporte guardado localmente. Se enviará cuando se restablezca la conexión.', 'success');
                 }
             }
             
