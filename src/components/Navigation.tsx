@@ -3,6 +3,7 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/Button';
+import { ThemeSelector } from '@/components/common/ThemeSelector';
 import { 
   Package, 
   FileText, 
@@ -55,6 +56,7 @@ export function Navigation({ activeTab, onTabChange }: NavigationProps) {
             })}
           </nav>
           <div className="flex items-center space-x-3">
+            <ThemeSelector variant="compact" />
             <span className="px-2 py-1 bg-gray-800 text-xs font-medium rounded text-gray-300">
               BETA
             </span>
