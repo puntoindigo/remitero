@@ -228,20 +228,31 @@
         
         /* Ocultar secciones completadas */
         .section-completed {
-            max-height: 80px;
-            overflow: hidden;
+            max-height: 80px !important;
+            overflow: hidden !important;
             transition: max-height 0.3s ease;
-            background: #f0fff4;
-            border-left: 4px solid #48bb78;
+            background: #f0fff4 !important;
+            border-left: 4px solid #48bb78 !important;
+            position: relative;
         }
         
         .section-completed .section-toggle {
-            display: block;
+            display: block !important;
             text-align: center;
             padding: 20px;
             background: #e8f5e8;
             border-radius: 8px;
             margin: 10px 0;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 10;
+        }
+        
+        .section-completed > *:not(.section-toggle) {
+            opacity: 0;
+            pointer-events: none;
         }
         
         .section-toggle {
@@ -1305,7 +1316,24 @@
                     }
                 });
                 updateStats();
+                
+                // Verificar todas las secciones al cargar
+                checkAllSections();
             }
+        }
+        
+        // Verificar todas las secciones al cargar
+        function checkAllSections() {
+            document.querySelectorAll('.accordion-content').forEach(section => {
+                const testsInSection = section.querySelectorAll('[data-test]');
+                const completedTests = section.querySelectorAll('[data-test].completed');
+                
+                if (testsInSection.length === completedTests.length && testsInSection.length > 0) {
+                    console.log('Sección completada encontrada:', section);
+                    section.classList.add('section-completed');
+                    addSectionToggle(section);
+                }
+            });
         }
         
         // Guardar resultados en localStorage
@@ -1431,12 +1459,21 @@
             const toggleDiv = document.createElement('div');
             toggleDiv.className = 'section-toggle';
             toggleDiv.innerHTML = `
-                <button class="toggle-btn" onclick="toggleSectionDetails(this)">
+                <button class="toggle-btn" onclick="toggleSectionDetails(this)" style="
+                    background: #48bb78;
+                    color: white;
+                    border: none;
+                    padding: 12px 24px;
+                    border-radius: 6px;
+                    cursor: pointer;
+                    font-size: 14px;
+                    font-weight: bold;
+                ">
                     <span>🔽</span> Sección completada - Ver detalles
                 </button>
             `;
             
-            section.appendChild(toggleDiv);
+            section.insertBefore(toggleDiv, section.firstChild);
         }
         
         // Remover toggle de sección
