@@ -115,7 +115,25 @@ export function useEstadosRemitos(companyId?: string) {
       }
       
       const data = await response.json();
-      setEstados(data || []);
+      
+      // Si no hay estados, crear los básicos automáticamente
+      if (!data || data.length === 0) {
+        console.log('🔧 No hay estados, creando estados básicos automáticamente...');
+        await createBasicEstados();
+        // Recargar estados después de crearlos
+        const newResponse = await fetch(url).catch(error => {
+          console.error('Network error:', error);
+          throw new Error("Error de conexión de red");
+        });
+        if (newResponse.ok) {
+          const newData = await newResponse.json();
+          setEstados(newData || []);
+        } else {
+          setEstados(ESTADOS_PREDEFINIDOS);
+        }
+      } else {
+        setEstados(data);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error al cargar estados");
       console.error("Error loading estados:", err);
@@ -123,6 +141,34 @@ export function useEstadosRemitos(companyId?: string) {
       setEstados(ESTADOS_PREDEFINIDOS);
     } finally {
       setIsLoading(false);
+    }
+  }, [companyId]);
+
+  // Función para crear estados básicos automáticamente
+  const createBasicEstados = useCallback(async () => {
+    if (!companyId) return;
+    
+    const basicEstados = [
+      { name: 'Pendiente', description: 'Remito creado, esperando procesamiento', color: '#f59e0b', icon: '⏰' },
+      { name: 'En Proceso', description: 'Remito siendo procesado', color: '#3b82f6', icon: '🔄' },
+      { name: 'Completado', description: 'Remito completado exitosamente', color: '#10b981', icon: '✅' },
+      { name: 'Cancelado', description: 'Remito cancelado', color: '#ef4444', icon: '❌' }
+    ];
+
+    try {
+      for (const estado of basicEstados) {
+        await fetch("/api/estados-remitos", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            ...estado,
+            companyId: companyId
+          })
+        });
+      }
+      console.log('✅ Estados básicos creados automáticamente');
+    } catch (error) {
+      console.error('❌ Error creando estados básicos:', error);
     }
   }, [companyId]);
 
