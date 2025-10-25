@@ -26,7 +26,7 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
     return <>{children}</>;
   }
 
-  // Redirección simple sin useEffect
+  // Redirección simple sin useEffect - ya corregido
   if (status === "unauthenticated") {
     // Usar window.location para evitar problemas con React
     if (typeof window !== 'undefined') {

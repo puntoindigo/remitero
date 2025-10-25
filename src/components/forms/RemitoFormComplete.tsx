@@ -185,6 +185,10 @@ export function RemitoFormComplete({
           companyId: companyId
         }),
       });
+            .catch(error => {
+                console.error('Error fetching clients:', error);
+                throw new Error('Error de conexión con clientes');
+            });
 
       if (!response.ok) {
         throw new Error('Error al crear cliente');

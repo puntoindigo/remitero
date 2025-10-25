@@ -65,7 +65,11 @@ export default function Header() {
 
   const handleDownloadLogs = async () => {
     try {
-      const response = await fetch('/api/admin/logs');
+      const response = await fetch('/api/admin/logs')
+            .catch(error => {
+                console.error('Error fetching logs:', error);
+                throw new Error('Error de conexión con logs');
+            });
       if (response.ok) {
         const blob = await response.blob();
         const url = window.URL.createObjectURL(blob);

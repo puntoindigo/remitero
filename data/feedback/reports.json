@@ -4542,5 +4542,669 @@
       }
     ],
     "id": "feedback_1761428596620_bqo1xio7p"
+  },
+  {
+    "testName": "Prueba:",
+    "errorType": "ui",
+    "errorDescription": "Error detectado en consola: Download the React DevTools for a better development experience: https://react.dev/link/react-devtools",
+    "errorSteps": "1. Abrir la aplicación\n2. Realizar la acción que causa el error\n3. Verificar la consola del navegador (F12)\n4. El error aparece: Download the React DevTools for a better development experience: https://react.dev/link/react-devtools",
+    "errorConsole": "Download the React DevTools for a better development experience: https://react.dev/link/react-devtools\npage.tsx:55  POST http://localhost:8000/api/auth/callback/credentials 401 (Unauthorized)\n_callee6$ @ index.js:252\neval @ regeneratorRuntime.js:52\neval @ regenerator.js:52\neval @ regeneratorDefine.js:11\nasyncGeneratorStep @ asyncToGenerator.js:3\n_next @ asyncToGenerator.js:17\nPromise.then\nasyncGeneratorStep @ asyncToGenerator.js:8\n_next @ asyncToGenerator.js:17\nPromise.then\nasyncGeneratorStep @ asyncToGenerator.js:8\n_next @ asyncToGenerator.js:17\neval @ asyncToGenerator.js:22\neval @ asyncToGenerator.js:14\n_signIn @ index.js:290\nsignIn @ index.js:190\nonSubmit @ page.tsx:55\neval @ index.esm.mjs:2081\nawait in eval\nexecuteDispatch @ react-dom-client.development.js:16971\nrunWithFiberInDEV @ react-dom-client.development.js:872\nprocessDispatchQueue @ react-dom-client.development.js:17021\neval @ react-dom-client.development.js:17622\nbatchedUpdates$1 @ react-dom-client.development.js:3312\ndispatchEventForPluginEventSystem @ react-dom-client.development.js:17175\ndispatchEvent @ react-dom-client.development.js:21358\ndispatchDiscreteEvent @ react-dom-client.development.js:21326\n<form>\nexports.jsxDEV @ react-jsx-dev-runtime.development.js:323\nLoginPage @ page.tsx:116\nreact_stack_bottom_frame @ react-dom-client.development.js:23584\nrenderWithHooksAgain @ react-dom-client.development.js:6893\nrenderWithHooks @ react-dom-client.development.js:6805\nupdateFunctionComponent @ react-dom-client.development.js:9247\nbeginWork @ react-dom-client.development.js:10858\nrunWithFiberInDEV @ react-dom-client.development.js:872\nperformUnitOfWork @ react-dom-client.development.js:15727\nworkLoopConcurrentByScheduler @ react-dom-client.development.js:15721\nrenderRootConcurrent @ react-dom-client.development.js:15696\nperformWorkOnRoot @ react-dom-client.development.js:14990\nperformWorkOnRootViaSchedulerTask @ react-dom-client.development.js:16816\nperformWorkUntilDeadline @ scheduler.development.js:45\n<LoginPage>\nexports.jsx @ react-jsx-runtime.development.js:323\nClientPageRoot @ client-page.js:20\nreact_stack_bottom_frame @ react-dom-client.development.js:23584\nrenderWithHooksAgain @ react-dom-client.development.js:6893\nrenderWithHooks @ react-dom-client.development.js:6805\nupdateFunctionComponent @ react-dom-client.development.js:9247\nbeginWork @ react-dom-client.development.js:10807\nrunWithFiberInDEV @ react-dom-client.development.js:872\nperformUnitOfWork @ react-dom-client.development.js:15727\nworkLoopConcurrentByScheduler @ react-dom-client.development.js:15721\nrenderRootConcurrent @ react-dom-client.development.js:15696\nperformWorkOnRoot @ react-dom-client.development.js:14990\nperformWorkOnRootViaSchedulerTask @ react-dom-client.development.js:16816\nperformWorkUntilDeadline @ scheduler.development.js:45\n\"use client\"\nFunction.all @ VM4764 <anonymous>:1\nFunction.all @ VM4764 <anonymous>:1\nFunction.all @ VM4764 <anonymous>:1\ninitializeElement @ react-server-dom-webpack-client.browser.development.js:1343\neval @ react-server-dom-webpack-client.browser.development.js:3066\ninitializeModelChunk @ react-server-dom-webpack-client.browser.development.js:1246\nresolveModelChunk @ react-server-dom-webpack-client.browser.development.js:1101\nprocessFullStringRow @ react-server-dom-webpack-client.browser.development.js:2899\nprocessFullBinaryRow @ react-server-dom-webpack-client.browser.development.js:2766\nprocessBinaryChunk @ react-server-dom-webpack-client.browser.development.js:2969\nprogress @ react-server-dom-webpack-client.browser.development.js:3233\n\"use server\"\nResponseInstance @ react-server-dom-webpack-client.browser.development.js:2041\ncreateResponseFromOptions @ react-server-dom-webpack-client.browser.development.js:3094\nexports.createFromReadableStream @ react-server-dom-webpack-client.browser.development.js:3478\neval @ app-index.js:130\n(app-pages-browser)/./node_modules/next/dist/client/app-index.js @ main-app.js?v=1761428810391:160\noptions.factory @ webpack.js:1\n__webpack_require__ @ webpack.js:1\nfn @ webpack.js:1\neval @ app-next-dev.js:14\neval @ app-bootstrap.js:59\nloadScriptsInSequence @ app-bootstrap.js:24\nappBootstrap @ app-bootstrap.js:53\neval @ app-next-dev.js:13\n(app-pages-browser)/./node_modules/next/dist/client/app-next-dev.js @ main-app.js?v=1761428810391:182\noptions.factory @ webpack.js:1\n__webpack_require__ @ webpack.js:1\n__webpack_exec__ @ main-app.js?v=1761428810391:1889\n(anónimas) @ main-app.js?v=1761428810391:1890\nwebpackJsonpCallback @ webpack.js:1\n(anónimas) @ main-app.js?v=1761428810391:9Comprende este error\npage.tsx:62 Login error: CredentialsSignin\nerror @ intercept-console-error.js:57\nonSubmit @ page.tsx:62\nawait in onSubmit\neval @ index.esm.mjs:2081\nawait in eval\nexecuteDispatch @ react-dom-client.development.js:16971\nrunWithFiberInDEV @ react-dom-client.development.js:872\nprocessDispatchQueue @ react-dom-client.development.js:17021\neval @ react-dom-client.development.js:17622\nbatchedUpdates$1 @ react-dom-client.development.js:3312\ndispatchEventForPluginEventSystem @ react-dom-client.development.js:17175\ndispatchEvent @ react-dom-client.development.js:21358\ndispatchDiscreteEvent @ react-dom-client.development.js:21326\n<form>\nexports.jsxDEV @ react-jsx-dev-runtime.development.js:323\nLoginPage @ page.tsx:116\nreact_stack_bottom_frame @ react-dom-client.development.js:23584\nrenderWithHooksAgain @ react-dom-client.development.js:6893\nrenderWithHooks @ react-dom-client.development.js:6805\nupdateFunctionComponent @ react-dom-client.development.js:9247\nbeginWork @ react-dom-client.development.js:10858\nrunWithFiberInDEV @ react-dom-client.development.js:872\nperformUnitOfWork @ react-dom-client.development.js:15727\nworkLoopConcurrentByScheduler @ react-dom-client.development.js:15721\nrenderRootConcurrent @ react-dom-client.development.js:15696\nperformWorkOnRoot @ react-dom-client.development.js:14990\nperformWorkOnRootViaSchedulerTask @ react-dom-client.development.js:16816\nperformWorkUntilDeadline @ scheduler.development.js:45\n<LoginPage>\nexports.jsx @ react-jsx-runtime.development.js:323\nClientPageRoot @ client-page.js:20\nreact_stack_bottom_frame @ react-dom-client.development.js:23584\nrenderWithHooksAgain @ react-dom-client.development.js:6893\nrenderWithHooks @ react-dom-client.development.js:6805\nupdateFunctionComponent @ react-dom-client.development.js:9247\nbeginWork @ react-dom-client.development.js:10807\nrunWithFiberInDEV @ react-dom-client.development.js:872\nperformUnitOfWork @ react-dom-client.development.js:15727\nworkLoopConcurrentByScheduler @ react-dom-client.development.js:15721\nrenderRootConcurrent @ react-dom-client.development.js:15696\nperformWorkOnRoot @ react-dom-client.development.js:14990\nperformWorkOnRootViaSchedulerTask @ react-dom-client.development.js:16816\nperformWorkUntilDeadline @ scheduler.development.js:45\n\"use client\"\nFunction.all @ VM4764 <anonymous>:1\nFunction.all @ VM4764 <anonymous>:1\nFunction.all @ VM4764 <anonymous>:1\ninitializeElement @ react-server-dom-webpack-client.browser.development.js:1343\neval @ react-server-dom-webpack-client.browser.development.js:3066\ninitializeModelChunk @ react-server-dom-webpack-client.browser.development.js:1246\nresolveModelChunk @ react-server-dom-webpack-client.browser.development.js:1101\nprocessFullStringRow @ react-server-dom-webpack-client.browser.development.js:2899\nprocessFullBinaryRow @ react-server-dom-webpack-client.browser.development.js:2766\nprocessBinaryChunk @ react-server-dom-webpack-client.browser.development.js:2969\nprogress @ react-server-dom-webpack-client.browser.development.js:3233\n\"use server\"\nResponseInstance @ react-server-dom-webpack-client.browser.development.js:2041\ncreateResponseFromOptions @ react-server-dom-webpack-client.browser.development.js:3094\nexports.createFromReadableStream @ react-server-dom-webpack-client.browser.development.js:3478\neval @ app-index.js:130\n(app-pages-browser)/./node_modules/next/dist/client/app-index.js @ main-app.js?v=1761428810391:160\noptions.factory @ webpack.js:1\n__webpack_require__ @ webpack.js:1\nfn @ webpack.js:1\neval @ app-next-dev.js:14\neval @ app-bootstrap.js:59\nloadScriptsInSequence @ app-bootstrap.js:24\nappBootstrap @ app-bootstrap.js:53\neval @ app-next-dev.js:13\n(app-pages-browser)/./node_modules/next/dist/client/app-next-dev.js @ main-app.js?v=1761428810391:182\noptions.factory @ webpack.js:1\n__webpack_require__ @ webpack.js:1\n__webpack_exec__ @ main-app.js?v=1761428810391:1889\n(anónimas) @ main-app.js?v=1761428810391:1890\nwebpackJsonpCallback @ webpack.js:1\n(anónimas) @ main-app.js?v=1761428810391:9Comprende este error",
+    "browserInfo": "Mozilla/5.0 (Macintosh;",
+    "timestamp": "2025-10-25T21:55:41.134Z",
+    "analysis": [
+      {
+        "file": "/src/components/common/EnvironmentBanner.tsx",
+        "line": 3,
+        "issue": "useEffect sin dependencias puede causar loops infinitos",
+        "severity": "high",
+        "solution": "Agregar array de dependencias apropiado al useEffect",
+        "codeSnippet": "import React, { useEffect, useRef } from 'react';"
+      },
+      {
+        "file": "/src/components/common/EnvironmentBanner.tsx",
+        "line": 12,
+        "issue": "useEffect sin dependencias puede causar loops infinitos",
+        "severity": "high",
+        "solution": "Agregar array de dependencias apropiado al useEffect",
+        "codeSnippet": "useEffect(() => {"
+      },
+      {
+        "file": "/src/components/common/ErrorBoundary.tsx",
+        "line": 81,
+        "issue": "Posible acceso a propiedad de undefined",
+        "severity": "high",
+        "solution": "Agregar verificación de null/undefined antes de acceder a propiedades",
+        "codeSnippet": "URL: ${typeof window !== 'undefined' ? window.location.href : 'Unknown'}"
+      },
+      {
+        "file": "/src/components/common/FilterableSelect.tsx",
+        "line": 3,
+        "issue": "useEffect sin dependencias puede causar loops infinitos",
+        "severity": "high",
+        "solution": "Agregar array de dependencias apropiado al useEffect",
+        "codeSnippet": "import React, { useState, useRef, useEffect } from \"react\";"
+      },
+      {
+        "file": "/src/components/common/FilterableSelect.tsx",
+        "line": 37,
+        "issue": "useEffect sin dependencias puede causar loops infinitos",
+        "severity": "high",
+        "solution": "Agregar array de dependencias apropiado al useEffect",
+        "codeSnippet": "useEffect(() => {"
+      },
+      {
+        "file": "/src/components/common/FilterableSelect.tsx",
+        "line": 82,
+        "issue": "useEffect sin dependencias puede causar loops infinitos",
+        "severity": "high",
+        "solution": "Agregar array de dependencias apropiado al useEffect",
+        "codeSnippet": "useEffect(() => {"
+      },
+      {
+        "file": "/src/components/common/FilterableSelect.tsx",
+        "line": 108,
+        "issue": "useEffect sin dependencias puede causar loops infinitos",
+        "severity": "high",
+        "solution": "Agregar array de dependencias apropiado al useEffect",
+        "codeSnippet": "useEffect(() => {"
+      },
+      {
+        "file": "/src/components/common/MessageModal.tsx",
+        "line": 3,
+        "issue": "useEffect sin dependencias puede causar loops infinitos",
+        "severity": "high",
+        "solution": "Agregar array de dependencias apropiado al useEffect",
+        "codeSnippet": "import { useEffect } from 'react';"
+      },
+      {
+        "file": "/src/components/common/MessageModal.tsx",
+        "line": 15,
+        "issue": "useEffect sin dependencias puede causar loops infinitos",
+        "severity": "high",
+        "solution": "Agregar array de dependencias apropiado al useEffect",
+        "codeSnippet": "useEffect(() => {"
+      },
+      {
+        "file": "/src/components/common/PasswordGeneratorModal.tsx",
+        "line": 3,
+        "issue": "useEffect sin dependencias puede causar loops infinitos",
+        "severity": "high",
+        "solution": "Agregar array de dependencias apropiado al useEffect",
+        "codeSnippet": "import React, { useState, useEffect } from \"react\";"
+      },
+      {
+        "file": "/src/components/common/PasswordGeneratorModal.tsx",
+        "line": 33,
+        "issue": "useEffect sin dependencias puede causar loops infinitos",
+        "severity": "high",
+        "solution": "Agregar array de dependencias apropiado al useEffect",
+        "codeSnippet": "useEffect(() => {"
+      },
+      {
+        "file": "/src/components/forms/CategoriaForm.tsx",
+        "line": 43,
+        "issue": "useEffect sin dependencias puede causar loops infinitos",
+        "severity": "high",
+        "solution": "Agregar array de dependencias apropiado al useEffect",
+        "codeSnippet": "React.useEffect(() => {"
+      },
+      {
+        "file": "/src/components/forms/ClienteForm.tsx",
+        "line": 57,
+        "issue": "useEffect sin dependencias puede causar loops infinitos",
+        "severity": "high",
+        "solution": "Agregar array de dependencias apropiado al useEffect",
+        "codeSnippet": "React.useEffect(() => {"
+      },
+      {
+        "file": "/src/components/forms/EmpresaForm.tsx",
+        "line": 43,
+        "issue": "useEffect sin dependencias puede causar loops infinitos",
+        "severity": "high",
+        "solution": "Agregar array de dependencias apropiado al useEffect",
+        "codeSnippet": "React.useEffect(() => {"
+      },
+      {
+        "file": "/src/components/forms/EstadoRemitoForm.tsx",
+        "line": 55,
+        "issue": "useEffect sin dependencias puede causar loops infinitos",
+        "severity": "high",
+        "solution": "Agregar array de dependencias apropiado al useEffect",
+        "codeSnippet": "React.useEffect(() => {"
+      },
+      {
+        "file": "/src/components/forms/ProductoForm.tsx",
+        "line": 3,
+        "issue": "useEffect sin dependencias puede causar loops infinitos",
+        "severity": "high",
+        "solution": "Agregar array de dependencias apropiado al useEffect",
+        "codeSnippet": "import React, { useEffect } from \"react\";"
+      },
+      {
+        "file": "/src/components/forms/ProductoForm.tsx",
+        "line": 57,
+        "issue": "useEffect sin dependencias puede causar loops infinitos",
+        "severity": "high",
+        "solution": "Agregar array de dependencias apropiado al useEffect",
+        "codeSnippet": "useEffect(() => {"
+      },
+      {
+        "file": "/src/components/forms/RemitoFormComplete.tsx",
+        "line": 3,
+        "issue": "useEffect sin dependencias puede causar loops infinitos",
+        "severity": "high",
+        "solution": "Agregar array de dependencias apropiado al useEffect",
+        "codeSnippet": "import React, { useState, useEffect } from \"react\";"
+      },
+      {
+        "file": "/src/components/forms/RemitoFormComplete.tsx",
+        "line": 65,
+        "issue": "useEffect sin dependencias puede causar loops infinitos",
+        "severity": "high",
+        "solution": "Agregar array de dependencias apropiado al useEffect",
+        "codeSnippet": "useEffect(() => {"
+      },
+      {
+        "file": "/src/components/forms/RemitoFormComplete.tsx",
+        "line": 178,
+        "issue": "Fetch sin manejo de errores",
+        "severity": "high",
+        "solution": "Agregar .catch() para manejar errores de red",
+        "codeSnippet": "const response = await fetch('/api/clients', {"
+      },
+      {
+        "file": "/src/components/forms/UsuarioForm.tsx",
+        "line": 84,
+        "issue": "useEffect sin dependencias puede causar loops infinitos",
+        "severity": "high",
+        "solution": "Agregar array de dependencias apropiado al useEffect",
+        "codeSnippet": "React.useEffect(() => {"
+      },
+      {
+        "file": "/src/components/forms/UsuarioForm.tsx",
+        "line": 91,
+        "issue": "useEffect sin dependencias puede causar loops infinitos",
+        "severity": "high",
+        "solution": "Agregar array de dependencias apropiado al useEffect",
+        "codeSnippet": "React.useEffect(() => {"
+      },
+      {
+        "file": "/src/components/forms/UsuarioForm.tsx",
+        "line": 98,
+        "issue": "useEffect sin dependencias puede causar loops infinitos",
+        "severity": "high",
+        "solution": "Agregar array de dependencias apropiado al useEffect",
+        "codeSnippet": "React.useEffect(() => {"
+      },
+      {
+        "file": "/src/components/layout/AuthenticatedLayout.tsx",
+        "line": 6,
+        "issue": "useEffect sin dependencias puede causar loops infinitos",
+        "severity": "high",
+        "solution": "Agregar array de dependencias apropiado al useEffect",
+        "codeSnippet": "import { useEffect } from \"react\";"
+      },
+      {
+        "file": "/src/components/layout/AuthenticatedLayout.tsx",
+        "line": 29,
+        "issue": "useEffect sin dependencias puede causar loops infinitos",
+        "severity": "high",
+        "solution": "Agregar array de dependencias apropiado al useEffect",
+        "codeSnippet": "// Redirección simple sin useEffect"
+      },
+      {
+        "file": "/src/components/layout/Header.tsx",
+        "line": 68,
+        "issue": "Fetch sin manejo de errores",
+        "severity": "high",
+        "solution": "Agregar .catch() para manejar errores de red",
+        "codeSnippet": "const response = await fetch('/api/admin/logs');"
+      },
+      {
+        "file": "/src/components/layout/Layout.tsx",
+        "line": 5,
+        "issue": "useEffect sin dependencias puede causar loops infinitos",
+        "severity": "high",
+        "solution": "Agregar array de dependencias apropiado al useEffect",
+        "codeSnippet": "import { useEffect } from \"react\""
+      },
+      {
+        "file": "/src/components/layout/Layout.tsx",
+        "line": 18,
+        "issue": "useEffect sin dependencias puede causar loops infinitos",
+        "severity": "high",
+        "solution": "Agregar array de dependencias apropiado al useEffect",
+        "codeSnippet": "useEffect(() => {"
+      },
+      {
+        "file": "/src/components/layout/TopBar.tsx",
+        "line": 74,
+        "issue": "Posible acceso a propiedad de undefined",
+        "severity": "high",
+        "solution": "Agregar verificación de null/undefined antes de acceder a propiedades",
+        "codeSnippet": "? (typeof window !== 'undefined' && localStorage.getItem('impersonation')"
+      },
+      {
+        "file": "/src/components/ui/popover.tsx",
+        "line": 44,
+        "issue": "useEffect sin dependencias puede causar loops infinitos",
+        "severity": "high",
+        "solution": "Agregar array de dependencias apropiado al useEffect",
+        "codeSnippet": "React.useEffect(() => {"
+      },
+      {
+        "file": "/src/components/common/ErrorBoundary.tsx",
+        "line": 44,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "console.error('ErrorBoundary caught an error:', error, errorInfo);"
+      },
+      {
+        "file": "/src/components/common/ErrorBoundary.tsx",
+        "line": 93,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "console.error('Failed to copy error to clipboard:', err);"
+      },
+      {
+        "file": "/src/components/common/ImpersonationBanner.tsx",
+        "line": 20,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "console.error('Error al detener impersonation:', error);"
+      },
+      {
+        "file": "/src/components/common/PasswordGeneratorModal.tsx",
+        "line": 57,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "console.error('Error al copiar:', err);"
+      },
+      {
+        "file": "/src/components/forms/RemitoFormComplete.tsx",
+        "line": 190,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error('Error al crear cliente');"
+      },
+      {
+        "file": "/src/components/forms/RemitoFormComplete.tsx",
+        "line": 206,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "console.error('Error creating client:', error);"
+      },
+      {
+        "file": "/src/components/layout/Header.tsx",
+        "line": 62,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "console.error('Error al detener impersonation:', error);"
+      },
+      {
+        "file": "/src/components/layout/Header.tsx",
+        "line": 80,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "console.error('Error al descargar logs');"
+      },
+      {
+        "file": "/src/components/layout/Header.tsx",
+        "line": 83,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "console.error('Error al descargar logs:', error);"
+      },
+      {
+        "file": "/src/components/layout/TopBar.tsx",
+        "line": 36,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "console.error('Error al detener impersonation:', error);"
+      }
+    ],
+    "id": "feedback_1761429342956_pin5wk918"
+  },
+  {
+    "testName": "Prueba:",
+    "errorType": "ui",
+    "errorDescription": "Error detectado en consola: Download the React DevTools for a better development experience: https://react.dev/link/react-devtools",
+    "errorSteps": "1. Abrir la aplicación\n2. Realizar la acción que causa el error\n3. Verificar la consola del navegador (F12)\n4. El error aparece: Download the React DevTools for a better development experience: https://react.dev/link/react-devtools",
+    "errorConsole": "Download the React DevTools for a better development experience: https://react.dev/link/react-devtools\npage.tsx:55  POST http://localhost:8000/api/auth/callback/credentials 401 (Unauthorized)\n_callee6$ @ index.js:252\neval @ regeneratorRuntime.js:52\neval @ regenerator.js:52\neval @ regeneratorDefine.js:11\nasyncGeneratorStep @ asyncToGenerator.js:3\n_next @ asyncToGenerator.js:17\nPromise.then\nasyncGeneratorStep @ asyncToGenerator.js:8\n_next @ asyncToGenerator.js:17\nPromise.then\nasyncGeneratorStep @ asyncToGenerator.js:8\n_next @ asyncToGenerator.js:17\neval @ asyncToGenerator.js:22\neval @ asyncToGenerator.js:14\n_signIn @ index.js:290\nsignIn @ index.js:190\nonSubmit @ page.tsx:55\neval @ index.esm.mjs:2081\nawait in eval\nexecuteDispatch @ react-dom-client.development.js:16971\nrunWithFiberInDEV @ react-dom-client.development.js:872\nprocessDispatchQueue @ react-dom-client.development.js:17021\neval @ react-dom-client.development.js:17622\nbatchedUpdates$1 @ react-dom-client.development.js:3312\ndispatchEventForPluginEventSystem @ react-dom-client.development.js:17175\ndispatchEvent @ react-dom-client.development.js:21358\ndispatchDiscreteEvent @ react-dom-client.development.js:21326\n<form>\nexports.jsxDEV @ react-jsx-dev-runtime.development.js:323\nLoginPage @ page.tsx:116\nreact_stack_bottom_frame @ react-dom-client.development.js:23584\nrenderWithHooksAgain @ react-dom-client.development.js:6893\nrenderWithHooks @ react-dom-client.development.js:6805\nupdateFunctionComponent @ react-dom-client.development.js:9247\nbeginWork @ react-dom-client.development.js:10858\nrunWithFiberInDEV @ react-dom-client.development.js:872\nperformUnitOfWork @ react-dom-client.development.js:15727\nworkLoopConcurrentByScheduler @ react-dom-client.development.js:15721\nrenderRootConcurrent @ react-dom-client.development.js:15696\nperformWorkOnRoot @ react-dom-client.development.js:14990\nperformWorkOnRootViaSchedulerTask @ react-dom-client.development.js:16816\nperformWorkUntilDeadline @ scheduler.development.js:45\n<LoginPage>\nexports.jsx @ react-jsx-runtime.development.js:323\nClientPageRoot @ client-page.js:20\nreact_stack_bottom_frame @ react-dom-client.development.js:23584\nrenderWithHooksAgain @ react-dom-client.development.js:6893\nrenderWithHooks @ react-dom-client.development.js:6805\nupdateFunctionComponent @ react-dom-client.development.js:9247\nbeginWork @ react-dom-client.development.js:10807\nrunWithFiberInDEV @ react-dom-client.development.js:872\nperformUnitOfWork @ react-dom-client.development.js:15727\nworkLoopConcurrentByScheduler @ react-dom-client.development.js:15721\nrenderRootConcurrent @ react-dom-client.development.js:15696\nperformWorkOnRoot @ react-dom-client.development.js:14990\nperformWorkOnRootViaSchedulerTask @ react-dom-client.development.js:16816\nperformWorkUntilDeadline @ scheduler.development.js:45\n\"use client\"\nFunction.all @ VM4764 <anonymous>:1\nFunction.all @ VM4764 <anonymous>:1\nFunction.all @ VM4764 <anonymous>:1\ninitializeElement @ react-server-dom-webpack-client.browser.development.js:1343\neval @ react-server-dom-webpack-client.browser.development.js:3066\ninitializeModelChunk @ react-server-dom-webpack-client.browser.development.js:1246\nresolveModelChunk @ react-server-dom-webpack-client.browser.development.js:1101\nprocessFullStringRow @ react-server-dom-webpack-client.browser.development.js:2899\nprocessFullBinaryRow @ react-server-dom-webpack-client.browser.development.js:2766\nprocessBinaryChunk @ react-server-dom-webpack-client.browser.development.js:2969\nprogress @ react-server-dom-webpack-client.browser.development.js:3233\n\"use server\"\nResponseInstance @ react-server-dom-webpack-client.browser.development.js:2041\ncreateResponseFromOptions @ react-server-dom-webpack-client.browser.development.js:3094\nexports.createFromReadableStream @ react-server-dom-webpack-client.browser.development.js:3478\neval @ app-index.js:130\n(app-pages-browser)/./node_modules/next/dist/client/app-index.js @ main-app.js?v=1761428810391:160\noptions.factory @ webpack.js:1\n__webpack_require__ @ webpack.js:1\nfn @ webpack.js:1\neval @ app-next-dev.js:14\neval @ app-bootstrap.js:59\nloadScriptsInSequence @ app-bootstrap.js:24\nappBootstrap @ app-bootstrap.js:53\neval @ app-next-dev.js:13\n(app-pages-browser)/./node_modules/next/dist/client/app-next-dev.js @ main-app.js?v=1761428810391:182\noptions.factory @ webpack.js:1\n__webpack_require__ @ webpack.js:1\n__webpack_exec__ @ main-app.js?v=1761428810391:1889\n(anónimas) @ main-app.js?v=1761428810391:1890\nwebpackJsonpCallback @ webpack.js:1\n(anónimas) @ main-app.js?v=1761428810391:9Comprende este error\npage.tsx:62 Login error: CredentialsSignin\nerror @ intercept-console-error.js:57\nonSubmit @ page.tsx:62\nawait in onSubmit\neval @ index.esm.mjs:2081\nawait in eval\nexecuteDispatch @ react-dom-client.development.js:16971\nrunWithFiberInDEV @ react-dom-client.development.js:872\nprocessDispatchQueue @ react-dom-client.development.js:17021\neval @ react-dom-client.development.js:17622\nbatchedUpdates$1 @ react-dom-client.development.js:3312\ndispatchEventForPluginEventSystem @ react-dom-client.development.js:17175\ndispatchEvent @ react-dom-client.development.js:21358\ndispatchDiscreteEvent @ react-dom-client.development.js:21326\n<form>\nexports.jsxDEV @ react-jsx-dev-runtime.development.js:323\nLoginPage @ page.tsx:116\nreact_stack_bottom_frame @ react-dom-client.development.js:23584\nrenderWithHooksAgain @ react-dom-client.development.js:6893\nrenderWithHooks @ react-dom-client.development.js:6805\nupdateFunctionComponent @ react-dom-client.development.js:9247\nbeginWork @ react-dom-client.development.js:10858\nrunWithFiberInDEV @ react-dom-client.development.js:872\nperformUnitOfWork @ react-dom-client.development.js:15727\nworkLoopConcurrentByScheduler @ react-dom-client.development.js:15721\nrenderRootConcurrent @ react-dom-client.development.js:15696\nperformWorkOnRoot @ react-dom-client.development.js:14990\nperformWorkOnRootViaSchedulerTask @ react-dom-client.development.js:16816\nperformWorkUntilDeadline @ scheduler.development.js:45\n<LoginPage>\nexports.jsx @ react-jsx-runtime.development.js:323\nClientPageRoot @ client-page.js:20\nreact_stack_bottom_frame @ react-dom-client.development.js:23584\nrenderWithHooksAgain @ react-dom-client.development.js:6893\nrenderWithHooks @ react-dom-client.development.js:6805\nupdateFunctionComponent @ react-dom-client.development.js:9247\nbeginWork @ react-dom-client.development.js:10807\nrunWithFiberInDEV @ react-dom-client.development.js:872\nperformUnitOfWork @ react-dom-client.development.js:15727\nworkLoopConcurrentByScheduler @ react-dom-client.development.js:15721\nrenderRootConcurrent @ react-dom-client.development.js:15696\nperformWorkOnRoot @ react-dom-client.development.js:14990\nperformWorkOnRootViaSchedulerTask @ react-dom-client.development.js:16816\nperformWorkUntilDeadline @ scheduler.development.js:45\n\"use client\"\nFunction.all @ VM4764 <anonymous>:1\nFunction.all @ VM4764 <anonymous>:1\nFunction.all @ VM4764 <anonymous>:1\ninitializeElement @ react-server-dom-webpack-client.browser.development.js:1343\neval @ react-server-dom-webpack-client.browser.development.js:3066\ninitializeModelChunk @ react-server-dom-webpack-client.browser.development.js:1246\nresolveModelChunk @ react-server-dom-webpack-client.browser.development.js:1101\nprocessFullStringRow @ react-server-dom-webpack-client.browser.development.js:2899\nprocessFullBinaryRow @ react-server-dom-webpack-client.browser.development.js:2766\nprocessBinaryChunk @ react-server-dom-webpack-client.browser.development.js:2969\nprogress @ react-server-dom-webpack-client.browser.development.js:3233\n\"use server\"\nResponseInstance @ react-server-dom-webpack-client.browser.development.js:2041\ncreateResponseFromOptions @ react-server-dom-webpack-client.browser.development.js:3094\nexports.createFromReadableStream @ react-server-dom-webpack-client.browser.development.js:3478\neval @ app-index.js:130\n(app-pages-browser)/./node_modules/next/dist/client/app-index.js @ main-app.js?v=1761428810391:160\noptions.factory @ webpack.js:1\n__webpack_require__ @ webpack.js:1\nfn @ webpack.js:1\neval @ app-next-dev.js:14\neval @ app-bootstrap.js:59\nloadScriptsInSequence @ app-bootstrap.js:24\nappBootstrap @ app-bootstrap.js:53\neval @ app-next-dev.js:13\n(app-pages-browser)/./node_modules/next/dist/client/app-next-dev.js @ main-app.js?v=1761428810391:182\noptions.factory @ webpack.js:1\n__webpack_require__ @ webpack.js:1\n__webpack_exec__ @ main-app.js?v=1761428810391:1889\n(anónimas) @ main-app.js?v=1761428810391:1890\nwebpackJsonpCallback @ webpack.js:1\n(anónimas) @ main-app.js?v=1761428810391:9Comprende este error",
+    "browserInfo": "Mozilla/5.0 (Macintosh;",
+    "timestamp": "2025-10-25T21:55:42.799Z",
+    "analysis": [
+      {
+        "file": "/src/components/common/EnvironmentBanner.tsx",
+        "line": 3,
+        "issue": "useEffect sin dependencias puede causar loops infinitos",
+        "severity": "high",
+        "solution": "Agregar array de dependencias apropiado al useEffect",
+        "codeSnippet": "import React, { useEffect, useRef } from 'react';"
+      },
+      {
+        "file": "/src/components/common/EnvironmentBanner.tsx",
+        "line": 12,
+        "issue": "useEffect sin dependencias puede causar loops infinitos",
+        "severity": "high",
+        "solution": "Agregar array de dependencias apropiado al useEffect",
+        "codeSnippet": "useEffect(() => {"
+      },
+      {
+        "file": "/src/components/common/ErrorBoundary.tsx",
+        "line": 81,
+        "issue": "Posible acceso a propiedad de undefined",
+        "severity": "high",
+        "solution": "Agregar verificación de null/undefined antes de acceder a propiedades",
+        "codeSnippet": "URL: ${typeof window !== 'undefined' ? window.location.href : 'Unknown'}"
+      },
+      {
+        "file": "/src/components/common/FilterableSelect.tsx",
+        "line": 3,
+        "issue": "useEffect sin dependencias puede causar loops infinitos",
+        "severity": "high",
+        "solution": "Agregar array de dependencias apropiado al useEffect",
+        "codeSnippet": "import React, { useState, useRef, useEffect } from \"react\";"
+      },
+      {
+        "file": "/src/components/common/FilterableSelect.tsx",
+        "line": 37,
+        "issue": "useEffect sin dependencias puede causar loops infinitos",
+        "severity": "high",
+        "solution": "Agregar array de dependencias apropiado al useEffect",
+        "codeSnippet": "useEffect(() => {"
+      },
+      {
+        "file": "/src/components/common/FilterableSelect.tsx",
+        "line": 82,
+        "issue": "useEffect sin dependencias puede causar loops infinitos",
+        "severity": "high",
+        "solution": "Agregar array de dependencias apropiado al useEffect",
+        "codeSnippet": "useEffect(() => {"
+      },
+      {
+        "file": "/src/components/common/FilterableSelect.tsx",
+        "line": 108,
+        "issue": "useEffect sin dependencias puede causar loops infinitos",
+        "severity": "high",
+        "solution": "Agregar array de dependencias apropiado al useEffect",
+        "codeSnippet": "useEffect(() => {"
+      },
+      {
+        "file": "/src/components/common/MessageModal.tsx",
+        "line": 3,
+        "issue": "useEffect sin dependencias puede causar loops infinitos",
+        "severity": "high",
+        "solution": "Agregar array de dependencias apropiado al useEffect",
+        "codeSnippet": "import { useEffect } from 'react';"
+      },
+      {
+        "file": "/src/components/common/MessageModal.tsx",
+        "line": 15,
+        "issue": "useEffect sin dependencias puede causar loops infinitos",
+        "severity": "high",
+        "solution": "Agregar array de dependencias apropiado al useEffect",
+        "codeSnippet": "useEffect(() => {"
+      },
+      {
+        "file": "/src/components/common/PasswordGeneratorModal.tsx",
+        "line": 3,
+        "issue": "useEffect sin dependencias puede causar loops infinitos",
+        "severity": "high",
+        "solution": "Agregar array de dependencias apropiado al useEffect",
+        "codeSnippet": "import React, { useState, useEffect } from \"react\";"
+      },
+      {
+        "file": "/src/components/common/PasswordGeneratorModal.tsx",
+        "line": 33,
+        "issue": "useEffect sin dependencias puede causar loops infinitos",
+        "severity": "high",
+        "solution": "Agregar array de dependencias apropiado al useEffect",
+        "codeSnippet": "useEffect(() => {"
+      },
+      {
+        "file": "/src/components/forms/CategoriaForm.tsx",
+        "line": 43,
+        "issue": "useEffect sin dependencias puede causar loops infinitos",
+        "severity": "high",
+        "solution": "Agregar array de dependencias apropiado al useEffect",
+        "codeSnippet": "React.useEffect(() => {"
+      },
+      {
+        "file": "/src/components/forms/ClienteForm.tsx",
+        "line": 57,
+        "issue": "useEffect sin dependencias puede causar loops infinitos",
+        "severity": "high",
+        "solution": "Agregar array de dependencias apropiado al useEffect",
+        "codeSnippet": "React.useEffect(() => {"
+      },
+      {
+        "file": "/src/components/forms/EmpresaForm.tsx",
+        "line": 43,
+        "issue": "useEffect sin dependencias puede causar loops infinitos",
+        "severity": "high",
+        "solution": "Agregar array de dependencias apropiado al useEffect",
+        "codeSnippet": "React.useEffect(() => {"
+      },
+      {
+        "file": "/src/components/forms/EstadoRemitoForm.tsx",
+        "line": 55,
+        "issue": "useEffect sin dependencias puede causar loops infinitos",
+        "severity": "high",
+        "solution": "Agregar array de dependencias apropiado al useEffect",
+        "codeSnippet": "React.useEffect(() => {"
+      },
+      {
+        "file": "/src/components/forms/ProductoForm.tsx",
+        "line": 3,
+        "issue": "useEffect sin dependencias puede causar loops infinitos",
+        "severity": "high",
+        "solution": "Agregar array de dependencias apropiado al useEffect",
+        "codeSnippet": "import React, { useEffect } from \"react\";"
+      },
+      {
+        "file": "/src/components/forms/ProductoForm.tsx",
+        "line": 57,
+        "issue": "useEffect sin dependencias puede causar loops infinitos",
+        "severity": "high",
+        "solution": "Agregar array de dependencias apropiado al useEffect",
+        "codeSnippet": "useEffect(() => {"
+      },
+      {
+        "file": "/src/components/forms/RemitoFormComplete.tsx",
+        "line": 3,
+        "issue": "useEffect sin dependencias puede causar loops infinitos",
+        "severity": "high",
+        "solution": "Agregar array de dependencias apropiado al useEffect",
+        "codeSnippet": "import React, { useState, useEffect } from \"react\";"
+      },
+      {
+        "file": "/src/components/forms/RemitoFormComplete.tsx",
+        "line": 65,
+        "issue": "useEffect sin dependencias puede causar loops infinitos",
+        "severity": "high",
+        "solution": "Agregar array de dependencias apropiado al useEffect",
+        "codeSnippet": "useEffect(() => {"
+      },
+      {
+        "file": "/src/components/forms/RemitoFormComplete.tsx",
+        "line": 178,
+        "issue": "Fetch sin manejo de errores",
+        "severity": "high",
+        "solution": "Agregar .catch() para manejar errores de red",
+        "codeSnippet": "const response = await fetch('/api/clients', {"
+      },
+      {
+        "file": "/src/components/forms/UsuarioForm.tsx",
+        "line": 84,
+        "issue": "useEffect sin dependencias puede causar loops infinitos",
+        "severity": "high",
+        "solution": "Agregar array de dependencias apropiado al useEffect",
+        "codeSnippet": "React.useEffect(() => {"
+      },
+      {
+        "file": "/src/components/forms/UsuarioForm.tsx",
+        "line": 91,
+        "issue": "useEffect sin dependencias puede causar loops infinitos",
+        "severity": "high",
+        "solution": "Agregar array de dependencias apropiado al useEffect",
+        "codeSnippet": "React.useEffect(() => {"
+      },
+      {
+        "file": "/src/components/forms/UsuarioForm.tsx",
+        "line": 98,
+        "issue": "useEffect sin dependencias puede causar loops infinitos",
+        "severity": "high",
+        "solution": "Agregar array de dependencias apropiado al useEffect",
+        "codeSnippet": "React.useEffect(() => {"
+      },
+      {
+        "file": "/src/components/layout/AuthenticatedLayout.tsx",
+        "line": 6,
+        "issue": "useEffect sin dependencias puede causar loops infinitos",
+        "severity": "high",
+        "solution": "Agregar array de dependencias apropiado al useEffect",
+        "codeSnippet": "import { useEffect } from \"react\";"
+      },
+      {
+        "file": "/src/components/layout/AuthenticatedLayout.tsx",
+        "line": 29,
+        "issue": "useEffect sin dependencias puede causar loops infinitos",
+        "severity": "high",
+        "solution": "Agregar array de dependencias apropiado al useEffect",
+        "codeSnippet": "// Redirección simple sin useEffect"
+      },
+      {
+        "file": "/src/components/layout/Header.tsx",
+        "line": 68,
+        "issue": "Fetch sin manejo de errores",
+        "severity": "high",
+        "solution": "Agregar .catch() para manejar errores de red",
+        "codeSnippet": "const response = await fetch('/api/admin/logs');"
+      },
+      {
+        "file": "/src/components/layout/Layout.tsx",
+        "line": 5,
+        "issue": "useEffect sin dependencias puede causar loops infinitos",
+        "severity": "high",
+        "solution": "Agregar array de dependencias apropiado al useEffect",
+        "codeSnippet": "import { useEffect } from \"react\""
+      },
+      {
+        "file": "/src/components/layout/Layout.tsx",
+        "line": 18,
+        "issue": "useEffect sin dependencias puede causar loops infinitos",
+        "severity": "high",
+        "solution": "Agregar array de dependencias apropiado al useEffect",
+        "codeSnippet": "useEffect(() => {"
+      },
+      {
+        "file": "/src/components/layout/TopBar.tsx",
+        "line": 74,
+        "issue": "Posible acceso a propiedad de undefined",
+        "severity": "high",
+        "solution": "Agregar verificación de null/undefined antes de acceder a propiedades",
+        "codeSnippet": "? (typeof window !== 'undefined' && localStorage.getItem('impersonation')"
+      },
+      {
+        "file": "/src/components/ui/popover.tsx",
+        "line": 44,
+        "issue": "useEffect sin dependencias puede causar loops infinitos",
+        "severity": "high",
+        "solution": "Agregar array de dependencias apropiado al useEffect",
+        "codeSnippet": "React.useEffect(() => {"
+      },
+      {
+        "file": "/src/components/common/ErrorBoundary.tsx",
+        "line": 44,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "console.error('ErrorBoundary caught an error:', error, errorInfo);"
+      },
+      {
+        "file": "/src/components/common/ErrorBoundary.tsx",
+        "line": 93,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "console.error('Failed to copy error to clipboard:', err);"
+      },
+      {
+        "file": "/src/components/common/ImpersonationBanner.tsx",
+        "line": 20,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "console.error('Error al detener impersonation:', error);"
+      },
+      {
+        "file": "/src/components/common/PasswordGeneratorModal.tsx",
+        "line": 57,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "console.error('Error al copiar:', err);"
+      },
+      {
+        "file": "/src/components/forms/RemitoFormComplete.tsx",
+        "line": 190,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error('Error al crear cliente');"
+      },
+      {
+        "file": "/src/components/forms/RemitoFormComplete.tsx",
+        "line": 206,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "console.error('Error creating client:', error);"
+      },
+      {
+        "file": "/src/components/layout/Header.tsx",
+        "line": 62,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "console.error('Error al detener impersonation:', error);"
+      },
+      {
+        "file": "/src/components/layout/Header.tsx",
+        "line": 80,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "console.error('Error al descargar logs');"
+      },
+      {
+        "file": "/src/components/layout/Header.tsx",
+        "line": 83,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "console.error('Error al descargar logs:', error);"
+      },
+      {
+        "file": "/src/components/layout/TopBar.tsx",
+        "line": 36,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "console.error('Error al detener impersonation:', error);"
+      }
+    ],
+    "id": "feedback_1761429342977_cz611xvma"
   }
 ]

@@ -61,7 +61,7 @@ export default function EnvironmentBanner({ environment }: EnvironmentBannerProp
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
     };
-  }, []);
+  }, [environment]);
   // Solo mostrar en entornos que no sean producción
   if (environment === 'production') {
     return null;

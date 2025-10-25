@@ -115,7 +115,7 @@ export default function FilterableSelect({
 
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  }, [options, value, onSelect]);
 
   const renderDropdown = () => {
     if (!isOpen || typeof window === 'undefined') return null;
