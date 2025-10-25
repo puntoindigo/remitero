@@ -5206,5 +5206,1393 @@
       }
     ],
     "id": "feedback_1761429342977_cz611xvma"
+  },
+  {
+    "testName": "Prueba:",
+    "errorType": "functionality",
+    "errorDescription": "Error detectado en consola: ## Error Type",
+    "errorSteps": "1. Abrir la aplicación\n2. Realizar la acción que causa el error\n3. Verificar la consola del navegador (F12)\n4. El error aparece: ## Error Type",
+    "errorConsole": "## Error Type\nConsole Error\n\n## Error Message\nLogin error: \"CredentialsSignin\"\n\n\n    at onSubmit (src/app/auth/login/page.tsx:62:17)\n\n## Code Frame\n  60 |\n  61 |       if (result?.error) {\n> 62 |         console.error(\"Login error:\", result.error)\n     |                 ^\n  63 |         if (result.error === \"CredentialsSignin\") {\n  64 |           setError(\"Email o contraseña incorrectos\")\n  65 |         } else if (result.error === \"Configuration\") {\n\nNext.js version: 15.5.3 (Webpack)\n",
+    "browserInfo": "Mozilla/5.0 (Macintosh;",
+    "timestamp": "2025-10-25T22:04:36.258Z",
+    "analysis": [
+      {
+        "file": "/src/hooks/useCategorias.ts",
+        "line": 3,
+        "issue": "useEffect sin dependencias puede causar loops infinitos",
+        "severity": "high",
+        "solution": "Agregar array de dependencias apropiado al useEffect",
+        "codeSnippet": "import { useState, useEffect, useCallback } from \"react\";"
+      },
+      {
+        "file": "/src/hooks/useCategorias.ts",
+        "line": 60,
+        "issue": "Fetch sin manejo de errores",
+        "severity": "high",
+        "solution": "Agregar .catch() para manejar errores de red",
+        "codeSnippet": "const response = await fetch(`/api/categories?companyId=${effectiveCompanyId}`)"
+      },
+      {
+        "file": "/src/hooks/useCategorias.ts",
+        "line": 88,
+        "issue": "Fetch sin manejo de errores",
+        "severity": "high",
+        "solution": "Agregar .catch() para manejar errores de red",
+        "codeSnippet": "const response = await fetch(\"/api/categories\", {"
+      },
+      {
+        "file": "/src/hooks/useCategorias.ts",
+        "line": 123,
+        "issue": "Fetch sin manejo de errores",
+        "severity": "high",
+        "solution": "Agregar .catch() para manejar errores de red",
+        "codeSnippet": "const response = await fetch(`/api/categories/${id}`, {"
+      },
+      {
+        "file": "/src/hooks/useCategorias.ts",
+        "line": 156,
+        "issue": "Fetch sin manejo de errores",
+        "severity": "high",
+        "solution": "Agregar .catch() para manejar errores de red",
+        "codeSnippet": "const response = await fetch(`/api/categories/${id}`, {"
+      },
+      {
+        "file": "/src/hooks/useCategorias.ts",
+        "line": 176,
+        "issue": "useEffect sin dependencias puede causar loops infinitos",
+        "severity": "high",
+        "solution": "Agregar array de dependencias apropiado al useEffect",
+        "codeSnippet": "useEffect(() => {"
+      },
+      {
+        "file": "/src/hooks/useClientes.ts",
+        "line": 3,
+        "issue": "useEffect sin dependencias puede causar loops infinitos",
+        "severity": "high",
+        "solution": "Agregar array de dependencias apropiado al useEffect",
+        "codeSnippet": "import { useState, useEffect, useCallback } from \"react\";"
+      },
+      {
+        "file": "/src/hooks/useClientes.ts",
+        "line": 60,
+        "issue": "Fetch sin manejo de errores",
+        "severity": "high",
+        "solution": "Agregar .catch() para manejar errores de red",
+        "codeSnippet": "const response = await fetch(\"/api/clients\", {"
+      },
+      {
+        "file": "/src/hooks/useClientes.ts",
+        "line": 95,
+        "issue": "Fetch sin manejo de errores",
+        "severity": "high",
+        "solution": "Agregar .catch() para manejar errores de red",
+        "codeSnippet": "const response = await fetch(`/api/clients/${id}`, {"
+      },
+      {
+        "file": "/src/hooks/useClientes.ts",
+        "line": 125,
+        "issue": "Fetch sin manejo de errores",
+        "severity": "high",
+        "solution": "Agregar .catch() para manejar errores de red",
+        "codeSnippet": "const response = await fetch(`/api/clients/${id}`, {"
+      },
+      {
+        "file": "/src/hooks/useClientes.ts",
+        "line": 184,
+        "issue": "useEffect sin dependencias puede causar loops infinitos",
+        "severity": "high",
+        "solution": "Agregar array de dependencias apropiado al useEffect",
+        "codeSnippet": "useEffect(() => {"
+      },
+      {
+        "file": "/src/hooks/useDataWithCompanySimple.ts",
+        "line": 4,
+        "issue": "useEffect sin dependencias puede causar loops infinitos",
+        "severity": "high",
+        "solution": "Agregar array de dependencias apropiado al useEffect",
+        "codeSnippet": "import { useState, useEffect } from \"react\";"
+      },
+      {
+        "file": "/src/hooks/useDataWithCompanySimple.ts",
+        "line": 15,
+        "issue": "useEffect sin dependencias puede causar loops infinitos",
+        "severity": "high",
+        "solution": "Agregar array de dependencias apropiado al useEffect",
+        "codeSnippet": "useEffect(() => {"
+      },
+      {
+        "file": "/src/hooks/useDataWithCompanySimple.ts",
+        "line": 26,
+        "issue": "useEffect sin dependencias puede causar loops infinitos",
+        "severity": "high",
+        "solution": "Agregar array de dependencias apropiado al useEffect",
+        "codeSnippet": "useEffect(() => {"
+      },
+      {
+        "file": "/src/hooks/useEmpresas.ts",
+        "line": 3,
+        "issue": "useEffect sin dependencias puede causar loops infinitos",
+        "severity": "high",
+        "solution": "Agregar array de dependencias apropiado al useEffect",
+        "codeSnippet": "import { useState, useEffect, useCallback } from \"react\";"
+      },
+      {
+        "file": "/src/hooks/useEmpresas.ts",
+        "line": 57,
+        "issue": "Fetch sin manejo de errores",
+        "severity": "high",
+        "solution": "Agregar .catch() para manejar errores de red",
+        "codeSnippet": "const response = await fetch(\"/api/companies\", {"
+      },
+      {
+        "file": "/src/hooks/useEmpresas.ts",
+        "line": 80,
+        "issue": "Fetch sin manejo de errores",
+        "severity": "high",
+        "solution": "Agregar .catch() para manejar errores de red",
+        "codeSnippet": "const response = await fetch(`/api/companies/${id}`, {"
+      },
+      {
+        "file": "/src/hooks/useEmpresas.ts",
+        "line": 107,
+        "issue": "Fetch sin manejo de errores",
+        "severity": "high",
+        "solution": "Agregar .catch() para manejar errores de red",
+        "codeSnippet": "const response = await fetch(`/api/companies/${id}`, {"
+      },
+      {
+        "file": "/src/hooks/useEmpresas.ts",
+        "line": 127,
+        "issue": "useEffect sin dependencias puede causar loops infinitos",
+        "severity": "high",
+        "solution": "Agregar array de dependencias apropiado al useEffect",
+        "codeSnippet": "useEffect(() => {"
+      },
+      {
+        "file": "/src/hooks/useEnvironment.ts",
+        "line": 3,
+        "issue": "useEffect sin dependencias puede causar loops infinitos",
+        "severity": "high",
+        "solution": "Agregar array de dependencias apropiado al useEffect",
+        "codeSnippet": "import { useEffect, useState } from 'react';"
+      },
+      {
+        "file": "/src/hooks/useEnvironment.ts",
+        "line": 10,
+        "issue": "useEffect sin dependencias puede causar loops infinitos",
+        "severity": "high",
+        "solution": "Agregar array de dependencias apropiado al useEffect",
+        "codeSnippet": "useEffect(() => {"
+      },
+      {
+        "file": "/src/hooks/useEstadosByCompany.ts",
+        "line": 3,
+        "issue": "useEffect sin dependencias puede causar loops infinitos",
+        "severity": "high",
+        "solution": "Agregar array de dependencias apropiado al useEffect",
+        "codeSnippet": "import { useState, useEffect } from \"react\";"
+      },
+      {
+        "file": "/src/hooks/useEstadosByCompany.ts",
+        "line": 50,
+        "issue": "useEffect sin dependencias puede causar loops infinitos",
+        "severity": "high",
+        "solution": "Agregar array de dependencias apropiado al useEffect",
+        "codeSnippet": "useEffect(() => {"
+      },
+      {
+        "file": "/src/hooks/useEstadosRemitos.ts",
+        "line": 3,
+        "issue": "useEffect sin dependencias puede causar loops infinitos",
+        "severity": "high",
+        "solution": "Agregar array de dependencias apropiado al useEffect",
+        "codeSnippet": "import { useState, useEffect, useMemo, useCallback } from \"react\";"
+      },
+      {
+        "file": "/src/hooks/useEstadosRemitos.ts",
+        "line": 129,
+        "issue": "useEffect sin dependencias puede causar loops infinitos",
+        "severity": "high",
+        "solution": "Agregar array de dependencias apropiado al useEffect",
+        "codeSnippet": "useEffect(() => {"
+      },
+      {
+        "file": "/src/hooks/useEstadosRemitos.ts",
+        "line": 135,
+        "issue": "Fetch sin manejo de errores",
+        "severity": "high",
+        "solution": "Agregar .catch() para manejar errores de red",
+        "codeSnippet": "const response = await fetch(\"/api/estados-remitos\", {"
+      },
+      {
+        "file": "/src/hooks/useEstadosRemitos.ts",
+        "line": 161,
+        "issue": "Fetch sin manejo de errores",
+        "severity": "high",
+        "solution": "Agregar .catch() para manejar errores de red",
+        "codeSnippet": "const response = await fetch(`/api/estados-remitos/${id}`, {"
+      },
+      {
+        "file": "/src/hooks/useEstadosRemitos.ts",
+        "line": 189,
+        "issue": "Fetch sin manejo de errores",
+        "severity": "high",
+        "solution": "Agregar .catch() para manejar errores de red",
+        "codeSnippet": "const response = await fetch(`/api/estados-remitos/${id}`, {"
+      },
+      {
+        "file": "/src/hooks/useImpersonation.ts",
+        "line": 12,
+        "issue": "Fetch sin manejo de errores",
+        "severity": "high",
+        "solution": "Agregar .catch() para manejar errores de red",
+        "codeSnippet": "const response = await fetch('/api/auth/impersonate', {"
+      },
+      {
+        "file": "/src/hooks/useImpersonation.ts",
+        "line": 53,
+        "issue": "Fetch sin manejo de errores",
+        "severity": "high",
+        "solution": "Agregar .catch() para manejar errores de red",
+        "codeSnippet": "const response = await fetch('/api/auth/stop-impersonation', {"
+      },
+      {
+        "file": "/src/hooks/useLoading.ts",
+        "line": 27,
+        "issue": "Posible acceso a propiedad de undefined",
+        "severity": "high",
+        "solution": "Agregar verificación de null/undefined antes de acceder a propiedades",
+        "codeSnippet": "progress: progress !== undefined ? progress : loading.progress"
+      },
+      {
+        "file": "/src/hooks/useLocalStorage.ts",
+        "line": 1,
+        "issue": "useEffect sin dependencias puede causar loops infinitos",
+        "severity": "high",
+        "solution": "Agregar array de dependencias apropiado al useEffect",
+        "codeSnippet": "import { useState, useEffect } from 'react';"
+      },
+      {
+        "file": "/src/hooks/useLocalStorage.ts",
+        "line": 7,
+        "issue": "useEffect sin dependencias puede causar loops infinitos",
+        "severity": "high",
+        "solution": "Agregar array de dependencias apropiado al useEffect",
+        "codeSnippet": "useEffect(() => {"
+      },
+      {
+        "file": "/src/hooks/useProductos.ts",
+        "line": 3,
+        "issue": "useEffect sin dependencias puede causar loops infinitos",
+        "severity": "high",
+        "solution": "Agregar array de dependencias apropiado al useEffect",
+        "codeSnippet": "import { useState, useEffect, useCallback } from \"react\";"
+      },
+      {
+        "file": "/src/hooks/useProductos.ts",
+        "line": 106,
+        "issue": "Fetch sin manejo de errores",
+        "severity": "high",
+        "solution": "Agregar .catch() para manejar errores de red",
+        "codeSnippet": "const response = await fetch(\"/api/test-products\", {"
+      },
+      {
+        "file": "/src/hooks/useProductos.ts",
+        "line": 138,
+        "issue": "Fetch sin manejo de errores",
+        "severity": "high",
+        "solution": "Agregar .catch() para manejar errores de red",
+        "codeSnippet": "const response = await fetch(`/api/products/${id}`, {"
+      },
+      {
+        "file": "/src/hooks/useProductos.ts",
+        "line": 168,
+        "issue": "Fetch sin manejo de errores",
+        "severity": "high",
+        "solution": "Agregar .catch() para manejar errores de red",
+        "codeSnippet": "const response = await fetch(`/api/products/${id}`, {"
+      },
+      {
+        "file": "/src/hooks/useProductos.ts",
+        "line": 195,
+        "issue": "Fetch sin manejo de errores",
+        "severity": "high",
+        "solution": "Agregar .catch() para manejar errores de red",
+        "codeSnippet": "const response = await fetch(`/api/products/${id}`, {"
+      },
+      {
+        "file": "/src/hooks/useProductos.ts",
+        "line": 215,
+        "issue": "useEffect sin dependencias puede causar loops infinitos",
+        "severity": "high",
+        "solution": "Agregar array de dependencias apropiado al useEffect",
+        "codeSnippet": "useEffect(() => {"
+      },
+      {
+        "file": "/src/hooks/useRemitos.ts",
+        "line": 3,
+        "issue": "useEffect sin dependencias puede causar loops infinitos",
+        "severity": "high",
+        "solution": "Agregar array de dependencias apropiado al useEffect",
+        "codeSnippet": "import { useState, useEffect, useCallback } from \"react\";"
+      },
+      {
+        "file": "/src/hooks/useRemitos.ts",
+        "line": 109,
+        "issue": "Fetch sin manejo de errores",
+        "severity": "high",
+        "solution": "Agregar .catch() para manejar errores de red",
+        "codeSnippet": "const response = await fetch(\"/api/remitos\", {"
+      },
+      {
+        "file": "/src/hooks/useRemitos.ts",
+        "line": 135,
+        "issue": "Fetch sin manejo de errores",
+        "severity": "high",
+        "solution": "Agregar .catch() para manejar errores de red",
+        "codeSnippet": "const response = await fetch(`/api/remitos/${id}`, {"
+      },
+      {
+        "file": "/src/hooks/useRemitos.ts",
+        "line": 162,
+        "issue": "Fetch sin manejo de errores",
+        "severity": "high",
+        "solution": "Agregar .catch() para manejar errores de red",
+        "codeSnippet": "const response = await fetch(`/api/remitos/${id}/status`, {"
+      },
+      {
+        "file": "/src/hooks/useRemitos.ts",
+        "line": 189,
+        "issue": "Fetch sin manejo de errores",
+        "severity": "high",
+        "solution": "Agregar .catch() para manejar errores de red",
+        "codeSnippet": "const response = await fetch(`/api/remitos/${id}`, {"
+      },
+      {
+        "file": "/src/hooks/useRemitos.ts",
+        "line": 225,
+        "issue": "useEffect sin dependencias puede causar loops infinitos",
+        "severity": "high",
+        "solution": "Agregar array de dependencias apropiado al useEffect",
+        "codeSnippet": "useEffect(() => {"
+      },
+      {
+        "file": "/src/hooks/useSessionGuard.tsx",
+        "line": 5,
+        "issue": "useEffect sin dependencias puede causar loops infinitos",
+        "severity": "high",
+        "solution": "Agregar array de dependencias apropiado al useEffect",
+        "codeSnippet": "import { useEffect } from \"react\";"
+      },
+      {
+        "file": "/src/hooks/useSessionGuard.tsx",
+        "line": 16,
+        "issue": "useEffect sin dependencias puede causar loops infinitos",
+        "severity": "high",
+        "solution": "Agregar array de dependencias apropiado al useEffect",
+        "codeSnippet": "useEffect(() => {"
+      },
+      {
+        "file": "/src/hooks/useTheme.ts",
+        "line": 3,
+        "issue": "useEffect sin dependencias puede causar loops infinitos",
+        "severity": "high",
+        "solution": "Agregar array de dependencias apropiado al useEffect",
+        "codeSnippet": "import { useState, useEffect, useCallback } from 'react';"
+      },
+      {
+        "file": "/src/hooks/useTheme.ts",
+        "line": 46,
+        "issue": "useEffect sin dependencias puede causar loops infinitos",
+        "severity": "high",
+        "solution": "Agregar array de dependencias apropiado al useEffect",
+        "codeSnippet": "useEffect(() => {"
+      },
+      {
+        "file": "/src/hooks/useTheme.ts",
+        "line": 55,
+        "issue": "useEffect sin dependencias puede causar loops infinitos",
+        "severity": "high",
+        "solution": "Agregar array de dependencias apropiado al useEffect",
+        "codeSnippet": "useEffect(() => {"
+      },
+      {
+        "file": "/src/hooks/useUsuarios.ts",
+        "line": 3,
+        "issue": "useEffect sin dependencias puede causar loops infinitos",
+        "severity": "high",
+        "solution": "Agregar array de dependencias apropiado al useEffect",
+        "codeSnippet": "import { useState, useEffect } from \"react\";"
+      },
+      {
+        "file": "/src/hooks/useUsuarios.ts",
+        "line": 69,
+        "issue": "Posible acceso a propiedad de undefined",
+        "severity": "high",
+        "solution": "Agregar verificación de null/undefined antes de acceder a propiedades",
+        "codeSnippet": "companyId: userData.companyId || (session?.user?.role === 'ADMIN' ? session?.user?.companyId : undefined)"
+      },
+      {
+        "file": "/src/hooks/useUsuarios.ts",
+        "line": 72,
+        "issue": "Fetch sin manejo de errores",
+        "severity": "high",
+        "solution": "Agregar .catch() para manejar errores de red",
+        "codeSnippet": "const response = await fetch(\"/api/users\", {"
+      },
+      {
+        "file": "/src/hooks/useUsuarios.ts",
+        "line": 98,
+        "issue": "Posible acceso a propiedad de undefined",
+        "severity": "high",
+        "solution": "Agregar verificación de null/undefined antes de acceder a propiedades",
+        "codeSnippet": "companyId: userData.companyId || (session?.user?.role === 'ADMIN' ? session?.user?.companyId : undefined)"
+      },
+      {
+        "file": "/src/hooks/useUsuarios.ts",
+        "line": 101,
+        "issue": "Fetch sin manejo de errores",
+        "severity": "high",
+        "solution": "Agregar .catch() para manejar errores de red",
+        "codeSnippet": "const response = await fetch(`/api/users/${id}`, {"
+      },
+      {
+        "file": "/src/hooks/useUsuarios.ts",
+        "line": 128,
+        "issue": "Fetch sin manejo de errores",
+        "severity": "high",
+        "solution": "Agregar .catch() para manejar errores de red",
+        "codeSnippet": "const response = await fetch(`/api/users/${id}`, {"
+      },
+      {
+        "file": "/src/hooks/useUsuarios.ts",
+        "line": 148,
+        "issue": "useEffect sin dependencias puede causar loops infinitos",
+        "severity": "high",
+        "solution": "Agregar array de dependencias apropiado al useEffect",
+        "codeSnippet": "useEffect(() => {"
+      },
+      {
+        "file": "/src/hooks/useCategorias.ts",
+        "line": 62,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "console.error('Network error:', error);"
+      },
+      {
+        "file": "/src/hooks/useCategorias.ts",
+        "line": 63,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(\"Error de conexión al cargar categorías\");"
+      },
+      {
+        "file": "/src/hooks/useCategorias.ts",
+        "line": 67,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(\"Error al cargar categorías\");"
+      },
+      {
+        "file": "/src/hooks/useCategorias.ts",
+        "line": 74,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "console.error(\"Error loading categorias:\", err);"
+      },
+      {
+        "file": "/src/hooks/useCategorias.ts",
+        "line": 85,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(\"No se puede crear la categoría: CompanyId no disponible\");"
+      },
+      {
+        "file": "/src/hooks/useCategorias.ts",
+        "line": 96,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "console.error('Network error:', error);"
+      },
+      {
+        "file": "/src/hooks/useCategorias.ts",
+        "line": 97,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(\"Error de conexión al crear categoría\");"
+      },
+      {
+        "file": "/src/hooks/useCategorias.ts",
+        "line": 102,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(errorData.message || \"Error al crear categoría\");"
+      },
+      {
+        "file": "/src/hooks/useCategorias.ts",
+        "line": 111,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(errorMessage);"
+      },
+      {
+        "file": "/src/hooks/useCategorias.ts",
+        "line": 120,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(\"No se puede actualizar la categoría: CompanyId no disponible\");"
+      },
+      {
+        "file": "/src/hooks/useCategorias.ts",
+        "line": 131,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "console.error('Network error:', error);"
+      },
+      {
+        "file": "/src/hooks/useCategorias.ts",
+        "line": 132,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(\"Error de conexión al actualizar categoría\");"
+      },
+      {
+        "file": "/src/hooks/useCategorias.ts",
+        "line": 137,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(errorData.message || \"Error al actualizar categoría\");"
+      },
+      {
+        "file": "/src/hooks/useCategorias.ts",
+        "line": 150,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(errorMessage);"
+      },
+      {
+        "file": "/src/hooks/useCategorias.ts",
+        "line": 159,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "console.error('Network error:', error);"
+      },
+      {
+        "file": "/src/hooks/useCategorias.ts",
+        "line": 160,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(\"Error de conexión al eliminar categoría\");"
+      },
+      {
+        "file": "/src/hooks/useCategorias.ts",
+        "line": 165,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(errorData.message || \"Error al eliminar categoría\");"
+      },
+      {
+        "file": "/src/hooks/useCategorias.ts",
+        "line": 172,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(errorMessage);"
+      },
+      {
+        "file": "/src/hooks/useClientes.ts",
+        "line": 57,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(\"No se puede crear el cliente: CompanyId no disponible\");"
+      },
+      {
+        "file": "/src/hooks/useClientes.ts",
+        "line": 68,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "console.error('Network error:', error);"
+      },
+      {
+        "file": "/src/hooks/useClientes.ts",
+        "line": 69,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(\"Error de conexión al crear cliente\");"
+      },
+      {
+        "file": "/src/hooks/useClientes.ts",
+        "line": 74,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(errorData.message || \"Error al crear cliente\");"
+      },
+      {
+        "file": "/src/hooks/useClientes.ts",
+        "line": 83,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(errorMessage);"
+      },
+      {
+        "file": "/src/hooks/useClientes.ts",
+        "line": 92,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(\"No se puede actualizar el cliente: CompanyId no disponible\");"
+      },
+      {
+        "file": "/src/hooks/useClientes.ts",
+        "line": 106,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(errorData.message || \"Error al actualizar cliente\");"
+      },
+      {
+        "file": "/src/hooks/useClientes.ts",
+        "line": 119,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(errorMessage);"
+      },
+      {
+        "file": "/src/hooks/useClientes.ts",
+        "line": 128,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "console.error('Network error:', error);"
+      },
+      {
+        "file": "/src/hooks/useClientes.ts",
+        "line": 129,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(\"Error de conexión con clientes\");"
+      },
+      {
+        "file": "/src/hooks/useClientes.ts",
+        "line": 134,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(errorData.message || \"Error al eliminar cliente\");"
+      },
+      {
+        "file": "/src/hooks/useClientes.ts",
+        "line": 141,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(errorMessage);"
+      },
+      {
+        "file": "/src/hooks/useClientes.ts",
+        "line": 166,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "console.error('Network error:', error);"
+      },
+      {
+        "file": "/src/hooks/useClientes.ts",
+        "line": 167,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(\"Error de conexión con clientes\");"
+      },
+      {
+        "file": "/src/hooks/useClientes.ts",
+        "line": 170,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(\"Error al cargar clientes\");"
+      },
+      {
+        "file": "/src/hooks/useClientes.ts",
+        "line": 177,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "console.error(\"Error loading clientes:\", err);"
+      },
+      {
+        "file": "/src/hooks/useEmpresas.ts",
+        "line": 37,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "console.error('Network error:', error);"
+      },
+      {
+        "file": "/src/hooks/useEmpresas.ts",
+        "line": 38,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(\"Error de conexión con empresas\");"
+      },
+      {
+        "file": "/src/hooks/useEmpresas.ts",
+        "line": 42,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(`Error al cargar empresas: ${response.status}`);"
+      },
+      {
+        "file": "/src/hooks/useEmpresas.ts",
+        "line": 65,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(errorData.message || \"Error al crear empresa\");"
+      },
+      {
+        "file": "/src/hooks/useEmpresas.ts",
+        "line": 74,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(errorMessage);"
+      },
+      {
+        "file": "/src/hooks/useEmpresas.ts",
+        "line": 88,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(errorData.message || \"Error al actualizar empresa\");"
+      },
+      {
+        "file": "/src/hooks/useEmpresas.ts",
+        "line": 101,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(errorMessage);"
+      },
+      {
+        "file": "/src/hooks/useEmpresas.ts",
+        "line": 110,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "console.error('Network error:', error);"
+      },
+      {
+        "file": "/src/hooks/useEmpresas.ts",
+        "line": 111,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(\"Error de conexión con empresas\");"
+      },
+      {
+        "file": "/src/hooks/useEmpresas.ts",
+        "line": 116,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(errorData.message || \"Error al eliminar empresa\");"
+      },
+      {
+        "file": "/src/hooks/useEmpresas.ts",
+        "line": 123,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(errorMessage);"
+      },
+      {
+        "file": "/src/hooks/useEstadosByCompany.ts",
+        "line": 30,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "console.error('Network error:', error);"
+      },
+      {
+        "file": "/src/hooks/useEstadosByCompany.ts",
+        "line": 31,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(\"Error de conexión con estados\");"
+      },
+      {
+        "file": "/src/hooks/useEstadosByCompany.ts",
+        "line": 34,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(\"Error al cargar estados\");"
+      },
+      {
+        "file": "/src/hooks/useEstadosByCompany.ts",
+        "line": 43,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "console.error(\"Error loading estados:\", err);"
+      },
+      {
+        "file": "/src/hooks/useEstadosRemitos.ts",
+        "line": 109,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "console.error('Network error:', error);"
+      },
+      {
+        "file": "/src/hooks/useEstadosRemitos.ts",
+        "line": 110,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(\"Error de conexión de red\");"
+      },
+      {
+        "file": "/src/hooks/useEstadosRemitos.ts",
+        "line": 114,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(\"Error al cargar estados de remitos\");"
+      },
+      {
+        "file": "/src/hooks/useEstadosRemitos.ts",
+        "line": 121,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "console.error(\"Error loading estados:\", err);"
+      },
+      {
+        "file": "/src/hooks/useEstadosRemitos.ts",
+        "line": 146,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(errorData.message || \"Error al crear estado\");"
+      },
+      {
+        "file": "/src/hooks/useEstadosRemitos.ts",
+        "line": 155,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(errorMessage);"
+      },
+      {
+        "file": "/src/hooks/useEstadosRemitos.ts",
+        "line": 172,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(errorData.message || \"Error al actualizar estado\");"
+      },
+      {
+        "file": "/src/hooks/useEstadosRemitos.ts",
+        "line": 183,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(errorMessage);"
+      },
+      {
+        "file": "/src/hooks/useEstadosRemitos.ts",
+        "line": 192,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "console.error('Network error:', error);"
+      },
+      {
+        "file": "/src/hooks/useEstadosRemitos.ts",
+        "line": 193,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(\"Error de conexión con estados\");"
+      },
+      {
+        "file": "/src/hooks/useEstadosRemitos.ts",
+        "line": 198,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(errorData.message || \"Error al eliminar estado\");"
+      },
+      {
+        "file": "/src/hooks/useEstadosRemitos.ts",
+        "line": 205,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(errorMessage);"
+      },
+      {
+        "file": "/src/hooks/useImpersonation.ts",
+        "line": 23,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(data.error || 'Error al impersonar usuario');"
+      },
+      {
+        "file": "/src/hooks/useImpersonation.ts",
+        "line": 41,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "console.error('❌ Error al impersonar:', error);"
+      },
+      {
+        "file": "/src/hooks/useImpersonation.ts",
+        "line": 42,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "console.error('Error message:', error instanceof Error ? error.message : 'Error al impersonar usuario');"
+      },
+      {
+        "file": "/src/hooks/useImpersonation.ts",
+        "line": 59,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "console.error('Network error:', error);"
+      },
+      {
+        "file": "/src/hooks/useImpersonation.ts",
+        "line": 60,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(\"Error de conexión de red\");"
+      },
+      {
+        "file": "/src/hooks/useImpersonation.ts",
+        "line": 75,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "console.error('❌ Error al detener impersonation:', error);"
+      },
+      {
+        "file": "/src/hooks/useProductos.ts",
+        "line": 81,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "console.error('Network error:', error);"
+      },
+      {
+        "file": "/src/hooks/useProductos.ts",
+        "line": 82,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(\"Error de conexión con productos\");"
+      },
+      {
+        "file": "/src/hooks/useProductos.ts",
+        "line": 85,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(\"Error al cargar productos\");"
+      },
+      {
+        "file": "/src/hooks/useProductos.ts",
+        "line": 92,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "console.error(\"Error loading productos:\", err);"
+      },
+      {
+        "file": "/src/hooks/useProductos.ts",
+        "line": 103,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(\"No se puede crear el producto: CompanyId no disponible\");"
+      },
+      {
+        "file": "/src/hooks/useProductos.ts",
+        "line": 117,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(errorData.message || \"Error al crear producto\");"
+      },
+      {
+        "file": "/src/hooks/useProductos.ts",
+        "line": 126,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(errorMessage);"
+      },
+      {
+        "file": "/src/hooks/useProductos.ts",
+        "line": 135,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(\"No se puede actualizar el producto: CompanyId no disponible\");"
+      },
+      {
+        "file": "/src/hooks/useProductos.ts",
+        "line": 149,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(errorData.message || \"Error al actualizar producto\");"
+      },
+      {
+        "file": "/src/hooks/useProductos.ts",
+        "line": 162,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(errorMessage);"
+      },
+      {
+        "file": "/src/hooks/useProductos.ts",
+        "line": 176,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(errorData.message || \"Error al actualizar stock\");"
+      },
+      {
+        "file": "/src/hooks/useProductos.ts",
+        "line": 189,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(errorMessage);"
+      },
+      {
+        "file": "/src/hooks/useProductos.ts",
+        "line": 198,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "console.error('Network error:', error);"
+      },
+      {
+        "file": "/src/hooks/useProductos.ts",
+        "line": 199,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(\"Error de conexión con productos\");"
+      },
+      {
+        "file": "/src/hooks/useProductos.ts",
+        "line": 204,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(errorData.message || \"Error al eliminar producto\");"
+      },
+      {
+        "file": "/src/hooks/useProductos.ts",
+        "line": 211,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(errorMessage);"
+      },
+      {
+        "file": "/src/hooks/useRemitos.ts",
+        "line": 84,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "console.error('Network error:', error);"
+      },
+      {
+        "file": "/src/hooks/useRemitos.ts",
+        "line": 85,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(\"Error de conexión con remitos\");"
+      },
+      {
+        "file": "/src/hooks/useRemitos.ts",
+        "line": 88,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(\"Error al cargar remitos\");"
+      },
+      {
+        "file": "/src/hooks/useRemitos.ts",
+        "line": 95,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "console.error(\"Error loading remitos:\", err);"
+      },
+      {
+        "file": "/src/hooks/useRemitos.ts",
+        "line": 106,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(\"No se puede crear el remito: CompanyId no disponible\");"
+      },
+      {
+        "file": "/src/hooks/useRemitos.ts",
+        "line": 120,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(errorData.message || \"Error al crear remito\");"
+      },
+      {
+        "file": "/src/hooks/useRemitos.ts",
+        "line": 129,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(errorMessage);"
+      },
+      {
+        "file": "/src/hooks/useRemitos.ts",
+        "line": 143,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(errorData.message || \"Error al actualizar remito\");"
+      },
+      {
+        "file": "/src/hooks/useRemitos.ts",
+        "line": 156,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(errorMessage);"
+      },
+      {
+        "file": "/src/hooks/useRemitos.ts",
+        "line": 170,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(errorData.message || \"Error al actualizar estado del remito\");"
+      },
+      {
+        "file": "/src/hooks/useRemitos.ts",
+        "line": 183,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(errorMessage);"
+      },
+      {
+        "file": "/src/hooks/useRemitos.ts",
+        "line": 192,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "console.error('Network error:', error);"
+      },
+      {
+        "file": "/src/hooks/useRemitos.ts",
+        "line": 193,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(\"Error de conexión con remitos\");"
+      },
+      {
+        "file": "/src/hooks/useRemitos.ts",
+        "line": 198,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(errorData.message || \"Error al eliminar remito\");"
+      },
+      {
+        "file": "/src/hooks/useRemitos.ts",
+        "line": 205,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(errorMessage);"
+      },
+      {
+        "file": "/src/hooks/useRemitos.ts",
+        "line": 212,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "console.error('Network error:', error);"
+      },
+      {
+        "file": "/src/hooks/useRemitos.ts",
+        "line": 213,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(\"Error de conexión con remitos\");"
+      },
+      {
+        "file": "/src/hooks/useRemitos.ts",
+        "line": 216,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(\"Error al cargar remito\");"
+      },
+      {
+        "file": "/src/hooks/useRemitos.ts",
+        "line": 220,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "console.error(\"Error loading remito:\", err);"
+      },
+      {
+        "file": "/src/hooks/useUsuarios.ts",
+        "line": 43,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "console.error('Network error:', error);"
+      },
+      {
+        "file": "/src/hooks/useUsuarios.ts",
+        "line": 44,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(\"Error de conexión de red\");"
+      },
+      {
+        "file": "/src/hooks/useUsuarios.ts",
+        "line": 49,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "console.error('Error response:', errorData);"
+      },
+      {
+        "file": "/src/hooks/useUsuarios.ts",
+        "line": 50,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(errorData.message || \"Error al cargar usuarios\");"
+      },
+      {
+        "file": "/src/hooks/useUsuarios.ts",
+        "line": 58,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "console.error(\"Error loading usuarios:\", err);"
+      },
+      {
+        "file": "/src/hooks/useUsuarios.ts",
+        "line": 80,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(errorData.message || \"Error al crear usuario\");"
+      },
+      {
+        "file": "/src/hooks/useUsuarios.ts",
+        "line": 89,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(errorMessage);"
+      },
+      {
+        "file": "/src/hooks/useUsuarios.ts",
+        "line": 109,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(errorData.message || \"Error al actualizar usuario\");"
+      },
+      {
+        "file": "/src/hooks/useUsuarios.ts",
+        "line": 122,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(errorMessage);"
+      },
+      {
+        "file": "/src/hooks/useUsuarios.ts",
+        "line": 131,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "console.error('Network error:', error);"
+      },
+      {
+        "file": "/src/hooks/useUsuarios.ts",
+        "line": 132,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(\"Error de conexión con usuarios\");"
+      },
+      {
+        "file": "/src/hooks/useUsuarios.ts",
+        "line": 137,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(errorData.message || \"Error al eliminar usuario\");"
+      },
+      {
+        "file": "/src/hooks/useUsuarios.ts",
+        "line": 144,
+        "issue": "Error handling encontrado",
+        "severity": "medium",
+        "solution": "Revisar el manejo de errores y asegurar que se muestren mensajes informativos al usuario",
+        "codeSnippet": "throw new Error(errorMessage);"
+      }
+    ],
+    "id": "feedback_1761429877376_toplh4ycm"
   }
 ]
