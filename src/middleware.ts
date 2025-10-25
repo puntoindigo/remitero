@@ -38,7 +38,9 @@ export default withAuth(
         const { pathname } = req.nextUrl
         
         // Rutas públicas
-        if (pathname.startsWith("/auth") || pathname === "/") {
+        if (pathname.startsWith("/auth") || 
+            pathname === "/" || 
+            pathname.startsWith("/manual")) {
           return true
         }
 
@@ -57,6 +59,7 @@ export const config = {
     "/clientes/:path*",
     "/categorias/:path*",
     "/usuarios/:path*",
-    "/empresas/:path*"
+    "/empresas/:path*",
+    "/manual/:path*"
   ]
 }
