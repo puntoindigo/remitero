@@ -194,6 +194,50 @@
             background: #fffaf0;
         }
         
+        /* Estilos para pruebas completadas contraídas */
+        .test-item.completed.collapsed {
+            background: #e8f5e8;
+            border-left-color: #48bb78;
+        }
+        
+        .test-item.completed.collapsed .test-details {
+            display: none;
+        }
+        
+        .test-item.completed.collapsed .test-actions {
+            display: none;
+        }
+        
+        .test-item.completed.collapsed .test-toggle {
+            display: block;
+        }
+        
+        .test-toggle {
+            display: none;
+            text-align: center;
+            margin-top: 10px;
+            padding: 10px;
+        }
+        
+        .toggle-btn {
+            background: #48bb78;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .toggle-btn:hover {
+            background: #38a169;
+            transform: translateY(-1px);
+        }
+        
         .test-controls {
             position: absolute;
             top: 15px;
@@ -1088,6 +1132,12 @@
                         statusSpan.textContent = status === 'completed' ? 'Completado' : 
                                                status === 'failed' ? 'Fallido' : 'Pendiente';
                         statusSpan.className = `test-status ${status}`;
+                        
+                        // Si es completado, contraer automáticamente
+                        if (status === 'completed') {
+                            testItem.classList.add('collapsed');
+                            addToggleButton(testItem);
+                        }
                     }
                 });
                 updateStats();
@@ -1107,14 +1157,57 @@
                 
                 // Resetear UI
                 document.querySelectorAll('[data-test]').forEach(testItem => {
-                    testItem.classList.remove('completed', 'failed', 'pending');
+                    testItem.classList.remove('completed', 'failed', 'pending', 'collapsed');
                     const statusSpan = testItem.querySelector('.test-status');
                     statusSpan.textContent = 'Pendiente';
                     statusSpan.className = 'test-status pending';
+                    removeToggleButton(testItem);
                 });
                 
                 updateStats();
                 alert('✅ Todos los resultados han sido limpiados.');
+            }
+        }
+        
+        // Agregar botón de toggle a una prueba completada
+        function addToggleButton(testItem) {
+            // Verificar si ya existe el botón
+            if (testItem.querySelector('.test-toggle')) {
+                return;
+            }
+            
+            const toggleDiv = document.createElement('div');
+            toggleDiv.className = 'test-toggle';
+            toggleDiv.innerHTML = `
+                <button class="toggle-btn" onclick="toggleTestDetails(this)">
+                    <span>🔽</span> Ver detalles
+                </button>
+            `;
+            
+            testItem.appendChild(toggleDiv);
+        }
+        
+        // Remover botón de toggle
+        function removeToggleButton(testItem) {
+            const toggleDiv = testItem.querySelector('.test-toggle');
+            if (toggleDiv) {
+                toggleDiv.remove();
+            }
+        }
+        
+        // Toggle de detalles de prueba
+        function toggleTestDetails(button) {
+            const testItem = button.closest('.test-item');
+            const isCollapsed = testItem.classList.contains('collapsed');
+            
+            if (isCollapsed) {
+                // Expandir
+                testItem.classList.remove('collapsed');
+                button.innerHTML = '<span>🔼</span> Ocultar detalles';
+            } else {
+                // Contraer
+                testItem.classList.add('collapsed');
+                button.innerHTML = '<span>🔽</span> Ver detalles';
             }
         }
         let totalTests = 0;
@@ -1151,6 +1244,15 @@
             statusSpan.textContent = status === 'completed' ? 'Completado' : 
                                    status === 'failed' ? 'Fallido' : 'Pendiente';
             statusSpan.className = `test-status ${status}`;
+            
+            // Si es completado, contraer automáticamente
+            if (status === 'completed') {
+                testItem.classList.add('collapsed');
+                addToggleButton(testItem);
+            } else {
+                testItem.classList.remove('collapsed');
+                removeToggleButton(testItem);
+            }
             
             // Guardar resultado
             testResults[testId] = status;
