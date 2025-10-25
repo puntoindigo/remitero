@@ -22,6 +22,8 @@ import { useCRUDTable } from "@/hooks/useCRUDTable";
 import { Pagination } from "@/components/common/Pagination";
 import { LoadingSpinner } from "@/components/common/LoadingSpinner";
 import { ABMHeader } from "@/components/common/ABMHeader";
+import { useLoading } from "@/hooks/useLoading";
+import { LoadingButton } from "@/components/common/LoadingButton";
 import { RemitoFormComplete } from "@/components/forms/RemitoFormComplete";
 
 interface Remito {
@@ -93,6 +95,9 @@ function RemitosContent() {
   // Hook para clientes
   const { clientes: clients, setClientes } = useClientes(companyId || undefined);
   const [isLoading, setIsLoading] = useState(true);
+  
+  // Loading state management
+  const { loading: loadingState, startLoading, stopLoading } = useLoading();
 
   // CRUD State Management
   const {

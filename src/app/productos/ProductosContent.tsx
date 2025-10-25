@@ -21,6 +21,8 @@ import { useCRUDTable } from "@/hooks/useCRUDTable";
 import { Pagination } from "@/components/common/Pagination";
 import { LoadingSpinner } from "@/components/common/LoadingSpinner";
 import { ABMHeader } from "@/components/common/ABMHeader";
+import { useLoading } from "@/hooks/useLoading";
+import { LoadingButton } from "@/components/common/LoadingButton";
 
 interface Product {
   id: string;
@@ -57,6 +59,9 @@ function ProductosContent() {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
   const { empresas } = useEmpresas();
+  
+  // Loading state management
+  const { loading: loadingState, startLoading, stopLoading } = useLoading();
 
   // CRUD State Management
   const {

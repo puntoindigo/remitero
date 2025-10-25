@@ -15,6 +15,8 @@ import { DataTable, type DataTableColumn } from "@/components/common/DataTable";
 import { useCRUDTable } from "@/hooks/useCRUDTable";
 import { Pagination } from "@/components/common/Pagination";
 import { LoadingSpinner } from "@/components/common/LoadingSpinner";
+import { useLoading } from "@/hooks/useLoading";
+import { LoadingButton } from "@/components/common/LoadingButton";
 
 function EmpresasContent() {
   const { data: session } = useSession();
@@ -31,6 +33,9 @@ function EmpresasContent() {
     handleCancelDelete
   } = useCRUDPage<Empresa>();
   const { modalState, showSuccess, showError, closeModal } = useMessageModal();
+  
+  // Loading state management
+  const { loading: loadingState, startLoading, stopLoading } = useLoading();
   
   const { 
     empresas, 

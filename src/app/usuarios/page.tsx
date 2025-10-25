@@ -20,6 +20,8 @@ import { DataTable, type DataTableColumn } from "@/components/common/DataTable";
 import { useCRUDTable } from "@/hooks/useCRUDTable";
 import { Pagination } from "@/components/common/Pagination";
 import { LoadingSpinner } from "@/components/common/LoadingSpinner";
+import { useLoading } from "@/hooks/useLoading";
+import { LoadingButton } from "@/components/common/LoadingButton";
 
 function UsuariosContent() {
   const currentUser = useCurrentUserSimple();
@@ -32,6 +34,9 @@ function UsuariosContent() {
     setSelectedCompanyId,
     shouldShowCompanySelector
   } = useDataWithCompanySimple();
+  
+  // Loading state management
+  const { loading: loadingState, startLoading, stopLoading } = useLoading();
 
   // Leer companyId de los searchParams si está presente
   const companyIdFromParams = searchParams.get('companyId');

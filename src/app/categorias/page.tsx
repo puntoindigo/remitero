@@ -18,6 +18,8 @@ import { useCRUDTable } from "@/hooks/useCRUDTable";
 import { Pagination } from "@/components/common/Pagination";
 import { LoadingSpinner } from "@/components/common/LoadingSpinner";
 import { ABMHeader } from "@/components/common/ABMHeader";
+import { useLoading } from "@/hooks/useLoading";
+import { LoadingButton } from "@/components/common/LoadingButton";
 import { useCurrentUserSimple } from "@/hooks/useCurrentUserSimple";
 
 function CategoriasContent() {
@@ -44,6 +46,9 @@ function CategoriasContent() {
     setSelectedCompanyId,
     shouldShowCompanySelector
   } = useDataWithCompanySimple();
+  
+  // Loading state management
+  const { loading: loadingState, startLoading, stopLoading } = useLoading();
   
   const {
     editingItem: editingCategoria,
