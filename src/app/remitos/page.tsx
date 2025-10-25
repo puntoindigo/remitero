@@ -183,10 +183,10 @@ function RemitosContent() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ status: newStatusId }).catch(error => {
-            console.error('Network error:', error);
-            throw new Error("Error de conexión de red");
-        }),
+        body: JSON.stringify({ status: newStatusId })
+      }).catch(error => {
+        console.error('Network error:', error);
+        throw new Error("Error de conexión de red");
       });
 
       if (!response.ok) {
@@ -232,10 +232,10 @@ function RemitosContent() {
       const response = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...data, companyId }).catch(error => {
-            console.error('Network error:', error);
-            throw new Error("Error de conexión de red");
-        })
+        body: JSON.stringify({ ...data, companyId })
+      }).catch(error => {
+        console.error('Network error:', error);
+        throw new Error("Error de conexión de red");
       });
 
       if (response.ok) {

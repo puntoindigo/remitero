@@ -18,10 +18,10 @@ export class ClientService {
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify(data).catch(error => {
-            console.error('Network error:', error);
-            throw new Error("Error de conexión de red");
-        })
+      body: JSON.stringify(data)
+    }).catch(error => {
+      console.error('Network error:', error);
+      throw new Error("Error de conexión de red");
     })
     
     if (!response.ok) {
@@ -38,10 +38,10 @@ export class ClientService {
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify(data).catch(error => {
-            console.error('Network error:', error);
-            throw new Error("Error de conexión de red");
-        })
+      body: JSON.stringify(data)
+    }).catch(error => {
+      console.error('Network error:', error);
+      throw new Error("Error de conexión de red");
     })
     
     if (!response.ok) {

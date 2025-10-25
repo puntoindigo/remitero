@@ -168,15 +168,15 @@ function ProductosContent() {
 
   const handleStockChange = async (productId: string, newStock: string) => {
     try {
-      const response = await fetch(`/api/products/${productId}, []`, {
+      const response = await fetch(`/api/products/${productId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ stock: newStock }).catch(error => {
-            console.error('Network error:', error);
-            throw new Error("Error de conexión de red");
-        }),
+        body: JSON.stringify({ stock: newStock })
+      }).catch(error => {
+        console.error('Network error:', error);
+        throw new Error("Error de conexión de red");
       });
 
       if (!response.ok) {
@@ -235,10 +235,10 @@ function ProductosContent() {
       const response = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...data, companyId }).catch(error => {
-            console.error('Network error:', error);
-            throw new Error("Error de conexión de red");
-        })
+        body: JSON.stringify({ ...data, companyId })
+      }).catch(error => {
+        console.error('Network error:', error);
+        throw new Error("Error de conexión de red");
       });
 
       if (response.ok) {
