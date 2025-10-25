@@ -59,7 +59,11 @@ export default function LoginPage() {
       })
 
       if (result?.error) {
-        console.error("Login error:", result.error)
+        // Solo logear errores que no sean de credenciales incorrectas
+        if (result.error !== "CredentialsSignin") {
+          console.error("Login error:", result.error)
+        }
+        
         if (result.error === "CredentialsSignin") {
           setError("Email o contraseña incorrectos")
         } else if (result.error === "Configuration") {
