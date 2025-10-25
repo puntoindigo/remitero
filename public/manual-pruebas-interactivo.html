@@ -212,6 +212,42 @@
             display: none;
         }
         
+        /* Ocultar completamente las pruebas completadas colapsadas */
+        .test-item.completed.collapsed {
+            max-height: 60px;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        
+        .test-item.completed.collapsed .test-toggle {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        /* Ocultar secciones completadas */
+        .section-completed {
+            max-height: 80px;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            background: #f0fff4;
+            border-left: 4px solid #48bb78;
+        }
+        
+        .section-completed .section-toggle {
+            display: block;
+            text-align: center;
+            padding: 20px;
+            background: #e8f5e8;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        
+        .section-toggle {
+            display: none;
+        }
+        
         .test-item.completed.collapsed .test-toggle {
             display: block;
         }
@@ -1265,6 +1301,9 @@
                             testItem.classList.add('collapsed');
                             addToggleButton(testItem);
                         }
+                        
+                        // Verificar si toda la sección está completada
+                        checkSectionCompletion(testItem);
                     }
                 });
                 updateStats();
@@ -1359,6 +1398,65 @@
                 button.innerHTML = '<span>🔽</span> Ver detalles';
             }
         }
+        
+        // Verificar si toda la sección está completada
+        function checkSectionCompletion(testItem) {
+            // Encontrar la sección padre (accordion content)
+            const section = testItem.closest('.accordion-content');
+            if (!section) return;
+            
+            // Obtener todas las pruebas de la sección
+            const testsInSection = section.querySelectorAll('[data-test]');
+            const completedTests = section.querySelectorAll('[data-test].completed');
+            
+            // Si todas las pruebas están completadas, colapsar la sección
+            if (testsInSection.length === completedTests.length && testsInSection.length > 0) {
+                section.classList.add('section-completed');
+                addSectionToggle(section);
+            } else {
+                section.classList.remove('section-completed');
+                removeSectionToggle(section);
+            }
+        }
+        
+        // Agregar toggle a sección completada
+        function addSectionToggle(section) {
+            if (section.querySelector('.section-toggle')) return;
+            
+            const toggleDiv = document.createElement('div');
+            toggleDiv.className = 'section-toggle';
+            toggleDiv.innerHTML = `
+                <button class="toggle-btn" onclick="toggleSectionDetails(this)">
+                    <span>🔽</span> Sección completada - Ver detalles
+                </button>
+            `;
+            
+            section.appendChild(toggleDiv);
+        }
+        
+        // Remover toggle de sección
+        function removeSectionToggle(section) {
+            const toggleDiv = section.querySelector('.section-toggle');
+            if (toggleDiv) {
+                toggleDiv.remove();
+            }
+        }
+        
+        // Toggle de detalles de sección
+        function toggleSectionDetails(button) {
+            const section = button.closest('.accordion-content');
+            const isCollapsed = section.classList.contains('section-completed');
+            
+            if (isCollapsed) {
+                // Expandir sección
+                section.classList.remove('section-completed');
+                button.innerHTML = '<span>🔼</span> Ocultar sección completada';
+            } else {
+                // Contraer sección
+                section.classList.add('section-completed');
+                button.innerHTML = '<span>🔽</span> Sección completada - Ver detalles';
+            }
+        }
         let totalTests = 0;
 
         // Función para toggle de acordeones
@@ -1402,6 +1500,9 @@
                 testItem.classList.remove('collapsed');
                 removeToggleButton(testItem);
             }
+            
+            // Verificar si toda la sección está completada
+            checkSectionCompletion(testItem);
             
             // Guardar resultado
             testResults[testId] = status;
