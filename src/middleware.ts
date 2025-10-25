@@ -37,10 +37,11 @@ export default withAuth(
       authorized: ({ token, req }) => {
         const { pathname } = req.nextUrl
         
-        // Rutas públicas
+        // Rutas públicas - NO requieren autenticación
         if (pathname.startsWith("/auth") || 
             pathname === "/" || 
-            pathname.startsWith("/manual")) {
+            pathname.startsWith("/manual") ||
+            pathname === "/manual") {
           return true
         }
 
