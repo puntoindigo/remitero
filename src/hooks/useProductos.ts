@@ -89,7 +89,7 @@ export function useProductos(companyId?: string) {
     } finally {
       setIsLoading(false);
     }
-  }, [companyId, currentUser]);
+  }, [companyId, currentUser?.id, currentUser?.role, currentUser?.companyId, currentUser?.impersonating]);
 
   const createProducto = async (productoData: ProductoFormData) => {
     try {
