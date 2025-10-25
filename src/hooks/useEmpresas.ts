@@ -57,10 +57,10 @@ export function useEmpresas() {
       const response = await fetch("/api/companies", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name }).catch(error => {
-            console.error('Network error:', error);
-            throw new Error("Error de conexión de red");
-        }),
+        body: JSON.stringify({ name })
+      }).catch(error => {
+          console.error('Network error:', error);
+          throw new Error("Error de conexión de red");
       });
 
       if (!response.ok) {
@@ -83,10 +83,10 @@ export function useEmpresas() {
       const response = await fetch(`/api/companies/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name }).catch(error => {
-            console.error('Network error:', error);
-            throw new Error("Error de conexión de red");
-        }),
+        body: JSON.stringify({ name })
+      }).catch(error => {
+          console.error('Network error:', error);
+          throw new Error("Error de conexión de red");
       });
 
       if (!response.ok) {
