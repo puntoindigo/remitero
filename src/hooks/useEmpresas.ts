@@ -85,8 +85,8 @@ export function useEmpresas() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name })
       }).catch(error => {
-          console.error('Network error:', error);
-          throw new Error("Error de conexión de red");
+        console.error('Network error:', error);
+        throw new Error("Error de conexión de red");
       });
 
       if (!response.ok) {
