@@ -88,7 +88,7 @@ export default function FilterableSelect({
       return () => {
         window.removeEventListener('scroll', updateDropdownPosition, true);
         window.removeEventListener('resize', updateDropdownPosition);
-      }, [];
+      };
     }
   }, [isOpen]);
 
