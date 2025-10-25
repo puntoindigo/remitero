@@ -662,6 +662,12 @@
             <div class="progress-fill" id="progressFill"></div>
             <div class="progress-text" id="progressText">0% Completado</div>
         </div>
+        
+        <div style="text-align: center; margin: 15px 0;">
+            <button class="btn btn-secondary" onclick="clearAllResults()">
+                🗑️ Limpiar Todos los Resultados
+            </button>
+        </div>
 
         <div class="stats">
             <div class="stat-card">
@@ -1061,6 +1067,56 @@
 
     <script>
         let testResults = {};
+        
+        // Cargar resultados guardados al iniciar
+        function loadTestResults() {
+            const saved = localStorage.getItem('testResults');
+            if (saved) {
+                testResults = JSON.parse(saved);
+                // Aplicar estados guardados a la UI
+                Object.keys(testResults).forEach(testId => {
+                    const testItem = document.querySelector(`[data-test="${testId}"]`);
+                    if (testItem) {
+                        const status = testResults[testId];
+                        const statusSpan = testItem.querySelector('.test-status');
+                        
+                        // Remover clases anteriores
+                        testItem.classList.remove('completed', 'failed', 'pending');
+                        
+                        // Aplicar estado guardado
+                        testItem.classList.add(status);
+                        statusSpan.textContent = status === 'completed' ? 'Completado' : 
+                                               status === 'failed' ? 'Fallido' : 'Pendiente';
+                        statusSpan.className = `test-status ${status}`;
+                    }
+                });
+                updateStats();
+            }
+        }
+        
+        // Guardar resultados en localStorage
+        function saveTestResults() {
+            localStorage.setItem('testResults', JSON.stringify(testResults));
+        }
+        
+        // Limpiar todos los resultados
+        function clearAllResults() {
+            if (confirm('¿Estás seguro de que quieres limpiar todos los resultados? Esta acción no se puede deshacer.')) {
+                testResults = {};
+                localStorage.removeItem('testResults');
+                
+                // Resetear UI
+                document.querySelectorAll('[data-test]').forEach(testItem => {
+                    testItem.classList.remove('completed', 'failed', 'pending');
+                    const statusSpan = testItem.querySelector('.test-status');
+                    statusSpan.textContent = 'Pendiente';
+                    statusSpan.className = 'test-status pending';
+                });
+                
+                updateStats();
+                alert('✅ Todos los resultados han sido limpiados.');
+            }
+        }
         let totalTests = 0;
 
         // Función para toggle de acordeones
@@ -1098,6 +1154,9 @@
             
             // Guardar resultado
             testResults[testId] = status;
+            
+            // Guardar en localStorage
+            saveTestResults();
             
             // Si es fallido, abrir modal de feedback
             if (status === 'failed') {
@@ -1589,6 +1648,7 @@ ${formData.analysis ? `\n🔍 Análisis del código:\n${JSON.stringify(formData.
 
         // Inicializar estadísticas al cargar
         document.addEventListener('DOMContentLoaded', function() {
+            loadTestResults(); // Cargar resultados guardados
             updateStats();
         });
     </script>
