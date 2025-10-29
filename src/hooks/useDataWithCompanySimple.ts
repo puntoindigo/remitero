@@ -5,33 +5,31 @@ import { useState, useEffect } from "react";
 
 /**
  * Hook simplificado que proporciona el companyId efectivo sin dependencias circulares
+ * Optimizado: carga la empresa guardada inmediatamente desde sessionStorage
  */
 export function useDataWithCompanySimple() {
   const currentUser = useCurrentUserSimple();
-  const [selectedCompanyId, setSelectedCompanyId] = useState<string>("");
-  const [isInitialized, setIsInitialized] = useState(false);
-
-  // Cargar selección de empresa desde sessionStorage al inicializar
-  useEffect(() => {
+  
+  // Inicializar directamente desde sessionStorage para evitar delay
+  const [selectedCompanyId, setSelectedCompanyId] = useState<string>(() => {
     if (typeof window !== 'undefined') {
-      const savedCompanyId = sessionStorage.getItem('selectedCompanyId');
-      if (savedCompanyId) {
-        setSelectedCompanyId(savedCompanyId);
-      }
-      setIsInitialized(true);
+      return sessionStorage.getItem('selectedCompanyId') || "";
     }
-  }, []);
+    return "";
+  });
+  
+  const [isInitialized, setIsInitialized] = useState(true); // Ya inicializado si leímos sessionStorage
 
   // Guardar selección de empresa en sessionStorage cuando cambie
   useEffect(() => {
-    if (typeof window !== 'undefined' && isInitialized) {
+    if (typeof window !== 'undefined') {
       if (selectedCompanyId) {
         sessionStorage.setItem('selectedCompanyId', selectedCompanyId);
       } else {
         sessionStorage.removeItem('selectedCompanyId');
       }
     }
-  }, [selectedCompanyId, isInitialized]);
+  }, [selectedCompanyId]);
 
   // Calcular los datos sin early returns
   const getData = () => {

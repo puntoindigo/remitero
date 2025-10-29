@@ -48,6 +48,7 @@ export function RemitoFormComplete({
   const [quantity, setQuantity] = useState<number>(1);
   const [showNotes, setShowNotes] = useState<boolean>(false);
   const [showClientForm, setShowClientForm] = useState<boolean>(false);
+  const [validationError, setValidationError] = useState<string>("");
   const [isSubmittingClient, setIsSubmittingClient] = useState<boolean>(false);
 
   const {
@@ -72,15 +73,26 @@ export function RemitoFormComplete({
       
       // Cargar items del remito (pueden venir como 'items' o 'remitoItems')
       const remitoItems = editingRemito.items || editingRemito.remitoItems || [];
-      if (Array.isArray(remitoItems)) {
-        setItems(remitoItems.map((item: any) => ({
-          product_id: item.product_id || item.product?.id,
-          product_name: item.product_name || item.product?.name || "",
-          product_desc: item.product_desc || item.product?.description || "",
-          quantity: item.quantity || 1,
-          unit_price: item.unit_price || item.product?.price || 0,
-          line_total: item.line_total || (item.quantity * item.unit_price) || 0
-        }, [])));
+      console.log('🔍 Cargando remito para editar:', {
+        remitoId: editingRemito.id,
+        itemsCount: remitoItems.length,
+        items: remitoItems
+      });
+      
+      if (Array.isArray(remitoItems) && remitoItems.length > 0) {
+        const loadedItems = remitoItems.map((item: any) => ({
+          product_id: item.product_id || item.productId || item.product?.id || '',
+          product_name: item.product_name || item.productName || item.product?.name || "",
+          product_desc: item.product_desc || item.productDesc || item.product?.description || "",
+          quantity: Number(item.quantity) || 1,
+          unit_price: Number(item.unit_price || item.unitPrice || item.product?.price) || 0,
+          line_total: Number(item.line_total || item.lineTotal || (item.quantity * (item.unit_price || item.unitPrice))) || 0
+        }));
+        console.log('✅ Items cargados:', loadedItems);
+        setItems(loadedItems);
+      } else {
+        console.warn('⚠️ No se encontraron items en el remito');
+        setItems([]);
       }
       
       setShowNotes(!!editingRemito.notes);
@@ -123,6 +135,11 @@ export function RemitoFormComplete({
     setItems(prev => [...prev, newItem]);
     setSelectedProduct("");
     setQuantity(1);
+    
+    // Limpiar error de validación cuando se agrega un producto
+    if (validationError) {
+      setValidationError("");
+    }
   };
 
   const handleUpdateQuantity = (index: number, newQuantity: number) => {
@@ -142,9 +159,14 @@ export function RemitoFormComplete({
   };
 
   const handleFormSubmit = (data: RemitoForm) => {
+    // Validar que haya al menos un producto
     if (items?.length === 0) {
+      setValidationError("⚠️ Debe agregar al menos un producto al remito");
       return;
     }
+
+    // Limpiar error de validación
+    setValidationError("");
 
     const formData = {
       ...data,
@@ -242,6 +264,22 @@ export function RemitoFormComplete({
       isSubmitting={isSubmitting}
       modalClassName="remito-modal"
     >
+      {/* Error de validación */}
+      {validationError && (
+        <div style={{
+          padding: '0.75rem 1rem',
+          backgroundColor: '#fef2f2',
+          border: '1px solid #fecaca',
+          borderRadius: '0.375rem',
+          color: '#991b1b',
+          fontSize: '0.875rem',
+          fontWeight: '500',
+          marginBottom: '1rem'
+        }}>
+          {validationError}
+        </div>
+      )}
+      
       {/* Cliente */}
       <div className="form-group" style={{ marginBottom: '1.5rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
@@ -460,19 +498,25 @@ export function RemitoFormComplete({
         </div>
       </div>
 
-      {/* Notas */}
+      {/* Notas (opcional) */}
       <div className="form-group" style={{ marginTop: '1.5rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.5rem' }}>
-          <label style={{ marginBottom: 0 }}>Notas</label>
-          <button
-            type="button"
-            onClick={() => setShowNotes(!showNotes)}
-            className="small"
-            style={{ fontSize: '12px' }}
-          >
-            {showNotes ? 'Ocultar' : 'Agregar notas'}
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={() => setShowNotes(!showNotes)}
+          className="small"
+          style={{ 
+            fontSize: '12px', 
+            padding: '0.5rem 0', 
+            color: '#3b82f6',
+            backgroundColor: 'transparent',
+            border: 'none',
+            cursor: 'pointer',
+            textDecoration: 'underline',
+            fontWeight: '500'
+          }}
+        >
+          {showNotes ? '− Ocultar notas' : '+ Agregar notas'}
+        </button>
         {showNotes && (
           <textarea
             {...register("notes")}

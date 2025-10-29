@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -40,7 +40,7 @@ export function CategoriaForm({
   });
 
   // Reset form when editingCategoria changes
-  React.useEffect(() => {
+  useEffect(() => {
     if (editingCategoria) {
       reset({ 
         name: editingCategoria?.name

@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { X } from "lucide-react";
 
 interface FormModalProps {
@@ -28,11 +28,44 @@ export function FormModal({
   cancelText = "Cancelar",
   modalClassName = ""
 }: FormModalProps) {
+  const modalRef = useRef<HTMLDivElement>(null);
+
+  // Auto-focus en el primer input cuando se abre el modal
+  useEffect(() => {
+    if (isOpen && modalRef.current) {
+      // Esperar a que el DOM se renderice completamente
+      setTimeout(() => {
+        const firstInput = modalRef.current?.querySelector<HTMLInputElement | HTMLTextAreaElement>(
+          'input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]), textarea, select'
+        );
+        if (firstInput) {
+          firstInput.focus();
+        }
+      }, 100);
+    }
+  }, [isOpen]);
+
+  // Cerrar con ESC
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        e.stopPropagation();
+        onClose();
+      }
+    };
+
+    window.addEventListener('keydown', handleEscape, { capture: true });
+    return () => window.removeEventListener('keydown', handleEscape, { capture: true });
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   return (
     <div className="modal-overlay">
-      <div className={`modal form-modal ${modalClassName}`}>
+      <div ref={modalRef} className={`modal form-modal ${modalClassName}`}>
         <div className="modal-header">
           <h3>{title}</h3>
           <button
@@ -51,38 +84,42 @@ export function FormModal({
               {children}
               
               <div className="modal-footer">
-                {showCancel && (
+                <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
+                  {showCancel && (
+                    <button
+                      type="button"
+                      onClick={onClose}
+                      className="btn-secondary"
+                      disabled={isSubmitting}
+                    >
+                      {cancelText}
+                    </button>
+                  )}
                   <button
-                    type="button"
-                    onClick={onClose}
-                    className="btn-secondary"
+                    type="submit"
+                    className="btn-primary"
                     disabled={isSubmitting}
                   >
-                    {cancelText}
+                    {isSubmitting ? "Guardando..." : submitText}
                   </button>
-                )}
-                <button
-                  type="submit"
-                  className="btn-primary"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? "Guardando..." : submitText}
-                </button>
+                </div>
               </div>
             </form>
           ) : (
             <>
               {children}
               <div className="modal-footer">
-                {showCancel && (
-                  <button
-                    type="button"
-                    onClick={onClose}
-                    className="btn-secondary"
-                  >
-                    {cancelText}
-                  </button>
-                )}
+                <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
+                  {showCancel && (
+                    <button
+                      type="button"
+                      onClick={onClose}
+                      className="btn-secondary"
+                    >
+                      {cancelText}
+                    </button>
+                  )}
+                </div>
               </div>
             </>
           )}

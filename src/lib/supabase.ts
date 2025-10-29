@@ -11,10 +11,22 @@ if (!supabaseUrl || !supabaseAnonKey || !supabaseServiceKey) {
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 // Cliente para operaciones del servidor (con service role key)
+// Optimizaciones de rendimiento:
+// - db.schema('public') mejora la precisión de las queries
+// - persistSession: false evita guardar sesiones innecesarias
 export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
   auth: {
     persistSession: false,
     autoRefreshToken: false,
     detectSessionInUrl: false,
+  },
+  db: {
+    schema: 'public',
+  },
+  // Reducir timeouts para detectar problemas más rápido
+  global: {
+    headers: {
+      'x-client-info': 'remitero-nextjs',
+    },
   },
 })

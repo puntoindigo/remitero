@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { useSession } from 'next-auth/react';
+import { useSession, signOut } from 'next-auth/react';
 import { useTheme } from '@/hooks/useTheme';
 import { ThemeSelector } from './ThemeSelector';
 import { 
@@ -21,10 +21,29 @@ export function UserPanel({ className = '' }: UserPanelProps) {
   const { data: session } = useSession();
   const { currentTheme, themeConfig } = useTheme();
   const [isOpen, setIsOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
-  const handleLogout = () => {
-    // Implementar logout
-    window.location.href = '/api/auth/signout';
+  const handleLogout = async () => {
+    setIsOpen(false);
+    setIsLoggingOut(true);
+    try {
+      // Redirigir inmediatamente para evitar demoras en compilación
+      if (typeof window !== 'undefined') {
+        // Hacer logout en background sin esperar ni mostrar errores
+        signOut({ redirect: false }).catch(() => {
+          // Ignorar errores silenciosamente
+        });
+        // Pequeño delay para que el signOut se ejecute antes de navegar
+        setTimeout(() => {
+          window.location.href = '/auth/login';
+        }, 50);
+      }
+    } catch (error) {
+      // Ignorar errores y redirigir de todas formas
+      if (typeof window !== 'undefined') {
+        window.location.href = '/auth/login';
+      }
+    }
   };
 
   const handleSettings = () => {
@@ -126,10 +145,23 @@ export function UserPanel({ className = '' }: UserPanelProps) {
             <div className="p-2 border-t border-gray-100">
               <button
                 onClick={handleLogout}
-                className="w-full flex items-center gap-3 px-3 py-2 text-left rounded-md hover:bg-red-50 text-red-600 transition-colors"
+                disabled={isLoggingOut}
+                className="w-full flex items-center gap-3 px-3 py-2 text-left rounded-md hover:bg-red-50 text-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <LogOut className="h-4 w-4" />
-                <span>Cerrar Sesión</span>
+                {isLoggingOut ? (
+                  <>
+                    <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span>Cerrando sesión...</span>
+                  </>
+                ) : (
+                  <>
+                    <LogOut className="h-4 w-4" />
+                    <span>Cerrar Sesión</span>
+                  </>
+                )}
               </button>
             </div>
           </div>

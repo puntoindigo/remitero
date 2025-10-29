@@ -6,7 +6,7 @@ import { transformProduct } from "@/lib/utils/supabase-transform";
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -26,20 +26,9 @@ export async function PUT(
       }, { status: 401 });
     }
 
-    const productId = params?.id;
+    const { id: productId } = await params;
     const body = await request.json();
     const { name, description, price, stock, categoryId } = body;
-
-    // Construir condición WHERE según el rol del usuario
-    let whereCondition = { id: productId };
-    
-    // Solo SUPERADMIN puede acceder a productos de cualquier empresa
-    if (session.user.role !== 'SUPERADMIN') {
-      whereCondition = { 
-        id: productId, 
-        company_id: session.user.companyId 
-      };
-    }
 
     // Verificar que el producto existe y el usuario tiene acceso
     const { data: existingProduct, error: fetchError } = await supabaseAdmin
@@ -105,6 +94,7 @@ export async function PUT(
       }
     }
 
+    // Optimización: Sin JOIN de categories en UPDATE
     const { data: updatedProduct, error } = await supabaseAdmin
       .from('products')
       .update(updateData)
@@ -118,11 +108,7 @@ export async function PUT(
         created_at,
         updated_at,
         company_id,
-        category_id,
-        categories (
-          id,
-          name
-        )
+        category_id
       `)
       .single();
 
@@ -134,7 +120,13 @@ export async function PUT(
       }, { status: 500 });
     }
 
-    return NextResponse.json(transformProduct(updatedProduct));
+    // Agregar category structure sin JOIN
+    const productWithCategory = {
+      ...updatedProduct,
+      categories: updatedProduct.category_id ? { id: updatedProduct.category_id, name: '' } : null
+    };
+
+    return NextResponse.json(transformProduct(productWithCategory));
   } catch (error: any) {
     console.error('Error in products PUT:', error);
     return NextResponse.json({ 
@@ -146,7 +138,7 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -166,7 +158,7 @@ export async function DELETE(
       }, { status: 401 });
     }
 
-    const productId = params?.id;
+    const { id: productId } = await params;
 
     // Verificar que el producto existe y el usuario tiene acceso
     const { data: existingProduct, error: fetchError } = await supabaseAdmin

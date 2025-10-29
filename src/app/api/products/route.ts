@@ -21,6 +21,7 @@ export async function GET(request: NextRequest) {
     const countToday = searchParams.get('countToday') === 'true';
     
 
+    // Optimización: Sin JOINs innecesarios para máxima velocidad
     let query = supabaseAdmin
       .from('products')
       .select(`
@@ -32,11 +33,7 @@ export async function GET(request: NextRequest) {
         created_at,
         updated_at,
         company_id,
-        category_id,
-        categories (
-          id,
-          name
-        )
+        category_id
       `)
       .order('created_at', { ascending: false });
 
@@ -93,7 +90,6 @@ export async function GET(request: NextRequest) {
     }
 
     const { data: products, error } = await query;
-    
 
     if (error) {
       console.error('Error fetching products:', error);
@@ -103,7 +99,13 @@ export async function GET(request: NextRequest) {
       }, { status: 500 });
     }
 
-    return NextResponse.json(transformProducts(products));
+    // Agregar estructura mínima para categories sin JOIN costoso
+    const productsWithCategories = (products || []).map((product: any) => ({
+      ...product,
+      categories: product.category_id ? { id: product.category_id, name: '' } : null
+    }));
+
+    return NextResponse.json(transformProducts(productsWithCategories));
   } catch (error: any) {
     console.error('Error in products GET:', error);
     return NextResponse.json({ 
@@ -170,11 +172,7 @@ export async function POST(request: NextRequest) {
         created_at,
         updated_at,
         company_id,
-        category_id,
-        categories (
-          id,
-          name
-        )
+        category_id
       `)
       .single();
 
@@ -186,7 +184,13 @@ export async function POST(request: NextRequest) {
       }, { status: 500 });
     }
 
-    return NextResponse.json(transformProduct(newProduct));
+    // Agregar category structure sin JOIN
+    const productWithCategory = {
+      ...newProduct,
+      categories: newProduct.category_id ? { id: newProduct.category_id, name: '' } : null
+    };
+
+    return NextResponse.json(transformProduct(productWithCategory));
   } catch (error: any) {
     console.error('Error in products POST:', error);
     return NextResponse.json({ 

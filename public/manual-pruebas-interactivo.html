@@ -1154,6 +1154,260 @@
         <!-- Por brevedad, solo incluyo las primeras 3 secciones como ejemplo -->
         <!-- El resto seguiría el mismo patrón -->
 
+        <!-- Sección 4: UX y Experiencia de Usuario -->
+        <div class="section">
+            <button class="accordion-header" onclick="toggleAccordion(this)">
+                ⌨️ 4. Mejoras de UX y Atajos de Teclado
+                <span class="accordion-icon">▼</span>
+            </button>
+            <div class="accordion-content">
+                <h2>⌨️ 4. Mejoras de UX y Atajos de Teclado</h2>
+                
+                <h3>4.1 Atajos de Navegación Global</h3>
+                <div class="test-item" data-test="shortcut-dashboard">
+                    <div class="test-controls">
+                        <button class="test-button success" onclick="markTest(this, 'completed')">✅ Completado</button>
+                        <button class="test-button failed" onclick="markTest(this, 'failed')">❌ Fallido</button>
+                        <button class="test-button reset" onclick="markTest(this, 'pending')">🔄 Reset</button>
+                    </div>
+                    <strong>Prueba:</strong> Presionar <kbd>D</kbd> navega a Dashboard<br>
+                    <strong>Nota:</strong> No debe funcionar si estás escribiendo en un input<br>
+                    <strong>Resultado:</strong> <span class="test-status pending">Pendiente</span>
+                </div>
+
+                <div class="test-item" data-test="shortcut-remitos">
+                    <div class="test-controls">
+                        <button class="test-button success" onclick="markTest(this, 'completed')">✅ Completado</button>
+                        <button class="test-button failed" onclick="markTest(this, 'failed')">❌ Fallido</button>
+                        <button class="test-button reset" onclick="markTest(this, 'pending')">🔄 Reset</button>
+                    </div>
+                    <strong>Prueba:</strong> Presionar <kbd>R</kbd> navega a Remitos<br>
+                    <strong>Resultado:</strong> <span class="test-status pending">Pendiente</span>
+                </div>
+
+                <div class="test-item" data-test="shortcut-clientes">
+                    <div class="test-controls">
+                        <button class="test-button success" onclick="markTest(this, 'completed')">✅ Completado</button>
+                        <button class="test-button failed" onclick="markTest(this, 'failed')">❌ Fallido</button>
+                        <button class="test-button reset" onclick="markTest(this, 'pending')">🔄 Reset</button>
+                    </div>
+                    <strong>Prueba:</strong> Presionar <kbd>C</kbd> navega a Clientes<br>
+                    <strong>Resultado:</strong> <span class="test-status pending">Pendiente</span>
+                </div>
+
+                <div class="test-item" data-test="shortcut-productos">
+                    <div class="test-controls">
+                        <button class="test-button success" onclick="markTest(this, 'completed')">✅ Completado</button>
+                        <button class="test-button failed" onclick="markTest(this, 'failed')">❌ Fallido</button>
+                        <button class="test-button reset" onclick="markTest(this, 'pending')">🔄 Reset</button>
+                    </div>
+                    <strong>Prueba:</strong> Presionar <kbd>P</kbd> navega a Productos<br>
+                    <strong>Resultado:</strong> <span class="test-status pending">Pendiente</span>
+                </div>
+
+                <div class="test-item" data-test="shortcut-categorias">
+                    <div class="test-controls">
+                        <button class="test-button success" onclick="markTest(this, 'completed')">✅ Completado</button>
+                        <button class="test-button failed" onclick="markTest(this, 'failed')">❌ Fallido</button>
+                        <button class="test-button reset" onclick="markTest(this, 'pending')">🔄 Reset</button>
+                    </div>
+                    <strong>Prueba:</strong> Presionar <kbd>T</kbd> navega a Categorías (Tag)<br>
+                    <strong>Nota:</strong> Solo visible para ADMIN y SUPERADMIN<br>
+                    <strong>Resultado:</strong> <span class="test-status pending">Pendiente</span>
+                </div>
+
+                <div class="test-item" data-test="shortcut-estados">
+                    <div class="test-controls">
+                        <button class="test-button success" onclick="markTest(this, 'completed')">✅ Completado</button>
+                        <button class="test-button failed" onclick="markTest(this, 'failed')">❌ Fallido</button>
+                        <button class="test-button reset" onclick="markTest(this, 'pending')">🔄 Reset</button>
+                    </div>
+                    <strong>Prueba:</strong> Presionar <kbd>E</kbd> navega a Estados<br>
+                    <strong>Nota:</strong> Solo visible para ADMIN y SUPERADMIN<br>
+                    <strong>Resultado:</strong> <span class="test-status pending">Pendiente</span>
+                </div>
+
+                <div class="test-item" data-test="shortcut-usuarios">
+                    <div class="test-controls">
+                        <button class="test-button success" onclick="markTest(this, 'completed')">✅ Completado</button>
+                        <button class="test-button failed" onclick="markTest(this, 'failed')">❌ Fallido</button>
+                        <button class="test-button reset" onclick="markTest(this, 'pending')">🔄 Reset</button>
+                    </div>
+                    <strong>Prueba:</strong> Presionar <kbd>U</kbd> navega a Usuarios<br>
+                    <strong>Nota:</strong> Solo visible para ADMIN y SUPERADMIN<br>
+                    <strong>Resultado:</strong> <span class="test-status pending">Pendiente</span>
+                </div>
+
+                <div class="test-item" data-test="shortcut-empresas">
+                    <div class="test-controls">
+                        <button class="test-button success" onclick="markTest(this, 'completed')">✅ Completado</button>
+                        <button class="test-button failed" onclick="markTest(this, 'failed')">❌ Fallido</button>
+                        <button class="test-button reset" onclick="markTest(this, 'pending')">🔄 Reset</button>
+                    </div>
+                    <strong>Prueba:</strong> Presionar <kbd>M</kbd> navega a eMpresas<br>
+                    <strong>Nota:</strong> Solo visible para SUPERADMIN<br>
+                    <strong>Resultado:</strong> <span class="test-status pending">Pendiente</span>
+                </div>
+
+                <div class="test-item" data-test="shortcut-logout">
+                    <div class="test-controls">
+                        <button class="test-button success" onclick="markTest(this, 'completed')">✅ Completado</button>
+                        <button class="test-button failed" onclick="markTest(this, 'failed')">❌ Fallido</button>
+                        <button class="test-button reset" onclick="markTest(this, 'pending')">🔄 Reset</button>
+                    </div>
+                    <strong>Prueba:</strong> Presionar <kbd>S</kbd> abre modal de confirmación de Salir<br>
+                    <strong>Resultado:</strong> <span class="test-status pending">Pendiente</span>
+                </div>
+
+                <h3>4.2 Atajos de Creación en ABMs</h3>
+                <div class="test-item" data-test="shortcut-nueva-categoria">
+                    <div class="test-controls">
+                        <button class="test-button success" onclick="markTest(this, 'completed')">✅ Completado</button>
+                        <button class="test-button failed" onclick="markTest(this, 'failed')">❌ Fallido</button>
+                        <button class="test-button reset" onclick="markTest(this, 'pending')">🔄 Reset</button>
+                    </div>
+                    <strong>URL:</strong> <span class="url">http://localhost:8000/categorias</span><br>
+                    <strong>Prueba:</strong> Presionar <kbd>N</kbd> abre el modal "Nueva Categoría"<br>
+                    <strong>Nota:</strong> No debe funcionar si el modal ya está abierto o si estás en un input<br>
+                    <strong>Resultado:</strong> <span class="test-status pending">Pendiente</span>
+                </div>
+
+                <div class="test-item" data-test="shortcut-nuevo-cliente">
+                    <div class="test-controls">
+                        <button class="test-button success" onclick="markTest(this, 'completed')">✅ Completado</button>
+                        <button class="test-button failed" onclick="markTest(this, 'failed')">❌ Fallido</button>
+                        <button class="test-button reset" onclick="markTest(this, 'pending')">🔄 Reset</button>
+                    </div>
+                    <strong>URL:</strong> <span class="url">http://localhost:8000/clientes</span><br>
+                    <strong>Prueba:</strong> Presionar <kbd>N</kbd> abre el modal "Nuevo Cliente"<br>
+                    <strong>Resultado:</strong> <span class="test-status pending">Pendiente</span>
+                </div>
+
+                <div class="test-item" data-test="shortcut-nuevo-producto">
+                    <div class="test-controls">
+                        <button class="test-button success" onclick="markTest(this, 'completed')">✅ Completado</button>
+                        <button class="test-button failed" onclick="markTest(this, 'failed')">❌ Fallido</button>
+                        <button class="test-button reset" onclick="markTest(this, 'pending')">🔄 Reset</button>
+                    </div>
+                    <strong>URL:</strong> <span class="url">http://localhost:8000/productos</span><br>
+                    <strong>Prueba:</strong> Presionar <kbd>N</kbd> abre el modal "Nuevo Producto"<br>
+                    <strong>Resultado:</strong> <span class="test-status pending">Pendiente</span>
+                </div>
+
+                <div class="test-item" data-test="shortcut-nuevo-remito">
+                    <div class="test-controls">
+                        <button class="test-button success" onclick="markTest(this, 'completed')">✅ Completado</button>
+                        <button class="test-button failed" onclick="markTest(this, 'failed')">❌ Fallido</button>
+                        <button class="test-button reset" onclick="markTest(this, 'pending')">🔄 Reset</button>
+                    </div>
+                    <strong>URL:</strong> <span class="url">http://localhost:8000/remitos</span><br>
+                    <strong>Prueba:</strong> Presionar <kbd>N</kbd> abre el modal "Nuevo Remito"<br>
+                    <strong>Resultado:</strong> <span class="test-status pending">Pendiente</span>
+                </div>
+
+                <div class="test-item" data-test="shortcut-nuevo-estado">
+                    <div class="test-controls">
+                        <button class="test-button success" onclick="markTest(this, 'completed')">✅ Completado</button>
+                        <button class="test-button failed" onclick="markTest(this, 'failed')">❌ Fallido</button>
+                        <button class="test-button reset" onclick="markTest(this, 'pending')">🔄 Reset</button>
+                    </div>
+                    <strong>URL:</strong> <span class="url">http://localhost:8000/estados-remitos</span><br>
+                    <strong>Prueba:</strong> Presionar <kbd>N</kbd> abre el modal "Nuevo Estado"<br>
+                    <strong>Resultado:</strong> <span class="test-status pending">Pendiente</span>
+                </div>
+
+                <div class="test-item" data-test="shortcut-nuevo-usuario">
+                    <div class="test-controls">
+                        <button class="test-button success" onclick="markTest(this, 'completed')">✅ Completado</button>
+                        <button class="test-button failed" onclick="markTest(this, 'failed')">❌ Fallido</button>
+                        <button class="test-button reset" onclick="markTest(this, 'pending')">🔄 Reset</button>
+                    </div>
+                    <strong>URL:</strong> <span class="url">http://localhost:8000/usuarios</span><br>
+                    <strong>Prueba:</strong> Presionar <kbd>N</kbd> abre el modal "Nuevo Usuario"<br>
+                    <strong>Resultado:</strong> <span class="test-status pending">Pendiente</span>
+                </div>
+
+                <div class="test-item" data-test="shortcut-nueva-empresa">
+                    <div class="test-controls">
+                        <button class="test-button success" onclick="markTest(this, 'completed')">✅ Completado</button>
+                        <button class="test-button failed" onclick="markTest(this, 'failed')">❌ Fallido</button>
+                        <button class="test-button reset" onclick="markTest(this, 'pending')">🔄 Reset</button>
+                    </div>
+                    <strong>URL:</strong> <span class="url">http://localhost:8000/empresas</span><br>
+                    <strong>Prueba:</strong> Presionar <kbd>N</kbd> abre el modal "Nueva Empresa"<br>
+                    <strong>Resultado:</strong> <span class="test-status pending">Pendiente</span>
+                </div>
+
+                <h3>4.3 Modales con Atajos de Teclado</h3>
+                <div class="test-item" data-test="modal-enter-success">
+                    <div class="test-controls">
+                        <button class="test-button success" onclick="markTest(this, 'completed')">✅ Completado</button>
+                        <button class="test-button failed" onclick="markTest(this, 'failed')">❌ Fallido</button>
+                        <button class="test-button reset" onclick="markTest(this, 'pending')">🔄 Reset</button>
+                    </div>
+                    <strong>Prueba:</strong> En modal de éxito, presionar <kbd>Enter</kbd> cierra el modal<br>
+                    <strong>Ejemplo:</strong> Crear una categoría exitosamente y presionar Enter<br>
+                    <strong>Resultado:</strong> <span class="test-status pending">Pendiente</span>
+                </div>
+
+                <div class="test-item" data-test="modal-enter-error">
+                    <div class="test-controls">
+                        <button class="test-button success" onclick="markTest(this, 'completed')">✅ Completado</button>
+                        <button class="test-button failed" onclick="markTest(this, 'failed')">❌ Fallido</button>
+                        <button class="test-button reset" onclick="markTest(this, 'pending')">🔄 Reset</button>
+                    </div>
+                    <strong>Prueba:</strong> En modal de error, presionar <kbd>Enter</kbd> cierra el modal<br>
+                    <strong>Ejemplo:</strong> Intentar crear categoría duplicada y presionar Enter<br>
+                    <strong>Resultado:</strong> <span class="test-status pending">Pendiente</span>
+                </div>
+
+                <div class="test-item" data-test="modal-enter-confirm">
+                    <div class="test-controls">
+                        <button class="test-button success" onclick="markTest(this, 'completed')">✅ Completado</button>
+                        <button class="test-button failed" onclick="markTest(this, 'failed')">❌ Fallido</button>
+                        <button class="test-button reset" onclick="markTest(this, 'pending')">🔄 Reset</button>
+                    </div>
+                    <strong>Prueba:</strong> En modal de confirmación de eliminación, presionar <kbd>Enter</kbd> confirma<br>
+                    <strong>Ejemplo:</strong> Intentar eliminar una categoría y presionar Enter<br>
+                    <strong>Resultado:</strong> <span class="test-status pending">Pendiente</span>
+                </div>
+
+                <div class="test-item" data-test="modal-esc-cancel">
+                    <div class="test-controls">
+                        <button class="test-button success" onclick="markTest(this, 'completed')">✅ Completado</button>
+                        <button class="test-button failed" onclick="markTest(this, 'failed')">❌ Fallido</button>
+                        <button class="test-button reset" onclick="markTest(this, 'pending')">🔄 Reset</button>
+                    </div>
+                    <strong>Prueba:</strong> En modal de confirmación, presionar <kbd>Esc</kbd> cancela<br>
+                    <strong>Ejemplo:</strong> Intentar eliminar una categoría y presionar Esc<br>
+                    <strong>Resultado:</strong> <span class="test-status pending">Pendiente</span>
+                </div>
+
+                <h3>4.4 Protección de Atajos</h3>
+                <div class="test-item" data-test="shortcut-no-input">
+                    <div class="test-controls">
+                        <button class="test-button success" onclick="markTest(this, 'completed')">✅ Completado</button>
+                        <button class="test-button failed" onclick="markTest(this, 'failed')">❌ Fallido</button>
+                        <button class="test-button reset" onclick="markTest(this, 'pending')">🔄 Reset</button>
+                    </div>
+                    <strong>Prueba:</strong> Los shortcuts NO funcionan mientras escribes en un campo de texto<br>
+                    <strong>Ejemplo:</strong> En el buscador, escribir la letra 'N' no debe abrir el modal<br>
+                    <strong>Resultado:</strong> <span class="test-status pending">Pendiente</span>
+                </div>
+
+                <div class="test-item" data-test="shortcut-no-modal-open">
+                    <div class="test-controls">
+                        <button class="test-button success" onclick="markTest(this, 'completed')">✅ Completado</button>
+                        <button class="test-button failed" onclick="markTest(this, 'failed')">❌ Fallido</button>
+                        <button class="test-button reset" onclick="markTest(this, 'pending')">🔄 Reset</button>
+                    </div>
+                    <strong>Prueba:</strong> Los shortcuts de creación NO funcionan con modal abierto<br>
+                    <strong>Ejemplo:</strong> Con el modal de "Nueva Categoría" abierto, presionar 'N' no debe abrir otro modal<br>
+                    <strong>Resultado:</strong> <span class="test-status pending">Pendiente</span>
+                </div>
+            </div>
+        </div>
+
         <div class="export-section">
             <h3>📊 Exportar Resultados</h3>
             <p>Guarda un reporte de todas las pruebas realizadas</p>

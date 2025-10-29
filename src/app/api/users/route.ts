@@ -22,6 +22,7 @@ export async function GET(request: NextRequest) {
     const companyId = searchParams.get('companyId');
     const countToday = searchParams.get('countToday') === 'true';
 
+    // Optimización: Sin JOIN de companies para máxima velocidad
     let query = supabaseAdmin
       .from('users')
       .select(`
@@ -33,11 +34,7 @@ export async function GET(request: NextRequest) {
         phone,
         company_id,
         created_at,
-        updated_at,
-        companies (
-          id,
-          name
-        )
+        updated_at
       `)
       .order('created_at', { ascending: false });
 
@@ -120,14 +117,13 @@ export async function GET(request: NextRequest) {
       }, { status: 500 });
     }
 
-    console.log('Users fetched:', { 
-      count: users?.length || 0, 
-      companyId, 
-      userRole: session.user.role,
-      users: users?.map(u => ({ id: u?.id, name: u?.name, company_id: u.company_id }))
-    });
+    // Agregar estructura mínima sin JOIN costoso
+    const usersWithCompanies = (users || []).map((user: any) => ({
+      ...user,
+      companies: user.company_id ? { id: user.company_id, name: '' } : null
+    }));
 
-    return NextResponse.json(transformUsers(users));
+    return NextResponse.json(transformUsers(usersWithCompanies));
   } catch (error: any) {
     console.error('Error in users GET:', error);
     return NextResponse.json({ 

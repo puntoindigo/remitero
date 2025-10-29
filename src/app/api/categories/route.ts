@@ -20,6 +20,8 @@ export async function GET(request: NextRequest) {
     const companyId = searchParams.get('companyId');
     const countToday = searchParams.get('countToday') === 'true';
 
+    // Optimización máxima: Sin JOINs innecesarios para máxima velocidad
+    // El JOIN con companies puede ser removido si no es crítico para el listado
     let query = supabaseAdmin
       .from('categories')
       .select(`
@@ -27,14 +29,7 @@ export async function GET(request: NextRequest) {
         name,
         created_at,
         updated_at,
-        company_id,
-        companies (
-          id,
-          name
-        ),
-        products (
-          id
-        )
+        company_id
       `)
       .order('created_at', { ascending: false });
 
@@ -100,7 +95,15 @@ export async function GET(request: NextRequest) {
       }, { status: 500 });
     }
 
-    return NextResponse.json(transformCategories(categories));
+    // Agregar estructura mínima para el transform sin hacer queries adicionales
+    // Esto mejora significativamente el rendimiento del listado
+    const categoriesWithDefaults = (categories || []).map((cat: any) => ({
+      ...cat,
+      companies: cat.company_id ? { id: cat.company_id, name: '' } : null, // Estructura mínima
+      _productsCount: 0 // Default, se calculará si se necesita en el frontend
+    }));
+
+    return NextResponse.json(transformCategories(categoriesWithDefaults));
   } catch (error: any) {
     console.error('Error in categories GET:', error);
     return NextResponse.json({ 

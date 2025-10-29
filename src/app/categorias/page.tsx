@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, Suspense, useCallback } from "react";
+import React, { useState, Suspense, useCallback, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { Plus, Package } from "lucide-react";
 import { formatDate } from "@/lib/utils/formatters";
@@ -9,7 +9,13 @@ import { MessageModal } from "@/components/common/MessageModal";
 import DeleteConfirmModal from "@/components/common/DeleteConfirmModal";
 import { CategoriaForm } from "@/components/forms/CategoriaForm";
 import { useMessageModal } from "@/hooks/useMessageModal";
-import { useCategorias, type Categoria } from "@/hooks/useCategorias";
+import { 
+  useCategoriasQuery,
+  useCreateCategoriaMutation,
+  useUpdateCategoriaMutation,
+  useDeleteCategoriaMutation,
+  type Category as Categoria
+} from "@/hooks/queries/useCategoriasQuery";
 import { useEmpresas, type Empresa } from "@/hooks/useEmpresas";
 import { useCRUDPage } from "@/hooks/useCRUDPage";
 import { useDataWithCompanySimple } from "@/hooks/useDataWithCompanySimple";
@@ -17,10 +23,12 @@ import { DataTable, type DataTableColumn } from "@/components/common/DataTable";
 import { useCRUDTable } from "@/hooks/useCRUDTable";
 import { Pagination } from "@/components/common/Pagination";
 import { LoadingSpinner } from "@/components/common/LoadingSpinner";
-import { ABMHeader } from "@/components/common/ABMHeader";
 import { useLoading } from "@/hooks/useLoading";
+import { ShortcutText } from "@/components/common/ShortcutText";
+import { SearchInput } from "@/components/common/SearchInput";
 import { LoadingButton } from "@/components/common/LoadingButton";
 import { useCurrentUserSimple } from "@/hooks/useCurrentUserSimple";
+import { useShortcuts } from "@/hooks/useShortcuts";
 
 function CategoriasContent() {
   const currentUser = useCurrentUserSimple();
@@ -69,19 +77,37 @@ function CategoriasContent() {
   // Estado para búsqueda
   const [searchTerm, setSearchTerm] = useState("");
 
-  const { 
-    categorias, 
-    isLoading, 
-    error, 
-    createCategoria, 
-    updateCategoria, 
-    deleteCategoria 
-  } = useCategorias(companyId || undefined);
+  // 🚀 REACT QUERY: Reemplaza el hook anterior
+  const { data: categorias = [], isLoading, error } = useCategoriasQuery(companyId);
+  const createMutation = useCreateCategoriaMutation();
+  const updateMutation = useUpdateCategoriaMutation();
+  const deleteMutation = useDeleteCategoriaMutation();
 
   // Función de eliminación con useCallback para evitar problemas de hoisting
   const handleDeleteCategoria = useCallback((categoria: Categoria) => {
     handleDeleteRequest(categoria.id, categoria.name);
   }, [handleDeleteRequest]);
+
+  // Configurar shortcuts de teclado
+  useShortcuts([
+    {
+      key: 'n',
+      action: handleNew,
+      description: 'Nueva Categoría'
+    }
+  ], !!companyId && !showForm); // Solo habilitar cuando hay companyId y el form no está abierto
+
+  // Listener para FAB mobile
+  useEffect(() => {
+    const handleFABClick = (event: any) => {
+      if (event.detail?.action === 'newCategoria') {
+        handleNew();
+      }
+    };
+
+    window.addEventListener('fabClick', handleFABClick);
+    return () => window.removeEventListener('fabClick', handleFABClick);
+  }, [handleNew]);
 
   // CRUD Table configuration
   const {
@@ -103,34 +129,36 @@ function CategoriasContent() {
     searchPlaceholder: "Buscar categorías..."
   });
 
+  // 🚀 REACT QUERY: Submit con mutaciones
   const onSubmit = async (data: any) => {
     setIsSubmitting(true);
     try {
       if (editingCategoria) {
-        await updateCategoria(editingCategoria.id, data);
+        await updateMutation.mutateAsync({ id: editingCategoria.id, data: { ...data, companyId } });
         showSuccess("Categoría actualizada correctamente");
       } else {
-        await createCategoria(data);
+        await createMutation.mutateAsync({ ...data, companyId });
         showSuccess("Categoría creada correctamente");
       }
       handleCloseForm();
     } catch (error: any) {
-      showError("Error", error.message);
+      showError(error.message || "Error al guardar la categoría");
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  // 🚀 REACT QUERY: Delete con mutación
   const handleDelete = async () => {
     if (!showDeleteConfirm) return;
     
     try {
-      await deleteCategoria(showDeleteConfirm.id);
+      await deleteMutation.mutateAsync(showDeleteConfirm.id);
       handleCancelDelete();
       showSuccess("Categoría eliminada correctamente");
     } catch (error: any) {
       handleCancelDelete();
-      showError("Error", error instanceof Error ? error.message : "Error al eliminar categoría");
+      showError(error instanceof Error ? error.message : "Error al eliminar categoría");
     }
   };
 
@@ -209,20 +237,52 @@ function CategoriasContent() {
         <div className="form-section">
           <h2>Gestión de Categorías</h2>
           
-          {/* Header con selector de empresa, búsqueda y botón Nuevo */}
-          <ABMHeader
-            showCompanySelector={shouldShowCompanySelector}
-            companies={empresas}
-            selectedCompanyId={selectedCompanyId}
-            onCompanyChange={setSelectedCompanyId}
-            showNewButton={!!companyId}
-            newButtonText="Nueva Categoría"
-            onNewClick={handleNew}
-            isSubmitting={isSubmitting}
-            searchPlaceholder="Buscar categorías..."
-            searchValue={searchTerm}
-            onSearchChange={setSearchTerm}
-          />
+          {/* Selector de empresa - ancho completo */}
+          {shouldShowCompanySelector && empresas?.length > 0 && (
+            <div style={{ marginBottom: '1rem' }}>
+              <FilterableSelect
+                options={empresas}
+                value={selectedCompanyId}
+                onChange={setSelectedCompanyId}
+                placeholder="Seleccionar empresa"
+                searchFields={["name"]}
+                className="w-full"
+              />
+            </div>
+          )}
+
+          {/* Barra de búsqueda y botón nuevo */}
+          {!needsCompanySelection && (
+            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1rem', justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                <SearchInput
+                  value={searchTerm}
+                  onChange={setSearchTerm}
+                  placeholder="Buscar categorías..."
+                />
+              </div>
+              <button
+                onClick={handleNew}
+                className="new-button"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  padding: '0.5rem 1rem',
+                  backgroundColor: '#3b82f6',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '0.375rem',
+                  cursor: 'pointer',
+                  fontSize: '0.875rem',
+                  fontWeight: '500'
+                }}
+              >
+                <Plus className="h-4 w-4" />
+                <ShortcutText text="Nueva Categoría" shortcutKey="n" />
+              </button>
+            </div>
+          )}
 
           {/* DataTable con paginación */}
           {needsCompanySelection ? (
@@ -235,8 +295,8 @@ function CategoriasContent() {
               <DataTable
                 {...tableConfig}
                 columns={columns}
-                showSearch={true} // Habilitar búsqueda
-                showNewButton={false} // Deshabilitar botón nuevo (ya tenemos uno independiente)
+                showSearch={false}
+                showNewButton={false}
               />
               <Pagination {...paginationConfig} />
             </>

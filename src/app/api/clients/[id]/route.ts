@@ -6,7 +6,7 @@ import { transformClient } from "@/lib/utils/supabase-transform";
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -26,8 +26,27 @@ export async function PUT(
       }, { status: 401 });
     }
 
-    const clientId = params?.id;
-    const body = await request.json();
+    const { id: clientId } = await params;
+    
+    // Leer el body con manejo de errores
+    let body;
+    try {
+      const text = await request.text();
+      if (!text || text.trim() === '') {
+        return NextResponse.json({ 
+          error: "Datos faltantes", 
+          message: "No se recibieron datos para actualizar." 
+        }, { status: 400 });
+      }
+      body = JSON.parse(text);
+    } catch (parseError) {
+      console.error('Error parsing request body:', parseError);
+      return NextResponse.json({ 
+        error: "Datos inválidos", 
+        message: "El formato de los datos enviados no es válido." 
+      }, { status: 400 });
+    }
+    
     const { name, address, phone, email } = body;
 
     // Validaciones básicas
@@ -78,6 +97,7 @@ export async function PUT(
       }
     }
 
+    // Optimización: Sin JOIN de companies en UPDATE
     const { data: updatedClient, error } = await supabaseAdmin
       .from('clients')
       .update({ name, address, phone, email })
@@ -90,11 +110,7 @@ export async function PUT(
         email,
         created_at,
         updated_at,
-        company_id,
-        companies (
-          id,
-          name
-        )
+        company_id
       `)
       .single();
 
@@ -106,7 +122,14 @@ export async function PUT(
       }, { status: 500 });
     }
 
-    return NextResponse.json(transformClient(updatedClient));
+    // Agregar estructura mínima sin JOIN costoso
+    const clientWithCompany = {
+      ...updatedClient,
+      companies: updatedClient.company_id ? { id: updatedClient.company_id, name: '' } : null,
+      remitos: [] // Array vacío por defecto
+    };
+
+    return NextResponse.json(transformClient(clientWithCompany));
   } catch (error: any) {
     console.error('Error in clients PUT:', error);
     return NextResponse.json({ 
@@ -118,7 +141,7 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -138,7 +161,7 @@ export async function DELETE(
       }, { status: 401 });
     }
 
-    const clientId = params?.id;
+    const { id: clientId } = await params;
 
     // Verificar que el cliente existe y el usuario tiene acceso
     const { data: existingClient, error: fetchError } = await supabaseAdmin

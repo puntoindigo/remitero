@@ -4,6 +4,7 @@ import React from "react";
 import { Edit, Trash2, Plus, Printer } from "lucide-react";
 import { LoadingSpinner } from "./LoadingSpinner";
 import { LoadingTable } from "./LoadingTable";
+import { ShortcutText } from "./ShortcutText";
 
 export interface DataTableColumn<T> {
   key: string;
@@ -109,7 +110,7 @@ export function DataTable<T>({
               className="primary new-button"
             >
               {newButtonIcon}
-              {newButtonText}
+              <ShortcutText text={newButtonText} shortcutKey="n" />
             </button>
           )}
         </div>

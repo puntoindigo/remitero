@@ -20,6 +20,7 @@ export async function GET(request: NextRequest) {
     const companyId = searchParams.get('companyId');
     const countToday = searchParams.get('countToday') === 'true';
 
+    // Optimización: Sin JOINs innecesarios para máxima velocidad
     let query = supabaseAdmin
       .from('clients')
       .select(`
@@ -30,14 +31,7 @@ export async function GET(request: NextRequest) {
         email,
         created_at,
         updated_at,
-        company_id,
-        companies (
-          id,
-          name
-        ),
-        remitos (
-          id
-        )
+        company_id
       `)
       .order('created_at', { ascending: false });
 
@@ -103,7 +97,14 @@ export async function GET(request: NextRequest) {
       }, { status: 500 });
     }
 
-    return NextResponse.json(transformClients(clients));
+    // Agregar estructura mínima sin JOINs costosos
+    const clientsWithDefaults = (clients || []).map((client: any) => ({
+      ...client,
+      companies: client.company_id ? { id: client.company_id, name: '' } : null,
+      remitos: [] // Array vacío por defecto
+    }));
+
+    return NextResponse.json(transformClients(clientsWithDefaults));
   } catch (error: any) {
     console.error('Error in clients GET:', error);
     return NextResponse.json({ 
@@ -194,11 +195,7 @@ export async function POST(request: NextRequest) {
         email,
         created_at,
         updated_at,
-        company_id,
-        companies (
-          id,
-          name
-        )
+        company_id
       `)
       .single();
 
@@ -210,7 +207,14 @@ export async function POST(request: NextRequest) {
       }, { status: 500 });
     }
 
-    return NextResponse.json(transformClient(newClient), { status: 201 });
+    // Agregar estructura mínima sin JOIN costoso
+    const clientWithDefaults = {
+      ...newClient,
+      companies: newClient.company_id ? { id: newClient.company_id, name: '' } : null,
+      remitos: [] // Array vacío por defecto
+    };
+
+    return NextResponse.json(transformClient(clientWithDefaults), { status: 201 });
   } catch (error: any) {
     console.error('Error in clients POST:', error);
     return NextResponse.json({ 

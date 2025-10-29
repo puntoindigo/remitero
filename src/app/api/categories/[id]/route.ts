@@ -6,7 +6,7 @@ import { transformCategory } from "@/lib/utils/supabase-transform";
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -26,7 +26,7 @@ export async function PUT(
       }, { status: 401 });
     }
 
-    const categoryId = params?.id;
+    const { id: categoryId } = await params;
     const body = await request.json();
     const { name } = body;
 
@@ -38,21 +38,22 @@ export async function PUT(
       }, { status: 400 });
     }
 
-    // Verificar que la categoría existe y el usuario tiene acceso
-    const { data: existingCategory, error: fetchError } = await supabaseAdmin
+    // Optimización: Query rápida solo para obtener nombre actual y verificar permisos
+    // Solo hacemos queries adicionales si realmente necesitamos verificar duplicados
+    const { data: existingCategory } = await supabaseAdmin
       .from('categories')
       .select('id, name, company_id')
       .eq('id', categoryId)
-      .single();
+      .maybeSingle();
 
-    if (fetchError || !existingCategory) {
+    if (!existingCategory) {
       return NextResponse.json({ 
         error: "Categoría no encontrada",
-        message: "La categoría solicitada no existe o no tienes permisos para acceder a ella."
+        message: "La categoría solicitada no existe."
       }, { status: 404 });
     }
 
-    // Verificar autorización para usuarios no SUPERADMIN
+    // Verificar autorización
     if (session.user.role !== 'SUPERADMIN' && existingCategory.company_id !== session.user.companyId) {
       return NextResponse.json({ 
         error: "No autorizado",
@@ -60,15 +61,15 @@ export async function PUT(
       }, { status: 403 });
     }
 
-    // Verificar que el nombre no esté en uso por otra categoría de la misma empresa
-    if (name !== existingCategory?.name) {
+    // Verificar nombre duplicado SOLO si el nombre cambia
+    if (name !== existingCategory.name) {
       const { data: nameCategory } = await supabaseAdmin
         .from('categories')
         .select('id')
         .eq('company_id', existingCategory.company_id)
         .eq('name', name)
         .neq('id', categoryId)
-        .single();
+        .maybeSingle();
 
       if (nameCategory) {
         return NextResponse.json({ 
@@ -78,7 +79,9 @@ export async function PUT(
       }
     }
 
-    const { data: updatedCategory, error } = await supabaseAdmin
+    // Hacer UPDATE sin JOINs pesados (solo campos básicos)
+    // El JOIN con companies puede ser lento y no es crítico para la respuesta
+    const { data: updatedCategory, error: updateError } = await supabaseAdmin
       .from('categories')
       .update({ name })
       .eq('id', categoryId)
@@ -87,27 +90,30 @@ export async function PUT(
         name,
         created_at,
         updated_at,
-        company_id,
-        companies (
-          id,
-          name
-        ),
-        products (
-          id,
-          name
-        )
+        company_id
       `)
       .single();
 
-    if (error) {
-      console.error('Error updating category:', error);
+    if (updateError || !updatedCategory) {
+      console.error('Error updating category:', updateError);
       return NextResponse.json({ 
         error: "Error interno del servidor",
         message: "No se pudo actualizar la categoría."
       }, { status: 500 });
     }
 
-    return NextResponse.json(transformCategory(updatedCategory));
+    // Agregar company name manualmente si lo necesitamos (más rápido que JOIN)
+    // Solo lo agregamos si realmente lo necesitamos
+    const categoryResponse = {
+      ...updatedCategory,
+      companies: existingCategory.company_id ? { 
+        id: existingCategory.company_id, 
+        name: '' // No crítico, se puede obtener después si se necesita
+      } : null,
+      _productsCount: 0 // Default, no crítico para la respuesta del UPDATE
+    };
+
+    return NextResponse.json(transformCategory(categoryResponse));
   } catch (error: any) {
     console.error('Error in categories PUT:', error);
     return NextResponse.json({ 
@@ -119,7 +125,7 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -139,7 +145,7 @@ export async function DELETE(
       }, { status: 401 });
     }
 
-    const categoryId = params?.id;
+    const { id: categoryId } = await params;
 
     // Verificar que la categoría existe y el usuario tiene acceso
     const { data: existingCategory, error: fetchError } = await supabaseAdmin

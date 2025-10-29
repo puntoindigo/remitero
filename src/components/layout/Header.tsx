@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { useState } from "react";
@@ -18,13 +18,17 @@ import {
 import { useCurrentUserSimple } from "@/hooks/useCurrentUserSimple";
 import { useImpersonation } from "@/hooks/useImpersonation";
 import DeleteConfirmModal from "@/components/common/DeleteConfirmModal";
+import { useShortcuts } from "@/hooks/useShortcuts";
+import { ShortcutText } from "@/components/common/ShortcutText";
 
 export default function Header() {
   const { data: session } = useSession();
   const currentUser = useCurrentUserSimple();
   const { stopImpersonation, isImpersonating } = useImpersonation();
   const pathname = usePathname();
+  const router = useRouter();
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   if (!session || !currentUser) {
     return (
@@ -44,7 +48,25 @@ export default function Header() {
   }
 
   const handleLogout = async () => {
-    await signOut({ callbackUrl: "/auth/login" });
+    setIsLoggingOut(true);
+    try {
+      // Redirigir inmediatamente para evitar demoras en compilación
+      if (typeof window !== 'undefined') {
+        // Hacer logout en background sin esperar ni mostrar errores
+        signOut({ redirect: false }).catch(() => {
+          // Ignorar errores silenciosamente
+        });
+        // Pequeño delay para que el signOut se ejecute antes de navegar
+        setTimeout(() => {
+          window.location.href = '/auth/login';
+        }, 50);
+      }
+    } catch (error) {
+      // Ignorar errores y redirigir de todas formas
+      if (typeof window !== 'undefined') {
+        window.location.href = '/auth/login';
+      }
+    }
   };
 
   const handleLogoutRequest = () => {
@@ -88,6 +110,33 @@ export default function Header() {
     }
   };
 
+  // Función helper para navegar con manejo de errores y verificación de permisos
+  const safeNavigate = (path: string, requiredRoles?: string[]) => {
+    try {
+      // Verificar permisos si son necesarios
+      if (requiredRoles && !requiredRoles.includes(currentUser.role)) {
+        console.warn(`Acceso denegado a ${path}. Rol requerido: ${requiredRoles.join(', ')}`);
+        return;
+      }
+      router.push(path);
+    } catch (error) {
+      console.error('Error al navegar:', error);
+    }
+  };
+
+  // Configurar shortcuts de navegación con verificación de permisos
+  useShortcuts([
+    { key: 'd', action: () => safeNavigate('/dashboard', ['ADMIN', 'USER']), description: 'Dashboard' },
+    { key: 'r', action: () => safeNavigate('/remitos'), description: 'Remitos' },
+    { key: 'c', action: () => safeNavigate('/clientes'), description: 'Clientes' },
+    { key: 'p', action: () => safeNavigate('/productos'), description: 'Productos' },
+    { key: 't', action: () => safeNavigate('/categorias', ['SUPERADMIN', 'ADMIN']), description: 'Categorías' },
+    { key: 'e', action: () => safeNavigate('/estados-remitos', ['SUPERADMIN', 'ADMIN']), description: 'Estados' },
+    { key: 'u', action: () => safeNavigate('/usuarios', ['SUPERADMIN', 'ADMIN']), description: 'Usuarios' },
+    { key: 'm', action: () => safeNavigate('/empresas', ['SUPERADMIN']), description: 'Empresas' },
+    { key: 's', action: handleLogoutRequest, description: 'Salir' }
+  ], !!session && !showLogoutConfirm);
+
   const NavLink = ({ href, children, roles }: { 
     href: string; 
     children: React.ReactNode; 
@@ -120,35 +169,35 @@ export default function Header() {
       <nav className="main-nav">
         <NavLink href="/dashboard" roles={['ADMIN', 'USER']}>
           <LayoutDashboard className="h-4 w-4" />
-          Tablero
+          <ShortcutText text="Tablero" shortcutKey="d" />
         </NavLink>
         <NavLink href="/remitos">
           <ReceiptText className="h-4 w-4" />
-          Remitos
+          <ShortcutText text="Remitos" shortcutKey="r" />
         </NavLink>
         <NavLink href="/clientes">
           <ShoppingBag className="h-4 w-4" />
-          Clientes
+          <ShortcutText text="Clientes" shortcutKey="c" />
         </NavLink>
         <NavLink href="/productos">
           <Package className="h-4 w-4" />
-          Productos
+          <ShortcutText text="Productos" shortcutKey="p" />
         </NavLink>
         <NavLink href="/categorias" roles={['SUPERADMIN', 'ADMIN']}>
           <Tag className="h-4 w-4" />
-          Categorías
+          <ShortcutText text="Categorías" shortcutKey="t" />
         </NavLink>
         <NavLink href="/estados-remitos" roles={['SUPERADMIN', 'ADMIN']}>
           <Tag className="h-4 w-4" />
-          Estados
+          <ShortcutText text="Estados" shortcutKey="e" />
         </NavLink>
         <NavLink href="/usuarios" roles={['SUPERADMIN', 'ADMIN']}>
           <Users className="h-4 w-4" />
-          Usuarios
+          <ShortcutText text="Usuarios" shortcutKey="u" />
         </NavLink>
         <NavLink href="/empresas" roles={['SUPERADMIN']}>
           <Building2 className="h-4 w-4" />
-          Empresas
+          <ShortcutText text="Empresas" shortcutKey="m" />
         </NavLink>
       </nav>
       
@@ -164,6 +213,7 @@ export default function Header() {
         title="Confirmar Salida"
         message="¿Estás seguro de que deseas cerrar sesión?"
         confirmButtonText="Aceptar"
+        isLoading={isLoggingOut}
       />
     </header>
   );

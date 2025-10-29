@@ -1,0 +1,3 @@
+[2025-10-25T23:43:45.624Z] Super Administrador (superadmin@remitero.com) [SUPERADMIN] - CREATE Usuario (ID: 46fa5c09-db61-4609-996a-8435cdab20a4) | Usuario: provee (provee.daeiman@gmail.com) - Rol: USER
+[2025-10-26T00:58:22.161Z] Super Administrador (superadmin@remitero.com) [SUPERADMIN] - IMPERSONATION_START Usuario (ID: 46fa5c09-db61-4609-996a-8435cdab20a4) | Impersonando a provee (provee.daeiman@gmail.com)
+[2025-10-26T13:02:13.627Z] Super Administrador (superadmin@remitero.com) [SUPERADMIN] - CREATE Usuario (ID: 6750ef65-3b86-4b52-8d18-419d94a31bfb) | Usuario: test2 (test2@remitos.com) - Rol: USER

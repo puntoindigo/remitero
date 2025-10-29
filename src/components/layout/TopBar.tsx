@@ -6,19 +6,39 @@ import { LogOut, User, Shield, UserCheck } from "lucide-react";
 import { useCurrentUserSimple } from "@/hooks/useCurrentUserSimple";
 import { useImpersonation } from "@/hooks/useImpersonation";
 import DeleteConfirmModal from "@/components/common/DeleteConfirmModal";
+import { ShortcutText } from "@/components/common/ShortcutText";
 
 export default function TopBar() {
   const { data: session } = useSession();
   const currentUser = useCurrentUserSimple();
   const { stopImpersonation, isImpersonating } = useImpersonation();
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   if (!session || !currentUser) {
     return null;
   }
 
   const handleLogout = async () => {
-    await signOut({ callbackUrl: "/auth/login" });
+    setIsLoggingOut(true);
+    try {
+      // Redirigir inmediatamente para evitar demoras en compilación
+      if (typeof window !== 'undefined') {
+        // Hacer logout en background sin esperar ni mostrar errores
+        signOut({ redirect: false }).catch(() => {
+          // Ignorar errores silenciosamente
+        });
+        // Pequeño delay para que el signOut se ejecute antes de navegar
+        setTimeout(() => {
+          window.location.href = '/auth/login';
+        }, 50);
+      }
+    } catch (error) {
+      // Ignorar errores y redirigir de todas formas
+      if (typeof window !== 'undefined') {
+        window.location.href = '/auth/login';
+      }
+    }
   };
 
   const handleLogoutRequest = () => {
@@ -107,10 +127,10 @@ export default function TopBar() {
                   <button 
                     onClick={handleLogoutRequest} 
                     className="topbar-button logout-button"
-                    title="Cerrar sesión"
+                    title="Cerrar sesión (S)"
                   >
                     <LogOut className="h-4 w-4" />
-                    <span>Salir</span>
+                    <ShortcutText text="Salir" shortcutKey="s" />
                   </button>
                 )}
               </div>
@@ -127,6 +147,7 @@ export default function TopBar() {
         title="Confirmar Salida"
         message="¿Estás seguro de que deseas cerrar sesión?"
         confirmButtonText="Aceptar"
+        isLoading={isLoggingOut}
       />
     </>
   );

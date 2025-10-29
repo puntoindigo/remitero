@@ -36,6 +36,22 @@ export function PasswordGeneratorModal({
     }
   }, [isOpen]);
 
+  // Cerrar con ESC
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        e.stopPropagation();
+        onClose();
+      }
+    };
+
+    window.addEventListener('keydown', handleEscape, { capture: true });
+    return () => window.removeEventListener('keydown', handleEscape, { capture: true });
+  }, [isOpen, onClose]);
+
   const generateNewPassword = () => {
     const word1 = words[Math.floor(Math.random() * words?.length)];
     const word2 = words[Math.floor(Math.random() * words?.length)];

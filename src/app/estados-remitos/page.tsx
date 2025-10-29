@@ -17,6 +17,9 @@ import { DataTable, type DataTableColumn } from "@/components/common/DataTable";
 import { useCRUDTable } from "@/hooks/useCRUDTable";
 import { Pagination } from "@/components/common/Pagination";
 import { LoadingSpinner } from "@/components/common/LoadingSpinner";
+import { useShortcuts } from "@/hooks/useShortcuts";
+import { ShortcutText } from "@/components/common/ShortcutText";
+import { SearchInput } from "@/components/common/SearchInput";
 
 function EstadosRemitosContent() {
   const currentUser = useCurrentUserSimple();
@@ -100,6 +103,27 @@ function EstadosRemitosContent() {
     deleteEstado
   } = useEstadosRemitos(companyId || undefined);
 
+  // Configurar shortcuts de teclado
+  useShortcuts([
+    {
+      key: 'n',
+      action: handleNewEstado,
+      description: 'Nuevo Estado'
+    }
+  ], !!companyId && !showForm);
+
+  // Listener para FAB mobile
+  useEffect(() => {
+    const handleFABClick = (event: any) => {
+      if (event.detail?.action === 'newEstado') {
+        handleNewEstado();
+      }
+    };
+
+    window.addEventListener('fabClick', handleFABClick);
+    return () => window.removeEventListener('fabClick', handleFABClick);
+  }, [handleNewEstado]);
+
   // Función de eliminación con useCallback para evitar problemas de hoisting
   const handleDeleteEstado = useCallback((estado: EstadoRemito) => {
     handleDeleteRequest(estado?.id, estado?.name);
@@ -137,7 +161,7 @@ function EstadosRemitosContent() {
       }
       handleCloseForm();
     } catch (error: any) {
-      showError("Error", error.message);
+      showError(error.message || "Error al guardar el estado");
     } finally {
       setIsSubmitting(false);
     }
@@ -152,7 +176,7 @@ function EstadosRemitosContent() {
       showSuccess("Estado eliminado correctamente", "Éxito");
     } catch (error: any) {
       handleCancelDelete();
-      showError("Error", error instanceof Error ? error.message : "Error al eliminar estado");
+      showError(error instanceof Error ? error.message : "Error al eliminar estado");
     }
   };
 
@@ -264,19 +288,52 @@ function EstadosRemitosContent() {
         <div className="form-section">
           <h2>Gestión de Estados de Remitos</h2>
           
-          {/* Filtros adicionales */}
-          <div className="category-filter-wrapper" style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1rem' }}>
-            {shouldShowCompanySelector && empresas?.length > 0 && (
+          {/* Selector de empresa - ancho completo */}
+          {shouldShowCompanySelector && empresas?.length > 0 && (
+            <div style={{ marginBottom: '1rem' }}>
               <FilterableSelect
                 options={empresas}
                 value={selectedCompanyId}
                 onChange={setSelectedCompanyId}
                 placeholder="Seleccionar empresa"
                 searchFields={["name"]}
-                className="w-64"
+                className="w-full"
               />
-            )}
-          </div>
+            </div>
+          )}
+
+          {/* Barra de búsqueda y botón nuevo */}
+          {!needsCompanySelection && (
+            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1rem', justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                <SearchInput
+                  value={tableConfig.searchValue || ''}
+                  onChange={(value) => tableConfig.onSearchChange?.(value)}
+                  placeholder="Buscar estados..."
+                />
+              </div>
+              <button
+                onClick={handleNewEstado}
+                className="new-button"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  padding: '0.5rem 1rem',
+                  backgroundColor: '#3b82f6',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '0.375rem',
+                  cursor: 'pointer',
+                  fontSize: '0.875rem',
+                  fontWeight: '500'
+                }}
+              >
+                <Plus className="h-4 w-4" />
+                <ShortcutText text="Nuevo Estado" shortcutKey="n" />
+              </button>
+            </div>
+          )}
 
           {/* DataTable con paginación */}
           {needsCompanySelection ? (
@@ -289,8 +346,8 @@ function EstadosRemitosContent() {
               <DataTable
                 {...tableConfig}
                 columns={columns}
-                showSearch={true}
-                showNewButton={true}
+                showSearch={false}
+                showNewButton={false}
                 onEdit={(estado) => handleEditEstado(estado)}
                 onDelete={handleDeleteEstado}
                 actionsColumnLabel="Acciones"

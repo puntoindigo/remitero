@@ -4,6 +4,7 @@ import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Remito } from "@/lib/types";
 import { LoadingSpinner } from "@/components/common/LoadingSpinner";
+import "./print.css";
 
 export default function PrintRemito() {
   const params = useParams();
@@ -12,86 +13,83 @@ export default function PrintRemito() {
 
   useEffect(() => {
     const fetchRemito = async () => {
-      console.log('Fetching remito with ID:', params?.id);
+      console.log('🖨️ [PRINT] Fetching remito with ID:', params?.id);
+      setLoading(true);
+      
       try {
-        const response = await fetch(`/api/remitos/${params?.id}, []`).catch(error => {
-            console.error('Network error:', error);
-            throw new Error("Error de conexión de red");
+        const response = await fetch(`/api/remitos/${params?.id}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include', // Importante para incluir cookies de sesión
         });
-        console.log('Response status:', response.status);
+        
+        console.log('🖨️ [PRINT] Response status:', response.status);
+        
         if (response.ok) {
           const data = await response.json();
-          console.log('Remito data:', data);
+          console.log('🖨️ [PRINT] Remito data received:', data);
           setRemito(data);
         } else {
-          console.error('Error response:', response.status, response.statusText);
+          const errorData = await response.json().catch(() => ({}));
+          console.error('🖨️ [PRINT] Error response:', response.status, errorData);
         }
       } catch (error) {
-        console.error("Error fetching remito:", error);
+        console.error("🖨️ [PRINT] Error fetching remito:", error);
       } finally {
+        console.log('🖨️ [PRINT] Loading complete');
         setLoading(false);
       }
     };
 
     if (params?.id) {
+      console.log('🖨️ [PRINT] Starting fetch for ID:', params.id);
       fetchRemito();
+    } else {
+      console.error('🖨️ [PRINT] No ID provided');
+      setLoading(false);
     }
   }, [params?.id]);
 
+  // Auto-print cuando carga la página
   useEffect(() => {
-    if (remito && !loading) {
-      // Trigger print after component loads
-      setTimeout(() => {
-        window.print();
-      }, [], 500);
+    if (remito && !loading && typeof window !== 'undefined') {
+      const timer = setTimeout(() => {
+        try {
+          window.print();
+        } catch (err: any) {
+          console.error('Error al abrir diálogo de impresión:', err?.message || String(err));
+        }
+      }, 300);
+      return () => clearTimeout(timer);
     }
   }, [remito, loading]);
 
-  // Cerrar pestaña después de imprimir o cancelar
+  // Cerrar pestaña después de imprimir
   useEffect(() => {
     const handleAfterPrint = () => {
-      // Cerrar la pestaña después de imprimir
-      window.close();
+      try {
+        window.close();
+      } catch (err: any) {
+        console.log('No se pudo cerrar la ventana automáticamente:', err?.message || String(err));
+      }
     };
 
-    const handleBeforeUnload = () => {
-      // Cerrar la pestaña si se cancela la impresión
-      window.close();
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      // No hacer nada, solo capturar el evento
     };
 
-    // Escuchar eventos de impresión
-    window.addEventListener('afterprint', handleAfterPrint);
-    window.addEventListener('beforeunload', handleBeforeUnload);
-
-    // También agregar un botón manual para cerrar
-    const addCloseButton = () => {
-      const closeButton = document.createElement('button');
-      closeButton.innerHTML = 'Cerrar';
-      closeButton.style.cssText = `
-        position: fixed;
-        top: 10px;
-        right: 10px;
-        z-index: 9999;
-        background: #dc2626;
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: 14px;
-      `;
-      closeButton.onclick = () => window.close();
-      document.body.appendChild(closeButton);
-    };
-
-    // Agregar botón después de cargar
-    if (remito && !loading) {
-      setTimeout(addCloseButton, 1000);
+    if (typeof window !== 'undefined') {
+      window.addEventListener('afterprint', handleAfterPrint);
+      window.addEventListener('beforeunload', handleBeforeUnload);
     }
 
     return () => {
-      window.removeEventListener('afterprint', handleAfterPrint);
-      window.removeEventListener('beforeunload', handleBeforeUnload);
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('afterprint', handleAfterPrint);
+        window.removeEventListener('beforeunload', handleBeforeUnload);
+      }
     };
   }, [remito, loading]);
 

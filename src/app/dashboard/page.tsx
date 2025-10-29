@@ -83,32 +83,42 @@ export default function DashboardPage() {
       try {
         // Cargar estadísticas principales
         const [remitosRes, productosRes, clientesRes, categoriasRes] = await Promise.all([
-          fetch(`/api/remitos?companyId=${effectiveCompanyId}, []`),
+          fetch(`/api/remitos?companyId=${effectiveCompanyId}`),
           fetch(`/api/products?companyId=${effectiveCompanyId}`),
           fetch(`/api/clients?companyId=${effectiveCompanyId}`),
           fetch(`/api/categories?companyId=${effectiveCompanyId}`)
         ])
 
+        // Validar que todas las respuestas sean OK
+        if (!remitosRes.ok || !productosRes.ok || !clientesRes.ok || !categoriasRes.ok) {
+          throw new Error('Error al cargar estadísticas principales');
+        }
+
         const [remitos, productos, clientes, categorias] = await Promise.all([
-          remitosRes.json(),
-          productosRes.json(),
-          clientesRes.json(),
-          categoriasRes.json()
+          remitosRes.json().catch(() => []),
+          productosRes.json().catch(() => []),
+          clientesRes.json().catch(() => []),
+          categoriasRes.json().catch(() => [])
         ])
 
         // Cargar conteos de hoy
         const [usuariosTodayRes, clientesTodayRes, productosTodayRes, categoriasTodayRes] = await Promise.all([
-          fetch(`/api/users?companyId=${currentUser.companyId}&countToday=true`),
-          fetch(`/api/clients?companyId=${currentUser.companyId}&countToday=true`),
-          fetch(`/api/products?companyId=${currentUser.companyId}&countToday=true`),
-          fetch(`/api/categories?companyId=${currentUser.companyId}&countToday=true`)
+          fetch(`/api/users?companyId=${effectiveCompanyId}&countToday=true`),
+          fetch(`/api/clients?companyId=${effectiveCompanyId}&countToday=true`),
+          fetch(`/api/products?companyId=${effectiveCompanyId}&countToday=true`),
+          fetch(`/api/categories?companyId=${effectiveCompanyId}&countToday=true`)
         ])
 
+        // Validar que todas las respuestas sean OK
+        if (!usuariosTodayRes.ok || !clientesTodayRes.ok || !productosTodayRes.ok || !categoriasTodayRes.ok) {
+          throw new Error('Error al cargar conteos de hoy');
+        }
+
         const [usuariosToday, clientesToday, productosToday, categoriasToday] = await Promise.all([
-          usuariosTodayRes.json(),
-          clientesTodayRes.json(),
-          productosTodayRes.json(),
-          categoriasTodayRes.json()
+          usuariosTodayRes.json().catch(() => ({ count: 0 })),
+          clientesTodayRes.json().catch(() => ({ count: 0 })),
+          productosTodayRes.json().catch(() => ({ count: 0 })),
+          categoriasTodayRes.json().catch(() => ({ count: 0 }))
         ])
 
         // Debug logs
@@ -155,7 +165,26 @@ export default function DashboardPage() {
           categorias: categoriasToday.count || 0
         })
       } catch (error) {
-        console.error('Error loading dashboard stats:', error)
+        console.error('Error loading dashboard stats:', error);
+        // Si el error es un Event, probablemente es un error de red
+        if (error instanceof Event) {
+          console.error('Network error detected:', error.type);
+        } else if (error instanceof Error) {
+          console.error('Error message:', error.message);
+        }
+        // Establecer valores por defecto para evitar UI rota
+        setStats({
+          remitos: { total: 0, pendientes: 0, preparados: 0, entregados: 0 },
+          productos: { total: 0, conStock: 0, sinStock: 0 },
+          clientes: 0,
+          categorias: 0
+        });
+        setTodayStats({
+          usuarios: 0,
+          clientes: 0,
+          productos: 0,
+          categorias: 0
+        });
       } finally {
         setIsLoading(false)
       }
@@ -229,8 +258,12 @@ export default function DashboardPage() {
         { label: "Total", value: stats.clientes, link: "/clientes" },
         ...(todayStats.clientes > 0 ? [{ label: "Nuevos hoy", value: todayStats.clientes, link: "/clientes" }] : [])
       ]
-    },
-    {
+    }
+  ]
+
+  // Agregar tarjeta de categorías solo si el usuario es ADMIN o SUPERADMIN
+  if (currentUser?.role === 'ADMIN' || currentUser?.role === 'SUPERADMIN') {
+    cards.push({
       title: "Categorías",
       icon: Tag,
       color: "bg-orange-500",
@@ -240,8 +273,8 @@ export default function DashboardPage() {
         { label: "Total", value: stats.categorias, link: "/categorias" },
         ...(todayStats.categorias > 0 ? [{ label: "Nuevos hoy", value: todayStats.categorias, link: "/categorias" }] : [])
       ]
-    }
-  ]
+    })
+  }
 
   // Agregar tarjeta de usuarios solo si el usuario es ADMIN o SUPERADMIN
   if (currentUser?.role === 'ADMIN' || currentUser?.role === 'SUPERADMIN') {

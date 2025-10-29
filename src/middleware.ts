@@ -11,6 +11,12 @@ export default async function middleware(req: NextRequest) {
     return NextResponse.next()
   }
 
+  // Rutas de impresión - permitir pero con token
+  if (pathname.match(/\/remitos\/[^\/]+\/print/)) {
+    console.log('🖨️ [MIDDLEWARE] Print route detected:', pathname);
+    return NextResponse.next()
+  }
+
   // Para rutas protegidas, verificar autenticación
   const token = await getToken({ req })
 
@@ -23,7 +29,27 @@ export default async function middleware(req: NextRequest) {
       pathname.startsWith("/empresas")) {
     
     if (!token) {
-      return NextResponse.redirect(new URL("/auth/login", req.url))
+      // Asegurar que el redirect use el puerto correcto (de NEXTAUTH_URL si está configurado)
+      const loginUrl = new URL("/auth/login", req.url);
+      
+      // En desarrollo, verificar y corregir el puerto si es necesario
+      if (process.env.NODE_ENV === "development" && process.env.NEXTAUTH_URL) {
+        try {
+          const nextAuthUrlObj = new URL(process.env.NEXTAUTH_URL);
+          const reqUrlObj = new URL(req.url);
+          
+          // Si son localhost y los puertos difieren, usar el puerto de NEXTAUTH_URL
+          if (reqUrlObj.hostname === "localhost" && 
+              nextAuthUrlObj.hostname === "localhost" &&
+              reqUrlObj.port !== nextAuthUrlObj.port) {
+            loginUrl.port = nextAuthUrlObj.port;
+          }
+        } catch {
+          // Si hay error, usar la URL original
+        }
+      }
+      
+      return NextResponse.redirect(loginUrl);
     }
 
     // Verificar roles para rutas específicas

@@ -57,11 +57,7 @@ export function useCategorias(companyId?: string) {
       setIsLoading(true);
       setError(null);
       
-      const response = await fetch(`/api/categories?companyId=${effectiveCompanyId}`)
-        .catch(error => {
-          console.error('Network error:', error);
-          throw new Error("Error de conexión al cargar categorías");
-        });
+      const response = await fetch(`/api/categories?companyId=${effectiveCompanyId}`);
       
       if (!response.ok) {
         throw new Error("Error al cargar categorías");
@@ -91,13 +87,7 @@ export function useCategorias(companyId?: string) {
         body: JSON.stringify({ 
           name: data?.name,
           companyId: effectiveCompanyId
-        }).catch(error => {
-            console.error('Network error:', error);
-            throw new Error("Error de conexión de red");
-        }),
-      }).catch(error => {
-        console.error('Network error:', error);
-        throw new Error("Error de conexión al crear categoría");
+        })
       });
 
       if (!response.ok) {
@@ -129,13 +119,7 @@ export function useCategorias(companyId?: string) {
         body: JSON.stringify({ 
           name: data?.name,
           companyId: effectiveCompanyId
-        }).catch(error => {
-            console.error('Network error:', error);
-            throw new Error("Error de conexión de red");
-        }),
-      }).catch(error => {
-        console.error('Network error:', error);
-        throw new Error("Error de conexión al actualizar categoría");
+        })
       });
 
       if (!response.ok) {
@@ -161,9 +145,6 @@ export function useCategorias(companyId?: string) {
     try {
       const response = await fetch(`/api/categories/${id}`, {
         method: "DELETE",
-      }).catch(error => {
-        console.error('Network error:', error);
-        throw new Error("Error de conexión al eliminar categoría");
       });
 
       if (!response.ok) {

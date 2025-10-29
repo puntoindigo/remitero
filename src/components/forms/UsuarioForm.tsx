@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -81,21 +81,21 @@ export function UsuarioForm({
   const shouldShowCompanyField = isCurrentUserSuperAdmin && selectedRole !== "SUPERADMIN" && !companyId;
 
   // Limpiar companyId cuando el rol es SUPERADMIN
-  React.useEffect(() => {
+  useEffect(() => {
     if (selectedRole === "SUPERADMIN") {
       setValue("companyId", "");
     }
   }, [selectedRole, setValue]);
 
   // Establecer companyId automáticamente cuando se proporciona
-  React.useEffect(() => {
+  useEffect(() => {
     if (companyId && !editingUser) {
       setValue("companyId", companyId);
     }
   }, [companyId, setValue, editingUser]);
 
   // Reset form when editingUser changes
-  React.useEffect(() => {
+  useEffect(() => {
     if (editingUser) {
       reset({
         name: editingUser?.name,

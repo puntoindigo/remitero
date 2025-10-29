@@ -5,7 +5,7 @@ import { supabaseAdmin } from "@/lib/supabase";
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -17,7 +17,7 @@ export async function PUT(
       }, { status: 401 });
     }
 
-    const estadoId = params?.id;
+    const { id: estadoId } = await params;
     const body = await request.json();
     const { name, description, color, icon, is_active, sort_order } = body;
 
@@ -100,11 +100,7 @@ export async function PUT(
         sort_order,
         created_at,
         updated_at,
-        company_id,
-        companies (
-          id,
-          name
-        )
+        company_id
       `)
       .single();
 
@@ -116,7 +112,13 @@ export async function PUT(
       }, { status: 500 });
     }
 
-    return NextResponse.json(updatedEstado);
+    // Agregar estructura mínima sin JOIN costoso
+    const estadoWithCompany = {
+      ...updatedEstado,
+      companies: updatedEstado.company_id ? { id: updatedEstado.company_id, name: '' } : null
+    };
+
+    return NextResponse.json(estadoWithCompany);
   } catch (error) {
     console.error('Error en PUT /api/estados-remitos/[id]:', error);
     return NextResponse.json({ 
@@ -128,7 +130,7 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -140,7 +142,7 @@ export async function DELETE(
       }, { status: 401 });
     }
 
-    const estadoId = params?.id;
+    const { id: estadoId } = await params;
 
     // Verificar que el usuario tenga companyId (excepto SUPERADMIN)
     if (session.user.role !== 'SUPERADMIN' && !session.user.companyId) {

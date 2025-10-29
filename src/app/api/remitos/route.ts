@@ -20,6 +20,8 @@ export async function GET(request: NextRequest) {
     const companyId = searchParams.get('companyId');
     
 
+    // Optimización: JOINs mínimos necesarios para el listado
+    // Incluimos solo datos esenciales de clients y estados para evitar lentitud
     let query = supabaseAdmin
       .from('remitos')
       .select(`
@@ -36,14 +38,12 @@ export async function GET(request: NextRequest) {
         clients (
           id,
           name,
-          email,
-          phone,
-          address
+          email
         ),
-        users (
+        estados_remitos (
           id,
           name,
-          email
+          color
         ),
         remito_items (
           id,
@@ -52,17 +52,7 @@ export async function GET(request: NextRequest) {
           product_name,
           product_desc,
           unit_price,
-          line_total,
-          products (
-            id,
-            name
-          )
-        ),
-        estados_remitos (
-          id,
-          name,
-          color,
-          is_active
+          line_total
         )
       `)
       .order('created_at', { ascending: false });
@@ -105,7 +95,24 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    const transformedRemitos = transformRemitos(remitos);
+    // Los datos de clients y estados_remitos ya vienen del JOIN
+    // Solo necesitamos asegurar que la estructura sea consistente
+    const remitosWithStructures = (remitos || []).map((remito: any) => ({
+      ...remito,
+      // clients y estados_remitos ya vienen del JOIN, no necesitamos crearlos manualmente
+      users: remito.created_by_id ? {
+        id: remito.created_by_id,
+        name: '',
+        email: ''
+      } : null,
+      // Remover products de remito_items si existe (no lo necesitamos)
+      remito_items: (remito.remito_items || []).map((item: any) => ({
+        ...item,
+        products: item.product_id ? { id: item.product_id, name: '' } : null
+      }))
+    }));
+
+    const transformedRemitos = transformRemitos(remitosWithStructures);
     console.log('Transformed remitos:', transformedRemitos?.length || 0, 'remitos');
     
     return NextResponse.json(transformedRemitos);

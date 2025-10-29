@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -40,7 +40,7 @@ export function EmpresaForm({
   });
 
   // Reset form when editingEmpresa changes
-  React.useEffect(() => {
+  useEffect(() => {
     if (editingEmpresa) {
       reset({ name: editingEmpresa?.name }, []);
     } else {

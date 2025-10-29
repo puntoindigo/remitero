@@ -3,6 +3,7 @@
 import React from "react";
 import { Plus } from "lucide-react";
 import FilterableSelect from "./FilterableSelect";
+import { ShortcutText } from "./ShortcutText";
 
 interface ABMHeaderProps {
   // Selector de empresa (opcional)
@@ -149,7 +150,7 @@ export function ABMHeader({
             }}
           >
             <Plus className="h-4 w-4" />
-            {newButtonText}
+            <ShortcutText text={newButtonText} shortcutKey="n" />
           </button>
         )}
       </div>

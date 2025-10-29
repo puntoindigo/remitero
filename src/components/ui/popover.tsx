@@ -41,7 +41,7 @@ const PopoverTrigger = React.forwardRef<HTMLButtonElement, PopoverTriggerProps>(
     const { open, setOpen } = React.useContext(PopoverContext)
     const internalRef = React.useRef<HTMLElement>(null)
     
-    React.useEffect(() => {
+    useEffect(() => {
       if (internalRef.current) {
         // Store reference for positioning
         (internalRef.current as any).__popoverTrigger = true

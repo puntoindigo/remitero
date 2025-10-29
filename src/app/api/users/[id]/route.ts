@@ -7,7 +7,7 @@ import bcrypt from "bcryptjs";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -19,7 +19,7 @@ export async function GET(
       }, { status: 401 });
     }
 
-    const userId = params?.id;
+    const { id: userId } = await params;
 
     // Verificar permisos de visualización
     if (session.user.role === 'SUPERADMIN') {
@@ -37,6 +37,7 @@ export async function GET(
 
     const { data: user, error } = await supabaseAdmin
       .from('users')
+      // Optimización: Sin JOIN de companies
       .select(`
         id,
         name,
@@ -46,11 +47,7 @@ export async function GET(
         phone,
         company_id,
         created_at,
-        updated_at,
-        companies (
-          id,
-          name
-        )
+        updated_at
       `)
       .eq('id', userId)
       .single();
@@ -73,7 +70,13 @@ export async function GET(
       }
     }
 
-    return NextResponse.json(transformUser(user));
+    // Agregar estructura mínima sin JOIN costoso
+    const userWithCompany = {
+      ...user,
+      companies: user.company_id ? { id: user.company_id, name: '' } : null
+    };
+
+    return NextResponse.json(transformUser(userWithCompany));
   } catch (error: any) {
     console.error('Error in users GET by ID:', error);
     return NextResponse.json({ 
@@ -85,7 +88,7 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -97,7 +100,7 @@ export async function PUT(
       }, { status: 401 });
     }
 
-    const userId = params?.id;
+    const { id: userId } = await params;
     const body = await request.json();
     const { name, email, password, role, address, phone, companyId } = body;
 
@@ -177,6 +180,7 @@ export async function PUT(
       updateData.password = await bcrypt.hash(password, 10);
     }
 
+    // Optimización: Sin JOIN de companies en UPDATE
     const { data: updatedUser, error } = await supabaseAdmin
       .from('users')
       .update(updateData)
@@ -190,11 +194,7 @@ export async function PUT(
         phone,
         company_id,
         created_at,
-        updated_at,
-        companies (
-          id,
-          name
-        )
+        updated_at
       `)
       .single();
 
@@ -206,7 +206,13 @@ export async function PUT(
       }, { status: 500 });
     }
 
-    return NextResponse.json(transformUser(updatedUser));
+    // Agregar estructura mínima sin JOIN costoso
+    const userWithCompany = {
+      ...updatedUser,
+      companies: updatedUser.company_id ? { id: updatedUser.company_id, name: '' } : null
+    };
+
+    return NextResponse.json(transformUser(userWithCompany));
   } catch (error: any) {
     console.error('Error in users PUT:', error);
     return NextResponse.json({ 
@@ -218,7 +224,7 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -230,7 +236,7 @@ export async function DELETE(
       }, { status: 401 });
     }
 
-    const userId = params?.id;
+    const { id: userId } = await params;
 
     // Verificar permisos de eliminación
     if (session.user.role === 'SUPERADMIN') {

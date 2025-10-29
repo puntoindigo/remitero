@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, Suspense, useCallback } from "react";
+import React, { useState, Suspense, useCallback, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { Plus, Building2, Users } from "lucide-react";
 import { formatDate } from "@/lib/utils/formatters";
@@ -17,6 +17,9 @@ import { Pagination } from "@/components/common/Pagination";
 import { LoadingSpinner } from "@/components/common/LoadingSpinner";
 import { useLoading } from "@/hooks/useLoading";
 import { LoadingButton } from "@/components/common/LoadingButton";
+import { useShortcuts } from "@/hooks/useShortcuts";
+import { ShortcutText } from "@/components/common/ShortcutText";
+import { SearchInput } from "@/components/common/SearchInput";
 
 function EmpresasContent() {
   const { data: session } = useSession();
@@ -50,6 +53,27 @@ function EmpresasContent() {
   const handleDeleteEmpresa = useCallback((empresa: Empresa) => {
     handleDeleteRequest(empresa.id, empresa.name);
   }, [handleDeleteRequest]);
+
+  // Configurar shortcuts de teclado
+  useShortcuts([
+    {
+      key: 'n',
+      action: handleNew,
+      description: 'Nueva Empresa'
+    }
+  ], !showForm);
+
+  // Listener para FAB mobile
+  useEffect(() => {
+    const handleFABClick = (event: any) => {
+      if (event.detail?.action === 'newEmpresa') {
+        handleNew();
+      }
+    };
+
+    window.addEventListener('fabClick', handleFABClick);
+    return () => window.removeEventListener('fabClick', handleFABClick);
+  }, [handleNew]);
 
   // CRUD Table configuration
   const {
@@ -93,22 +117,6 @@ function EmpresasContent() {
         minute: '2-digit',
         hour12: false
       })
-    },
-    {
-      key: 'actions',
-      label: 'Acciones',
-      render: (empresa) => (
-        <div className="flex gap-2">
-          <Link
-            href={`/usuarios?companyId=${empresa.id}`}
-            className="btn small primary"
-            title="Ver usuarios de esta empresa"
-          >
-            <Users className="h-4 w-4 mr-2" />
-            Ver Usuarios
-          </Link>
-        </div>
-      )
     }
   ];
 
@@ -127,7 +135,7 @@ function EmpresasContent() {
       handleCloseForm();
     } catch (error) {
       console.error("Error saving company:", error);
-      showError("Error", error instanceof Error ? error.message : "Error al guardar empresa");
+      showError(error instanceof Error ? error.message : "Error al guardar empresa");
     } finally {
       setIsSubmitting(false);
     }
@@ -143,7 +151,7 @@ function EmpresasContent() {
     } catch (error) {
       console.error("Error deleting company:", error);
       handleCancelDelete();
-      showError("Error", error instanceof Error ? error.message : "Error al eliminar empresa");
+      showError(error instanceof Error ? error.message : "Error al eliminar empresa");
     }
   };
 
@@ -189,11 +197,42 @@ function EmpresasContent() {
             </div>
           )}
           
+          {/* Barra de búsqueda y botón nuevo */}
+          <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1rem', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+              <SearchInput
+                value={tableConfig.searchValue || ''}
+                onChange={(value) => tableConfig.onSearchChange?.(value)}
+                placeholder="Buscar empresas..."
+              />
+            </div>
+            <button
+              onClick={handleNew}
+              className="new-button"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                padding: '0.5rem 1rem',
+                backgroundColor: '#3b82f6',
+                color: 'white',
+                border: 'none',
+                borderRadius: '0.375rem',
+                cursor: 'pointer',
+                fontSize: '0.875rem',
+                fontWeight: '500'
+              }}
+            >
+              <Plus className="h-4 w-4" />
+              <ShortcutText text="Nueva Empresa" shortcutKey="n" />
+            </button>
+          </div>
+          
           <DataTable
             {...tableConfig}
             columns={columns}
-            showSearch={true}
-            showNewButton={true}
+            showSearch={false}
+            showNewButton={false}
             onEdit={(empresa) => handleEdit(empresa)}
             onDelete={(empresa) => handleDeleteRequest(empresa.id, empresa.name)}
             actionsColumnLabel="Acciones"

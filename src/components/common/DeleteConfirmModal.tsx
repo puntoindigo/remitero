@@ -1,15 +1,16 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 interface DeleteConfirmModalProps {
   isOpen: boolean;
-  onConfirm: () => void;
+  onConfirm: () => void | Promise<void>;
   onCancel: () => void;
   title?: string;
   message?: string;
   itemName?: string;
   confirmButtonText?: string;
+  isLoading?: boolean;
 }
 
 export default function DeleteConfirmModal({
@@ -19,8 +20,41 @@ export default function DeleteConfirmModal({
   title = "Confirmar eliminación",
   message = "¿Estás seguro de que deseas eliminar este elemento?",
   itemName,
-  confirmButtonText = "Eliminar"
+  confirmButtonText = "Eliminar",
+  isLoading = false
 }: DeleteConfirmModalProps) {
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  const handleConfirm = async () => {
+    if (isProcessing || isLoading) return;
+    setIsProcessing(true);
+    try {
+      await onConfirm();
+    } finally {
+      // No resetear isProcessing aquí porque el componente puede cerrarse
+    }
+  };
+
+  // Detectar teclas ENTER (confirmar) y ESC (cancelar)
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Enter' && !isProcessing && !isLoading) {
+        event.preventDefault();
+        event.stopPropagation();
+        handleConfirm();
+      } else if (event.key === 'Escape' && !isProcessing && !isLoading) {
+        event.preventDefault();
+        event.stopPropagation();
+        onCancel();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown, { capture: true });
+    return () => window.removeEventListener('keydown', handleKeyDown, { capture: true });
+  }, [isOpen, onConfirm, onCancel, isProcessing, isLoading, handleConfirm]);
+
   if (!isOpen) return null;
 
   return (
@@ -57,7 +91,8 @@ export default function DeleteConfirmModal({
         <div className="modal-header" style={{ padding: '20px 20px 0 20px', borderBottom: '1px solid #e5e7eb' }}>
           <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '600', color: '#111827' }}>{title}</h3>
           <button 
-            onClick={onCancel} 
+            onClick={onCancel}
+            disabled={isProcessing || isLoading}
             className="modal-close" 
             type="button"
             style={{
@@ -67,8 +102,9 @@ export default function DeleteConfirmModal({
               background: 'none',
               border: 'none',
               fontSize: '24px',
-              cursor: 'pointer',
-              color: '#6b7280'
+              cursor: (isProcessing || isLoading) ? 'not-allowed' : 'pointer',
+              color: (isProcessing || isLoading) ? '#9ca3af' : '#6b7280',
+              opacity: (isProcessing || isLoading) ? 0.5 : 1
             }}
           >
             ×
@@ -86,6 +122,7 @@ export default function DeleteConfirmModal({
         <div className="modal-footer" style={{ padding: '0 20px 20px 20px', display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
           <button
             onClick={onCancel}
+            disabled={isProcessing || isLoading}
             className="btn-secondary"
             type="button"
             style={{
@@ -94,27 +131,44 @@ export default function DeleteConfirmModal({
               borderRadius: '6px',
               background: 'white',
               color: '#374151',
-              cursor: 'pointer',
-              fontSize: '14px'
+              cursor: (isProcessing || isLoading) ? 'not-allowed' : 'pointer',
+              fontSize: '14px',
+              opacity: (isProcessing || isLoading) ? 0.5 : 1
             }}
           >
             Cancelar
           </button>
           <button
-            onClick={onConfirm}
+            onClick={handleConfirm}
+            disabled={isProcessing || isLoading}
             className="btn-danger"
             type="button"
             style={{
               padding: '8px 16px',
               border: 'none',
               borderRadius: '6px',
-              background: '#dc2626',
+              background: (isProcessing || isLoading) ? '#9ca3af' : '#dc2626',
               color: 'white',
-              cursor: 'pointer',
-              fontSize: '14px'
+              cursor: (isProcessing || isLoading) ? 'not-allowed' : 'pointer',
+              fontSize: '14px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              minWidth: '100px',
+              justifyContent: 'center'
             }}
           >
-            {confirmButtonText}
+            {(isProcessing || isLoading) ? (
+              <>
+                <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span>Procesando...</span>
+              </>
+            ) : (
+              confirmButtonText
+            )}
           </button>
         </div>
       </div>

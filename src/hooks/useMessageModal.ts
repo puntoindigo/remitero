@@ -19,42 +19,58 @@ export function useMessageModal() {
     details: undefined
   });
 
-  const showSuccess = useCallback((title: string, message: string, details?: string) => {
+  const showSuccess = useCallback((messageOrTitle: string, message?: string, details?: string) => {
+    // Si solo se pasa un parámetro, usarlo como mensaje y generar título automático
+    const finalTitle = message ? messageOrTitle : '¡Operación Exitosa!';
+    const finalMessage = message ? message : messageOrTitle;
+    
     setModalState({
       isOpen: true,
       type: 'success',
-      title,
-      message,
+      title: finalTitle,
+      message: finalMessage,
       details
     });
   }, []);
 
-  const showError = useCallback((title: string, message: string, details?: string) => {
+  const showError = useCallback((messageOrTitle: string, message?: string, details?: string) => {
+    // Si solo se pasa un parámetro, usarlo como mensaje y generar título automático
+    const finalTitle = message ? messageOrTitle : '¡Ups! Algo salió mal';
+    const finalMessage = message ? message : messageOrTitle;
+    
     setModalState({
       isOpen: true,
       type: 'error',
-      title,
-      message,
+      title: finalTitle,
+      message: finalMessage,
       details
     });
   }, []);
 
-  const showWarning = useCallback((title: string, message: string, details?: string) => {
+  const showWarning = useCallback((messageOrTitle: string, message?: string, details?: string) => {
+    // Si solo se pasa un parámetro, usarlo como mensaje y generar título automático
+    const finalTitle = message ? messageOrTitle : '¡Atención!';
+    const finalMessage = message ? message : messageOrTitle;
+    
     setModalState({
       isOpen: true,
       type: 'warning',
-      title,
-      message,
+      title: finalTitle,
+      message: finalMessage,
       details
     });
   }, []);
 
-  const showInfo = useCallback((title: string, message: string, details?: string) => {
+  const showInfo = useCallback((messageOrTitle: string, message?: string, details?: string) => {
+    // Si solo se pasa un parámetro, usarlo como mensaje y generar título automático
+    const finalTitle = message ? messageOrTitle : 'Información';
+    const finalMessage = message ? message : messageOrTitle;
+    
     setModalState({
       isOpen: true,
       type: 'info',
-      title,
-      message,
+      title: finalTitle,
+      message: finalMessage,
       details
     });
   }, []);

@@ -6,7 +6,7 @@ import { transformRemito } from "@/lib/utils/supabase-transform";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -18,11 +18,12 @@ export async function GET(
       }, { status: 401 });
     }
 
-    const remitoId = params?.id;
+    const { id: remitoId } = await params;
 
     // Obtener el remito con todas sus relaciones
     const { data: remito, error } = await supabaseAdmin
       .from('remitos')
+      // Optimización: Simplificar JOINs para mejorar rendimiento
       .select(`
         id,
         number,
@@ -34,18 +35,6 @@ export async function GET(
         company_id,
         client_id,
         created_by_id,
-        clients (
-          id,
-          name,
-          email,
-          phone,
-          address
-        ),
-        users (
-          id,
-          name,
-          email
-        ),
         remito_items (
           id,
           product_id,
@@ -53,17 +42,7 @@ export async function GET(
           product_name,
           product_desc,
           unit_price,
-          line_total,
-          products (
-            id,
-            name
-          )
-        ),
-        estados_remitos (
-          id,
-          name,
-          color,
-          is_active
+          line_total
         )
       `)
       .eq('id', remitoId)
@@ -84,7 +63,34 @@ export async function GET(
       }, { status: 403 });
     }
 
-    return NextResponse.json(transformRemito(remito));
+    // Agregar estructuras mínimas sin JOINs costosos
+    const remitoWithStructures = {
+      ...remito,
+      clients: remito.client_id ? {
+        id: remito.client_id,
+        name: '',
+        email: '',
+        phone: '',
+        address: ''
+      } : null,
+      users: remito.created_by_id ? {
+        id: remito.created_by_id,
+        name: '',
+        email: ''
+      } : null,
+      estados_remitos: remito.status ? {
+        id: remito.status,
+        name: '',
+        color: '',
+        is_active: true
+      } : null,
+      remito_items: (remito.remito_items || []).map((item: any) => ({
+        ...item,
+        products: item.product_id ? { id: item.product_id, name: '' } : null
+      }))
+    };
+
+    return NextResponse.json(transformRemito(remitoWithStructures));
   } catch (error: any) {
     console.error('Error in remitos GET:', error);
     return NextResponse.json({ 
@@ -96,7 +102,7 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -108,7 +114,7 @@ export async function PUT(
       }, { status: 401 });
     }
 
-    const remitoId = params?.id;
+    const { id: remitoId } = await params;
     const body = await request.json();
     console.log('PUT /api/remitos/[id] - Request body:', JSON.stringify(body, null, 2));
     const { clientId, status, notes, items, companyId } = body;
@@ -214,15 +220,18 @@ export async function PUT(
     }
 
     // Crear nuevos items
+    console.log('Items received:', JSON.stringify(items, null, 2));
     const itemsToInsert = items.map((item: any) => ({
       remito_id: remitoId,
-      product_id: item.product_id,
-      quantity: item.quantity,
-      unit_price: item.unit_price,
-      product_name: item.product_name || '',
-      product_desc: item.product_desc || '',
-      line_total: item.quantity * item.unit_price
+      product_id: item.product_id || item.productId || null,
+      quantity: Number(item.quantity) || 0,
+      unit_price: Number(item.unit_price || item.unitPrice) || 0,
+      product_name: item.product_name || item.productName || '',
+      product_desc: item.product_desc || item.productDesc || '',
+      line_total: (Number(item.quantity) || 0) * (Number(item.unit_price || item.unitPrice) || 0)
     }));
+
+    console.log('Items to insert:', JSON.stringify(itemsToInsert, null, 2));
 
     const { error: insertItemsError } = await supabaseAdmin
       .from('remito_items')
@@ -230,9 +239,10 @@ export async function PUT(
 
     if (insertItemsError) {
       console.error('Error inserting new items:', insertItemsError);
+      console.error('Error details:', JSON.stringify(insertItemsError, null, 2));
       return NextResponse.json({ 
         error: "Error interno del servidor",
-        message: "No se pudieron crear los items del remito."
+        message: `No se pudieron crear los items del remito: ${insertItemsError.message || insertItemsError.code}`
       }, { status: 500 });
     }
 
@@ -298,7 +308,7 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -310,7 +320,7 @@ export async function DELETE(
       }, { status: 401 });
     }
 
-    const remitoId = params?.id;
+    const { id: remitoId } = await params;
 
     // Verificar que el remito existe y pertenece a la empresa del usuario
     const { data: remito, error: remitoError } = await supabaseAdmin

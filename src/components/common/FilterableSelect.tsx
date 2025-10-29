@@ -104,18 +104,39 @@ export default function FilterableSelect({
     setSearchTerm("");
   };
 
-  // Cerrar dropdown al hacer clic fuera
+  // Cerrar dropdown al hacer clic fuera o presionar ESC
   useEffect(() => {
+    if (!isOpen) return;
+
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node) &&
+        triggerRef.current &&
+        !triggerRef.current.contains(event.target as Node)
+      ) {
         setIsOpen(false);
         setSearchTerm("");
       }
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [options, value, onChange]);
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        event.stopPropagation();
+        setIsOpen(false);
+        setSearchTerm("");
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside, { capture: true });
+    document.addEventListener("keydown", handleEscape, { capture: true });
+    
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside, { capture: true });
+      document.removeEventListener("keydown", handleEscape, { capture: true });
+    };
+  }, [isOpen]);
 
   const renderDropdown = () => {
     if (!isOpen || typeof window === 'undefined') return null;
@@ -216,7 +237,7 @@ export default function FilterableSelect({
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
                   e.preventDefault();
-                  handleClear();
+                  handleClear(e as any);
                 }
               }}
             >

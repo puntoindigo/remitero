@@ -20,24 +20,25 @@ import { DataTable, type DataTableColumn } from "@/components/common/DataTable";
 import { useCRUDTable } from "@/hooks/useCRUDTable";
 import { Pagination } from "@/components/common/Pagination";
 import { LoadingSpinner } from "@/components/common/LoadingSpinner";
-import { ABMHeader } from "@/components/common/ABMHeader";
+import { ShortcutText } from "@/components/common/ShortcutText";
+import { SearchInput } from "@/components/common/SearchInput";
 import { useLoading } from "@/hooks/useLoading";
 import { LoadingButton } from "@/components/common/LoadingButton";
+import { useShortcuts } from "@/hooks/useShortcuts";
 
-interface Product {
-  id: string;
-  name: string;
-  description?: string;
-  price: number;
-  stock?: string;
-  category?: Category;
-  createdAt: string;
-}
-
-interface Category {
-  id: string;
-  name: string;
-}
+import { 
+  useProductosQuery,
+  useCreateProductMutation,
+  useUpdateProductMutation,
+  useDeleteProductMutation,
+  productKeys,
+  type Product
+} from "@/hooks/queries/useProductosQuery";
+import { useQueryClient } from "@tanstack/react-query";
+import {
+  useCategoriasQuery,
+  type Category
+} from "@/hooks/queries/useCategoriasQuery";
 
 function ProductosContent() {
   const { data: session } = useSession();
@@ -45,6 +46,7 @@ function ProductosContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
+  const queryClient = useQueryClient();
   
   // Hook centralizado para manejo de companyId
   const {
@@ -54,9 +56,13 @@ function ProductosContent() {
     shouldShowCompanySelector
   } = useDataWithCompanySimple();
   
-  const [productos, setProductos] = useState<Product[]>([]);
-  const [categorias, setCategorias] = useState<Category[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  // 🚀 REACT QUERY: Reemplaza state y fetch
+  const { data: productos = [], isLoading } = useProductosQuery(companyId);
+  const { data: categorias = [] } = useCategoriasQuery(companyId);
+  const createMutation = useCreateProductMutation();
+  const updateMutation = useUpdateProductMutation();
+  const deleteMutation = useDeleteProductMutation();
+  
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
   const { empresas } = useEmpresas();
   
@@ -80,48 +86,29 @@ function ProductosContent() {
   const { modalState, showSuccess, showError, closeModal } = useMessageModal();
   const { updateStock } = useDirectUpdate();
 
-  const loadData = async () => {
-    if (!companyId) {
-      setIsLoading(false);
-      return;
+  // Configurar shortcuts de teclado
+  useShortcuts([
+    {
+      key: 'n',
+      action: handleNewProduct,
+      description: 'Nuevo Producto'
     }
+  ], !!companyId && !showForm);
 
-    try {
-      setIsLoading(true);
-      
-      // Cargar productos
-      const productsResponse = await fetch(`/api/products?companyId=${companyId}`).catch(error => {
-            console.error('Network error:', error);
-            throw new Error("Error de conexión de red");
-        });
-      if (productsResponse.ok) {
-        const productsData = await productsResponse.json();
-        // Filtrar productos que tengan datos mínimos requeridos
-        const validProducts = (productsData || []).filter((product: any) => 
-          product && product?.id && product?.name && product?.name.trim() !== ''
-        );
-        setProductos(validProducts);
-      }
-
-      // Cargar categorías
-      const categoriesResponse = await fetch(`/api/categories?companyId=${companyId}`).catch(error => {
-            console.error('Network error:', error);
-            throw new Error("Error de conexión de red");
-        });
-      if (categoriesResponse.ok) {
-        const categoriesData = await categoriesResponse.json();
-        setCategorias(categoriesData || []);
-      }
-    } catch (error) {
-      console.error('Error loading data:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
+  // Listener para FAB mobile
   useEffect(() => {
-    loadData();
-  }, [companyId]);
+    const handleFABClick = (event: any) => {
+      if (event.detail?.action === 'newProducto') {
+        handleNewProduct();
+      }
+    };
+
+    window.addEventListener('fabClick', handleFABClick);
+    return () => window.removeEventListener('fabClick', handleFABClick);
+  }, [handleNewProduct]);
+
+  // 🚀 REACT QUERY: Ya no necesita loadData ni useEffect
+  // React Query se encarga automáticamente del fetching y caching
 
   // Filtrar productos por categoría
   const filteredProductos = selectedCategoryId 
@@ -131,7 +118,7 @@ function ProductosContent() {
   // Función de eliminación
   const handleDeleteProduct = (producto: Product) => {
     if (!producto?.id || typeof producto?.id !== 'string') {
-      showError("Error", "ID de producto inválido");
+      showError("ID de producto inválido");
       return;
     }
     
@@ -174,97 +161,65 @@ function ProductosContent() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ stock: newStock })
-      }).catch(error => {
-        console.error('Network error:', error);
-        throw new Error("Error de conexión de red");
       });
 
       if (!response.ok) {
-        throw new Error('Error al actualizar el stock');
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Error al actualizar el stock');
       }
 
-      // Actualizar el estado local inmediatamente
-      setProductos(prevProducts =>
-        prevProducts.map(product =>
-          product?.id === productId ? { ...product, stock: newStock } : product
-        )
-      );
+      // Invalidar queries para refrescar datos usando productKeys
+      await queryClient.invalidateQueries({ 
+        queryKey: productKeys.lists()
+      });
+      
+      // También forzar refetch inmediato
+      await queryClient.refetchQueries({ 
+        queryKey: productKeys.list(companyId)
+      });
+      
+      // Mostrar mensaje de éxito
+      showSuccess('Éxito', 'Stock actualizado correctamente');
     } catch (error) {
       console.error('Error updating stock:', error);
-      showError('Error', 'No se pudo actualizar el stock del producto');
+      showError('Error', error instanceof Error ? error.message : 'No se pudo actualizar el stock del producto');
     }
   };
 
+  // 🚀 REACT QUERY: Delete con mutación
   const handleDelete = async () => {
     if (!showDeleteConfirm) return;
     
     if (!showDeleteConfirm?.id || typeof showDeleteConfirm?.id !== 'string') {
-      showError("Error", "ID de producto inválido para eliminación");
+      showError("ID de producto inválido para eliminación");
       handleCancelDelete();
       return;
     }
     
     try {
-      const response = await fetch(`/api/products/${showDeleteConfirm?.id}`, {
-        method: 'DELETE'
-      }).catch(error => {
-            console.error('Network error:', error);
-            throw new Error("Error de conexión de red");
-        });
-      
-      if (response.ok) {
-        handleCancelDelete();
-        showSuccess("Producto eliminado correctamente");
-        await loadData();
-      } else {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || 'Error al eliminar producto');
-      }
+      await deleteMutation.mutateAsync(showDeleteConfirm.id);
+      handleCancelDelete();
+      showSuccess("Producto eliminado correctamente");
     } catch (error: any) {
       handleCancelDelete();
-      showError("Error", error instanceof Error ? error.message : "Error al eliminar producto");
+      showError(error instanceof Error ? error.message : "Error al eliminar producto");
     }
   };
 
+  // 🚀 REACT QUERY: Submit con mutaciones
   const onSubmit = async (data: ProductForm) => {
     setIsSubmitting(true);
     try {
-      const url = editingProduct ? `/api/products/${editingProduct?.id}` : '/api/products';
-      const method = editingProduct ? 'PUT' : 'POST';
-      
-      const response = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...data, companyId })
-      }).catch(error => {
-        console.error('Network error:', error);
-        throw new Error("Error de conexión de red");
-      });
-
-      if (response.ok) {
-        const newProduct = await response.json();
-        
-        // Validar que el producto tenga los datos mínimos requeridos
-        if (!newProduct || !newProduct?.id || !newProduct?.name || newProduct?.name.trim() === '') {
-          throw new Error('El producto creado no tiene los datos válidos');
-        }
-        
-        if (editingProduct) {
-          // Actualizar producto existente
-          setProductos(prev => prev.map(p => p?.id === editingProduct?.id ? newProduct : p));
-        } else {
-          // Agregar nuevo producto al principio de la lista
-          setProductos(prev => [newProduct, ...prev]);
-        }
-        
-        handleCloseForm();
-        showSuccess(editingProduct ? "Producto actualizado correctamente" : "Producto creado correctamente");
+      if (editingProduct) {
+        await updateMutation.mutateAsync({ id: editingProduct.id, data: { ...data, companyId } });
+        showSuccess("Producto actualizado correctamente");
       } else {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || 'Error al guardar producto');
+        await createMutation.mutateAsync({ ...data, companyId });
+        showSuccess("Producto creado correctamente");
       }
+      handleCloseForm();
     } catch (error: any) {
-      showError("Error", error instanceof Error ? error.message : "Error al guardar producto");
+      showError(error.message || "Error al guardar el producto");
     } finally {
       setIsSubmitting(false);
     }
@@ -357,35 +312,65 @@ function ProductosContent() {
         <div className="form-section">
           <h2>Gestión de Productos</h2>
           
-          {/* Header con selector de empresa, búsqueda y botón Nuevo */}
-          <ABMHeader
-            showCompanySelector={shouldShowCompanySelector}
-            companies={empresas}
-            selectedCompanyId={selectedCompanyId}
-            onCompanyChange={setSelectedCompanyId}
-            showNewButton={!!companyId}
-            newButtonText="Nuevo Producto"
-            onNewClick={handleNewProduct}
-            isSubmitting={isSubmitting}
-            searchPlaceholder="Buscar productos..."
-            searchValue={searchTerm}
-            onSearchChange={setSearchTerm}
-            additionalFilters={
-              <div className="category-filter" style={{ width: '300px' }}>
-                <FilterableSelect
-                  options={[
-                    { id: "", name: "Todas las categorías" },
-                    ...categorias
-                  ]}
-                  value={selectedCategoryId}
-                  onChange={setSelectedCategoryId}
-                  placeholder="Filtrar por categoría"
-                  searchFields={["name"]}
-                  className="w-full"
+          {/* Selector de empresa - ancho completo */}
+          {shouldShowCompanySelector && empresas?.length > 0 && (
+            <div style={{ marginBottom: '1rem' }}>
+              <FilterableSelect
+                options={empresas}
+                value={selectedCompanyId}
+                onChange={setSelectedCompanyId}
+                placeholder="Seleccionar empresa"
+                searchFields={["name"]}
+                className="w-full"
+              />
+            </div>
+          )}
+
+          {/* Barra de búsqueda, filtros y botón nuevo */}
+          {!!companyId && (
+            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1rem', justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                <SearchInput
+                  value={searchTerm}
+                  onChange={setSearchTerm}
+                  placeholder="Buscar productos..."
                 />
+                <div style={{ width: '300px' }}>
+                  <FilterableSelect
+                    options={[
+                      { id: "", name: "Todas las categorías" },
+                      ...categorias
+                    ]}
+                    value={selectedCategoryId}
+                    onChange={setSelectedCategoryId}
+                    placeholder="Filtrar por categoría"
+                    searchFields={["name"]}
+                    className="w-full"
+                  />
+                </div>
               </div>
-            }
-          />
+              <button
+                onClick={handleNewProduct}
+                className="new-button"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  padding: '0.5rem 1rem',
+                  backgroundColor: '#3b82f6',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '0.375rem',
+                  cursor: 'pointer',
+                  fontSize: '0.875rem',
+                  fontWeight: '500'
+                }}
+              >
+                <Plus className="h-4 w-4" />
+                <ShortcutText text="Nuevo Producto" shortcutKey="n" />
+              </button>
+            </div>
+          )}
 
           {/* Mostrar productos solo si hay empresa seleccionada */}
           {needsCompanySelection ? (

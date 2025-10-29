@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -10,7 +10,7 @@ const estadoRemitoSchema = z.object({
   name: z.string().min(1, "El nombre es requerido"),
   description: z.string().optional(),
   color: z.string().min(1, "El color es requerido"),
-  is_active: z.boolean().default(true),
+  is_active: z.boolean(),
 });
 
 type EstadoRemitoFormData = z.infer<typeof estadoRemitoSchema>;
@@ -52,14 +52,14 @@ export function EstadoRemitoForm({
   });
 
   // Reset form when editingEstado changes
-  React.useEffect(() => {
+  useEffect(() => {
     if (editingEstado) {
       reset({
         name: editingEstado?.name,
         description: editingEstado.description || "",
         color: editingEstado.color,
-        is_active: editingEstado.is_active
-      }, []);
+        is_active: editingEstado.is_active !== false
+      });
     } else {
       reset({
         name: "",
@@ -73,7 +73,13 @@ export function EstadoRemitoForm({
   const handleFormSubmit = async (data: EstadoRemitoFormData) => {
     try {
       await onSubmit(data);
-      reset();
+      // Reset form with default values to avoid empty color field warning
+      reset({
+        name: "",
+        description: "",
+        color: "#3b82f6",
+        is_active: true
+      });
     } catch (error) {
       // Error handling is done in the parent component
     }
@@ -140,12 +146,12 @@ export function EstadoRemitoForm({
         )}
       </div>
 
-      <div className="form-group">
-        <label className="checkbox-label">
+      <div className="form-group" style={{ marginTop: '1.5rem', marginBottom: '1.5rem' }}>
+        <label className="checkbox-label" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <input
             {...register("is_active")}
             type="checkbox"
-            className="mr-2"
+            style={{ margin: 0 }}
           />
           Estado activo
         </label>

@@ -1,40 +1,36 @@
 "use client";
 
-import React, { useState, Suspense, useCallback } from "react";
-import { useSession } from "next-auth/react";
+import React, { Suspense, useCallback, useEffect } from "react";
 import { Plus, Users, Mail, Phone, MapPin } from "lucide-react";
 import { formatDate } from "@/lib/utils/formatters";
-import FilterableSelect from "@/components/common/FilterableSelect";
 import { MessageModal } from "@/components/common/MessageModal";
 import DeleteConfirmModal from "@/components/common/DeleteConfirmModal";
 import { ClienteForm } from "@/components/forms/ClienteForm";
 import { useMessageModal } from "@/hooks/useMessageModal";
-import { useClientes, type Cliente } from "@/hooks/useClientes";
-import { useEmpresas, type Empresa } from "@/hooks/useEmpresas";
-import { useCRUDPage } from "@/hooks/useCRUDPage";
-import { useDataWithCompanySimple } from "@/hooks/useDataWithCompanySimple";
-import { useCurrentUserSimple } from "@/hooks/useCurrentUserSimple";
+import { 
+  useClientesQuery, 
+  useCreateClienteMutation,
+  useUpdateClienteMutation,
+  useDeleteClienteMutation,
+  type Cliente 
+} from "@/hooks/queries/useClientesQuery";
+import { OptimizedPageLayout } from "@/components/layout/OptimizedPageLayout";
+import { useOptimizedPageData } from "@/hooks/useOptimizedPageData";
 import { DataTable, type DataTableColumn } from "@/components/common/DataTable";
 import { useCRUDTable } from "@/hooks/useCRUDTable";
 import { Pagination } from "@/components/common/Pagination";
 import { LoadingSpinner } from "@/components/common/LoadingSpinner";
-import { ABMHeader } from "@/components/common/ABMHeader";
-import { useLoading } from "@/hooks/useLoading";
-import { LoadingButton } from "@/components/common/LoadingButton";
+import { ShortcutText } from "@/components/common/ShortcutText";
+import { SearchInput } from "@/components/common/SearchInput";
+import { useShortcuts } from "@/hooks/useShortcuts";
+import { useCRUDPage } from "@/hooks/useCRUDPage";
 
 function ClientesContent() {
-  const currentUser = useCurrentUserSimple();
-  
-  // Hook centralizado para manejo de companyId
+  // 🚀 Hook optimizado que carga todo en paralelo
   const {
     companyId,
-    selectedCompanyId,
-    setSelectedCompanyId,
-    shouldShowCompanySelector
-  } = useDataWithCompanySimple();
-  
-  // Loading state management
-  const { loading: loadingState, startLoading, stopLoading } = useLoading();
+    canShowContent
+  } = useOptimizedPageData();
   
   const {
     editingItem: editingCliente,
@@ -48,23 +44,40 @@ function ClientesContent() {
     handleDeleteRequest,
     handleCancelDelete
   } = useCRUDPage<Cliente>();
+
   const { modalState, showSuccess, showError, closeModal } = useMessageModal();
   
-  const { empresas } = useEmpresas();
+  // 🚀 REACT QUERY: Reemplaza state y fetch
+  const { data: clientes = [], isLoading } = useClientesQuery(companyId);
+  const createMutation = useCreateClienteMutation();
+  const updateMutation = useUpdateClienteMutation();
+  const deleteMutation = useDeleteClienteMutation();
 
-  const { 
-    clientes, 
-    isLoading, 
-    error, 
-    createCliente, 
-    updateCliente, 
-    deleteCliente 
-  } = useClientes(companyId || undefined);
-
-  // Función de eliminación con useCallback para evitar problemas de hoisting
+  // Función de eliminación con useCallback
   const handleDeleteCliente = useCallback((cliente: Cliente) => {
     handleDeleteRequest(cliente.id, cliente.name);
   }, [handleDeleteRequest]);
+
+  // Configurar shortcuts de teclado
+  useShortcuts([
+    {
+      key: 'n',
+      action: handleNew,
+      description: 'Nuevo Cliente'
+    }
+  ], !!companyId && !showForm);
+
+  // Listener para FAB mobile
+  useEffect(() => {
+    const handleFABClick = (event: any) => {
+      if (event.detail?.action === 'newCliente') {
+        handleNew();
+      }
+    };
+
+    window.addEventListener('fabClick', handleFABClick);
+    return () => window.removeEventListener('fabClick', handleFABClick);
+  }, [handleNew]);
 
   // CRUD Table configuration
   const {
@@ -73,9 +86,9 @@ function ClientesContent() {
     searchTerm: crudSearchTerm,
     setSearchTerm: setCrudSearchTerm
   } = useCRUDTable({
-    data: clientes || [],
+    data: clientes,
     loading: isLoading,
-    searchFields: ['name', 'email', 'phone', 'address'],
+    searchFields: ['name', 'email'],
     itemsPerPage: 10,
     onEdit: handleEdit,
     onDelete: handleDeleteCliente,
@@ -87,45 +100,6 @@ function ClientesContent() {
     newButtonText: "Nuevo Cliente",
     searchPlaceholder: "Buscar clientes..."
   });
-
-  const onSubmit = async (data: any) => {
-    setIsSubmitting(true);
-    try {
-      if (editingCliente) {
-        await updateCliente(editingCliente.id, data);
-        showSuccess("Cliente actualizado correctamente");
-      } else {
-        await createCliente({ ...data, companyId });
-        showSuccess("Cliente creado correctamente");
-      }
-      handleCloseForm();
-    } catch (error: any) {
-      showError("Error", error.message);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleDelete = async () => {
-    if (!showDeleteConfirm) return;
-    
-    try {
-      await deleteCliente(showDeleteConfirm.id);
-      handleCancelDelete();
-      showSuccess("Cliente eliminado correctamente");
-    } catch (error: any) {
-      handleCancelDelete();
-      showError("Error", error instanceof Error ? error.message : "Error al eliminar cliente");
-    }
-  };
-
-  // Lógica corregida: 
-  // - ADMIN y USER siempre tienen companyId (vinculados a empresa)
-  // - SUPERADMIN puede no tener empresa seleccionada (necesita seleccionar)
-  const needsCompanySelection = !companyId && currentUser?.role === "SUPERADMIN";
-  
-  // Verificar si hay un problema con los datos del usuario
-  const hasDataIssue = !companyId && currentUser?.role !== "SUPERADMIN";
 
   // Definir columnas para el DataTable
   const columns: DataTableColumn<Cliente>[] = [
@@ -141,165 +115,165 @@ function ClientesContent() {
     {
       key: 'email',
       label: 'Email',
-      render: (cliente) => (
-        cliente.email ? (
-          <div className="cliente-email">
-            <Mail className="h-3 w-3 inline mr-2" />
-            &nbsp;{cliente.email}
-          </div>
-        ) : (
-          <span className="text-muted">Sin email</span>
-        )
+      render: (cliente) => cliente.email ? (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <Mail className="h-4 w-4 text-gray-400" />
+          <span>{cliente.email}</span>
+        </div>
+      ) : (
+        <span className="text-gray-400">-</span>
       )
     },
     {
       key: 'phone',
       label: 'Teléfono',
-      render: (cliente) => (
-        cliente.phone ? (
-          <div className="cliente-phone">
-            <Phone className="h-3 w-3 inline mr-2" />
-            &nbsp;{cliente.phone}
-          </div>
-        ) : (
-          <span className="text-muted">Sin teléfono</span>
-        )
+      render: (cliente) => cliente.phone ? (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <Phone className="h-4 w-4 text-gray-400" />
+          <span>{cliente.phone}</span>
+        </div>
+      ) : (
+        <span className="text-gray-400">-</span>
       )
     },
     {
       key: 'address',
       label: 'Dirección',
-      render: (cliente) => (
-        cliente.address ? (
-          <div className="cliente-address">
-            <MapPin className="h-3 w-3 inline mr-2" />
-            &nbsp;{cliente.address}
-          </div>
-        ) : (
-          <span className="text-muted">Sin dirección</span>
-        )
+      render: (cliente) => cliente.address ? (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <MapPin className="h-4 w-4 text-gray-400" />
+          <span>{cliente.address}</span>
+        </div>
+      ) : (
+        <span className="text-gray-400">-</span>
       )
     },
     {
       key: 'createdAt',
       label: 'Registrado',
-      render: (cliente) => new Date(cliente.createdAt).toLocaleString('es-AR', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false
-      })
+      render: (cliente) => formatDate(cliente.createdAt)
     }
   ];
 
-  if (isLoading) {
-    return (
-      <main className="main-content">
-        <div className="form-section">
-          <LoadingSpinner message="Cargando clientes..." />
-        </div>
-      </main>
-    );
-  }
+  const onSubmit = async (data: { name: string; email?: string; phone?: string; address?: string }) => {
+    try {
+      setIsSubmitting(true);
+      
+      if (editingCliente) {
+        await updateMutation.mutateAsync({ id: editingCliente.id, data });
+        showSuccess("Cliente actualizado correctamente");
+      } else {
+        await createMutation.mutateAsync(data);
+        showSuccess("Cliente creado correctamente");
+      }
+      
+      handleCloseForm();
+    } catch (error) {
+      console.error("Error saving cliente:", error);
+      showError(error instanceof Error ? error.message : "Error al guardar cliente");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
-  // Verificar si hay un problema con los datos del usuario
-  if (hasDataIssue) {
-    return (
-      <main className="main-content">
-        <div className="form-section">
-          <div className="text-center py-8">
-            <h2 className="text-xl font-semibold text-red-600 mb-2">Error de Configuración</h2>
-            <p className="text-gray-600">Tu usuario no está vinculado a ninguna empresa. Contacta al administrador.</p>
-          </div>
-        </div>
-      </main>
-    );
-  }
+  const handleDelete = async () => {
+    if (!showDeleteConfirm) return;
+    
+    try {
+      await deleteMutation.mutateAsync(showDeleteConfirm.id);
+      handleCancelDelete();
+      showSuccess("Cliente eliminado correctamente");
+    } catch (error: any) {
+      handleCancelDelete();
+      showError(error instanceof Error ? error.message : "Error al eliminar cliente");
+    }
+  };
 
   return (
-    <main className="main-content">
-      <div className="px-4 py-6 sm:px-0">
-        {/* Formulario */}
-        <ClienteForm
-          isOpen={showForm}
-          onClose={handleCloseForm}
-          onSubmit={onSubmit}
-          isSubmitting={isSubmitting}
-          editingCliente={editingCliente}
-        />
+    <OptimizedPageLayout
+      title="Gestión de Clientes"
+      emptyStateIcon={<Users className="empty-icon" />}
+      emptyStateMessage="Para ver los clientes, primero selecciona una empresa."
+    >
+      {/* Formulario */}
+      <ClienteForm
+        isOpen={showForm}
+        onClose={handleCloseForm}
+        onSubmit={onSubmit}
+        isSubmitting={isSubmitting}
+        editingCliente={editingCliente}
+        companyId={companyId}
+      />
 
-        <div className="form-section">
-          <h2>Gestión de Clientes</h2>
-          
-          {/* Header con selector de empresa, búsqueda y botón Nuevo */}
-          <ABMHeader
-            showCompanySelector={shouldShowCompanySelector}
-            companies={empresas}
-            selectedCompanyId={selectedCompanyId}
-            onCompanyChange={setSelectedCompanyId}
-            showNewButton={!needsCompanySelection}
-            newButtonText="Nuevo Cliente"
-            onNewClick={handleNew}
-            isSubmitting={isSubmitting}
-            searchPlaceholder="Buscar clientes..."
-            searchValue={crudSearchTerm}
-            onSearchChange={setCrudSearchTerm}
-          />
-
-          {/* DataTable con paginación */}
-          {needsCompanySelection ? (
-            <div className="empty-state">
-              <Users className="empty-icon" />
-              <p>Para ver los clientes, primero selecciona una empresa.</p>
-            </div>
-          ) : (
-            <>
-              
-              <DataTable
-                {...tableConfig}
-                columns={columns}
-                showSearch={false} // Deshabilitar búsqueda del DataTable
-                showNewButton={false} // Deshabilitar botón nuevo del DataTable
-              />
-              <Pagination {...paginationConfig} />
-            </>
-          )}
+      {/* Barra de búsqueda y botón nuevo */}
+      {canShowContent && (
+        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1rem', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+            <SearchInput
+              value={crudSearchTerm}
+              onChange={setCrudSearchTerm}
+              placeholder="Buscar clientes..."
+            />
+          </div>
+          <button
+            onClick={handleNew}
+            className="new-button"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              padding: '0.5rem 1rem',
+              backgroundColor: '#3b82f6',
+              color: 'white',
+              border: 'none',
+              borderRadius: '0.375rem',
+              cursor: 'pointer',
+              fontSize: '0.875rem',
+              fontWeight: '500'
+            }}
+          >
+            <Plus className="h-4 w-4" />
+            <ShortcutText text="Nuevo Cliente" shortcutKey="n" />
+          </button>
         </div>
+      )}
 
-        {/* Modal de confirmación de eliminación */}
-        <DeleteConfirmModal
-          isOpen={!!showDeleteConfirm}
-          onCancel={handleCancelDelete}
-          onConfirm={handleDelete}
-          title="Eliminar Cliente"
-          message={`¿Estás seguro de que deseas eliminar el cliente "${showDeleteConfirm?.name}"?`}
-        />
+      {/* DataTable con paginación */}
+      {canShowContent && (
+        <>
+          <DataTable
+            {...tableConfig}
+            columns={columns}
+            showSearch={false}
+            showNewButton={false}
+          />
+          <Pagination {...paginationConfig} />
+        </>
+      )}
 
-        {/* Modal de mensajes */}
-        <MessageModal
-          isOpen={modalState.isOpen}
-          onClose={closeModal}
-          type={modalState.type}
-          title={modalState.title}
-          message={modalState.message}
-          details={modalState.details}
-        />
-      </div>
-    </main>
+      {/* Modal de confirmación de eliminación */}
+      <DeleteConfirmModal
+        isOpen={!!showDeleteConfirm}
+        onCancel={handleCancelDelete}
+        onConfirm={handleDelete}
+        itemName={showDeleteConfirm?.name || ''}
+      />
+
+      {/* Modal de mensajes */}
+      <MessageModal
+        isOpen={modalState.isOpen}
+        onClose={closeModal}
+        type={modalState.type}
+        title={modalState.title}
+        message={modalState.message}
+      />
+    </OptimizedPageLayout>
   );
 }
 
 export default function ClientesPage() {
   return (
-    <Suspense fallback={
-      <main className="main-content">
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
-        </div>
-      </main>
-    }>
+    <Suspense fallback={<LoadingSpinner message="Cargando clientes..." />}>
       <ClientesContent />
     </Suspense>
   );

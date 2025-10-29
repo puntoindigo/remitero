@@ -28,6 +28,11 @@ export function transformProduct(product: any) {
 export function transformCategory(category: any) {
   if (!category) return null;
   
+  // Usar _productsCount si está disponible (optimizado), sino calcular de products array
+  const productsCount = category._productsCount !== undefined 
+    ? category._productsCount 
+    : (category.products?.length || 0);
+  
   return {
     ...category,
     createdAt: category.created_at,
@@ -35,7 +40,7 @@ export function transformCategory(category: any) {
     companyId: category.company_id,
     company: category.companies,
     _count: {
-      products: category.products?.length || 0
+      products: productsCount
     }
   };
 }

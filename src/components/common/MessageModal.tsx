@@ -24,6 +24,22 @@ export function MessageModal({ isOpen, onClose, type, title, message, details }:
     };
   }, [isOpen]);
 
+  // Detectar tecla ENTER para cerrar el modal
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        event.stopPropagation();
+        onClose();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown, { capture: true });
+    return () => window.removeEventListener('keydown', handleKeyDown, { capture: true });
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   const getTypeStyles = () => {
@@ -69,41 +85,82 @@ export function MessageModal({ isOpen, onClose, type, title, message, details }:
 
   const styles = getTypeStyles();
 
+  // Detectar títulos genéricos que deben ocultarse
+  const isGenericTitle = (title: string): boolean => {
+    const genericTitles = [
+      'Éxito',
+      '¡Operación Exitosa!',
+      'Operación Exitosa',
+      'Éxito!',
+      'Exito',
+      'Exito!'
+    ];
+    return !title || genericTitles.includes(title.trim());
+  };
+
+  const shouldHideTitle = isGenericTitle(title);
+  const displayMessage = shouldHideTitle ? message : title;
+  const hasSecondaryMessage = !shouldHideTitle && message;
+
   return (
     <div className="modal-overlay">
       <div className="modal max-w-md">
-        <div className="modal-content">
-          <div className={`flex items-center mb-4 p-4 rounded-lg ${styles.bgColor} ${styles.borderColor} border`}>
-            <span className={`text-4xl mr-4 ${styles.iconColor}`} style={{ fontSize: '2.5rem' }}>
-              {styles.icon}
-            </span>
-            <h3 className={`text-lg font-semibold ${styles.titleColor}`}>
-              {title}
-            </h3>
+        <div className="modal-content" style={{ padding: '0' }}>
+          {/* Header con ícono grande centrado */}
+          <div className={`${styles.bgColor} ${styles.borderColor} border-b-2 px-6 py-8 text-center`}>
+            <div className="flex justify-center mb-4">
+              <div className={`w-20 h-20 rounded-full ${styles.bgColor} border-4 ${styles.borderColor} flex items-center justify-center`}>
+                <span className={`${styles.iconColor}`} style={{ fontSize: '3rem' }}>
+                  {styles.icon}
+                </span>
+              </div>
+            </div>
+            {/* Mostrar mensaje con estilo de título si es genérico, o título normal si no lo es */}
+            {displayMessage && (
+              <h3 className={`text-2xl font-bold ${styles.titleColor} ${hasSecondaryMessage ? 'mb-2' : ''}`}>
+                {displayMessage}
+              </h3>
+            )}
           </div>
           
-          <p className="text-gray-700 mb-4 leading-relaxed">
-            {message}
-          </p>
-          
-          {details && (
-            <div className="mb-4 p-3 bg-gray-100 rounded text-sm text-gray-600 font-mono">
-              <strong>Detalles:</strong>
-              <pre className="whitespace-pre-wrap mt-1">{details}</pre>
+          {/* Mensaje secundario (solo si hay título no genérico y mensaje adicional) */}
+          {hasSecondaryMessage && (
+            <div className="px-6 py-6 text-center">
+              <p className="text-gray-700 text-lg leading-relaxed">
+                {message}
+              </p>
             </div>
           )}
           
-          <div className="modal-actions">
+          {/* Detalles adicionales (técnicos) */}
+          {details && (
+            <div className="px-6 pb-4">
+              <div className="p-3 bg-gray-100 rounded text-sm text-gray-600 font-mono">
+                <strong>Detalles técnicos:</strong>
+                <pre className="whitespace-pre-wrap mt-1">{details}</pre>
+              </div>
+            </div>
+          )}
+          
+          {/* Footer con botón */}
+          <div className="px-6 pb-6 flex justify-center">
             <button
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 onClose();
               }}
-              className={`${styles.buttonColor} text-white px-6 py-2 rounded-md font-medium transition-colors`}
+              className={`${styles.buttonColor} text-white px-8 py-3 rounded-lg font-medium transition-colors shadow-md hover:shadow-lg transform hover:scale-105 transition-transform`}
             >
               Entendido
             </button>
+          </div>
+          
+          {/* Hint de Enter */}
+          <div className="px-6 pb-4 text-center">
+            <span className="text-xs text-gray-400">
+              Presiona <kbd className="px-2 py-1 bg-gray-100 rounded border border-gray-300 text-gray-600 font-mono">Enter</kbd> para cerrar
+            </span>
           </div>
         </div>
       </div>

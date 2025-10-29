@@ -105,10 +105,7 @@ export function useEstadosRemitos(companyId?: string) {
 
       // Pasar companyId del usuario actual (considerando impersonation)
       const url = companyId ? `/api/estados-remitos?companyId=${companyId}` : "/api/estados-remitos";
-      const response = await fetch(url).catch(error => {
-        console.error('Network error:', error);
-        throw new Error("Error de conexión de red");
-      });
+      const response = await fetch(url);
       
       if (!response.ok) {
         throw new Error("Error al cargar estados de remitos");
@@ -121,10 +118,7 @@ export function useEstadosRemitos(companyId?: string) {
         console.log('🔧 No hay estados, creando estados básicos automáticamente...');
         await createBasicEstados();
         // Recargar estados después de crearlos
-        const newResponse = await fetch(url).catch(error => {
-          console.error('Network error:', error);
-          throw new Error("Error de conexión de red");
-        });
+        const newResponse = await fetch(url);
         if (newResponse.ok) {
           const newData = await newResponse.json();
           setEstados(newData || []);
@@ -178,27 +172,42 @@ export function useEstadosRemitos(companyId?: string) {
 
   const createEstado = async (estadoData: EstadoRemitoFormData) => {
     try {
+      console.log('🔵 [CREATE ESTADO] Iniciando creación:', estadoData);
+      console.log('🔵 [CREATE ESTADO] CompanyId del parámetro:', companyId);
+      console.log('🔵 [CREATE ESTADO] CompanyId del usuario:', currentUser?.companyId);
+      
+      // Usar el companyId del parámetro (para SUPERADMIN con selector)
+      // o el del usuario actual (para ADMIN/USER)
+      const effectiveCompanyId = companyId || currentUser?.companyId;
+      
+      const payload = {
+        ...estadoData,
+        companyId: effectiveCompanyId
+      };
+      
+      console.log('🔵 [CREATE ESTADO] CompanyId efectivo:', effectiveCompanyId);
+      console.log('🔵 [CREATE ESTADO] Payload completo:', payload);
+      
       const response = await fetch("/api/estados-remitos", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...estadoData,
-          companyId: currentUser?.companyId
-        }).catch(error => {
-            console.error('Network error:', error);
-            throw new Error("Error de conexión de red");
-        }),
+        body: JSON.stringify(payload)
       });
+
+      console.log('🔵 [CREATE ESTADO] Response status:', response.status);
 
       if (!response.ok) {
         const errorData = await response.json();
+        console.error('❌ [CREATE ESTADO] Error response:', errorData);
         throw new Error(errorData.message || "Error al crear estado");
       }
 
       const newEstado = await response.json();
+      console.log('✅ [CREATE ESTADO] Estado creado exitosamente:', newEstado);
       setEstados(prev => [...prev, newEstado]);
       return newEstado;
     } catch (err) {
+      console.error('❌ [CREATE ESTADO] Exception:', err);
       const errorMessage = err instanceof Error ? err.message : "Error al crear estado";
       setError(errorMessage);
       throw new Error(errorMessage);
@@ -207,29 +216,38 @@ export function useEstadosRemitos(companyId?: string) {
 
   const updateEstado = async (id: string, estadoData: EstadoRemitoFormData) => {
     try {
+      console.log('🟡 [UPDATE ESTADO] Actualizando estado:', id, estadoData);
+      
+      // Usar el companyId del parámetro (para SUPERADMIN con selector)
+      // o el del usuario actual (para ADMIN/USER)
+      const effectiveCompanyId = companyId || currentUser?.companyId;
+      console.log('🟡 [UPDATE ESTADO] CompanyId efectivo:', effectiveCompanyId);
+      
       const response = await fetch(`/api/estados-remitos/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...estadoData,
-          companyId: currentUser?.companyId
-        }).catch(error => {
-            console.error('Network error:', error);
-            throw new Error("Error de conexión de red");
-        }),
+          companyId: effectiveCompanyId
+        })
       });
+
+      console.log('🟡 [UPDATE ESTADO] Response status:', response.status);
 
       if (!response.ok) {
         const errorData = await response.json();
+        console.error('❌ [UPDATE ESTADO] Error response:', errorData);
         throw new Error(errorData.message || "Error al actualizar estado");
       }
 
       const updatedEstado = await response.json();
+      console.log('✅ [UPDATE ESTADO] Estado actualizado exitosamente:', updatedEstado);
       setEstados(prev => prev.map(estado => 
         estado?.id === id ? updatedEstado : estado
       ));
       return updatedEstado;
     } catch (err) {
+      console.error('❌ [UPDATE ESTADO] Exception:', err);
       const errorMessage = err instanceof Error ? err.message : "Error al actualizar estado";
       setError(errorMessage);
       throw new Error(errorMessage);
@@ -238,20 +256,24 @@ export function useEstadosRemitos(companyId?: string) {
 
   const deleteEstado = async (id: string) => {
     try {
+      console.log('🔴 [DELETE ESTADO] Eliminando estado:', id);
+      
       const response = await fetch(`/api/estados-remitos/${id}`, {
         method: "DELETE",
-      }).catch(error => {
-        console.error('Network error:', error);
-        throw new Error("Error de conexión con estados");
       });
+
+      console.log('🔴 [DELETE ESTADO] Response status:', response.status);
 
       if (!response.ok) {
         const errorData = await response.json();
+        console.error('❌ [DELETE ESTADO] Error response:', errorData);
         throw new Error(errorData.message || "Error al eliminar estado");
       }
 
+      console.log('✅ [DELETE ESTADO] Estado eliminado exitosamente');
       setEstados(prev => prev.filter(estado => estado?.id !== id));
     } catch (err) {
+      console.error('❌ [DELETE ESTADO] Exception:', err);
       const errorMessage = err instanceof Error ? err.message : "Error al eliminar estado";
       setError(errorMessage);
       throw new Error(errorMessage);

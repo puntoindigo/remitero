@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&display=swap');
+/* Segoe UI es una fuente del sistema (Windows), no necesita cargarse desde Google Fonts */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 /* Import base theme structure */

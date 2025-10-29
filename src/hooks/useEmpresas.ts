@@ -33,20 +33,46 @@ export function useEmpresas() {
       setIsLoading(true);
       setError(null);
       
-      const response = await fetch("/api/companies").catch(error => {
-        console.error('Network error:', error);
-        throw new Error("Error de conexión con empresas");
-      });
-      
-      if (!response.ok) {
-        throw new Error(`Error al cargar empresas: ${response.status}`);
+      let response;
+      try {
+        response = await fetch("/api/companies");
+      } catch (networkError) {
+        // Manejar errores de red (pueden ser Events)
+        console.error('Network error:', networkError);
+        const errorMessage = networkError instanceof Error 
+          ? networkError.message 
+          : networkError instanceof Event
+          ? "Error de conexión de red"
+          : "Error desconocido al conectar con el servidor";
+        setError(errorMessage);
+        setEmpresas([]);
+        return;
       }
       
-      const data = await response.json();
+      if (!response.ok) {
+        const errorText = await response.text().catch(() => 'Error desconocido');
+        throw new Error(`Error al cargar empresas: ${response.status} - ${errorText}`);
+      }
+      
+      const data = await response.json().catch(error => {
+        console.error('Error parsing JSON:', error);
+        throw new Error("Error al procesar respuesta del servidor");
+      });
+      
       setEmpresas(data || []);
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Error desconocido";
+      // Manejar cualquier tipo de error (Error, Event, etc.)
+      let errorMessage = "Error desconocido al cargar empresas";
+      if (err instanceof Error) {
+        errorMessage = err.message;
+      } else if (err instanceof Event) {
+        errorMessage = `Error de red: ${err.type}`;
+      } else if (typeof err === 'string') {
+        errorMessage = err;
+      }
+      console.error('Error loading empresas:', err);
       setError(errorMessage);
+      setEmpresas([]);
     } finally {
       setIsLoading(false);
     }
@@ -54,25 +80,40 @@ export function useEmpresas() {
 
   const createEmpresa = async (name: string) => {
     try {
-      const response = await fetch("/api/companies", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name })
-      }).catch(error => {
-          console.error('Network error:', error);
-          throw new Error("Error de conexión de red");
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Error al crear empresa");
+      let response;
+      try {
+        response = await fetch("/api/companies", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name })
+        });
+      } catch (networkError) {
+        const errorMessage = networkError instanceof Error 
+          ? networkError.message 
+          : networkError instanceof Event
+          ? "Error de conexión de red"
+          : "Error desconocido al conectar con el servidor";
+        throw new Error(errorMessage);
       }
 
-      const newEmpresa = await response.json();
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || `Error al crear empresa: ${response.status}`);
+      }
+
+      const newEmpresa = await response.json().catch(error => {
+        console.error('Error parsing JSON:', error);
+        throw new Error("Error al procesar respuesta del servidor");
+      });
+      
       setEmpresas(prev => [...prev, newEmpresa]);
       return newEmpresa;
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Error al crear empresa";
+      const errorMessage = err instanceof Error 
+        ? err.message 
+        : err instanceof Event
+        ? "Error de conexión de red"
+        : "Error al crear empresa";
       setError(errorMessage);
       throw new Error(errorMessage);
     }
@@ -80,21 +121,32 @@ export function useEmpresas() {
 
   const updateEmpresa = async (id: string, name: string) => {
     try {
-      const response = await fetch(`/api/companies/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name })
-      }).catch(error => {
-        console.error('Network error:', error);
-        throw new Error("Error de conexión de red");
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Error al actualizar empresa");
+      let response;
+      try {
+        response = await fetch(`/api/companies/${id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name })
+        });
+      } catch (networkError) {
+        const errorMessage = networkError instanceof Error 
+          ? networkError.message 
+          : networkError instanceof Event
+          ? "Error de conexión de red"
+          : "Error desconocido al conectar con el servidor";
+        throw new Error(errorMessage);
       }
 
-      const updatedEmpresa = await response.json();
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || `Error al actualizar empresa: ${response.status}`);
+      }
+
+      const updatedEmpresa = await response.json().catch(error => {
+        console.error('Error parsing JSON:', error);
+        throw new Error("Error al procesar respuesta del servidor");
+      });
+      
       setEmpresas(prev => 
         prev.map(empresa => 
           empresa?.id === id ? updatedEmpresa : empresa
@@ -102,7 +154,11 @@ export function useEmpresas() {
       );
       return updatedEmpresa;
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Error al actualizar empresa";
+      const errorMessage = err instanceof Error 
+        ? err.message 
+        : err instanceof Event
+        ? "Error de conexión de red"
+        : "Error al actualizar empresa";
       setError(errorMessage);
       throw new Error(errorMessage);
     }
@@ -110,21 +166,32 @@ export function useEmpresas() {
 
   const deleteEmpresa = async (id: string) => {
     try {
-      const response = await fetch(`/api/companies/${id}`, {
-        method: "DELETE",
-      }).catch(error => {
-        console.error('Network error:', error);
-        throw new Error("Error de conexión con empresas");
-      });
+      let response;
+      try {
+        response = await fetch(`/api/companies/${id}`, {
+          method: "DELETE",
+        });
+      } catch (networkError) {
+        const errorMessage = networkError instanceof Error 
+          ? networkError.message 
+          : networkError instanceof Event
+          ? "Error de conexión de red"
+          : "Error desconocido al conectar con el servidor";
+        throw new Error(errorMessage);
+      }
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Error al eliminar empresa");
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || `Error al eliminar empresa: ${response.status}`);
       }
 
       setEmpresas(prev => prev.filter(empresa => empresa?.id !== id));
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Error al eliminar empresa";
+      const errorMessage = err instanceof Error 
+        ? err.message 
+        : err instanceof Event
+        ? "Error de conexión de red"
+        : "Error al eliminar empresa";
       setError(errorMessage);
       throw new Error(errorMessage);
     }

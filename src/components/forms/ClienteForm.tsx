@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -54,7 +54,7 @@ export function ClienteForm({
   });
 
   // Reset form when editingCliente changes
-  React.useEffect(() => {
+  useEffect(() => {
     if (editingCliente) {
       reset({
         name: editingCliente?.name,
