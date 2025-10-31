@@ -57,13 +57,22 @@ function ProductosContent() {
   } = useDataWithCompanySimple();
   
   // 🚀 REACT QUERY: Reemplaza state y fetch
-  const { data: productos = [], isLoading } = useProductosQuery(companyId);
-  const { data: categorias = [] } = useCategoriasQuery(companyId);
+  const { data: productos = [], isLoading } = useProductosQuery(companyId || undefined);
+  const { data: categorias = [] } = useCategoriasQuery(companyId || undefined);
   const createMutation = useCreateProductMutation();
   const updateMutation = useUpdateProductMutation();
   const deleteMutation = useDeleteProductMutation();
   
-  const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string>(() => {
+    if (typeof window === 'undefined') return "";
+    const initial = new URLSearchParams(window.location.search).get('categoryId');
+    return initial || "";
+  });
+  const [selectedStock, setSelectedStock] = useState<string>(() => {
+    if (typeof window === 'undefined') return "";
+    const stockParam = new URLSearchParams(window.location.search).get('stock');
+    return stockParam === 'IN_STOCK' || stockParam === 'OUT_OF_STOCK' ? stockParam : "";
+  });
   const { empresas } = useEmpresas();
   
   // Loading state management
@@ -110,10 +119,59 @@ function ProductosContent() {
   // 🚀 REACT QUERY: Ya no necesita loadData ni useEffect
   // React Query se encarga automáticamente del fetching y caching
 
-  // Filtrar productos por categoría
-  const filteredProductos = selectedCategoryId 
-    ? productos.filter(producto => producto.category?.id === selectedCategoryId)
-    : productos;
+  // Empujar cambios de stock a la URL sin hacer scroll ni recargar
+  useEffect(() => {
+    const currentParam = searchParams.get('stock') || "";
+    const params = new URLSearchParams(searchParams as any);
+    // Si se selecciona un stock específico, actualizar la URL
+    if (selectedStock) {
+      if (currentParam !== selectedStock) {
+        params.set('stock', selectedStock);
+        router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+      }
+    } else {
+      // Si se selecciona "Todos los stocks" (vacío), eliminar el parámetro
+      if (currentParam) {
+        params.delete('stock');
+        const qs = params.toString();
+        const nextUrl = qs ? `${pathname}?${qs}` : `${pathname}`;
+        router.replace(nextUrl, { scroll: false });
+      }
+    }
+  }, [selectedStock, router, pathname, searchParams]);
+
+  // Empujar cambios de categoría a la URL
+  useEffect(() => {
+    const currentParam = searchParams.get('categoryId') || "";
+    const params = new URLSearchParams(searchParams as any);
+    // Evitar borrar si la URL tiene categoryId y el estado inicia vacío
+    if (!selectedCategoryId && currentParam) {
+      return;
+    }
+    if (selectedCategoryId) {
+      if (currentParam !== selectedCategoryId) {
+        params.set('categoryId', selectedCategoryId);
+        router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+      }
+    } else if (currentParam) {
+      params.delete('categoryId');
+      const qs = params.toString();
+      const nextUrl = qs ? `${pathname}?${qs}` : `${pathname}`;
+      router.replace(nextUrl, { scroll: false });
+    }
+  }, [selectedCategoryId, router, pathname, searchParams]);
+
+
+  // Filtrar productos por categoría y stock
+  const filteredProductos = productos
+    .filter(producto => {
+      if (!selectedCategoryId) return true;
+      return producto.category?.id === selectedCategoryId;
+    })
+    .filter(producto => {
+      if (!selectedStock) return true;
+      return (producto.stock || 'OUT_OF_STOCK') === selectedStock;
+    });
 
   // Función de eliminación
   const handleDeleteProduct = (producto: Product) => {
@@ -153,6 +211,31 @@ function ProductosContent() {
     setSearchTerm('');
   }, [companyId, setSearchTerm]);
 
+  // Inicializar campo de búsqueda desde la URL una sola vez
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const q = new URLSearchParams(window.location.search).get('q') || "";
+    if (q) setSearchTerm(q);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Empujar cambios de búsqueda a la URL
+  useEffect(() => {
+    const currentParam = searchParams.get('q') || "";
+    const params = new URLSearchParams(searchParams as any);
+    if (searchTerm) {
+      if (currentParam !== searchTerm) {
+        params.set('q', searchTerm);
+        router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+      }
+    } else if (currentParam) {
+      params.delete('q');
+      const qs = params.toString();
+      const nextUrl = qs ? `${pathname}?${qs}` : `${pathname}`;
+      router.replace(nextUrl, { scroll: false });
+    }
+  }, [searchTerm, router, pathname, searchParams]);
+
   const handleStockChange = async (productId: string, newStock: string) => {
     try {
       const response = await fetch(`/api/products/${productId}`, {
@@ -175,7 +258,7 @@ function ProductosContent() {
       
       // También forzar refetch inmediato
       await queryClient.refetchQueries({ 
-        queryKey: productKeys.list(companyId)
+        queryKey: productKeys.list((companyId || undefined) as string | undefined)
       });
       
       // Mostrar mensaje de éxito
@@ -265,14 +348,20 @@ function ProductosContent() {
       key: 'stock',
       label: 'Stock',
       render: (producto) => (
-        <select
-          value={producto.stock || 'OUT_OF_STOCK'}
-          onChange={(e) => handleStockChange(producto?.id, e.target.value)}
-          className="status-select"
-        >
-          <option value="IN_STOCK">✅ En Stock</option>
-          <option value="OUT_OF_STOCK">❌ Sin Stock</option>
-        </select>
+        <div style={{ minWidth: 180 }}>
+          <FilterableSelect
+            options={[
+              { id: 'IN_STOCK', name: '✅ En Stock', color: '#16a34a' },
+              { id: 'OUT_OF_STOCK', name: '❌ Sin Stock', color: '#ef4444' }
+            ]}
+            value={producto.stock || 'OUT_OF_STOCK'}
+            onChange={(value) => handleStockChange(producto?.id, value)}
+            placeholder="Estado de stock"
+            searchFields={["name"]}
+            showColors={true}
+            searchable={false}
+          />
+        </div>
       )
     },
     {
@@ -345,6 +434,22 @@ function ProductosContent() {
                     onChange={setSelectedCategoryId}
                     placeholder="Filtrar por categoría"
                     searchFields={["name"]}
+                    className="w-full"
+                  />
+                </div>
+                <div style={{ width: '220px' }}>
+                  <FilterableSelect
+                    options={[
+                      { id: "", name: "Todos los stocks" },
+                      { id: "IN_STOCK", name: "En stock", color: "#16a34a" },
+                      { id: "OUT_OF_STOCK", name: "Sin stock", color: "#ef4444" }
+                    ]}
+                    value={selectedStock}
+                    onChange={setSelectedStock}
+                    placeholder="Filtrar por stock"
+                    searchFields={["name"]}
+                    showColors={true}
+                    searchable={false}
                     className="w-full"
                   />
                 </div>

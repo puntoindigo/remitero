@@ -13,6 +13,7 @@ interface FilterableSelectProps {
   className?: string;
   disabled?: boolean;
   showColors?: boolean;
+  searchable?: boolean;
 }
 
 export default function FilterableSelect({
@@ -23,18 +24,22 @@ export default function FilterableSelect({
   searchFields = ["name"],
   className = "",
   disabled = false,
-  showColors = false
+  showColors = false,
+  searchable = true
 }: FilterableSelectProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredOptions, setFilteredOptions] = useState(options);
-  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0, width: 0 });
   const inputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
 
   // Filtrar opciones basado en el término de búsqueda
   useEffect(() => {
+    if (!searchable) {
+      setFilteredOptions(options);
+      return;
+    }
     if (!searchTerm.trim()) {
       setFilteredOptions(options);
     } else {
@@ -50,12 +55,14 @@ export default function FilterableSelect({
       );
       setFilteredOptions(filtered);
     }
-  }, [searchTerm, options, searchFields]);
+  }, [searchTerm, options, searchFields, searchable]);
 
   // Obtener el texto del elemento seleccionado
   const selectedOption = options.find(option => option?.id === value);
   const displayText = selectedOption ? selectedOption?.name : placeholder;
 
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0, width: 0 });
+  const rafRef = useRef<number | null>(null);
   const updateDropdownPosition = () => {
     if (triggerRef.current) {
       const rect = triggerRef.current.getBoundingClientRect();
@@ -69,11 +76,9 @@ export default function FilterableSelect({
 
   const handleToggle = () => {
     if (disabled) return;
-    if (!isOpen) {
-      updateDropdownPosition();
-    }
+    if (!isOpen) updateDropdownPosition();
     setIsOpen(!isOpen);
-    if (!isOpen) {
+    if (!isOpen && searchable) {
       setTimeout(() => inputRef.current?.focus(), 0);
     }
   };
@@ -82,12 +87,20 @@ export default function FilterableSelect({
   useEffect(() => {
     if (isOpen) {
       updateDropdownPosition();
-      window.addEventListener('scroll', updateDropdownPosition, true);
-      window.addEventListener('resize', updateDropdownPosition);
-      
+      const handler = () => updateDropdownPosition();
+      window.addEventListener('resize', handler);
+      // Captura scrolls de contenedores
+      document.addEventListener('scroll', handler, true);
+      // Mantener pegado mediante RAF mientras esté abierto (por desplazamientos/transiciones)
+      const tick = () => {
+        updateDropdownPosition();
+        rafRef.current = requestAnimationFrame(tick);
+      };
+      rafRef.current = requestAnimationFrame(tick);
       return () => {
-        window.removeEventListener('scroll', updateDropdownPosition, true);
-        window.removeEventListener('resize', updateDropdownPosition);
+        window.removeEventListener('resize', handler);
+        document.removeEventListener('scroll', handler, true);
+        if (rafRef.current) cancelAnimationFrame(rafRef.current);
       };
     }
   }, [isOpen]);
@@ -140,7 +153,6 @@ export default function FilterableSelect({
 
   const renderDropdown = () => {
     if (!isOpen || typeof window === 'undefined') return null;
-
     return createPortal(
       <div 
         ref={dropdownRef}
@@ -150,21 +162,28 @@ export default function FilterableSelect({
           top: `${dropdownPosition.top}px`,
           left: `${dropdownPosition.left}px`,
           width: `${dropdownPosition.width}px`,
-          zIndex: 99999
+          zIndex: 99999,
+          backgroundColor: '#fff',
+          border: '1px solid #e5e7eb',
+          borderRadius: '6px',
+          boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1)'
         }}
       >
-        <div className="vercel-select-search">
-          <Search className="vercel-select-search-icon" />
-          <input
-            ref={inputRef}
-            type="text"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Buscar..."
-            className="vercel-select-search-input"
-          />
-        </div>
-        <div className="vercel-select-options">
+        {searchable && (
+          <div className="vercel-select-search" style={{ position: 'relative', borderBottom: '1px solid #e5e7eb' }}>
+            <Search className="vercel-select-search-icon" />
+            <input
+              ref={inputRef}
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Buscar..."
+              className="vercel-select-search-input"
+              style={{ fontSize: '14px', height: '36px' }}
+            />
+          </div>
+        )}
+        <div className="vercel-select-options" style={{ maxHeight: '280px', overflowY: 'auto' }}>
           {filteredOptions?.length === 0 ? (
             <div className="vercel-select-empty">
               No se encontraron opciones
@@ -185,8 +204,8 @@ export default function FilterableSelect({
                   <span 
                     style={{ 
                       display: 'inline-block',
-                      width: '12px',
-                      height: '12px',
+                      width: '10px',
+                      height: '10px',
                       borderRadius: '50%',
                       backgroundColor: option.color,
                       marginRight: '8px'
@@ -204,15 +223,20 @@ export default function FilterableSelect({
   };
 
   return (
-    <div className={`vercel-select-container ${className}`}>
+    <div className={`vercel-select-container ${className}`} style={{ position: 'relative' }}>
       <button
         ref={triggerRef}
         type="button"
         onClick={handleToggle}
         disabled={disabled}
         className={`vercel-select-trigger ${isOpen ? 'vercel-select-open' : ''} ${disabled ? 'vercel-select-disabled' : ''}`}
+        style={showColors && selectedOption?.color ? {
+          border: `1px solid ${selectedOption.color}`,
+          backgroundColor: `${selectedOption.color}22`,
+          minHeight: 'unset'
+        } : { minHeight: 'unset' }}
       >
-        <span className={`vercel-select-value ${value ? 'vercel-select-has-value' : ''}`}>
+        <span className={`vercel-select-value ${value ? 'vercel-select-has-value' : ''}`} style={{ display: 'inline-flex', alignItems: 'center' }}>
           {showColors && selectedOption?.color && (
             <span 
               style={{ 

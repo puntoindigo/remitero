@@ -260,7 +260,7 @@ form, .form-section {
   cursor: pointer;
   transition: all 0.15s ease;
   outline: none;
-  min-height: 48px;
+  min-height: 0;
   font-weight: normal;
 }
 
@@ -1322,25 +1322,59 @@ form svg {
   align-items: center;
 }
 
+/* Botonera principal - estilo sutil con borde y animación */
 .nav-link {
   color: white;
   text-decoration: none;
   padding: 8px 12px;
-  border-radius: 4px;
-  transition: background-color 0.3s ease;
+  border-radius: 8px;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   font-size: 14px;
+  font-weight: 400;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: transparent;
+  transition:
+    background-color 200ms ease,
+    border-color 200ms ease,
+    transform 220ms cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 200ms ease;
+}
+
+@keyframes nav-bounce {
+  0% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-1px) scale(1.04); }
+  100% { transform: translateY(0) scale(1); }
 }
 
 .nav-link:hover {
-  background-color: rgba(255, 255, 255, 0.2);
+  background-color: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.45);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  animation: nav-bounce 220ms ease-out;
 }
 
 .nav-link.active {
-  background-color: rgba(255, 255, 255, 0.3);
-  font-weight: bold;
+  background-color: rgba(0, 0, 0, 0.22); /* más oscuro que el fondo */
+  border: 2px solid rgba(255, 255, 255, 0.9);
+  font-weight: 500; /* no negrita fuerte */
+  font-size: 15px; /* un toque más grande */
+  box-shadow: 0 6px 14px rgba(0,0,0,0.25);
+  animation: nav-bounce 240ms ease-out;
+}
+
+/* Botones "Nuevo..." - hover consistente */
+.new-button {
+  transition:
+    transform 220ms cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 200ms ease,
+    background-color 180ms ease;
+}
+.new-button:hover:not(:disabled) {
+  transform: translateY(-1px) scale(1.03);
+  box-shadow: 0 8px 18px rgba(59, 130, 246, 0.35);
+  background-color: #2563eb !important; /* un tono más oscuro */
 }
 
 .header-right {
@@ -3426,25 +3460,15 @@ form svg {
 
 /* Remover cualquier estilo de contenedor del FilterableSelect en formularios */
 .form-group .vercel-select-container {
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-  padding: 0 !important;
-  margin: 0 !important;
-  border-radius: 0 !important;
+  /* permitir estilos inline del trigger */
+  padding: 0;
+  margin: 0;
 }
 
-.form-group .vercel-select-container * {
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-}
+/* no forzar background/border dentro del select para permitir colores dinámicos */
+.form-group .vercel-select-container * { box-shadow: none; }
 
-.form-group .vercel-select-trigger {
-  background: white !important;
-  border: 1px solid #d1d5db !important;
-  border-radius: 6px !important;
-}
+.form-group .vercel-select-trigger { border-radius: 6px; }
 
 /* Badge styles for roles */
 .badge-superadmin {

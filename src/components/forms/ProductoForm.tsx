@@ -3,9 +3,10 @@
 import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import FilterableSelect from "../common/FilterableSelect";
 import { ProductForm as ProductFormData, productSchema } from "@/lib/validations";
 import { FormModal } from "@/components/common/FormModal";
-import FilterableSelect from "@/components/common/FilterableSelect";
+//
 
 interface Category {
   id: string;
@@ -59,7 +60,7 @@ export function ProductoForm({
       setValue("name", editingProduct?.name);
       setValue("description", editingProduct.description || "");
       setValue("price", editingProduct.price);
-      setValue("stock", editingProduct.stock || "OUT_OF_STOCK");
+      setValue("stock", (editingProduct.stock || "OUT_OF_STOCK") as any);
       setValue("categoryId", editingProduct.categoryId || "");
     } else {
       reset({
@@ -137,10 +138,19 @@ export function ProductoForm({
 
         <div className="form-group">
           <label className="form-label-large">Estado de stock</label>
-          <select {...register("stock")} className="form-select-standard">
-            <option value="IN_STOCK">Con stock</option>
-            <option value="OUT_OF_STOCK">Sin stock</option>
-          </select>
+          <FilterableSelect
+            options={[
+              { id: "IN_STOCK", name: "Con stock", color: "#16a34a" },
+              { id: "OUT_OF_STOCK", name: "Sin stock", color: "#ef4444" }
+            ]}
+            value={watch("stock") || "OUT_OF_STOCK"}
+            onChange={(value) => setValue("stock", value as any)}
+            placeholder="Seleccionar estado de stock"
+            searchFields={["name"]}
+            showColors={true}
+            searchable={false}
+            className="form-select-standard"
+          />
         </div>
       </div>
 

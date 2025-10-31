@@ -1,7 +1,7 @@
 "use client"
 
 import { useSession } from "next-auth/react"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { FileText, Package, Users, Building2, Tag, ShoppingBag, Plus, Eye } from "lucide-react"
 import Link from "next/link"
 import { useCurrentUserSimple } from "@/hooks/useCurrentUserSimple"
@@ -11,9 +11,7 @@ import FilterableSelect from "@/components/common/FilterableSelect"
 interface DashboardStats {
   remitos: {
     total: number;
-    pendientes: number;
-    preparados: number;
-    entregados: number;
+    byStatus: Array<{ id: string; name: string; count: number }>;
   };
   productos: {
     total: number;
@@ -37,7 +35,7 @@ export default function DashboardPage() {
   const { empresas } = useEmpresas()
   const [selectedCompanyId, setSelectedCompanyId] = useState<string>("")
   const [stats, setStats] = useState<DashboardStats>({
-    remitos: { total: 0, pendientes: 0, preparados: 0, entregados: 0 },
+    remitos: { total: 0, byStatus: [] },
     productos: { total: 0, conStock: 0, sinStock: 0 },
     clientes: 0,
     categorias: 0
@@ -72,6 +70,11 @@ export default function DashboardPage() {
   }, [selectedCompanyId]);
 
   useEffect(() => {
+    const abortController = new AbortController();
+    // Debounce para evitar peticiones duplicadas en montajes/re-renders cercanos
+    if (debounceTimer.current) {
+      clearTimeout(debounceTimer.current as any);
+    }
     const loadStats = async () => {
       // Determinar el companyId efectivo
       const effectiveCompanyId = currentUser?.role === "SUPERADMIN" 
@@ -80,91 +83,37 @@ export default function DashboardPage() {
       
       if (!effectiveCompanyId) return
       
+      // Evitar cargas repetidas por el mismo companyId
+      if (lastFetchedCompanyId.current === effectiveCompanyId) return;
+      // Evitar iniciar dos fetch simultáneos para el mismo companyId
+      if (inFlightCompanyId.current === effectiveCompanyId) return;
+      inFlightCompanyId.current = effectiveCompanyId;
+      
       try {
-        // Cargar estadísticas principales
-        const [remitosRes, productosRes, clientesRes, categoriasRes] = await Promise.all([
-          fetch(`/api/remitos?companyId=${effectiveCompanyId}`),
-          fetch(`/api/products?companyId=${effectiveCompanyId}`),
-          fetch(`/api/clients?companyId=${effectiveCompanyId}`),
-          fetch(`/api/categories?companyId=${effectiveCompanyId}`)
-        ])
-
-        // Validar que todas las respuestas sean OK
-        if (!remitosRes.ok || !productosRes.ok || !clientesRes.ok || !categoriasRes.ok) {
-          throw new Error('Error al cargar estadísticas principales');
-        }
-
-        const [remitos, productos, clientes, categorias] = await Promise.all([
-          remitosRes.json().catch(() => []),
-          productosRes.json().catch(() => []),
-          clientesRes.json().catch(() => []),
-          categoriasRes.json().catch(() => [])
-        ])
-
-        // Cargar conteos de hoy
-        const [usuariosTodayRes, clientesTodayRes, productosTodayRes, categoriasTodayRes] = await Promise.all([
-          fetch(`/api/users?companyId=${effectiveCompanyId}&countToday=true`),
-          fetch(`/api/clients?companyId=${effectiveCompanyId}&countToday=true`),
-          fetch(`/api/products?companyId=${effectiveCompanyId}&countToday=true`),
-          fetch(`/api/categories?companyId=${effectiveCompanyId}&countToday=true`)
-        ])
-
-        // Validar que todas las respuestas sean OK
-        if (!usuariosTodayRes.ok || !clientesTodayRes.ok || !productosTodayRes.ok || !categoriasTodayRes.ok) {
-          throw new Error('Error al cargar conteos de hoy');
-        }
-
-        const [usuariosToday, clientesToday, productosToday, categoriasToday] = await Promise.all([
-          usuariosTodayRes.json().catch(() => ({ count: 0 })),
-          clientesTodayRes.json().catch(() => ({ count: 0 })),
-          productosTodayRes.json().catch(() => ({ count: 0 })),
-          categoriasTodayRes.json().catch(() => ({ count: 0 }))
-        ])
-
-        // Debug logs
-        console.log('Dashboard API responses:', {
-          remitos: Array.isArray(remitos) ? `Array(${remitos?.length})` : typeof remitos,
-          productos: Array.isArray(productos) ? `Array(${productos?.length})` : typeof productos,
-          clientes: Array.isArray(clientes) ? `Array(${clientes?.length})` : typeof clientes,
-          categorias: Array.isArray(categorias) ? `Array(${categorias?.length})` : typeof categorias
-        })
-
-        // Validar que las respuestas sean arrays
-        const remitosArray = Array.isArray(remitos) ? remitos : []
-        const productosArray = Array.isArray(productos) ? productos : []
-        const clientesArray = Array.isArray(clientes) ? clientes : []
-        const categoriasArray = Array.isArray(categorias) ? categorias : []
-
-        // Procesar estadísticas de remitos
-        const remitosStats = {
-          total: remitosArray?.length,
-          pendientes: remitosArray.filter((r: any) => r.status === 'PENDIENTE').length,
-          preparados: remitosArray.filter((r: any) => r.status === 'PREPARADO').length,
-          entregados: remitosArray.filter((r: any) => r.status === 'ENTREGADO').length
-        }
-
-        // Procesar estadísticas de productos
-        const productosStats = {
-          total: productosArray?.length,
-          conStock: productosArray.filter((p: any) => p.stock === 'IN_STOCK').length,
-          sinStock: productosArray.filter((p: any) => p.stock === 'OUT_OF_STOCK').length
-        }
+        const resp = await fetch(`/api/dashboard?companyId=${effectiveCompanyId}`, { signal: abortController.signal });
+        if (!resp.ok) throw new Error('Error al cargar dashboard agregado');
+        const data = await resp.json();
 
         setStats({
-          remitos: remitosStats,
-          productos: productosStats,
-          clientes: clientesArray?.length,
-          categorias: categoriasArray?.length
+          remitos: { total: data.remitos?.total || 0, byStatus: data.remitos?.byStatus || [] },
+          productos: { total: data.productos?.total || 0, conStock: 0, sinStock: 0 },
+          clientes: data.clientes?.total || 0,
+          categorias: data.categorias?.total || 0
         })
 
-        // Establecer conteos de hoy
         setTodayStats({
-          usuarios: usuariosToday.count || 0,
-          clientes: clientesToday.count || 0,
-          productos: productosToday.count || 0,
-          categorias: categoriasToday.count || 0
+          usuarios: data.usuarios?.today || 0,
+          clientes: data.clientes?.today || 0,
+          productos: data.productos?.today || 0,
+          categorias: data.categorias?.today || 0
         })
-      } catch (error) {
+        // Marcar como cargado exitosamente para este companyId
+        lastFetchedCompanyId.current = effectiveCompanyId;
+      } catch (error: any) {
+        // Silenciar abortos esperados al cambiar rápido de empresa o desmontar
+        if (error?.name === 'AbortError') {
+          return;
+        }
         console.error('Error loading dashboard stats:', error);
         // Si el error es un Event, probablemente es un error de red
         if (error instanceof Event) {
@@ -174,7 +123,7 @@ export default function DashboardPage() {
         }
         // Establecer valores por defecto para evitar UI rota
         setStats({
-          remitos: { total: 0, pendientes: 0, preparados: 0, entregados: 0 },
+          remitos: { total: 0, byStatus: [] },
           productos: { total: 0, conStock: 0, sinStock: 0 },
           clientes: 0,
           categorias: 0
@@ -186,12 +135,27 @@ export default function DashboardPage() {
           categorias: 0
         });
       } finally {
-        setIsLoading(false)
+        inFlightCompanyId.current = null;
+        if (!abortController.signal.aborted) {
+          setIsLoading(false)
+        }
       }
     }
 
-    loadStats()
+    debounceTimer.current = setTimeout(() => {
+      loadStats();
+    }, 150);
+
+    return () => {
+      if (debounceTimer.current) clearTimeout(debounceTimer.current as any);
+      abortController.abort();
+    };
   }, [currentUser?.companyId, currentUser?.role, selectedCompanyId])
+
+  // Track para evitar cargas duplicadas por mismo companyId
+  const lastFetchedCompanyId = useRef<string | null>(null)
+  const inFlightCompanyId = useRef<string | null>(null)
+  const debounceTimer = useRef<NodeJS.Timeout | null>(null)
 
   // Funciones helper para generar enlaces y nombres
   const getNewLink = (title: string) => {
@@ -230,9 +194,12 @@ export default function DashboardPage() {
       bgColor: "bg-blue-50",
       stats: [
         { label: "Total", value: stats.remitos.total, link: "/remitos" },
-        { label: "Pendientes", value: stats.remitos.pendientes, link: "/remitos?status=PENDIENTE" },
-        { label: "Preparados", value: stats.remitos.preparados, link: "/remitos?status=PREPARADO" },
-        { label: "Entregados", value: stats.remitos.entregados, link: "/remitos?status=ENTREGADO" }
+        ...stats.remitos.byStatus
+          .filter(s => s.count > 0)
+          .map(s => {
+            const statusSlug = (s.name || '').toString().trim().replace(/\s+/g, '_').toUpperCase();
+            return { label: s.name, value: s.count, link: `/remitos?status=${statusSlug}` };
+          })
       ]
     },
     {

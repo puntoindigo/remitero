@@ -11,14 +11,27 @@ body {
   font-family: Arial, sans-serif;
 }
 
+/* Eliminar cualquier elemento hr o líneas horizontales azules */
+hr,
+hr *,
+.print-container hr,
+[data-print-wrapper] hr {
+  display: none !important;
+  visibility: hidden !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+}
+
 /* Layout: dos columnas una al lado de la otra */
 .print-container {
   display: flex;
   flex-direction: row;
   gap: 0;
   width: 100%;
-  height: 148mm; /* Altura fija A4 landscape (sin márgenes) */
-  max-height: 148mm;
+  min-height: 148mm; /* Altura mínima A4 landscape */
+  height: auto; /* Permitir que crezca automáticamente */
   margin: 0;
   padding: 0;
   background: white;
@@ -26,17 +39,21 @@ body {
 }
 
 /* Cada copia ocupa exactamente la mitad */
-.print-original,
-.print-copy {
-  width: 50%;
-  height: 148mm;
-  padding: 8mm 10mm;
-  border: 1px solid #000;
-  page-break-inside: avoid;
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  background: white;
+/* Contenedores principales - FORZADO */
+.print-container .print-original,
+.print-container .print-copy {
+  width: 50% !important;
+  min-height: 148mm !important;
+  height: auto !important;
+  padding: 8mm 10mm 2mm 10mm !important;
+  border: 1px solid #000 !important;
+  page-break-inside: avoid !important;
+  position: relative !important;
+  display: flex !important;
+  flex-direction: column !important;
+  background: white !important;
+  box-sizing: border-box !important;
+  justify-content: flex-start !important;
 }
 
 /* Línea de corte vertical en el medio (con tijeras) */
@@ -63,34 +80,136 @@ body {
 
 /* Header */
 .print-header {
-  text-align: center;
   border-bottom: 2px solid #000;
   padding-bottom: 4mm;
   margin-bottom: 4mm;
   flex-shrink: 0;
+  flex-grow: 0;
+  /* Asegurar que no haya bordes azules */
+  border-top: none !important;
+  border-left: none !important;
+  border-right: none !important;
+}
+
+.print-header > div:first-child {
+  width: 100%;
+  display: block; /* Cambiar a block para permitir float */
+  position: relative;
+}
+
+.print-header > div:first-child > div:first-child {
+  text-align: left;
+  width: 80%; /* Dejar espacio para el número flotante */
+  display: inline-block;
+}
+
+/* Eliminar cualquier borde azul que pueda venir de estilos globales */
+.print-header *,
+.print-container *,
+.print-original *,
+.print-copy * {
+  border-color: #000 !important; /* Cambiar cualquier borde azul a negro */
+}
+
+/* Específicamente eliminar bordes azules del header */
+.print-header h1,
+.print-header h2 {
+  border-top: none !important;
+  border-left: none !important;
+  border-right: none !important;
+  border-bottom: none !important;
+}
+
+.print-header {
+  border-top: none !important;
+  border-left: none !important;
+  border-right: none !important;
+  border-bottom: 2px solid #000 !important; /* Solo el borde inferior negro */
 }
 
 .print-header h1 {
-  margin: 0;
+  margin: 0 0 2px 0;
   font-size: 14pt;
   font-weight: bold;
   text-transform: uppercase;
+  text-align: left;
+}
+
+/* Header top row - empresa y número en la misma línea - FORZADO */
+.print-container .print-original .print-header .print-header-top,
+.print-container .print-copy .print-header .print-header-top {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  width: 100% !important;
+  margin-bottom: 2px !important;
+  flex-direction: row !important;
+  min-height: 20px !important; /* asegurar altura visible */
+  position: relative !important;
+  z-index: 2 !important;
+}
+
+.print-container .print-original .print-header .print-header-top h1,
+.print-container .print-copy .print-header .print-header-top h1 {
+  margin: 0 !important;
+  text-align: left !important;
+  font-size: 14pt !important;
+  font-weight: bold !important;
+  text-transform: uppercase !important;
+  color: #000 !important;
+  display: block !important;
+  line-height: 1.2 !important;
+  visibility: visible !important;
 }
 
 .print-header h2 {
-  margin: 2px 0 0 0;
+  margin: 0;
   font-size: 11pt;
   font-weight: normal;
+  text-align: left;
 }
 
-/* Client info section */
-.print-info-section {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 4mm;
-  padding-bottom: 3mm;
-  border-bottom: 1px solid #ddd;
-  flex-shrink: 0;
+/* Número de remito con borde redondeado - FORZADO */
+.print-container .print-original .print-header .print-remito-number,
+.print-container .print-copy .print-header .print-remito-number {
+  font-size: 14pt !important;
+  font-weight: bold !important;
+  padding: 3mm 4mm !important;
+  text-align: right !important;
+  background-color: #f0f0f0 !important;
+  border: 2px solid #000 !important;
+  border-radius: 12px !important; /* borde redondeado real */
+  flex-shrink: 0 !important;
+  width: 20% !important;
+  margin: 0 !important;
+  display: inline-block !important; /* evita que se vea como caja rígida */
+  color: #000 !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  line-height: 1.1 !important;
+  z-index: 2 !important;
+}
+
+.print-remito-number strong {
+  font-size: 14pt;
+  font-weight: bold;
+  margin: 0;
+}
+
+/* Client info section - FORZADO */
+.print-container .print-original .print-info-section,
+.print-container .print-copy .print-info-section {
+  display: block !important;
+  margin-bottom: 4mm !important;
+  padding-bottom: 3mm !important;
+  flex-shrink: 0 !important;
+  flex-grow: 0 !important;
+  border-top: none !important;
+  border-left: none !important;
+  border-right: none !important;
+  border-bottom: none !important;
+  border: none !important;
+  border-color: transparent !important;
 }
 
 .print-client-info h3 {
@@ -99,64 +218,157 @@ body {
   font-weight: bold;
 }
 
-.print-client-info p,
-.print-number-date p {
-  margin: 1px 0;
-  font-size: 9pt;
-  line-height: 1.3;
+/* Alinear FECHA a la misma altura que CLIENTE */
+.print-number-date {
+  float: right; /* ya está flotado */
+  clear: right;
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+.print-client-info h3 { margin-top: 0 !important; }
+
+.print-number-date {
+  float: right; /* Flotar a la derecha */
+  clear: right; /* Limpiar el float */
+  margin-top: 0; /* Alinear con la primera línea del cliente */
+  margin-bottom: 0; /* Sin margen inferior */
 }
 
-/* Items area - ocupa espacio disponible */
+.print-number-date p {
+  margin: 0; /* alinear exactamente con CLIENTE */
+  font-size: 9pt;
+  line-height: 1.2;
+}
+
+/* Items area - ocupa espacio disponible, permite que el total quede abajo */
 .print-items {
-  flex: 1;
-  overflow: hidden;
+  flex: 1 1 auto;
+  overflow: visible;
   margin-bottom: 3mm;
+  width: 100%;
+  min-height: 0; /* Permite que flex funcione correctamente */
+}
+
+.print-items table {
+  width: 100% !important;
+  min-width: 100% !important;
 }
 
 /* Table */
 .print-table {
-  width: 100%;
+  width: 100% !important;
+  min-width: 100% !important;
+  max-width: 100% !important;
+  table-layout: fixed !important; /* Forzar distribución fija de columnas */
   border-collapse: collapse;
   font-size: 9pt;
 }
 
 .print-table thead {
   background-color: #f0f0f0;
+  width: 100%;
 }
 
 .print-table th {
   border: 1px solid #000;
-  padding: 2mm;
-  text-align: left;
+  padding: 2mm 3mm; /* Mismo padding que las celdas */
   font-weight: bold;
   font-size: 9pt;
+  box-sizing: border-box; /* Incluir border y padding en el cálculo del ancho */
 }
+
+/* Alineación específica de headers para que coincida con el cuerpo */
+.print-table th:nth-child(1) {
+  text-align: center; /* Cant. - centrado como el cuerpo */
+}
+
+.print-table th:nth-child(2) {
+  text-align: left; /* Descripción - izquierda como el cuerpo */
+}
+
+.print-table th:nth-child(3) {
+  text-align: right; /* Precio Unit. - derecha como el cuerpo */
+}
+
+.print-table th:nth-child(4) {
+  text-align: right; /* Total - derecha como el cuerpo */
+}
+
+/* Anchos controlados por <colgroup> para alineación perfecta */
 
 .print-table td {
   border: 1px solid #ddd;
-  padding: 1.5mm 2mm;
+  padding: 2mm 3mm; /* Mismo padding que los headers */
   font-size: 9pt;
-  line-height: 1.2;
+  line-height: 1.4; /* Mejorar line-height */
+  word-spacing: 0.1em; /* Espaciado entre palabras */
+  letter-spacing: 0.02em; /* Espaciado entre letras */
+  white-space: normal; /* Permitir que el texto se ajuste */
+  overflow: visible;
+  box-sizing: border-box; /* Incluir border y padding en el cálculo del ancho */
+}
+
+/* Mejorar específicamente la columna de descripción */
+/* Descripción: mantener mismos paddings que el resto para no desalinear */
+.print-table td:nth-child(2) {
+  padding: 2mm 3mm;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .print-table tbody tr:nth-child(even) {
   background-color: #f9f9f9;
 }
 
-/* Total - siempre en la misma posición */
-.print-total {
-  text-align: right;
-  padding: 3mm;
-  background-color: #f0f0f0;
-  border: 2px solid #000;
-  flex-shrink: 0;
-  margin-top: auto; /* Empuja hacia abajo */
+/* Líneas vacías - mantener el estilo de la tabla */
+.print-table tbody tr td {
+  min-height: 20px; /* Altura mínima para las líneas vacías */
+}
+
+.print-table tbody tr td:empty {
+  height: 20px; /* Altura fija para celdas vacías */
+}
+
+/* Total - FORZADO al final de la página */
+.print-container .print-original .print-total,
+.print-container .print-copy .print-total {
+  text-align: right !important;
+  padding: 3mm 0 !important; /* quitar padding derecho para alinear con columna */
+  background-color: #f0f0f0 !important;
+  border: 2px solid #000 !important;
+  flex-shrink: 0 !important;
+  margin-top: auto !important;
+  margin-bottom: 2mm !important;
+  width: 100% !important;
+  clear: both !important;
+  position: absolute !important;
+  bottom: 2mm !important;
+  left: 0 !important;
+  right: 0 !important;
+  z-index: 10 !important;
 }
 
 .print-total p {
   margin: 0;
   font-size: 12pt;
   font-weight: bold;
+  text-align: right;
+  padding-right: 0; /* Alinear con la columna Total */
+}
+
+/* Contenedor interno para alinear el total con la columna Total */
+.print-total .total-content {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+  padding-right: 3mm; /* desplazar un poco a la izquierda */
+}
+
+.print-total .total-content p {
+  width: 20%; /* Mismo ancho que la columna Total */
+  text-align: right;
+  margin: 0;
+  padding-right: 0; /* Sin padding derecho para alineación perfecta */
 }
 
 /* Notes */
@@ -168,6 +380,13 @@ body {
   flex-shrink: 0;
   max-height: 15mm;
   overflow: hidden;
+  margin-bottom: 0; /* No debe empujar el total */
+}
+
+/* Si hay notas, el total debe estar después */
+.print-original:has(.print-notes) .print-total,
+.print-copy:has(.print-notes) .print-total {
+  margin-top: auto; /* Asegurar que quede abajo incluso con notas */
 }
 
 .print-notes p {
@@ -175,27 +394,206 @@ body {
   line-height: 1.2;
 }
 
+/* Ocultar solo elementos del layout, NO el contenido de impresión */
+body > header,
+body > nav,
+body > aside,
+body > footer,
+body > div:not(.print-container):not([data-print-content]) {
+  display: none !important;
+}
+
 /* Print media queries */
 @media print {
   @page {
     size: A4 landscape;
-    margin: 10mm;
-  }
-
-  body {
     margin: 0;
-    padding: 0;
-    background: white;
   }
 
-  .print-container {
-    height: 148mm;
-    max-height: 148mm;
+  html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: white !important;
+    width: 100% !important;
+    height: auto !important;
+    overflow: visible !important;
   }
 
+  /* SOBRESCRIBIR reglas de globals.css que ocultan .main-content Y .form-section */
+  /* Estas reglas deben ir ANTES de las reglas de ocultación para tener mayor especificidad */
+  body .main-content,
+  body .form-section,
+  body .container {
+    display: block !important;
+    visibility: visible !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: white !important;
+    width: 100% !important;
+    height: auto !important;
+  }
+
+  /* Eliminar cualquier borde azul de elementos del layout */
+  body > *:not([data-print-wrapper]):not(.print-container):not(:has([data-print-wrapper])) {
+    border-color: transparent !important;
+  }
+
+  /* Forzar que todos los bordes en el contenido de impresión sean negros o grises, NO azules */
+  .print-container *,
+  [data-print-wrapper] * {
+    border-color: #000 !important;
+  }
+
+  .print-info-section,
+  .print-info-section * {
+    border-color: #ddd !important;
+  }
+
+  .print-table,
+  .print-table * {
+    border-color: #000 !important;
+  }
+
+  .print-table td {
+    border-color: #ddd !important;
+  }
+
+  /* Alinear fecha a la altura de CLIENTE en impresión */
+  .print-info-section {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: flex-start !important;
+    margin-bottom: 4mm !important;
+    padding-bottom: 0 !important;
+  }
+  .print-number-date {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+  }
+
+  /* Asegurar que la tabla ocupe todo el ancho en impresión */
+  .print-table {
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+    table-layout: fixed !important;
+  }
+
+  /* Asegurar que todos los contenedores permitan el ancho completo */
+  .print-items,
+  .print-items table {
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  /* Forzar anchos de columnas en impresión - 10%, 50%, 20%, 20% */
+  .print-table th:nth-child(1),
+  .print-table td:nth-child(1) {
+    width: 10% !important;
+  }
+
+  .print-table th:nth-child(2),
+  .print-table td:nth-child(2) {
+    width: 50% !important;
+  }
+
+  .print-table th:nth-child(3),
+  .print-table td:nth-child(3) {
+    width: 20% !important;
+  }
+
+  .print-table th:nth-child(4),
+  .print-table td:nth-child(4) {
+    width: 20% !important;
+  }
+
+  /* Ocultar solo elementos del layout de Next.js que NO contienen el print-container */
+  body > header:not(:has([data-print-wrapper])),
+  body > nav:not(:has([data-print-wrapper])),
+  body > aside:not(:has([data-print-wrapper])),
+  body > footer:not(:has([data-print-wrapper])),
+  [class*="sidebar"]:not(:has([data-print-wrapper])),
+  [class*="header"]:not(.print-header):not(:has([data-print-wrapper])),
+  [class*="nav"]:not(:has([data-print-wrapper])),
+  [id*="sidebar"]:not(:has([data-print-wrapper])),
+  [id*="header"]:not(:has([data-print-wrapper])),
+  [id*="nav"]:not(:has([data-print-wrapper])),
+  script,
+  hr {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    width: 0 !important;
+    overflow: hidden !important;
+    border: none !important;
+  }
+
+         /* Asegurar que el contenedor de impresión y todo su contenido sea visible */
+         [data-print-wrapper],
+         .print-container {
+           display: flex !important;
+           visibility: visible !important;
+           opacity: 1 !important;
+           min-height: 148mm !important;
+           height: auto !important;
+           margin: 0 !important;
+           padding: 0 !important;
+           position: relative !important;
+           page-break-inside: avoid;
+           width: 100% !important;
+           background: white !important;
+         }
+
+  /* Asegurar visibilidad de todos los hijos del contenedor (sin forzar display) */
+  [data-print-wrapper],
+  [data-print-wrapper] *,
+  .print-container,
+  .print-container *,
   .print-original,
-  .print-copy {
-    height: 148mm;
+  .print-original *,
+  .print-copy,
+  .print-copy * {
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+
+         .print-original,
+         .print-copy {
+           display: flex !important;
+           visibility: visible !important;
+           opacity: 1 !important;
+           min-height: 148mm !important;
+           height: auto !important;
+           page-break-after: avoid !important;
+           page-break-inside: avoid !important;
+           background: white !important;
+         }
+
+  /* Asegurar que elementos específicos mantengan su display correcto */
+  .print-container table,
+  .print-container table * {
+    display: table !important;
+  }
+  .print-container table tr {
+    display: table-row !important;
+  }
+  .print-container table td,
+  .print-container table th {
+    display: table-cell !important;
+  }
+  .print-container p,
+  .print-container div:not(.print-original):not(.print-copy),
+  .print-container h1,
+  .print-container h2,
+  .print-container h3 {
+    display: block !important;
+  }
+
+  /* Evitar segunda página */
+  @page {
+    size: A4 landscape;
+    margin: 0;
   }
 
   /* Ocultar botones en impresión */
@@ -208,18 +606,53 @@ body {
     color: #000;
     font-weight: bold;
   }
+
+  /* Ajuste fino del bloque TOTAL para que alinee con la columna Total */
+  .print-container .print-original .print-total,
+  .print-container .print-copy .print-total {
+    padding: 3mm 0 !important; /* quitar padding lateral */
+  }
+  .print-total .total-content {
+    padding-right: 4mm !important; /* desplaza texto a la izquierda */
+  }
 }
 
-/* Estilos para pantalla - ocultar todo hasta imprimir */
+/* Estilos para pantalla - ocultar layout pero mostrar contenido de impresión */
 @media screen {
-  body {
-    background-color: white;
-    padding: 0;
-    margin: 0;
+  /* Ocultar solo elementos del layout de Next.js */
+  body > header,
+  body > nav,
+  body > aside,
+  body > footer,
+  [class*="sidebar"],
+  [class*="header"]:not(.print-header),
+  [class*="nav"],
+  [id*="sidebar"],
+  [id*="header"],
+  [id*="nav"] {
+    display: none !important;
   }
 
+  body {
+    background-color: white !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: auto !important;
+  }
+
+  html {
+    background-color: white !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  [data-print-wrapper],
   .print-container {
+    display: flex !important;
     max-width: 297mm; /* A4 landscape width */
     margin: 0 auto;
+    padding: 0;
+    min-height: 148mm;
+    background: white;
   }
 }

@@ -10,20 +10,27 @@ export async function GET(
 ) {
   try {
     const session = await getServerSession(authOptions);
+    const { id: remitoId } = await params;
     
-    if (!session?.user) {
+    // Permitir acceso público para impresión (si la ruta incluye /print)
+    // O si el referer indica que viene de una página de impresión
+    const referer = request.headers.get('referer') || '';
+    const isPrintRequest = referer.includes('/print') || request.url.includes('/print');
+    
+    // Si no hay sesión pero es una petición de impresión, permitir acceso público
+    if (!session?.user && isPrintRequest) {
+      // Continuar sin verificación de permisos para impresión pública
+    } else if (!session?.user) {
       return NextResponse.json({ 
         error: "No autorizado", 
         message: "Sesión no encontrada. Por favor, inicia sesión." 
       }, { status: 401 });
     }
 
-    const { id: remitoId } = await params;
-
     // Obtener el remito con todas sus relaciones
+    // Para impresiones públicas, necesitamos los datos del cliente
     const { data: remito, error } = await supabaseAdmin
       .from('remitos')
-      // Optimización: Simplificar JOINs para mejorar rendimiento
       .select(`
         id,
         number,
@@ -35,6 +42,18 @@ export async function GET(
         company_id,
         client_id,
         created_by_id,
+        clients (
+          id,
+          name,
+          email,
+          phone,
+          address
+        ),
+        estados_remitos (
+          id,
+          name,
+          color
+        ),
         remito_items (
           id,
           product_id,
@@ -55,35 +74,38 @@ export async function GET(
       }, { status: 404 });
     }
 
-    // Verificar permisos: solo SUPERADMIN puede ver remitos de todas las empresas
-    if (session.user.role !== 'SUPERADMIN' && remito.company_id !== session.user.companyId) {
-      return NextResponse.json({ 
-        error: "No autorizado",
-        message: "No tienes permisos para ver este remito."
-      }, { status: 403 });
+    // Verificar permisos solo si hay sesión activa
+    // Para impresiones públicas, permitir acceso sin verificación de empresa
+    if (session?.user) {
+      if (session.user.role !== 'SUPERADMIN' && remito.company_id !== session.user.companyId) {
+        return NextResponse.json({ 
+          error: "No autorizado",
+          message: "No tienes permisos para ver este remito."
+        }, { status: 403 });
+      }
     }
 
-    // Agregar estructuras mínimas sin JOINs costosos
+    // Usar datos reales de JOINs cuando estén disponibles, o estructuras mínimas como fallback
     const remitoWithStructures = {
       ...remito,
-      clients: remito.client_id ? {
+      clients: remito.clients || (remito.client_id ? {
         id: remito.client_id,
         name: '',
         email: '',
         phone: '',
         address: ''
-      } : null,
+      } : null),
       users: remito.created_by_id ? {
         id: remito.created_by_id,
         name: '',
         email: ''
       } : null,
-      estados_remitos: remito.status ? {
+      estados_remitos: remito.estados_remitos || (remito.status ? {
         id: remito.status,
         name: '',
         color: '',
         is_active: true
-      } : null,
+      } : null),
       remito_items: (remito.remito_items || []).map((item: any) => ({
         ...item,
         products: item.product_id ? { id: item.product_id, name: '' } : null

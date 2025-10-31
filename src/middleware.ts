@@ -11,9 +11,9 @@ export default async function middleware(req: NextRequest) {
     return NextResponse.next()
   }
 
-  // Rutas de impresión - permitir pero con token
+  // Rutas de impresión - permitir acceso sin sesión (públicas para impresión)
   if (pathname.match(/\/remitos\/[^\/]+\/print/)) {
-    console.log('🖨️ [MIDDLEWARE] Print route detected:', pathname);
+    console.log('🖨️ [MIDDLEWARE] Print route detected - allowing public access:', pathname);
     return NextResponse.next()
   }
 

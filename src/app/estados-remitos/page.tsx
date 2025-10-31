@@ -8,7 +8,9 @@ import { MessageModal } from "@/components/common/MessageModal";
 import DeleteConfirmModal from "@/components/common/DeleteConfirmModal";
 import { useMessageModal } from "@/hooks/useMessageModal";
 import { useCRUDPage } from "@/hooks/useCRUDPage";
-import { useEstadosRemitos, EstadoRemito, EstadoRemitoFormData } from "@/hooks/useEstadosRemitos";
+import { useEstadosRemitos, EstadoRemitoFormData } from "@/hooks/useEstadosRemitos";
+import { useEstadosRemitosQuery, estadoKeys, type EstadoRemito as EstadoRemitoQ } from "@/hooks/queries/useEstadosRemitosQuery";
+import { useQueryClient } from "@tanstack/react-query";
 import { EstadoRemitoForm } from "@/components/forms/EstadoRemitoForm";
 import { useEmpresas, type Empresa } from "@/hooks/useEmpresas";
 import { useCurrentUserSimple } from "@/hooks/useCurrentUserSimple";
@@ -86,7 +88,7 @@ function EstadosRemitosContent() {
     handleDeleteRequest,
     handleCancelDelete,
     setEditingItem: setEditingEstado
-  } = useCRUDPage<EstadoRemito>();
+  } = useCRUDPage<EstadoRemitoQ>();
 
   const { modalState, showSuccess, showError, closeModal } = useMessageModal();
 
@@ -94,14 +96,11 @@ function EstadosRemitosContent() {
   const { empresas } = useEmpresas();
 
   // Hook para manejar estados de remitos
-  const {
-    estados,
-    isLoading: estadosLoading,
-    error: estadosError,
-    createEstado,
-    updateEstado,
-    deleteEstado
-  } = useEstadosRemitos(companyId || undefined);
+  const queryClient = useQueryClient();
+  // Listado cacheado y deduplicado
+  const { data: estados = [], isLoading: estadosLoading, error: estadosError } = useEstadosRemitosQuery(companyId || undefined);
+  // Mutaciones existentes del hook legacy (solo para crear/actualizar/borrar)
+  const { createEstado, updateEstado, deleteEstado } = useEstadosRemitos(companyId || undefined);
 
   // Configurar shortcuts de teclado
   useShortcuts([
@@ -125,7 +124,7 @@ function EstadosRemitosContent() {
   }, [handleNewEstado]);
 
   // Función de eliminación con useCallback para evitar problemas de hoisting
-  const handleDeleteEstado = useCallback((estado: EstadoRemito) => {
+  const handleDeleteEstado = useCallback((estado: EstadoRemitoQ) => {
     handleDeleteRequest(estado?.id, estado?.name);
   }, [handleDeleteRequest]);
 
@@ -149,7 +148,7 @@ function EstadosRemitosContent() {
     searchPlaceholder: "Buscar estados..."
   });
 
-  const onSubmit = async (data: EstadoRemitoFormData) => {
+  const onSubmit = async (data: any) => {
     setIsSubmitting(true);
     try {
       if (editingEstado) {
@@ -159,6 +158,8 @@ function EstadosRemitosContent() {
         await createEstado(data);
         showSuccess("Estado creado correctamente");
       }
+      // Refrescar listado cacheado
+      await queryClient.invalidateQueries({ queryKey: estadoKeys.lists() });
       handleCloseForm();
     } catch (error: any) {
       showError(error.message || "Error al guardar el estado");
@@ -172,6 +173,7 @@ function EstadosRemitosContent() {
     
     try {
       await deleteEstado(showDeleteConfirm?.id);
+      await queryClient.invalidateQueries({ queryKey: estadoKeys.lists() });
       handleCancelDelete();
       showSuccess("Estado eliminado correctamente", "Éxito");
     } catch (error: any) {
@@ -189,7 +191,7 @@ function EstadosRemitosContent() {
   const hasDataIssue = !companyId && currentUser?.role !== "SUPERADMIN";
 
   // Definir columnas para el DataTable
-  const columns: DataTableColumn<EstadoRemito>[] = [
+  const columns: DataTableColumn<EstadoRemitoQ>[] = [
     {
       key: 'name',
       label: 'Nombre',
@@ -224,7 +226,7 @@ function EstadosRemitosContent() {
       label: 'Registrado',
       render: (estado) => (
         <div className="text-sm text-gray-600">
-          {estado.created_at ? new Date(estado.created_at).toLocaleString('es-AR', {
+          { (estado as any).created_at ? new Date((estado as any).created_at).toLocaleString('es-AR', {
             year: 'numeric',
             month: '2-digit',
             day: '2-digit',
@@ -266,7 +268,7 @@ function EstadosRemitosContent() {
       <main className="main-content">
         <div className="form-section">
           <div className="error-message">
-            Error al cargar los estados: {estadosError}
+            Error al cargar los estados
           </div>
         </div>
       </main>

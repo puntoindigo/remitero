@@ -82,6 +82,14 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ count: count || 0 });
     }
 
+    // USER no puede acceder a esta ruta
+    if (session.user.role === 'USER') {
+      return NextResponse.json({ 
+        error: "No autorizado", 
+        message: "No tienes permisos para ver usuarios." 
+      }, { status: 403 });
+    }
+
     if (session.user.role === 'SUPERADMIN') {
       // SUPERADMIN puede ver todos los usuarios o filtrar por empresa
       if (companyId) {
@@ -91,14 +99,14 @@ export async function GET(request: NextRequest) {
         console.log('SUPERADMIN showing all users');
       }
     } else {
-      // ADMIN y USER solo pueden ver usuarios de su empresa
+      // ADMIN solo puede ver usuarios de su empresa
       if (!session.user.companyId) {
         return NextResponse.json({ 
           error: "No autorizado", 
           message: "Usuario no asociado a una empresa." 
         }, { status: 401 });
       }
-      console.log('Non-SUPERADMIN filtering by user company:', session.user.companyId);
+      console.log('ADMIN filtering by user company:', session.user.companyId);
       query = query.eq('company_id', session.user.companyId);
     }
 
@@ -188,8 +196,16 @@ export async function POST(request: NextRequest) {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Determinar companyId
+    // ADMIN siempre debe usar su propia empresa, no puede asignar usuarios a otras empresas
     let finalCompanyId = companyId;
-    if (session.user.role === 'ADMIN' && !companyId) {
+    if (session.user.role === 'ADMIN') {
+      if (!session.user.companyId) {
+        return NextResponse.json({ 
+          error: "No autorizado", 
+          message: "Usuario no asociado a una empresa." 
+        }, { status: 401 });
+      }
+      // Forzar el uso de la empresa del ADMIN, ignorar cualquier companyId proporcionado
       finalCompanyId = session.user.companyId;
     }
 

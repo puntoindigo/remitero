@@ -21,9 +21,10 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
   
   // Rutas que no requieren autenticación
   const publicRoutes = ["/auth/login", "/auth/error", "/manual"];
-  const isPublicRoute = publicRoutes.some(route => pathname.startsWith(route)) || pathname === "/";
+  const isPrintRoute = pathname.match(/\/remitos\/[^\/]+\/print/);
+  const isPublicRoute = publicRoutes.some(route => pathname.startsWith(route)) || pathname === "/" || isPrintRoute;
 
-  // Si es una ruta pública, renderizar sin autenticación
+  // Si es una ruta pública (incluida impresión), renderizar sin autenticación
   if (isPublicRoute) {
     return <>{children}</>;
   }
@@ -37,8 +38,8 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
     return null;
   }
 
-  // Mostrar loading mientras verifica sesión
-  if (status === "loading") {
+  // Mostrar loading mientras verifica sesión (no para rutas de impresión)
+  if (status === "loading" && !isPrintRoute) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <LoadingSpinner message="Verificando sesión..." />
@@ -46,8 +47,8 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
     );
   }
 
-  // Si no hay sesión, no renderizar nada
-  if (!session) {
+  // Si no hay sesión, no renderizar nada (excepto para impresión)
+  if (!session && !isPrintRoute) {
     return null;
   }
 

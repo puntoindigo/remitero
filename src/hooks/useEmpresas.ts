@@ -33,6 +33,14 @@ export function useEmpresas() {
       setIsLoading(true);
       setError(null);
       
+      // Solo SUPERADMIN puede cargar todas las empresas
+      // ADMIN y USER no tienen acceso a esta ruta
+      if (session?.user?.role !== 'SUPERADMIN') {
+        setEmpresas([]);
+        setIsLoading(false);
+        return;
+      }
+      
       let response;
       try {
         response = await fetch("/api/companies");
@@ -76,7 +84,7 @@ export function useEmpresas() {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [session?.user?.role]);
 
   const createEmpresa = async (name: string) => {
     try {

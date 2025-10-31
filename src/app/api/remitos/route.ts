@@ -15,9 +15,13 @@ export async function GET(request: NextRequest) {
       }, { status: 401 });
     }
 
-    // Obtener companyId de los query parameters (para impersonation)
+    // Obtener companyId y paginación opcional desde querystring
     const { searchParams } = new URL(request.url);
     const companyId = searchParams.get('companyId');
+    const limitParam = searchParams.get('limit');
+    const offsetParam = searchParams.get('offset');
+    const limit = limitParam ? Math.max(1, Math.min(500, parseInt(limitParam))) : null;
+    const offset = offsetParam ? Math.max(0, parseInt(offsetParam)) : null;
     
 
     // Optimización: JOINs mínimos necesarios para el listado
@@ -46,15 +50,9 @@ export async function GET(request: NextRequest) {
           color
         ),
         remito_items (
-          id,
-          product_id,
-          quantity,
-          product_name,
-          product_desc,
-          unit_price,
           line_total
         )
-      `)
+      `, { count: 'exact' })
       .order('created_at', { ascending: false });
 
     // Determinar qué companyId usar
@@ -74,7 +72,14 @@ export async function GET(request: NextRequest) {
       query = query.eq('company_id', effectiveCompanyId);
     }
 
-    const { data: remitos, error } = await query;
+    // Aplicar paginación opcional
+    if (limit && offset !== null) {
+      query = query.range(offset, offset + limit - 1);
+    } else if (limit && offset === null) {
+      query = query.limit(limit);
+    }
+
+    const { data: remitos, error, count } = await query;
     
 
     if (error) {
@@ -89,9 +94,8 @@ export async function GET(request: NextRequest) {
     if (remitos && remitos?.length > 0) {
       console.log('First remito structure:', {
         id: remitos[0].id,
-        hasRemitoItems: !!remitos[0].remito_items,
-        remitoItemsType: typeof remitos[0].remito_items,
-        remitoItemsLength: remitos[0].remito_items?.length || 0
+        hasClient: !!remitos[0].clients,
+        hasEstado: !!remitos[0].estados_remitos
       });
     }
 
@@ -104,18 +108,19 @@ export async function GET(request: NextRequest) {
         id: remito.created_by_id,
         name: '',
         email: ''
-      } : null,
-      // Remover products de remito_items si existe (no lo necesitamos)
-      remito_items: (remito.remito_items || []).map((item: any) => ({
-        ...item,
-        products: item.product_id ? { id: item.product_id, name: '' } : null
-      }))
+      } : null
     }));
 
-    const transformedRemitos = transformRemitos(remitosWithStructures);
+    let transformedRemitos = transformRemitos(remitosWithStructures);
+    // Remover items del payload final para el listado
+    transformedRemitos = transformedRemitos.map((r: any) => ({
+      ...r,
+      remitoItems: undefined,
+      items: undefined
+    }));
     console.log('Transformed remitos:', transformedRemitos?.length || 0, 'remitos');
     
-    return NextResponse.json(transformedRemitos);
+    return NextResponse.json({ items: transformedRemitos, total: count ?? transformedRemitos.length });
   } catch (error: any) {
     console.error('Error in remitos GET:', error);
     return NextResponse.json({ 

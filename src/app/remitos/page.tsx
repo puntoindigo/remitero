@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, Suspense, useCallback } from "react";
+import React, { useState, useEffect, Suspense, useCallback, useMemo } from "react";
 import { useSession } from "next-auth/react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { Plus, FileText, Calendar, User, Package } from "lucide-react";
@@ -15,10 +15,10 @@ import { useDirectUpdate } from "@/hooks/useDirectUpdate";
 import { useCRUDPage } from "@/hooks/useCRUDPage";
 import { useCurrentUserSimple } from "@/hooks/useCurrentUserSimple";
 import { useDataWithCompanySimple } from "@/hooks/useDataWithCompanySimple";
-import { useEstadosByCompany } from "@/hooks/useEstadosByCompany";
+import { useEstadosRemitosQuery } from "@/hooks/queries/useEstadosRemitosQuery";
 import { useEmpresas } from "@/hooks/useEmpresas";
-import { useProductos } from "@/hooks/useProductos";
-import { useClientes } from "@/hooks/useClientes";
+import { useProductosQuery } from "@/hooks/queries/useProductosQuery";
+import { useClientesQuery } from "@/hooks/queries/useClientesQuery";
 import { DataTable, type DataTableColumn } from "@/components/common/DataTable";
 import { useCRUDTable } from "@/hooks/useCRUDTable";
 import { Pagination } from "@/components/common/Pagination";
@@ -65,21 +65,86 @@ function RemitosContent() {
   } = useDataWithCompanySimple();
   
   // 🚀 REACT QUERY: Reemplaza state y fetch
-  const { data: remitos = [], isLoading } = useRemitosQuery(companyId || undefined);
+  // Paginación server-side
+  const [page, setPage] = React.useState(1);
+  const pageSize = 10;
+  const { data: remitosPage, isLoading } = useRemitosQuery(companyId || undefined, page, pageSize);
+  const remitos = (remitosPage?.items as any) || [];
+  const totalRemitos = remitosPage?.total || remitos?.length || 0;
   const createMutation = useCreateRemitoMutation();
   const updateMutation = useUpdateRemitoMutation();
   const deleteMutation = useDeleteRemitoMutation();
   
-  // Hooks condicionales - solo ejecutar si companyId está disponible
-  const { estados: estadosActivos } = useEstadosByCompany(companyId || undefined);
+  // Estados con React Query (cache + dedupe)
+  const { data: estadosActivos = [] } = useEstadosRemitosQuery(companyId || undefined);
   const { empresas } = useEmpresas();
   
-  // Hook para productos
-  const { productos: products } = useProductos(companyId || undefined);
-  
-  // Hook para clientes
-  const { clientes: clients } = useClientes(companyId || undefined);
+  // Productos y clientes con React Query (evita dobles fetch en dev)
+  // Definidos más abajo cuando ya tenemos showForm
   const [statusChanging, setStatusChanging] = useState<string | null>(null);
+  
+  // Filtro de estado: se inicializa desde la URL (si existe); caso contrario, 'all'
+  const [selectedStatusFilter, setSelectedStatusFilter] = useState<string>(() => {
+    if (typeof window === 'undefined') return 'all';
+    const urlStatus = new URLSearchParams(window.location.search).get('status');
+    // Mapeo por nombre/id se hará cuando los estados estén cargados
+    return urlStatus ? '' : 'all';
+  });
+
+  // Eliminar persistencia: no guardamos el filtro
+
+  // Si viene ?status= en la URL con nombre (con _ por espacios) o id, mapearlo a id cuando tengamos los estados
+  useEffect(() => {
+    if (!estadosActivos) return;
+    const urlStatus = searchParams.get('status');
+    if (!urlStatus) {
+      // Si no hay status en URL, aseguramos 'all'
+      if (selectedStatusFilter !== 'all') setSelectedStatusFilter('all');
+      return;
+    }
+    // Normalizar nombre: reemplazar _ por espacio, case-insensitive
+    const normalizedName = urlStatus.replace(/_/g, ' ').toUpperCase();
+    // Buscar por id exacto o por nombre
+    const match = estadosActivos.find(e => e.id === urlStatus || (e.name || '').toUpperCase() === normalizedName);
+    if (match) {
+      if (selectedStatusFilter !== match.id) setSelectedStatusFilter(match.id);
+    }
+    // Si no hay match, dejar 'all'
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [estadosActivos]);
+
+  // Empujar cambios del filtro de estado a la URL usando el NOMBRE (con guiones bajos)
+  useEffect(() => {
+    const currentParam = searchParams.get('status') || "";
+    const params = new URLSearchParams(searchParams as any);
+    if ((selectedStatusFilter === '' || selectedStatusFilter === 'all') && currentParam) {
+      return; // evitar borrar la query si aún no elegimos nada
+    }
+    if (selectedStatusFilter && selectedStatusFilter !== 'all') {
+      // Encontrar el nombre del estado para serializarlo en la URL
+      const estado = (estadosActivos || []).find(e => e.id === selectedStatusFilter);
+      const statusSlug = (estado?.name || '').trim().replace(/\s+/g, '_').toUpperCase();
+      if (statusSlug && currentParam !== statusSlug) {
+        params.set('status', statusSlug);
+        router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+      }
+    } else if (currentParam) {
+      params.delete('status');
+      const qs = params.toString();
+      router.replace(qs ? `${pathname}?${qs}` : `${pathname}` , { scroll: false });
+    }
+  }, [selectedStatusFilter, estadosActivos, router, pathname, searchParams]);
+
+  // Filtrar remitos por estado
+  const filteredRemitos = useMemo(() => {
+    if (!remitos || selectedStatusFilter === 'all' || !selectedStatusFilter) {
+      return remitos;
+    }
+    // Si el filtro no coincide con ningún estado conocido aún, no aplicar filtro
+    const isKnownStatus = (estadosActivos || []).some(e => e.id === selectedStatusFilter);
+    if (!isKnownStatus) return remitos;
+    return remitos.filter((remito: Remito) => remito.status?.id === selectedStatusFilter);
+  }, [remitos, selectedStatusFilter, estadosActivos]);
   
   // Loading state management
   const { loading: loadingState, startLoading, stopLoading } = useLoading();
@@ -93,10 +158,15 @@ function RemitosContent() {
     handleEdit: handleEditRemito,
     handleCloseForm,
     setIsSubmitting,
+    setEditingItem,
     showDeleteConfirm,
     handleDeleteRequest,
     handleCancelDelete
   } = useCRUDPage<Remito>();
+
+  // Ahora que ya conocemos showForm, cargar productos y clientes solo cuando se abre el formulario
+  const { data: products = [] } = useProductosQuery(showForm ? (companyId || undefined) : undefined);
+  const { data: clients = [] } = useClientesQuery(showForm ? (companyId || undefined) : undefined);
 
   const { modalState, showSuccess: showModalSuccess, showError: showModalError, closeModal } = useMessageModal();
   const { toasts, showSuccess: showToastSuccess, showError: showToastError, removeToast } = useToast();
@@ -132,47 +202,34 @@ function RemitosContent() {
   }, [handleDeleteRequest]);
 
   const handlePrintRemito = useCallback((remito: Remito) => {
-    // Crear iframe oculto para imprimir sin abrir nueva pestaña
-    const printIframe = document.createElement('iframe');
-    printIframe.style.position = 'fixed';
-    printIframe.style.right = '0';
-    printIframe.style.bottom = '0';
-    printIframe.style.width = '0';
-    printIframe.style.height = '0';
-    printIframe.style.border = '0';
-    document.body.appendChild(printIframe);
+    if (remito?.id) {
+      // Abrir PDF generado por el servidor
+      window.open(`/api/remitos/${remito.id}/pdf`, '_blank');
+    }
+  }, []);
 
-    printIframe.onload = () => {
-      try {
-        printIframe.contentWindow?.focus();
-        printIframe.contentWindow?.print();
-        
-        // Remover iframe después de imprimir
-        setTimeout(() => {
-          document.body.removeChild(printIframe);
-        }, 1000);
-      } catch (error) {
-        console.error('Error al imprimir:', error);
-        document.body.removeChild(printIframe);
-        showToastError('Error al abrir la impresión');
-      }
-    };
-
-    printIframe.src = `/remitos/${remito?.id}/print`;
-  }, [showToastError]);
-
-  // CRUD Table configuration
+  // CRUD Table configuration - usar remitos filtrados
   const {
     tableConfig,
-    paginationConfig,
+    // paginationConfig,
     searchTerm,
     setSearchTerm
   } = useCRUDTable({
-    data: remitos,
+    data: filteredRemitos,
     loading: isLoading,
     searchFields: ['number', 'client?.name'],
     itemsPerPage: 10,
-    onEdit: handleEditRemito,
+    onEdit: async (remito) => {
+      try {
+        if (!remito?.id) return;
+        const resp = await fetch(`/api/remitos/${remito.id}`);
+        const full = resp.ok ? await resp.json() : remito;
+        setEditingItem(full as any);
+        handleEditRemito(full as any);
+      } catch {
+        handleEditRemito(remito);
+      }
+    },
     onDelete: handleDeleteRemito,
     onPrint: handlePrintRemito,
     onNew: handleNewRemito,
@@ -259,12 +316,8 @@ function RemitosContent() {
         showToastSuccess("Remito creado correctamente");
         handleCloseForm();
         
-        // Abrir directamente página de impresión
-        if (newRemito?.id && typeof newRemito.id === 'string') {
-          setTimeout(() => {
-            window.open(`/remitos/${newRemito.id}/print`, '_blank');
-          }, 300);
-        }
+        // No abrir automáticamente la impresión - el usuario puede imprimir desde el listado
+        // si desea hacerlo, puede usar el botón de imprimir en la tabla
       }
     } catch (error: any) {
       console.error('Error al crear/actualizar remito:', error);
@@ -294,93 +347,29 @@ function RemitosContent() {
       )
     },
     {
-      key: 'email',
-      label: 'Email',
-      render: (remito) => (
-        remito.client.email ? (
-          <div className="text-sm text-gray-600">{remito.client.email}</div>
-        ) : (
-          <span className="text-muted">Sin email</span>
-        )
-      )
-    },
-    {
       key: 'status',
       label: 'Estado',
       render: (remito) => {
-        // Validación para evitar errores de undefined
-        if (!remito.status || !estadosActivos) {
-          return <div className="text-gray-500">Sin estado</div>;
-        }
-        
+        if (!estadosActivos) return <div className="text-gray-500">Sin estado</div>;
+        const value = remito.status?.id || '';
+        const options = estadosActivos.map(e => ({ id: e.id, name: e.name, color: e.color }));
         const isChanging = statusChanging === remito?.id;
-        
-        const estadoColor = remito.status?.color || '#9ca3af';
-        const estadoName = remito.status?.name || 'Sin estado';
-        
         return (
-           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minHeight: '32px' }}>
-             {/* Indicador de color del estado actual */}
-             <div 
-               style={{
-                 width: '12px',
-                 height: '12px',
-                 borderRadius: '50%',
-                 backgroundColor: estadoColor,
-                 flexShrink: 0,
-                 border: '1px solid rgba(0,0,0,0.1)'
-               }}
-               title={estadoName}
-             />
-             {/* Desplegable de estados con indicador visual y colores */}
-             <div className="relative flex-1" style={{ minHeight: '32px' }}>
-               <select
-                 value={remito.status?.id || ''}
-                 onChange={(e) => handleStatusChange(remito?.id, e.target.value)}
-                 style={{
-                   width: '100%',
-                   height: '32px',
-                   padding: '6px 32px 6px 12px',
-                   borderRadius: '6px',
-                   border: `2px solid ${estadoColor}`,
-                   backgroundColor: `${estadoColor}15`,
-                   color: '#1f2937',
-                   fontWeight: '500',
-                   fontSize: '14px',
-                   cursor: 'pointer',
-                   appearance: 'none',
-                   backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 8L2 4h8z'/%3E%3C/svg%3E")`,
-                   backgroundRepeat: 'no-repeat',
-                   backgroundPosition: 'right 8px center',
-                   transition: 'all 0.2s',
-                   boxSizing: 'border-box'
-                 }}
-                 disabled={isChanging}
-               >
-                 {estadosActivos.map((estado) => {
-                   const estadoOptionColor = estado?.color || '#9ca3af';
-                   return (
-                     <option 
-                       key={estado?.id} 
-                       value={estado?.id}
-                       style={{
-                         backgroundColor: `${estadoOptionColor}30`,
-                         color: '#1f2937',
-                         fontWeight: '500',
-                         padding: '8px',
-                       }}
-                     >
-                       {estado?.name}
-                     </option>
-                   );
-                 })}
-               </select>
-              {isChanging && (
-                <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-75 rounded" style={{ height: '32px' }}>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
-                </div>
-              )}
-            </div>
+          <div style={{ minWidth: '180px' }}>
+            <FilterableSelect
+              options={options}
+              value={value}
+              onChange={(val) => handleStatusChange(remito?.id, val)}
+              placeholder="Estado"
+              showColors={true}
+              searchable={false}
+              className="w-full"
+            />
+            {isChanging && (
+              <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-75 rounded" style={{ height: '32px' }}>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+              </div>
+            )}
           </div>
         );
       }
@@ -423,15 +412,33 @@ function RemitosContent() {
           </div>
         )}
 
-        {/* Barra de búsqueda y botón nuevo */}
+        {/* Barra de búsqueda, filtro de estado y botón nuevo */}
         {!needsCompanySelection && (
-          <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1rem', justifyContent: 'space-between' }}>
-            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1rem', justifyContent: 'space-between', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flex: 1, minWidth: '300px' }}>
               <SearchInput
                 value={searchTerm}
                 onChange={setSearchTerm}
                 placeholder="Buscar remitos..."
               />
+              <div style={{ minWidth: '200px' }}>
+                <FilterableSelect
+                  options={[
+                    { id: 'all', name: 'Todos los estados' },
+                    ...(estadosActivos || []).map((estado) => ({
+                      id: estado.id,
+                      name: estado.name,
+                      color: estado.color
+                    }))
+                  ]}
+                  value={selectedStatusFilter}
+                  onChange={(value) => setSelectedStatusFilter(value || 'all')}
+                  placeholder="Filtrar por estado"
+                  searchFields={["name"]}
+                  showColors={true}
+                  searchable={false}
+                />
+              </div>
             </div>
             <button
               onClick={handleNewRemito}
@@ -471,7 +478,13 @@ function RemitosContent() {
               showSearch={false}
               showNewButton={false}
             />
-            <Pagination {...paginationConfig} />
+                <Pagination 
+                  currentPage={page}
+                  totalPages={Math.max(1, Math.ceil(totalRemitos / pageSize))}
+                  totalItems={totalRemitos}
+                  itemsPerPage={pageSize}
+                  onPageChange={(p) => setPage(Math.max(1, p))}
+                />
           </>
         )}
 

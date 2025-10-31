@@ -205,15 +205,8 @@ export function RemitoFormComplete({
         body: JSON.stringify({
           ...clientData,
           companyId: companyId
-        }).catch(error => {
-            console.error('Network error:', error);
-            throw new Error("Error de conexión de red");
-        }),
-      })
-            .catch(error => {
-                console.error('Error fetching clients:', error);
-                throw new Error('Error de conexión con clientes');
-            });
+        })
+      });
 
       if (!response.ok) {
         throw new Error('Error al crear cliente');
@@ -283,7 +276,7 @@ export function RemitoFormComplete({
       {/* Cliente */}
       <div className="form-group" style={{ marginBottom: '1.5rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <label style={{ minWidth: '80px', marginBottom: 0 }}>Cliente *</label>
+          <label style={{ minWidth: '80px', marginBottom: 0, fontWeight: 400, fontSize: '15px' }}>Cliente *</label>
           <div style={{ flex: 1, display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
             <div style={{ flex: 1 }}>
               <FilterableSelect
@@ -326,7 +319,7 @@ export function RemitoFormComplete({
       {/* Estado */}
       <div className="form-group" style={{ marginBottom: '1.5rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <label style={{ minWidth: '80px', marginBottom: 0 }}>Estado *</label>
+          <label style={{ minWidth: '80px', marginBottom: 0, fontWeight: 400, fontSize: '15px' }}>Estado *</label>
           <div style={{ flex: 1 }}>
             <FilterableSelect
               options={estados.map(estado => ({ 
@@ -339,6 +332,7 @@ export function RemitoFormComplete({
               placeholder="Seleccionar estado"
               searchFields={["name"]}
               showColors={true}
+              searchable={false}
             />
             {errors.status && (
               <p className="error-message">{errors.status.message}</p>
@@ -349,16 +343,18 @@ export function RemitoFormComplete({
 
       {/* Tabla de productos */}
       <div className="form-section">
-        <h4>Productos</h4>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+          <div style={{ fontSize: '20px', fontWeight: 400 }}>Productos</div>
+        </div>
         
         <table>
           <thead>
             <tr>
-              <th style={{ width: '50%' }}>Producto</th>
-              <th style={{ width: '80px' }}>Cant.</th>
-              <th style={{ width: '140px' }}>Precio Unit.</th>
-              <th style={{ width: '140px' }}>Total</th>
-              <th style={{ width: '60px' }}>Acciones</th>
+              <th style={{ width: '50%', fontWeight: 400, fontSize: '15px' }}>Producto</th>
+              <th style={{ width: '80px', fontWeight: 400, fontSize: '15px' }}>Cant.</th>
+              <th style={{ width: '140px', fontWeight: 400, fontSize: '15px' }}>Precio Unit.</th>
+              <th style={{ width: '140px', fontWeight: 400, fontSize: '15px' }}>Total</th>
+              <th style={{ width: '60px', fontWeight: 400, fontSize: '15px' }}>Acciones</th>
             </tr>
           </thead>
           <tbody>
@@ -490,7 +486,7 @@ export function RemitoFormComplete({
         backgroundColor: '#f9fafb',
         borderRadius: '6px'
       }}>
-        <div style={{ fontSize: '18px', fontWeight: 600 }}>
+        <div style={{ fontSize: '20px', fontWeight: 400 }}>
           Total: {total.toLocaleString('es-AR', { 
             style: 'currency', 
             currency: 'ARS' 
@@ -515,12 +511,12 @@ export function RemitoFormComplete({
             fontWeight: '500'
           }}
         >
-          {showNotes ? '− Ocultar notas' : '+ Agregar notas'}
+          {showNotes ? '− Ocultar observaciones' : '+ Agregar observaciones'}
         </button>
         {showNotes && (
           <textarea
             {...register("notes")}
-            placeholder="Notas adicionales del remito..."
+            placeholder="Observaciones del remito..."
             rows={3}
             style={{ marginTop: '0.5rem' }}
           />
@@ -533,7 +529,6 @@ export function RemitoFormComplete({
         onClose={handleCloseClientForm}
         onSubmit={handleSubmitClient}
         isSubmitting={isSubmittingClient}
-        companyId={companyId}
       />
     </FormModal>
   );

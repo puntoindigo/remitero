@@ -10,7 +10,9 @@ import { MessageModal } from "@/components/common/MessageModal";
 import DeleteConfirmModal from "@/components/common/DeleteConfirmModal";
 import { UsuarioForm } from "@/components/forms/UsuarioForm";
 import { useMessageModal } from "@/hooks/useMessageModal";
-import { useUsuarios, type Usuario } from "@/hooks/useUsuarios";
+import { useUsuarios } from "@/hooks/useUsuarios";
+import { useUsuariosQuery, type Usuario, usuarioKeys } from "@/hooks/queries/useUsuariosQuery";
+import { useQueryClient } from "@tanstack/react-query";
 import { useEmpresas, type Empresa } from "@/hooks/useEmpresas";
 import { useCRUDPage } from "@/hooks/useCRUDPage";
 import { useImpersonation } from "@/hooks/useImpersonation";
@@ -29,6 +31,21 @@ import { SearchInput } from "@/components/common/SearchInput";
 function UsuariosContent() {
   const currentUser = useCurrentUserSimple();
   const searchParams = useSearchParams();
+  
+  // Bloquear acceso para usuarios con rol USER
+  if (currentUser?.role === 'USER') {
+    return (
+      <main className="main-content">
+        <div className="form-section">
+          <div className="empty-state">
+            <Users className="empty-icon" style={{ color: '#ef4444' }} />
+            <h3 style={{ color: '#ef4444', marginTop: '1rem' }}>Acceso Denegado</h3>
+            <p>No tienes permisos para ver la gestión de usuarios.</p>
+          </div>
+        </div>
+      </main>
+    );
+  }
   
   // Hook centralizado para manejo de companyId
   const {
@@ -68,20 +85,16 @@ function UsuariosContent() {
   const { modalState, showSuccess, showError, closeModal } = useMessageModal();
   const { startImpersonation, canImpersonate } = useImpersonation();
   
-  const { 
-    usuarios, 
-    isLoading, 
-    error, 
-    createUsuario, 
-    updateUsuario, 
-    deleteUsuario 
-  } = useUsuarios(companyId || undefined);
+  const queryClient = useQueryClient();
+  const { data: usuarios = [], isLoading, error } = useUsuariosQuery(companyId || undefined);
+  // Reusar mutaciones del hook legacy para operaciones de escritura
+  const { createUsuario, updateUsuario, deleteUsuario } = useUsuarios(companyId || undefined);
   
   const { empresas, loadEmpresas } = useEmpresas();
   
-  // Cargar empresas cuando se abre el formulario
+  // Cargar empresas cuando se abre el formulario (solo para SUPERADMIN)
   useEffect(() => {
-    if (showForm && empresas?.length === 0) {
+    if (showForm && empresas?.length === 0 && loadEmpresas) {
       loadEmpresas();
     }
   }, [showForm, empresas?.length, loadEmpresas]);
@@ -276,7 +289,7 @@ function UsuariosContent() {
           isSubmitting={isSubmitting}
           editingUser={editingUser}
           companies={empresas}
-          companyId={companyId}
+          companyId={companyId || undefined}
         />
 
         <div className="form-section">

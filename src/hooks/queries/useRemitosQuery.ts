@@ -30,19 +30,31 @@ export const remitoKeys = {
 };
 
 // Fetch remitos
-async function fetchRemitos(companyId: string): Promise<Remito[]> {
-  const response = await fetch(`/api/remitos?companyId=${companyId}`);
+async function fetchRemitos(companyId: string, page?: number, pageSize?: number): Promise<{ items: Remito[]; total: number }> {
+  const params = new URLSearchParams();
+  params.set('companyId', companyId);
+  if (page && pageSize) {
+    const offset = (page - 1) * pageSize;
+    params.set('limit', String(pageSize));
+    params.set('offset', String(offset));
+  }
+  const response = await fetch(`/api/remitos?${params.toString()}`);
   if (!response.ok) {
     throw new Error('Error al cargar remitos');
   }
-  return response.json();
+  const data = await response.json();
+  if (Array.isArray(data)) {
+    // Compatibilidad con respuestas antiguas
+    return { items: data as Remito[], total: data.length };
+  }
+  return data as { items: Remito[]; total: number };
 }
 
 // Hook principal
-export function useRemitosQuery(companyId: string | undefined) {
+export function useRemitosQuery(companyId: string | undefined, page?: number, pageSize?: number) {
   return useQuery({
-    queryKey: remitoKeys.list(companyId),
-    queryFn: () => fetchRemitos(companyId!),
+    queryKey: [...remitoKeys.list(companyId), { page, pageSize }],
+    queryFn: () => fetchRemitos(companyId!, page, pageSize),
     enabled: !!companyId, // Solo ejecutar si hay companyId
     staleTime: 30 * 1000, // 30 segundos
   });

@@ -167,7 +167,25 @@ export async function PUT(
     if (role) updateData.role = role;
     if (address !== undefined) updateData.address = address;
     if (phone !== undefined) updateData.phone = phone;
-    if (companyId !== undefined) updateData.company_id = companyId;
+    
+    // Manejar companyId según el rol
+    if (session.user.role === 'SUPERADMIN') {
+      // SUPERADMIN puede cambiar companyId libremente
+      if (companyId !== undefined) updateData.company_id = companyId;
+    } else if (session.user.role === 'ADMIN') {
+      // ADMIN no puede cambiar el companyId, siempre debe ser su propia empresa
+      // Si el usuario ya pertenece a otra empresa, no permitir el cambio
+      if (companyId !== undefined && companyId !== session.user.companyId) {
+        return NextResponse.json({ 
+          error: "No autorizado", 
+          message: "No puedes asignar usuarios a otras empresas." 
+        }, { status: 403 });
+      }
+      // Forzar el uso de la empresa del ADMIN
+      if (!existingUser.company_id) {
+        updateData.company_id = session.user.companyId;
+      }
+    }
 
     // Hash de la contraseña si se proporciona
     if (password && password.trim() !== '') {
