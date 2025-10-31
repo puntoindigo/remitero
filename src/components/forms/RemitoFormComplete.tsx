@@ -50,6 +50,7 @@ export function RemitoFormComplete({
   const [showClientForm, setShowClientForm] = useState<boolean>(false);
   const [validationError, setValidationError] = useState<string>("");
   const [isSubmittingClient, setIsSubmittingClient] = useState<boolean>(false);
+  const [newClientId, setNewClientId] = useState<string | null>(null);
 
   const {
     register,
@@ -61,6 +62,20 @@ export function RemitoFormComplete({
   } = useForm<RemitoForm>({
     resolver: zodResolver(remitoSchema)
   });
+
+  // Efecto para seleccionar el nuevo cliente cuando aparezca en la lista
+  useEffect(() => {
+    if (newClientId && clients && clients.length > 0) {
+      const clientExists = clients.some(c => c?.id === newClientId);
+      if (clientExists) {
+        // Usar setTimeout para asegurar que el DOM esté actualizado
+        setTimeout(() => {
+          setValue("clientId", newClientId, { shouldValidate: false });
+          setNewClientId(null); // Limpiar el ID para evitar re-seleccionar
+        }, 50);
+      }
+    }
+  }, [clients, newClientId, setValue]);
 
   // Cargar datos del remito en edición
   useEffect(() => {
@@ -193,7 +208,10 @@ export function RemitoFormComplete({
   };
 
   const handleSubmitClient = async (clientData: any) => {
-    if (!companyId) return;
+    if (!companyId) {
+      alert('No se puede crear un cliente sin una empresa seleccionada');
+      return;
+    }
     
     setIsSubmittingClient(true);
     try {
@@ -209,23 +227,25 @@ export function RemitoFormComplete({
       });
 
       if (!response.ok) {
-        throw new Error('Error al crear cliente');
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Error al crear cliente');
       }
 
       const newClient = await response.json();
       
-      // Llamar al callback para actualizar la lista de clientes
-      if (onClientCreated) {
-        onClientCreated(newClient);
-      }
+      // Guardar el ID del nuevo cliente para seleccionarlo cuando aparezca en la lista
+      setNewClientId(newClient?.id);
       
-      // Seleccionar el nuevo cliente en el formulario
-      setValue("clientId", newClient?.id);
+      // Llamar al callback para actualizar la lista de clientes (esto invalidará y refetcheará)
+      if (onClientCreated) {
+        await onClientCreated(newClient);
+      }
       
       // Cerrar el modal de cliente
       setShowClientForm(false);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating client:', error);
+      alert(error.message || 'Error al crear cliente');
     } finally {
       setIsSubmittingClient(false);
     }
@@ -246,6 +266,7 @@ export function RemitoFormComplete({
   );
 
   return (
+    <>
     <FormModal
       isOpen={isOpen}
       onClose={handleCancel}
@@ -523,13 +544,16 @@ export function RemitoFormComplete({
         )}
       </div>
 
-      {/* Modal para nuevo cliente */}
-      <ClienteForm
-        isOpen={showClientForm}
-        onClose={handleCloseClientForm}
-        onSubmit={handleSubmitClient}
-        isSubmitting={isSubmittingClient}
-      />
     </FormModal>
+    
+    {/* Modal para nuevo cliente - renderizado fuera del FormModal para evitar anidamiento */}
+    <ClienteForm
+      isOpen={showClientForm}
+      onClose={handleCloseClientForm}
+      onSubmit={handleSubmitClient}
+      isSubmitting={isSubmittingClient}
+      nested={false}
+    />
+  </>
   );
 }

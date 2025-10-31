@@ -3,7 +3,8 @@
 import { usePathname, useRouter } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
+import { useColorTheme } from "@/contexts/ColorThemeContext";
 import { 
   LayoutDashboard, 
   ReceiptText, 
@@ -29,13 +30,32 @@ export default function Header() {
   const router = useRouter();
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const { colors } = useColorTheme();
+  const headerRef = useRef<HTMLElement>(null);
+
+  // Aplicar tema al header
+  useEffect(() => {
+    if (headerRef.current) {
+      headerRef.current.style.backgroundImage = colors.gradient;
+      headerRef.current.style.backgroundColor = 'transparent';
+    }
+  }, [colors.gradient]);
+
+  const headerRefNoSession = useRef<HTMLElement>(null);
+  
+  // Aplicar tema al header sin sesión también
+  useEffect(() => {
+    if (headerRefNoSession.current) {
+      headerRefNoSession.current.style.backgroundImage = colors.gradient;
+      headerRefNoSession.current.style.backgroundColor = 'transparent';
+    }
+  }, [colors.gradient]);
 
   if (!session || !currentUser) {
     return (
-      <header className="header">
+      <header ref={headerRefNoSession} className="header">
         <div className="header-left">
-          <h1>Sistema de Remitos</h1>
-          <span className="company-name">Sistema de Gestión</span>
+          <span className="header-app-title">Sistema de Remitos</span>
         </div>
         <div className="header-right">
           <Link href="/auth/login" className="logout-button">
@@ -158,11 +178,15 @@ export default function Header() {
   };
 
   return (
-    <header className="header">
+    <header ref={headerRef} className="header">
       <div className="header-left">
-        <h1>{currentUser.companyName || 'Sistema de Remitos'}</h1>
-        {currentUser.companyName && (
-          <span className="company-name">Sistema de Remitos</span>
+        <span className="header-app-title">Sistema de Remitos</span>
+        {currentUser.companyName ? (
+          currentUser.role !== 'SUPERADMIN' && (
+            <h1 className="header-company-name">{currentUser.companyName}</h1>
+          )
+        ) : (
+          <h1 className="header-company-name">Sistema de Gestión</h1>
         )}
       </div>
       

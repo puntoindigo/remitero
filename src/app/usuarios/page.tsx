@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, Suspense, useCallback } from "react";
 import { useSession } from "next-auth/react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { Plus, Users, Building2, Mail, Phone, Edit, Trash2 } from "lucide-react";
 import { formatDate } from "@/lib/utils/formatters";
 import FilterableSelect from "@/components/common/FilterableSelect";
@@ -27,10 +27,14 @@ import { LoadingButton } from "@/components/common/LoadingButton";
 import { useShortcuts } from "@/hooks/useShortcuts";
 import { ShortcutText } from "@/components/common/ShortcutText";
 import { SearchInput } from "@/components/common/SearchInput";
+import { useColorTheme } from "@/contexts/ColorThemeContext";
 
 function UsuariosContent() {
   const currentUser = useCurrentUserSimple();
+  const { colors } = useColorTheme();
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
   
   // Bloquear acceso para usuarios con rol USER
   if (currentUser?.role === 'USER') {
@@ -87,6 +91,8 @@ function UsuariosContent() {
   
   const queryClient = useQueryClient();
   const { data: usuarios = [], isLoading, error } = useUsuariosQuery(companyId || undefined);
+  
+  
   // Reusar mutaciones del hook legacy para operaciones de escritura
   const { createUsuario, updateUsuario, deleteUsuario } = useUsuarios(companyId || undefined);
   
@@ -103,6 +109,20 @@ function UsuariosContent() {
   const handleDeleteUsuario = useCallback((usuario: Usuario) => {
     handleDeleteRequest(usuario?.id, usuario?.name);
   }, [handleDeleteRequest]);
+
+  // Detectar si viene de /nuevo y abrir formulario
+  useEffect(() => {
+    const openForm = searchParams.get('openForm');
+    if (openForm === 'true' && !showForm && companyId) {
+      handleNew();
+      // Limpiar el parámetro de la URL
+      const params = new URLSearchParams(searchParams as any);
+      params.delete('openForm');
+      const qs = params.toString();
+      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams, companyId, showForm]); // Solo ejecutar cuando cambien searchParams o companyId
 
   // Configurar shortcuts de teclado
   useShortcuts([
@@ -190,6 +210,11 @@ function UsuariosContent() {
     }
   };
 
+  // Determinar si mostrar columnas de Empresa e Impersonar
+  const isSuperAdmin = currentUser?.role === 'SUPERADMIN';
+  // Solo mostrar columna Empresa si es SUPERADMIN Y no hay una empresa seleccionada (mostrando todas)
+  const showCompanyColumn = isSuperAdmin && (!selectedCompanyId || selectedCompanyId === '');
+  
   // Definir columnas para el DataTable
   const columns: DataTableColumn<Usuario>[] = [
     {
@@ -225,10 +250,11 @@ function UsuariosContent() {
         </span>
       )
     },
-    {
+    // Solo mostrar columna Empresa si es SUPERADMIN y no hay empresa seleccionada
+    ...(showCompanyColumn ? [{
       key: 'company',
       label: 'Empresa',
-      render: (usuario) => (
+      render: (usuario: Usuario) => (
         usuario.company ? (
           <div className="company-info">
             <Building2 className="h-3 w-3 inline" />
@@ -238,7 +264,7 @@ function UsuariosContent() {
           <span className="text-gray-400">Sin empresa</span>
         )
       )
-    },
+    }] : []),
     {
       key: 'createdAt',
       label: 'Registrado',
@@ -251,21 +277,46 @@ function UsuariosContent() {
         hour12: false
       })
     },
-    {
+    // Solo mostrar columna Impersonar si es SUPERADMIN
+    ...(isSuperAdmin ? [{
       key: 'impersonate',
       label: 'Impersonar',
-      render: (usuario) => (
+      render: (usuario: Usuario) => (
         canImpersonate(usuario) ? (
           <button
             onClick={() => handleImpersonate(usuario)}
-            className="btn small primary"
+            className="btn-primary"
             title="Impersonar usuario"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.25rem',
+              padding: '6px 12px',
+              background: colors.gradient,
+              color: 'white',
+              border: 'none',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontSize: '14px',
+              fontWeight: '500',
+              minWidth: '80px',
+              transition: 'all 0.2s',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-1px)';
+              e.currentTarget.style.boxShadow = `0 4px 12px ${colors.primary}50`;
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = 'none';
+            }}
           >
             <Users className="h-4 w-4" />
           </button>
         ) : null
       )
-    }
+    }] : [])
   ];
 
   if (isLoading) {
@@ -323,19 +374,30 @@ function UsuariosContent() {
             </div>
             <button
               onClick={handleNew}
-              className="new-button"
+              className="btn-primary new-button"
               style={{
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.5rem',
-                padding: '0.5rem 1rem',
-                backgroundColor: '#3b82f6',
+                padding: '8px 16px',
+                background: colors.gradient,
                 color: 'white',
                 border: 'none',
-                borderRadius: '0.375rem',
+                borderRadius: '6px',
                 cursor: 'pointer',
-                fontSize: '0.875rem',
-                fontWeight: '500'
+                fontSize: '14px',
+                fontWeight: '500',
+                minWidth: '100px',
+                justifyContent: 'center',
+                transition: 'all 0.2s',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-1px)';
+                e.currentTarget.style.boxShadow = `0 4px 12px ${colors.primary}50`;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = 'none';
               }}
             >
               <Plus className="h-4 w-4" />

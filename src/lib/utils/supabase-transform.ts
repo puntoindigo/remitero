@@ -91,6 +91,8 @@ export function transformRemito(remito: any) {
     createdAt: remito.created_at,
     updatedAt: remito.updated_at,
     companyId: remito.company_id,
+    company: remito.companies,
+    companyName: remito.companies?.name || null,
     clientId: remito.client_id,
     createdById: remito.created_by_id,
     statusAt: remito.status_at,

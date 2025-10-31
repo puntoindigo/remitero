@@ -1,6 +1,7 @@
 "use client";
 
 import React, { Suspense, useCallback, useEffect } from "react";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { Plus, Users, Mail, Phone, MapPin } from "lucide-react";
 import { formatDate } from "@/lib/utils/formatters";
 import { MessageModal } from "@/components/common/MessageModal";
@@ -48,7 +49,7 @@ function ClientesContent() {
   const { modalState, showSuccess, showError, closeModal } = useMessageModal();
   
   // 🚀 REACT QUERY: Reemplaza state y fetch
-  const { data: clientes = [], isLoading } = useClientesQuery(companyId);
+  const { data: clientes = [], isLoading } = useClientesQuery(companyId || undefined);
   const createMutation = useCreateClienteMutation();
   const updateMutation = useUpdateClienteMutation();
   const deleteMutation = useDeleteClienteMutation();
@@ -57,6 +58,24 @@ function ClientesContent() {
   const handleDeleteCliente = useCallback((cliente: Cliente) => {
     handleDeleteRequest(cliente.id, cliente.name);
   }, [handleDeleteRequest]);
+
+  // Detectar si viene de /nuevo y abrir formulario
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+  
+  useEffect(() => {
+    const openForm = searchParams.get('openForm');
+    if (openForm === 'true' && !showForm && companyId) {
+      handleNew();
+      // Limpiar el parámetro de la URL
+      const params = new URLSearchParams(searchParams as any);
+      params.delete('openForm');
+      const qs = params.toString();
+      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams, companyId, showForm]); // Solo ejecutar cuando cambien searchParams o companyId
 
   // Configurar shortcuts de teclado
   useShortcuts([
@@ -202,7 +221,6 @@ function ClientesContent() {
         onSubmit={onSubmit}
         isSubmitting={isSubmitting}
         editingCliente={editingCliente}
-        companyId={companyId}
       />
 
       {/* Barra de búsqueda y botón nuevo */}

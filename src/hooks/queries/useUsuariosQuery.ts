@@ -31,8 +31,8 @@ async function fetchUsuarios(companyId?: string): Promise<Usuario[]> {
 export function useUsuariosQuery(companyId: string | undefined) {
   return useQuery({
     queryKey: usuarioKeys.list(companyId),
-    queryFn: () => fetchUsuarios(companyId!),
-    enabled: !!companyId,
+    queryFn: () => fetchUsuarios(companyId),
+    enabled: true, // Siempre habilitado - la API maneja el filtrado por companyId
     staleTime: 2 * 60 * 1000,
   });
 }

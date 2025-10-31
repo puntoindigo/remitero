@@ -6,7 +6,7 @@ interface LoadingTableProps {
   isLoading: boolean;
   columns: number;
   rows?: number;
-  children: React.ReactNode;
+  children?: React.ReactNode;
   className?: string;
 }
 
@@ -48,5 +48,5 @@ export function LoadingTable({
     );
   }
 
-  return <>{children}</>;
+  return <>{children || null}</>;
 }

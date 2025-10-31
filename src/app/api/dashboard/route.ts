@@ -58,10 +58,13 @@ export async function GET(request: NextRequest) {
     }
 
     // Conteos simples
-    const [clientesCountRes, productosCountRes, categoriasCountRes, usuariosTodayRes, clientesTodayRes, productosTodayRes, categoriasTodayRes] = await Promise.all([
+    const [clientesCountRes, productosCountRes, productosConStockRes, productosSinStockRes, categoriasCountRes, usuariosCountRes, usuariosTodayRes, clientesTodayRes, productosTodayRes, categoriasTodayRes] = await Promise.all([
       supabaseAdmin.from('clients').select('id', { count: 'exact', head: true }).eq('company_id', effectiveCompanyId),
       supabaseAdmin.from('products').select('id', { count: 'exact', head: true }).eq('company_id', effectiveCompanyId),
+      supabaseAdmin.from('products').select('id', { count: 'exact', head: true }).eq('company_id', effectiveCompanyId).eq('stock', 'IN_STOCK'),
+      supabaseAdmin.from('products').select('id', { count: 'exact', head: true }).eq('company_id', effectiveCompanyId).eq('stock', 'OUT_OF_STOCK'),
       supabaseAdmin.from('categories').select('id', { count: 'exact', head: true }).eq('company_id', effectiveCompanyId),
+      supabaseAdmin.from('users').select('id', { count: 'exact', head: true }).eq('company_id', effectiveCompanyId),
       supabaseAdmin.from('users').select('id', { count: 'exact', head: true }).eq('company_id', effectiveCompanyId).gte('created_at', startIso),
       supabaseAdmin.from('clients').select('id', { count: 'exact', head: true }).eq('company_id', effectiveCompanyId).gte('created_at', startIso),
       supabaseAdmin.from('products').select('id', { count: 'exact', head: true }).eq('company_id', effectiveCompanyId).gte('created_at', startIso),
@@ -74,10 +77,15 @@ export async function GET(request: NextRequest) {
         byStatus: Object.values(byStatusMap),
         today: todayRemitos,
       },
-      productos: { total: productosCountRes.count || 0, today: productosTodayRes.count || 0 },
+      productos: { 
+        total: productosCountRes.count || 0, 
+        conStock: productosConStockRes.count || 0,
+        sinStock: productosSinStockRes.count || 0,
+        today: productosTodayRes.count || 0 
+      },
       clientes: { total: clientesCountRes.count || 0, today: clientesTodayRes.count || 0 },
       categorias: { total: categoriasCountRes.count || 0, today: categoriasTodayRes.count || 0 },
-      usuarios: { today: usuariosTodayRes.count || 0 },
+      usuarios: { total: usuariosCountRes.count || 0, today: usuariosTodayRes.count || 0 },
     };
 
     const res = NextResponse.json(responseBody);

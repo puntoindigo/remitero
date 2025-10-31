@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { useColorTheme } from "@/contexts/ColorThemeContext";
 
 interface DeleteConfirmModalProps {
   isOpen: boolean;
@@ -24,14 +25,27 @@ export default function DeleteConfirmModal({
   isLoading = false
 }: DeleteConfirmModalProps) {
   const [isProcessing, setIsProcessing] = useState(false);
+  const { colors } = useColorTheme();
+
+  // Resetear isProcessing cuando el modal se cierra
+  useEffect(() => {
+    if (!isOpen) {
+      setIsProcessing(false);
+    }
+  }, [isOpen]);
 
   const handleConfirm = async () => {
     if (isProcessing || isLoading) return;
     setIsProcessing(true);
     try {
       await onConfirm();
-    } finally {
+      // Si la operación fue exitosa, el modal debería cerrarse
       // No resetear isProcessing aquí porque el componente puede cerrarse
+    } catch (error) {
+      // Si hay un error, restablecer el estado para permitir reintentar
+      setIsProcessing(false);
+      console.error('Error en confirmación:', error);
+      // No propagar el error para que el modal se mantenga abierto y permita reintentar
     }
   };
 
@@ -111,15 +125,12 @@ export default function DeleteConfirmModal({
           </button>
         </div>
         <div className="modal-body" style={{ padding: '20px' }}>
-          <p style={{ margin: '0 0 10px 0', color: '#374151', fontSize: '16px' }}>{message}</p>
+          <p style={{ margin: '0', color: '#374151', fontSize: '16px' }}>{message}</p>
           {itemName && (
-            <p style={{ margin: '10px 0', fontWeight: '500', color: '#111827', fontSize: '16px' }}>"{itemName}"</p>
+            <p style={{ margin: '10px 0 0 0', fontWeight: '500', color: '#111827', fontSize: '16px' }}>"{itemName}"</p>
           )}
-          <p style={{ margin: '10px 0 0 0', fontSize: '16px', color: '#6b7280' }}>
-            Esta acción no se puede deshacer.
-          </p>
         </div>
-        <div className="modal-footer" style={{ padding: '0 20px 20px 20px', display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+        <div className="modal-footer" style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
           <button
             onClick={onCancel}
             disabled={isProcessing || isLoading}
@@ -147,7 +158,7 @@ export default function DeleteConfirmModal({
               padding: '8px 16px',
               border: 'none',
               borderRadius: '6px',
-              background: (isProcessing || isLoading) ? '#9ca3af' : '#dc2626',
+              background: (isProcessing || isLoading) ? '#9ca3af' : colors.gradient,
               color: 'white',
               cursor: (isProcessing || isLoading) ? 'not-allowed' : 'pointer',
               fontSize: '14px',
@@ -155,7 +166,18 @@ export default function DeleteConfirmModal({
               alignItems: 'center',
               gap: '8px',
               minWidth: '100px',
-              justifyContent: 'center'
+              justifyContent: 'center',
+              transition: 'all 0.2s',
+            }}
+            onMouseEnter={(e) => {
+              if (!isProcessing && !isLoading) {
+                e.currentTarget.style.transform = 'translateY(-1px)';
+                e.currentTarget.style.boxShadow = `0 4px 12px ${colors.primary}50`;
+              }
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = 'none';
             }}
           >
             {(isProcessing || isLoading) ? (

@@ -37,7 +37,6 @@ export function useUsuarios(companyId?: string) {
       setError(null);
       
       const usersUrl = companyId ? `/api/users?companyId=${companyId}` : '/api/users';
-      console.log('Loading usuarios from:', usersUrl);
       
       const response = await fetch(usersUrl).catch(error => {
         console.error('Network error:', error);
@@ -51,7 +50,6 @@ export function useUsuarios(companyId?: string) {
       }
       
       const data = await response.json();
-      console.log('Usuarios loaded:', { count: data?.length || 0, data });
       setUsuarios(data || []);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error desconocido");

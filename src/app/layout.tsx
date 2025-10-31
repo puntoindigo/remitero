@@ -6,6 +6,7 @@ import { QueryProvider } from "@/providers/QueryProvider";
 import AuthenticatedLayout from "@/components/layout/AuthenticatedLayout";
 import EnvironmentBannerWrapper from "@/components/common/EnvironmentBannerWrapper";
 import ErrorBoundary from "@/components/common/ErrorBoundary";
+import { ColorThemeProvider } from "@/contexts/ColorThemeContext";
 
 export const metadata: Metadata = {
   title: "Sistema de Remitos",
@@ -71,14 +72,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body>
         <ErrorBoundary>
-          <AuthSessionProvider>
-            <QueryProvider>
-              {/* <EnvironmentBannerWrapper /> */}
-              <AuthenticatedLayout>
-                <Providers>{children}</Providers>
-              </AuthenticatedLayout>
-            </QueryProvider>
-          </AuthSessionProvider>
+          <ColorThemeProvider>
+            <AuthSessionProvider>
+              <QueryProvider>
+                {/* <EnvironmentBannerWrapper /> */}
+                <AuthenticatedLayout>
+                  <Providers>{children}</Providers>
+                </AuthenticatedLayout>
+              </QueryProvider>
+            </AuthSessionProvider>
+          </ColorThemeProvider>
         </ErrorBoundary>
       </body>
     </html>

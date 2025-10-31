@@ -14,6 +14,7 @@ interface FormModalProps {
   showCancel?: boolean;
   cancelText?: string;
   modalClassName?: string;
+  nested?: boolean; // Si es true, no renderiza <form> (para evitar anidamiento)
 }
 
 export function FormModal({
@@ -26,7 +27,8 @@ export function FormModal({
   isSubmitting = false,
   showCancel = true,
   cancelText = "Cancelar",
-  modalClassName = ""
+  modalClassName = "",
+  nested = false
 }: FormModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
 
@@ -79,7 +81,13 @@ export function FormModal({
         </div>
         
         <div className="modal-body">
-          {onSubmit ? (
+          {nested ? (
+            // Cuando está anidado, solo renderizar children sin envolver en form
+            // El children (ClienteForm) ya tiene su propio form
+            <>
+              {children}
+            </>
+          ) : onSubmit ? (
             <form onSubmit={onSubmit}>
               {children}
               

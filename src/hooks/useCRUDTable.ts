@@ -11,6 +11,7 @@ export interface CRUDTableConfig<T> {
   onEdit?: (item: T) => void;
   onDelete?: (item: T) => void;
   onPrint?: (item: T) => void;
+  onPrintHTML?: (item: T) => void;
   onNew?: () => void;
   getItemId?: (item: T) => string;
   emptyMessage?: string;
@@ -28,6 +29,7 @@ export function useCRUDTable<T>({
   onEdit,
   onDelete,
   onPrint,
+  onPrintHTML,
   onNew,
   getItemId = (item: any) => item.id,
   emptyMessage = "No hay datos",
@@ -41,8 +43,6 @@ export function useCRUDTable<T>({
     searchTerm,
     setSearchTerm,
     currentPage,
-    setCurrentPage,
-    filteredData,
     totalItems,
     totalPages,
     paginatedData,
@@ -50,7 +50,7 @@ export function useCRUDTable<T>({
     handleSearchChange
   } = useSearchAndPagination({
     data,
-    searchFields,
+    searchFields: searchFields as (keyof T)[],
     itemsPerPage
   });
 
@@ -64,6 +64,7 @@ export function useCRUDTable<T>({
     onEdit,
     onDelete,
     onPrint,
+    onPrintHTML,
     onNew,
     getItemId,
     emptyMessage,
@@ -72,7 +73,7 @@ export function useCRUDTable<T>({
     newButtonText,
     showSearch: true,
     showNewButton: !!onNew,
-    showActions: !!(onEdit || onDelete || onPrint)
+    showActions: !!(onEdit || onDelete || onPrint || onPrintHTML)
   }), [
     paginatedData,
     loading,
@@ -82,6 +83,7 @@ export function useCRUDTable<T>({
     onEdit,
     onDelete,
     onPrint,
+    onPrintHTML,
     onNew,
     getItemId,
     emptyMessage,
@@ -101,7 +103,7 @@ export function useCRUDTable<T>({
 
   return {
     // Datos filtrados y paginados
-    filteredData,
+    filteredData: paginatedData, // Usar paginatedData como filteredData para mantener compatibilidad
     paginatedData,
     totalItems,
     totalPages,

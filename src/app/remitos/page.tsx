@@ -18,7 +18,7 @@ import { useDataWithCompanySimple } from "@/hooks/useDataWithCompanySimple";
 import { useEstadosRemitosQuery } from "@/hooks/queries/useEstadosRemitosQuery";
 import { useEmpresas } from "@/hooks/useEmpresas";
 import { useProductosQuery } from "@/hooks/queries/useProductosQuery";
-import { useClientesQuery } from "@/hooks/queries/useClientesQuery";
+import { useClientesQuery, clienteKeys } from "@/hooks/queries/useClientesQuery";
 import { DataTable, type DataTableColumn } from "@/components/common/DataTable";
 import { useCRUDTable } from "@/hooks/useCRUDTable";
 import { Pagination } from "@/components/common/Pagination";
@@ -37,9 +37,11 @@ import {
   type Remito
 } from "@/hooks/queries/useRemitosQuery";
 import { useQueryClient } from "@tanstack/react-query";
+import { useColorTheme } from "@/contexts/ColorThemeContext";
 
 function RemitosContent() {
   const currentUser = useCurrentUserSimple();
+  const { colors } = useColorTheme();
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -166,11 +168,25 @@ function RemitosContent() {
 
   // Ahora que ya conocemos showForm, cargar productos y clientes solo cuando se abre el formulario
   const { data: products = [] } = useProductosQuery(showForm ? (companyId || undefined) : undefined);
-  const { data: clients = [] } = useClientesQuery(showForm ? (companyId || undefined) : undefined);
+  const { data: clients = [], refetch: refetchClientes } = useClientesQuery(showForm ? (companyId || undefined) : undefined);
 
   const { modalState, showSuccess: showModalSuccess, showError: showModalError, closeModal } = useMessageModal();
   const { toasts, showSuccess: showToastSuccess, showError: showToastError, removeToast } = useToast();
   const { updateStatus } = useDirectUpdate();
+
+  // Detectar si viene de /nuevo y abrir formulario
+  useEffect(() => {
+    const openForm = searchParams.get('openForm');
+    if (openForm === 'true' && !showForm && companyId) {
+      handleNewRemito();
+      // Limpiar el parámetro de la URL
+      const params = new URLSearchParams(searchParams as any);
+      params.delete('openForm');
+      const qs = params.toString();
+      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams, companyId, showForm]); // Solo ejecutar cuando cambien searchParams o companyId
 
   // Configurar shortcuts de teclado
   useShortcuts([
@@ -202,9 +218,16 @@ function RemitosContent() {
   }, [handleDeleteRequest]);
 
   const handlePrintRemito = useCallback((remito: Remito) => {
-    if (remito?.id) {
-      // Abrir PDF generado por el servidor
-      window.open(`/api/remitos/${remito.id}/pdf`, '_blank');
+    if (remito?.number) {
+      // Abrir PDF generado por el servidor usando número de remito
+      window.open(`/api/remitos/number/${remito.number}/pdf`, '_blank');
+    }
+  }, []);
+
+  const handlePrintRemitoHTML = useCallback((remito: Remito) => {
+    if (remito?.number) {
+      // Abrir vista de impresión HTML en nueva pestaña usando número de remito
+      window.open(`/remitos/${remito.number}/print`, '_blank');
     }
   }, []);
 
@@ -232,6 +255,7 @@ function RemitosContent() {
     },
     onDelete: handleDeleteRemito,
     onPrint: handlePrintRemito,
+    onPrintHTML: handlePrintRemitoHTML,
     onNew: handleNewRemito,
     getItemId: (remito) => remito?.id,
     emptyMessage: "No hay remitos",
@@ -442,19 +466,30 @@ function RemitosContent() {
             </div>
             <button
               onClick={handleNewRemito}
-              className="new-button"
+              className="btn-primary new-button"
               style={{
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.5rem',
-                padding: '0.5rem 1rem',
-                backgroundColor: '#3b82f6',
+                padding: '8px 16px',
+                background: colors.gradient,
                 color: 'white',
                 border: 'none',
-                borderRadius: '0.375rem',
+                borderRadius: '6px',
                 cursor: 'pointer',
-                fontSize: '0.875rem',
-                fontWeight: '500'
+                fontSize: '14px',
+                fontWeight: '500',
+                minWidth: '100px',
+                justifyContent: 'center',
+                transition: 'all 0.2s',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-1px)';
+                e.currentTarget.style.boxShadow = `0 4px 12px ${colors.primary}50`;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = 'none';
               }}
             >
               <Plus className="h-4 w-4" />
@@ -499,8 +534,29 @@ function RemitosContent() {
           products={products || []}
           estados={estadosActivos || []}
           companyId={companyId || undefined}
-          onClientCreated={() => {
-            // El cliente se cargará automáticamente en el próximo refetch
+          onClientCreated={async (newClient: any) => {
+            // Invalidar todas las queries de clientes
+            queryClient.invalidateQueries({ 
+              queryKey: clienteKeys.lists(),
+              exact: false
+            });
+            // Forzar refetch directo del hook si está disponible y está habilitado
+            if (refetchClientes && companyId) {
+              try {
+                await refetchClientes();
+              } catch (error) {
+                console.error('Error refetching clientes:', error);
+              }
+            }
+            // Siempre intentar refetch desde queryClient también (fallback seguro)
+            try {
+              await queryClient.refetchQueries({ 
+                queryKey: clienteKeys.list(companyId || undefined),
+                exact: false
+              });
+            } catch (error) {
+              console.error('Error refetching clientes from queryClient:', error);
+            }
           }}
         />
 

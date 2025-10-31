@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
     const companyId = searchParams.get('companyId');
     const countToday = searchParams.get('countToday') === 'true';
 
-    // Optimización: Sin JOIN de companies para máxima velocidad
+    // Incluir JOIN con companies para obtener el nombre de la empresa
     let query = supabaseAdmin
       .from('users')
       .select(`
@@ -34,7 +34,11 @@ export async function GET(request: NextRequest) {
         phone,
         company_id,
         created_at,
-        updated_at
+        updated_at,
+        companies (
+          id,
+          name
+        )
       `)
       .order('created_at', { ascending: false });
 
@@ -125,10 +129,10 @@ export async function GET(request: NextRequest) {
       }, { status: 500 });
     }
 
-    // Agregar estructura mínima sin JOIN costoso
+    // Los datos de companies ya vienen en el JOIN, solo mapear la estructura
     const usersWithCompanies = (users || []).map((user: any) => ({
       ...user,
-      companies: user.company_id ? { id: user.company_id, name: '' } : null
+      companies: user.companies || (user.company_id ? { id: user.company_id, name: null } : null)
     }));
 
     return NextResponse.json(transformUsers(usersWithCompanies));

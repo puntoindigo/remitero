@@ -1,10 +1,11 @@
 "use client";
 
 import React from "react";
-import { Edit, Trash2, Plus, Printer } from "lucide-react";
+import { Edit, Trash2, Plus, Printer, FileText } from "lucide-react";
 import { LoadingSpinner } from "./LoadingSpinner";
 import { LoadingTable } from "./LoadingTable";
 import { ShortcutText } from "./ShortcutText";
+import { useColorTheme } from "@/contexts/ColorThemeContext";
 
 export interface DataTableColumn<T> {
   key: string;
@@ -24,6 +25,7 @@ export interface DataTableProps<T> {
   onEdit?: (item: T) => void;
   onDelete?: (item: T) => void;
   onPrint?: (item: T) => void;
+  onPrintHTML?: (item: T) => void;
   onNew?: () => void;
   newButtonText?: string;
   newButtonIcon?: React.ReactNode;
@@ -49,6 +51,7 @@ export function DataTable<T>({
   onEdit,
   onDelete,
   onPrint,
+  onPrintHTML,
   onNew,
   newButtonText = "Nuevo",
   newButtonIcon = <Plus className="h-4 w-4 mr-2" />,
@@ -63,6 +66,7 @@ export function DataTable<T>({
   className = "",
   rowClassName = (_, index) => index % 2 === 0 ? "row-even" : "row-odd"
 }: DataTableProps<T>) {
+  const { colors } = useColorTheme();
   
   if (loading) {
     return (
@@ -107,7 +111,31 @@ export function DataTable<T>({
           {showNewButton && onNew && (
             <button
               onClick={onNew}
-              className="primary new-button"
+              className="btn-primary new-button"
+              style={{
+                background: colors.gradient,
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                padding: '8px 16px',
+                fontSize: '14px',
+                fontWeight: '500',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                transition: 'all 0.2s',
+                minWidth: '100px',
+                justifyContent: 'center',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-1px)';
+                e.currentTarget.style.boxShadow = `0 4px 12px ${colors.primary}50`;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = 'none';
+              }}
             >
               {newButtonIcon}
               <ShortcutText text={newButtonText} shortcutKey="n" />
@@ -130,7 +158,7 @@ export function DataTable<T>({
                   {column.label}
                 </th>
               ))}
-              {showActions && (onEdit || onDelete || onPrint) && (
+              {showActions && (onEdit || onDelete || onPrint || onPrintHTML) && (
                 <th className="actions-column">{actionsColumnLabel}</th>
               )}
             </tr>
@@ -149,14 +177,23 @@ export function DataTable<T>({
                     }
                   </td>
                 ))}
-                {showActions && (onEdit || onDelete || onPrint) && (
+                {showActions && (onEdit || onDelete || onPrint || onPrintHTML) && (
                   <td className="actions-cell">
                     <div className="action-buttons">
+                      {onPrintHTML && (
+                        <button
+                          onClick={() => onPrintHTML(item)}
+                          className="action-button print-html-button"
+                          title="Imprimir HTML"
+                        >
+                          <FileText className="h-4 w-4" />
+                        </button>
+                      )}
                       {onPrint && (
                         <button
                           onClick={() => onPrint(item)}
                           className="action-button print-button"
-                          title="Imprimir"
+                          title="Imprimir PDF"
                         >
                           <Printer className="h-4 w-4" />
                         </button>

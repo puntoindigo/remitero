@@ -219,7 +219,7 @@ export function UsuarioForm({
           <input
             {...register("phone")}
             type="tel"
-            placeholder="+54 11 1234-5678"
+            placeholder="+54 341 123-4567"
             className="form-input-standard"
           />
           {errors.phone && (

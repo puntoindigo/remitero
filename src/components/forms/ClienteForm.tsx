@@ -29,6 +29,7 @@ interface ClienteFormProps {
     phone?: string;
     address?: string;
   } | null;
+  nested?: boolean; // Si es true, el formulario está dentro de otro formulario
 }
 
 export function ClienteForm({
@@ -36,7 +37,8 @@ export function ClienteForm({
   onClose,
   onSubmit,
   isSubmitting,
-  editingCliente
+  editingCliente,
+  nested = false
 }: ClienteFormProps) {
   const {
     register,
@@ -61,7 +63,7 @@ export function ClienteForm({
         email: editingCliente?.email || "",
         phone: editingCliente.phone || "",
         address: editingCliente.address || ""
-      }, []);
+      });
     } else {
       reset({
         name: "",
@@ -81,15 +83,8 @@ export function ClienteForm({
     }
   };
 
-  return (
-    <FormModal
-      isOpen={isOpen}
-      onClose={onClose}
-      title={editingCliente ? "Editar Cliente" : "Nuevo Cliente"}
-      onSubmit={handleSubmit(handleFormSubmit)}
-      submitText={editingCliente ? "Actualizar" : "Guardar"}
-      isSubmitting={isSubmitting}
-    >
+  const formContent = (
+    <>
       <div className="form-row">
         <div className="form-group">
           <label className="form-label-large">Nombre del cliente *</label>
@@ -124,7 +119,7 @@ export function ClienteForm({
           <input
             {...register("phone")}
             type="tel"
-            placeholder="+54 11 1234-5678"
+            placeholder="+54 341 123-4567"
             className="form-input-standard"
           />
           {errors.phone && (
@@ -145,6 +140,45 @@ export function ClienteForm({
           )}
         </div>
       </div>
+    </>
+  );
+
+  return (
+    <FormModal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={editingCliente ? "Editar Cliente" : "Nuevo Cliente"}
+      onSubmit={nested ? undefined : handleSubmit(handleFormSubmit)}
+      submitText={editingCliente ? "Actualizar" : "Guardar"}
+      isSubmitting={isSubmitting}
+      nested={nested}
+    >
+      {nested ? (
+        <form onSubmit={handleSubmit(handleFormSubmit)}>
+          {formContent}
+          <div className="modal-footer">
+            <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
+              <button
+                type="button"
+                onClick={onClose}
+                className="btn-secondary"
+                disabled={isSubmitting}
+              >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                className="btn-primary"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Guardando..." : (editingCliente ? "Actualizar" : "Guardar")}
+              </button>
+            </div>
+          </div>
+        </form>
+      ) : (
+        formContent
+      )}
     </FormModal>
   );
 }

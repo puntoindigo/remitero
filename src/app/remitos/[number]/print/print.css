@@ -135,6 +135,13 @@ hr *,
   text-align: left;
 }
 
+/* Cuando es "Sistema de Gestión" (fallback), usar tamaño grande como companyName */
+.print-header h1:has-text("Sistema de Gestión"),
+.print-header h1[data-is-fallback="true"] {
+  font-size: 18pt !important;
+  font-weight: normal !important;
+}
+
 /* Header top row - empresa y número en la misma línea - FORZADO */
 .print-container .print-original .print-header .print-header-top,
 .print-container .print-copy .print-header .print-header-top {
@@ -162,11 +169,76 @@ hr *,
   visibility: visible !important;
 }
 
+/* Cuando es "Sistema de Gestión" (fallback), usar tamaño grande como companyName */
+.print-container .print-original .print-header .print-header-top h1[data-is-fallback="true"],
+.print-container .print-copy .print-header .print-header-top h1[data-is-fallback="true"] {
+  font-size: 18pt !important;
+  font-weight: normal !important;
+}
+
+/* Header bottom row - título y fecha en la misma línea */
+.print-header-bottom {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  width: 100% !important;
+  margin-top: 2px !important;
+  position: relative !important;
+  clear: both !important;
+}
+
 .print-header h2 {
-  margin: 0;
-  font-size: 11pt;
-  font-weight: normal;
-  text-align: left;
+  margin: 0 !important;
+  font-size: 11pt !important;
+  font-weight: normal !important;
+  text-align: left !important;
+  flex: 0 1 auto !important; /* Cambiar de flex: 1 a flex: 0 1 auto para que no ocupe todo el espacio */
+  display: inline-block !important;
+  max-width: 60% !important; /* Limitar el ancho máximo del título */
+}
+
+.print-date-inline {
+  text-align: right !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  flex-shrink: 0 !important;
+  flex-grow: 0 !important;
+  display: inline-block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  min-width: 120px !important; /* Asegurar ancho mínimo */
+  white-space: nowrap !important; /* Evitar que se corte */
+}
+
+/* FORZAR visibilidad - sobrescribir cualquier display: none */
+.print-container .print-date-inline,
+.print-original .print-date-inline,
+.print-copy .print-date-inline,
+.print-header .print-date-inline,
+.print-header-bottom .print-date-inline {
+  display: inline-block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+.print-date-inline p {
+  margin: 0 !important;
+  font-size: 9pt !important;
+  line-height: 1.2 !important;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  color: #000 !important; /* Asegurar que el color sea visible */
+}
+
+/* FORZAR visibilidad del párrafo - sobrescribir cualquier display: none */
+.print-date-inline p,
+.print-container .print-date-inline p,
+.print-original .print-date-inline p,
+.print-copy .print-date-inline p {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
 }
 
 /* Número de remito con borde redondeado - FORZADO */
@@ -212,32 +284,14 @@ hr *,
   border-color: transparent !important;
 }
 
-.print-client-info h3 {
-  margin: 0 0 3px 0;
-  font-size: 10pt;
-  font-weight: bold;
+.print-client-info {
+  margin: 0 !important;
+  padding: 0 !important;
 }
 
-/* Alinear FECHA a la misma altura que CLIENTE */
-.print-number-date {
-  float: right; /* ya está flotado */
-  clear: right;
-  margin-top: 0 !important;
-  padding-top: 0 !important;
-}
-.print-client-info h3 { margin-top: 0 !important; }
-
-.print-number-date {
-  float: right; /* Flotar a la derecha */
-  clear: right; /* Limpiar el float */
-  margin-top: 0; /* Alinear con la primera línea del cliente */
-  margin-bottom: 0; /* Sin margen inferior */
-}
-
-.print-number-date p {
-  margin: 0; /* alinear exactamente con CLIENTE */
-  font-size: 9pt;
-  line-height: 1.2;
+.print-client-info p {
+  margin: 0 0 2px 0 !important;
+  font-size: 9pt !important;
 }
 
 /* Items area - ocupa espacio disponible, permite que el total quede abajo */
@@ -298,7 +352,7 @@ hr *,
 
 .print-table td {
   border: 1px solid #ddd;
-  padding: 2mm 3mm; /* Mismo padding que los headers */
+  padding: 1mm 3mm; /* Padding vertical reducido a 1mm */
   font-size: 9pt;
   line-height: 1.4; /* Mejorar line-height */
   word-spacing: 0.1em; /* Espaciado entre palabras */
@@ -308,10 +362,15 @@ hr *,
   box-sizing: border-box; /* Incluir border y padding en el cálculo del ancho */
 }
 
+/* Excepción para la fila del total - mantener padding normal */
+.print-table tbody tr:has(.print-total-inline) td {
+  padding: 2mm 3mm !important;
+}
+
 /* Mejorar específicamente la columna de descripción */
 /* Descripción: mantener mismos paddings que el resto para no desalinear */
 .print-table td:nth-child(2) {
-  padding: 2mm 3mm;
+  padding: 1mm 3mm; /* Padding vertical reducido a 1mm */
   word-wrap: break-word;
   overflow-wrap: break-word;
 }
@@ -329,46 +388,18 @@ hr *,
   height: 20px; /* Altura fija para celdas vacías */
 }
 
-/* Total - FORZADO al final de la página */
-.print-container .print-original .print-total,
-.print-container .print-copy .print-total {
-  text-align: right !important;
-  padding: 3mm 0 !important; /* quitar padding derecho para alinear con columna */
-  background-color: #f0f0f0 !important;
-  border: 2px solid #000 !important;
-  flex-shrink: 0 !important;
-  margin-top: auto !important;
-  margin-bottom: 2mm !important;
-  width: 100% !important;
-  clear: both !important;
-  position: absolute !important;
-  bottom: 2mm !important;
-  left: 0 !important;
-  right: 0 !important;
-  z-index: 10 !important;
+/* Total dentro de la tabla - usando colspan */
+.print-total-inline {
+  text-align: right;
+  width: 100%;
 }
 
-.print-total p {
+.print-total-inline p {
   margin: 0;
   font-size: 12pt;
   font-weight: bold;
   text-align: right;
-  padding-right: 0; /* Alinear con la columna Total */
-}
-
-/* Contenedor interno para alinear el total con la columna Total */
-.print-total .total-content {
-  display: flex;
-  justify-content: flex-end;
-  width: 100%;
-  padding-right: 3mm; /* desplazar un poco a la izquierda */
-}
-
-.print-total .total-content p {
-  width: 20%; /* Mismo ancho que la columna Total */
-  text-align: right;
-  margin: 0;
-  padding-right: 0; /* Sin padding derecho para alineación perfecta */
+  padding: 0;
 }
 
 /* Notes */
@@ -458,17 +489,139 @@ body > div:not(.print-container):not([data-print-content]) {
     border-color: #ddd !important;
   }
 
-  /* Alinear fecha a la altura de CLIENTE en impresión */
-  .print-info-section {
+  /* FORZAR visibilidad del header-top y número de remito en impresión */
+  .print-header-top,
+  .print-container .print-header-top,
+  .print-original .print-header-top,
+  .print-copy .print-header-top,
+  .print-header .print-header-top {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+
+  .print-header-top h1,
+  .print-container .print-header-top h1,
+  .print-original .print-header-top h1,
+  .print-copy .print-header-top h1 {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+
+  .print-remito-number,
+  .print-container .print-remito-number,
+  .print-original .print-remito-number,
+  .print-copy .print-remito-number,
+  .print-header .print-remito-number {
+    display: inline-block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+
+  /* Estilos para fecha inline en header */
+  .print-header-bottom {
     display: flex !important;
     justify-content: space-between !important;
-    align-items: flex-start !important;
+    align-items: center !important;
+    align-content: center !important; /* Forzar alineación vertical */
+    clear: both !important;
+    width: 100% !important;
+    margin-top: 0 !important; /* Eliminar cualquier margen superior */
+    padding: 0 !important; /* Eliminar cualquier padding */
+  }
+  
+  .print-header h2 {
+    flex: 0 1 auto !important;
+    max-width: 60% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    font-size: 11pt !important;
+    line-height: 1.2 !important; /* Asegurar line-height consistente */
+    vertical-align: middle !important; /* Alineación vertical */
+  }
+  
+  .print-date-inline,
+  .print-container .print-date-inline,
+  .print-original .print-date-inline,
+  .print-copy .print-date-inline,
+  .print-header .print-date-inline,
+  .print-header-bottom .print-date-inline {
+    text-align: right !important;
+    display: inline-block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    flex-shrink: 0 !important;
+    flex-grow: 0 !important;
+    min-width: 120px !important;
+    white-space: nowrap !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    vertical-align: middle !important; /* Alineación vertical */
+    line-height: 1.2 !important; /* Mismo line-height que h2 */
+  }
+  
+  .print-date-inline p,
+  .print-container .print-date-inline p,
+  .print-original .print-date-inline p,
+  .print-copy .print-date-inline p {
+    margin: 0 !important;
+    padding: 0 !important;
+    font-size: 9pt !important;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    color: #000 !important;
+    line-height: 1.2 !important; /* Mismo line-height */
+  }
+  
+  /* FORZAR alineación de columnas de tabla en impresión */
+  .print-table th:nth-child(1) {
+    text-align: center !important;
+  }
+  
+  .print-table td:nth-child(1) {
+    text-align: center !important;
+  }
+  
+  .print-table th:nth-child(2) {
+    text-align: left !important;
+  }
+  
+  .print-table td:nth-child(2) {
+    text-align: left !important;
+  }
+  
+  .print-table th:nth-child(3) {
+    text-align: right !important;
+  }
+  
+  .print-table td:nth-child(3) {
+    text-align: right !important;
+  }
+  
+  .print-table th:nth-child(4) {
+    text-align: right !important;
+  }
+  
+  .print-table td:nth-child(4) {
+    text-align: right !important;
+  }
+  
+  /* Client info section simplificada */
+  .print-info-section {
     margin-bottom: 4mm !important;
     padding-bottom: 0 !important;
   }
-  .print-number-date {
-    margin-top: 0 !important;
-    padding-top: 0 !important;
+  
+  .print-client-info {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  
+  .print-client-info p {
+    margin: 0 0 2px 0 !important;
+    font-size: 9pt !important;
   }
 
   /* Asegurar que la tabla ocupe todo el ancho en impresión */
@@ -514,7 +667,7 @@ body > div:not(.print-container):not([data-print-content]) {
   body > aside:not(:has([data-print-wrapper])),
   body > footer:not(:has([data-print-wrapper])),
   [class*="sidebar"]:not(:has([data-print-wrapper])),
-  [class*="header"]:not(.print-header):not(:has([data-print-wrapper])),
+  [class*="header"]:not(.print-header):not(.print-header-bottom):not(.print-header-top):not(.print-remito-number):not(:has([data-print-wrapper])),
   [class*="nav"]:not(:has([data-print-wrapper])),
   [id*="sidebar"]:not(:has([data-print-wrapper])),
   [id*="header"]:not(:has([data-print-wrapper])),
@@ -527,6 +680,16 @@ body > div:not(.print-container):not([data-print-content]) {
     width: 0 !important;
     overflow: hidden !important;
     border: none !important;
+  }
+  
+  /* FORZAR que print-header-bottom sea visible */
+  .print-header-bottom,
+  .print-container .print-header-bottom,
+  .print-original .print-header-bottom,
+  .print-copy .print-header-bottom {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
   }
 
          /* Asegurar que el contenedor de impresión y todo su contenido sea visible */
@@ -571,8 +734,7 @@ body > div:not(.print-container):not([data-print-content]) {
          }
 
   /* Asegurar que elementos específicos mantengan su display correcto */
-  .print-container table,
-  .print-container table * {
+  .print-container table {
     display: table !important;
   }
   .print-container table tr {
@@ -581,6 +743,55 @@ body > div:not(.print-container):not([data-print-content]) {
   .print-container table td,
   .print-container table th {
     display: table-cell !important;
+  }
+  
+  /* FORZAR alineación de columnas con mayor especificidad */
+  .print-container .print-table th:nth-child(1),
+  .print-original .print-table th:nth-child(1),
+  .print-copy .print-table th:nth-child(1) {
+    text-align: center !important;
+  }
+  
+  .print-container .print-table td:nth-child(1),
+  .print-original .print-table td:nth-child(1),
+  .print-copy .print-table td:nth-child(1) {
+    text-align: center !important;
+  }
+  
+  .print-container .print-table th:nth-child(2),
+  .print-original .print-table th:nth-child(2),
+  .print-copy .print-table th:nth-child(2) {
+    text-align: left !important;
+  }
+  
+  .print-container .print-table td:nth-child(2),
+  .print-original .print-table td:nth-child(2),
+  .print-copy .print-table td:nth-child(2) {
+    text-align: left !important;
+  }
+  
+  .print-container .print-table th:nth-child(3),
+  .print-original .print-table th:nth-child(3),
+  .print-copy .print-table th:nth-child(3) {
+    text-align: right !important;
+  }
+  
+  .print-container .print-table td:nth-child(3),
+  .print-original .print-table td:nth-child(3),
+  .print-copy .print-table td:nth-child(3) {
+    text-align: right !important;
+  }
+  
+  .print-container .print-table th:nth-child(4),
+  .print-original .print-table th:nth-child(4),
+  .print-copy .print-table th:nth-child(4) {
+    text-align: right !important;
+  }
+  
+  .print-container .print-table td:nth-child(4),
+  .print-original .print-table td:nth-child(4),
+  .print-copy .print-table td:nth-child(4) {
+    text-align: right !important;
   }
   .print-container p,
   .print-container div:not(.print-original):not(.print-copy),
@@ -607,13 +818,18 @@ body > div:not(.print-container):not([data-print-content]) {
     font-weight: bold;
   }
 
-  /* Ajuste fino del bloque TOTAL para que alinee con la columna Total */
-  .print-container .print-original .print-total,
-  .print-container .print-copy .print-total {
-    padding: 3mm 0 !important; /* quitar padding lateral */
+  /* Total dentro de la tabla */
+  .print-total-inline {
+    text-align: right !important;
+    width: 100% !important;
   }
-  .print-total .total-content {
-    padding-right: 4mm !important; /* desplaza texto a la izquierda */
+  
+  .print-total-inline p {
+    margin: 0 !important;
+    font-size: 12pt !important;
+    font-weight: bold !important;
+    text-align: right !important;
+    padding: 0 !important;
   }
 }
 
@@ -625,12 +841,52 @@ body > div:not(.print-container):not([data-print-content]) {
   body > aside,
   body > footer,
   [class*="sidebar"],
-  [class*="header"]:not(.print-header),
+  [class*="header"]:not(.print-header):not(.print-header-bottom):not(.print-header-top):not(.print-remito-number),
   [class*="nav"],
   [id*="sidebar"],
   [id*="header"],
   [id*="nav"] {
     display: none !important;
+  }
+  
+  /* FORZAR que print-header-bottom sea visible */
+  .print-header-bottom,
+  .print-container .print-header-bottom,
+  .print-original .print-header-bottom,
+  .print-copy .print-header-bottom {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+
+  /* FORZAR visibilidad del header-top y número de remito en pantalla también */
+  .print-header-top,
+  .print-container .print-header-top,
+  .print-original .print-header-top,
+  .print-copy .print-header-top,
+  .print-header .print-header-top {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+
+  .print-header-top h1,
+  .print-container .print-header-top h1,
+  .print-original .print-header-top h1,
+  .print-copy .print-header-top h1 {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+
+  .print-remito-number,
+  .print-container .print-remito-number,
+  .print-original .print-remito-number,
+  .print-copy .print-remito-number,
+  .print-header .print-remito-number {
+    display: inline-block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
   }
 
   body {
@@ -654,5 +910,26 @@ body > div:not(.print-container):not([data-print-content]) {
     padding: 0;
     min-height: 148mm;
     background: white;
+  }
+
+  /* FORZAR visibilidad de la fecha en pantalla también */
+  .print-date-inline,
+  .print-container .print-date-inline,
+  .print-original .print-date-inline,
+  .print-copy .print-date-inline,
+  .print-header .print-date-inline,
+  .print-header-bottom .print-date-inline {
+    display: inline-block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+
+  .print-date-inline p,
+  .print-container .print-date-inline p,
+  .print-original .print-date-inline p,
+  .print-copy .print-date-inline p {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
   }
 }

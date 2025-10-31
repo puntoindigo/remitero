@@ -53,6 +53,11 @@ export interface Remito {
   createdBy: {
     name: string;
   };
+  companyName?: string;
+  company?: {
+    id: string;
+    name: string;
+  };
 }
 
 export interface DBShape {

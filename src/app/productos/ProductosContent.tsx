@@ -63,17 +63,30 @@ function ProductosContent() {
   const updateMutation = useUpdateProductMutation();
   const deleteMutation = useDeleteProductMutation();
   
-  const [selectedCategoryId, setSelectedCategoryId] = useState<string>(() => {
-    if (typeof window === 'undefined') return "";
-    const initial = new URLSearchParams(window.location.search).get('categoryId');
-    return initial || "";
-  });
-  const [selectedStock, setSelectedStock] = useState<string>(() => {
-    if (typeof window === 'undefined') return "";
-    const stockParam = new URLSearchParams(window.location.search).get('stock');
-    return stockParam === 'IN_STOCK' || stockParam === 'OUT_OF_STOCK' ? stockParam : "";
-  });
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
+  const [selectedStock, setSelectedStock] = useState<string>("");
   const { empresas } = useEmpresas();
+  
+  // Sincronizar estado inicial con searchParams
+  useEffect(() => {
+    const stockParam = searchParams.get('stock');
+    if (stockParam === 'IN_STOCK' || stockParam === 'OUT_OF_STOCK') {
+      if (selectedStock !== stockParam) {
+        setSelectedStock(stockParam);
+      }
+    } else if (selectedStock) {
+      setSelectedStock("");
+    }
+    
+    const categoryParam = searchParams.get('categoryId');
+    if (categoryParam) {
+      if (selectedCategoryId !== categoryParam) {
+        setSelectedCategoryId(categoryParam);
+      }
+    } else if (selectedCategoryId) {
+      setSelectedCategoryId("");
+    }
+  }, [searchParams]); // Solo ejecutar cuando cambien los searchParams iniciales
   
   // Loading state management
   const { loading: loadingState, startLoading, stopLoading } = useLoading();
@@ -104,6 +117,20 @@ function ProductosContent() {
     }
   ], !!companyId && !showForm);
 
+  // Detectar si viene de /nuevo y abrir formulario
+  useEffect(() => {
+    const openForm = searchParams.get('openForm');
+    if (openForm === 'true' && !showForm && companyId) {
+      handleNewProduct();
+      // Limpiar el parámetro de la URL
+      const params = new URLSearchParams(searchParams as any);
+      params.delete('openForm');
+      const qs = params.toString();
+      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams, companyId, showForm]); // Solo ejecutar cuando cambien searchParams o companyId
+
   // Listener para FAB mobile
   useEffect(() => {
     const handleFABClick = (event: any) => {
@@ -123,43 +150,51 @@ function ProductosContent() {
   useEffect(() => {
     const currentParam = searchParams.get('stock') || "";
     const params = new URLSearchParams(searchParams as any);
+    
+    // Evitar actualizar si el parámetro de la URL ya coincide con el estado
+    if (selectedStock && currentParam === selectedStock) {
+      return;
+    }
+    if (!selectedStock && !currentParam) {
+      return;
+    }
+    
     // Si se selecciona un stock específico, actualizar la URL
     if (selectedStock) {
-      if (currentParam !== selectedStock) {
-        params.set('stock', selectedStock);
-        router.replace(`${pathname}?${params.toString()}`, { scroll: false });
-      }
+      params.set('stock', selectedStock);
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
     } else {
       // Si se selecciona "Todos los stocks" (vacío), eliminar el parámetro
-      if (currentParam) {
-        params.delete('stock');
-        const qs = params.toString();
-        const nextUrl = qs ? `${pathname}?${qs}` : `${pathname}`;
-        router.replace(nextUrl, { scroll: false });
-      }
+      params.delete('stock');
+      const qs = params.toString();
+      const nextUrl = qs ? `${pathname}?${qs}` : `${pathname}`;
+      router.replace(nextUrl, { scroll: false });
     }
-  }, [selectedStock, router, pathname, searchParams]);
+  }, [selectedStock, router, pathname]);
 
   // Empujar cambios de categoría a la URL
   useEffect(() => {
     const currentParam = searchParams.get('categoryId') || "";
     const params = new URLSearchParams(searchParams as any);
-    // Evitar borrar si la URL tiene categoryId y el estado inicia vacío
-    if (!selectedCategoryId && currentParam) {
+    
+    // Evitar actualizar si el parámetro de la URL ya coincide con el estado
+    if (selectedCategoryId && currentParam === selectedCategoryId) {
       return;
     }
+    if (!selectedCategoryId && !currentParam) {
+      return;
+    }
+    
     if (selectedCategoryId) {
-      if (currentParam !== selectedCategoryId) {
-        params.set('categoryId', selectedCategoryId);
-        router.replace(`${pathname}?${params.toString()}`, { scroll: false });
-      }
+      params.set('categoryId', selectedCategoryId);
+      router.replace(`${pathname}?${params.toString()}`, { scroll: false });
     } else if (currentParam) {
       params.delete('categoryId');
       const qs = params.toString();
       const nextUrl = qs ? `${pathname}?${qs}` : `${pathname}`;
       router.replace(nextUrl, { scroll: false });
     }
-  }, [selectedCategoryId, router, pathname, searchParams]);
+  }, [selectedCategoryId, router, pathname]);
 
 
   // Filtrar productos por categoría y stock

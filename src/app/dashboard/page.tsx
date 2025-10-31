@@ -2,11 +2,13 @@
 
 import { useSession } from "next-auth/react"
 import { useState, useEffect, useRef } from "react"
+import { useRouter } from "next/navigation"
 import { FileText, Package, Users, Building2, Tag, ShoppingBag, Plus, Eye } from "lucide-react"
 import Link from "next/link"
 import { useCurrentUserSimple } from "@/hooks/useCurrentUserSimple"
 import { useEmpresas } from "@/hooks/useEmpresas"
 import FilterableSelect from "@/components/common/FilterableSelect"
+import { useShortcuts } from "@/hooks/useShortcuts"
 
 interface DashboardStats {
   remitos: {
@@ -20,6 +22,7 @@ interface DashboardStats {
   };
   clientes: number;
   categorias: number;
+  usuarios: number;
 }
 
 interface TodayStats {
@@ -33,12 +36,14 @@ export default function DashboardPage() {
   const { data: session } = useSession()
   const currentUser = useCurrentUserSimple()
   const { empresas } = useEmpresas()
+  const router = useRouter()
   const [selectedCompanyId, setSelectedCompanyId] = useState<string>("")
   const [stats, setStats] = useState<DashboardStats>({
     remitos: { total: 0, byStatus: [] },
     productos: { total: 0, conStock: 0, sinStock: 0 },
     clientes: 0,
-    categorias: 0
+    categorias: 0,
+    usuarios: 0
   })
   const [todayStats, setTodayStats] = useState<TodayStats>({
     usuarios: 0,
@@ -96,9 +101,14 @@ export default function DashboardPage() {
 
         setStats({
           remitos: { total: data.remitos?.total || 0, byStatus: data.remitos?.byStatus || [] },
-          productos: { total: data.productos?.total || 0, conStock: 0, sinStock: 0 },
+          productos: { 
+            total: data.productos?.total || 0, 
+            conStock: data.productos?.conStock || 0, 
+            sinStock: data.productos?.sinStock || 0 
+          },
           clientes: data.clientes?.total || 0,
-          categorias: data.categorias?.total || 0
+          categorias: data.categorias?.total || 0,
+          usuarios: data.usuarios?.total || 0
         })
 
         setTodayStats({
@@ -126,7 +136,8 @@ export default function DashboardPage() {
           remitos: { total: 0, byStatus: [] },
           productos: { total: 0, conStock: 0, sinStock: 0 },
           clientes: 0,
-          categorias: 0
+          categorias: 0,
+          usuarios: 0
         });
         setTodayStats({
           usuarios: 0,
@@ -160,10 +171,11 @@ export default function DashboardPage() {
   // Funciones helper para generar enlaces y nombres
   const getNewLink = (title: string) => {
     switch (title) {
-      case "Remitos": return "/remitos?new=true";
-      case "Productos": return "/productos?new=true";
-      case "Clientes": return "/clientes?new=true";
-      case "Categorías": return "/categorias?new=true";
+      case "Remitos": return "/remitos/nuevo";
+      case "Productos": return "/productos/nuevo";
+      case "Clientes": return "/clientes/nuevo";
+      case "Categorías": return "/categorias/nuevo";
+      case "Usuarios": return "/usuarios/nuevo";
       default: return "/";
     }
   };
@@ -174,6 +186,7 @@ export default function DashboardPage() {
       case "Productos": return "Producto";
       case "Clientes": return "Cliente";
       case "Categorías": return "Categoría";
+      case "Usuarios": return "Usuario";
       default: return title;
     }
   };
@@ -252,11 +265,22 @@ export default function DashboardPage() {
       textColor: "text-indigo-600",
       bgColor: "bg-indigo-50",
       stats: [
-        { label: "Total", value: 0, link: "/usuarios" }, // TODO: Agregar conteo total de usuarios
+        { label: "Total", value: stats.usuarios, link: "/usuarios" },
         ...(todayStats.usuarios > 0 ? [{ label: "Nuevos hoy", value: todayStats.usuarios, link: "/usuarios" }] : [])
       ]
     })
   }
+
+  // Shortcut para ir al dashboard (si no está en uso globalmente)
+  // Nota: El shortcut 'D' ya existe en Header.tsx globalmente, pero lo agregamos aquí
+  // para asegurar que funcione incluso si Header no está montado
+  useShortcuts([
+    {
+      key: 'd',
+      action: () => router.push('/dashboard'),
+      description: 'Dashboard'
+    }
+  ], true);
 
   if (isLoading) {
     return (
@@ -270,38 +294,35 @@ export default function DashboardPage() {
 
   return (
     <main className="main-content">
-      <div className="px-4 py-6 sm:px-0">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Tablero de Control</h1>
-          <p className="mt-2 text-gray-600">
-            Bienvenido, {currentUser?.name}
-          </p>
-          
+      <div className="form-section">
+        <h2>Tablero de Control</h2>
+        
           {/* Selector de empresa para SUPERADMIN */}
           {currentUser?.role === "SUPERADMIN" && empresas?.length > 0 && (
-            <div className="mt-4">
+            <div style={{ marginBottom: '1.5rem', maxWidth: '400px' }}>
               <FilterableSelect
                 options={empresas}
                 value={selectedCompanyId}
                 onChange={setSelectedCompanyId}
                 placeholder="Seleccionar empresa"
-                className="w-full max-w-md"
+                className="w-full"
               />
             </div>
           )}
-        </div>
 
         <div className="dashboard-grid">
           {cards.map((card) => (
             <div key={card.title} className="dashboard-card">
+              {/* Header con ícono y título */}
               <div className="dashboard-card-header">
-                <div className={`dashboard-icon ${card.bgColor}`}>
-                  <card.icon className={`h-6 w-6 ${card.textColor}`} />
-                </div>
-                <h3 className="dashboard-card-title">{card.title}</h3>
+                <h3 className="dashboard-card-title">
+                  <card.icon className="dashboard-card-icon" />
+                  {card.title}
+                </h3>
               </div>
               
-              <div className="dashboard-stats">
+              {/* Body - Estadísticas */}
+              <div className="dashboard-card-body">
                 {card.stats.map((stat, index) => (
                   <Link key={index} href={stat.link} className="dashboard-stat-link">
                     <div className="dashboard-stat-content">
@@ -315,14 +336,15 @@ export default function DashboardPage() {
                 ))}
               </div>
 
+              {/* Footer - Acciones (botones siempre a la misma altura) */}
               <div className="dashboard-card-footer">
                 <div className="dashboard-buttons-row">
                   <Link href={card.stats[0].link} className="dashboard-view-button">
-                    <Eye className="h-4 w-4 mr-2" />
+                    <Eye className="h-4 w-4" />
                     Ver {card.title.toLowerCase()}
                   </Link>
                   <Link href={getNewLink(card.title)} className="dashboard-new-button">
-                    <Plus className="h-4 w-4 mr-2" />
+                    <Plus className="h-4 w-4" />
                     {getNewText(card.title)} {getSingularName(card.title)}
                   </Link>
                 </div>
@@ -330,7 +352,6 @@ export default function DashboardPage() {
             </div>
           ))}
         </div>
-
       </div>
     </main>
   )

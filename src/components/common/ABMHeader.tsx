@@ -4,6 +4,7 @@ import React from "react";
 import { Plus } from "lucide-react";
 import FilterableSelect from "./FilterableSelect";
 import { ShortcutText } from "./ShortcutText";
+import { useColorTheme } from "@/contexts/ColorThemeContext";
 
 interface ABMHeaderProps {
   // Selector de empresa (opcional)
@@ -41,6 +42,8 @@ export function ABMHeader({
   onSearchChange,
   additionalFilters
 }: ABMHeaderProps) {
+  const { colors } = useColorTheme();
+  
   return (
     <>
       {/* Selector de empresa - ancho completo */}
@@ -49,7 +52,7 @@ export function ABMHeader({
           <FilterableSelect
             options={companies}
             value={selectedCompanyId}
-            onChange={onCompanyChange}
+            onChange={onCompanyChange || (() => {})}
             placeholder="Seleccionar empresa"
             searchFields={["name"]}
             className="w-full"
@@ -122,31 +125,34 @@ export function ABMHeader({
           <button
             onClick={onNewClick}
             disabled={isSubmitting}
+            className="btn-primary"
             style={{
               display: 'flex',
               alignItems: 'center',
               gap: '0.5rem',
-              padding: '0.5rem 1rem',
-              backgroundColor: '#3b82f6',
+              padding: '8px 16px',
+              background: isSubmitting ? '#9ca3af' : colors.gradient,
               color: 'white',
               border: 'none',
-              borderRadius: '0.375rem',
+              borderRadius: '6px',
               cursor: isSubmitting ? 'not-allowed' : 'pointer',
-              fontSize: '0.875rem',
+              fontSize: '14px',
               fontWeight: '500',
               opacity: isSubmitting ? 0.6 : 1,
-              transition: 'background-color 0.2s',
-              whiteSpace: 'nowrap'
+              transition: 'all 0.2s',
+              whiteSpace: 'nowrap',
+              minWidth: '100px',
+              justifyContent: 'center',
             }}
             onMouseEnter={(e) => {
               if (!isSubmitting) {
-                e.currentTarget.style.backgroundColor = '#2563eb';
+                e.currentTarget.style.transform = 'translateY(-1px)';
+                e.currentTarget.style.boxShadow = `0 4px 12px ${colors.primary}50`;
               }
             }}
             onMouseLeave={(e) => {
-              if (!isSubmitting) {
-                e.currentTarget.style.backgroundColor = '#3b82f6';
-              }
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = 'none';
             }}
           >
             <Plus className="h-4 w-4" />

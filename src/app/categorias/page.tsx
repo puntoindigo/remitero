@@ -2,6 +2,7 @@
 
 import React, { useState, Suspense, useCallback, useEffect } from "react";
 import { useSession } from "next-auth/react";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { Plus, Package } from "lucide-react";
 import { formatDate } from "@/lib/utils/formatters";
 import FilterableSelect from "@/components/common/FilterableSelect";
@@ -29,9 +30,11 @@ import { SearchInput } from "@/components/common/SearchInput";
 import { LoadingButton } from "@/components/common/LoadingButton";
 import { useCurrentUserSimple } from "@/hooks/useCurrentUserSimple";
 import { useShortcuts } from "@/hooks/useShortcuts";
+import { useColorTheme } from "@/contexts/ColorThemeContext";
 
 function CategoriasContent() {
   const currentUser = useCurrentUserSimple();
+  const { colors } = useColorTheme();
   
   // Verificar permisos - solo ADMIN y SUPERADMIN pueden acceder
   if (currentUser?.role === 'USER') {
@@ -78,7 +81,7 @@ function CategoriasContent() {
   const [searchTerm, setSearchTerm] = useState("");
 
   // 🚀 REACT QUERY: Reemplaza el hook anterior
-  const { data: categorias = [], isLoading, error } = useCategoriasQuery(companyId);
+  const { data: categorias = [], isLoading, error } = useCategoriasQuery(companyId || undefined);
   const createMutation = useCreateCategoriaMutation();
   const updateMutation = useUpdateCategoriaMutation();
   const deleteMutation = useDeleteCategoriaMutation();
@@ -87,6 +90,24 @@ function CategoriasContent() {
   const handleDeleteCategoria = useCallback((categoria: Categoria) => {
     handleDeleteRequest(categoria.id, categoria.name);
   }, [handleDeleteRequest]);
+
+  // Detectar si viene de /nuevo y abrir formulario
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+  
+  useEffect(() => {
+    const openForm = searchParams.get('openForm');
+    if (openForm === 'true' && !showForm && companyId) {
+      handleNew();
+      // Limpiar el parámetro de la URL
+      const params = new URLSearchParams(searchParams as any);
+      params.delete('openForm');
+      const qs = params.toString();
+      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams, companyId, showForm]); // Solo ejecutar cuando cambien searchParams o companyId
 
   // Configurar shortcuts de teclado
   useShortcuts([
@@ -263,19 +284,30 @@ function CategoriasContent() {
               </div>
               <button
                 onClick={handleNew}
-                className="new-button"
+                className="btn-primary new-button"
                 style={{
                   display: 'flex',
                   alignItems: 'center',
                   gap: '0.5rem',
-                  padding: '0.5rem 1rem',
-                  backgroundColor: '#3b82f6',
+                  padding: '8px 16px',
+                  background: colors.gradient,
                   color: 'white',
                   border: 'none',
-                  borderRadius: '0.375rem',
+                  borderRadius: '6px',
                   cursor: 'pointer',
-                  fontSize: '0.875rem',
-                  fontWeight: '500'
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  minWidth: '100px',
+                  justifyContent: 'center',
+                  transition: 'all 0.2s',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-1px)';
+                  e.currentTarget.style.boxShadow = `0 4px 12px ${colors.primary}50`;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = 'none';
                 }}
               >
                 <Plus className="h-4 w-4" />

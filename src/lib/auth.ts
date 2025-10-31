@@ -36,15 +36,29 @@ export const authOptions: NextAuthOptions = {
             return null
           }
 
-                return {
-                  id: user.id,
-                  email: user.email,
-                  name: user.name,
-                  role: user.role,
-                  companyId: user.company_id,
-                  companyName: undefined,
-                  impersonatingUserId: null
-                } as any
+          // Obtener nombre de la empresa si el usuario tiene company_id
+          let companyName: string | undefined = undefined;
+          if (user.company_id) {
+            const { data: company } = await supabaseAdmin
+              .from('companies')
+              .select('name')
+              .eq('id', user.company_id)
+              .single();
+            
+            if (company) {
+              companyName = company.name;
+            }
+          }
+
+          return {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            role: user.role,
+            companyId: user.company_id,
+            companyName: companyName,
+            impersonatingUserId: null
+          } as any
         } catch (error) {
           return null
         }
@@ -75,9 +89,18 @@ export const authOptions: NextAuthOptions = {
       return session
     },
     async redirect({ url, baseUrl }) {
+      // Función para normalizar URLs y evitar barras múltiples
+      const normalizeUrl = (urlStr: string): string => {
+        // Normalizar múltiples barras consecutivas a una sola
+        return urlStr.replace(/\/+/g, '/');
+      };
+      
       // SIEMPRE usar NEXTAUTH_URL como fuente de verdad para el puerto
       const nextAuthUrl = process.env.NEXTAUTH_URL;
-      let correctBaseUrl = baseUrl;
+      let correctBaseUrl = baseUrl.replace(/\/+$/, ''); // Eliminar barras al final
+      
+      // Normalizar la URL entrante para evitar barras múltiples
+      let normalizedUrl = normalizeUrl(url);
       
       // En desarrollo, SIEMPRE forzar el puerto de NEXTAUTH_URL si está configurado
       if (process.env.NODE_ENV === "development" && nextAuthUrl) {
@@ -90,12 +113,7 @@ export const authOptions: NextAuthOptions = {
               nextAuthUrlObj.hostname === "localhost") {
             baseUrlObj.port = nextAuthUrlObj.port;
             baseUrlObj.protocol = nextAuthUrlObj.protocol;
-            correctBaseUrl = baseUrlObj.toString();
-            
-            // Log para debug (solo en desarrollo)
-            if (baseUrl !== correctBaseUrl) {
-              console.log(`[NextAuth Redirect] Corrigiendo baseUrl: ${baseUrl} -> ${correctBaseUrl}`);
-            }
+            correctBaseUrl = baseUrlObj.toString().replace(/\/+$/, ''); // Normalizar
           }
         } catch (error) {
           console.warn('[NextAuth Redirect] Error parsing URLs:', error);
@@ -103,17 +121,16 @@ export const authOptions: NextAuthOptions = {
       }
       
       // Si la URL es relativa, SIEMPRE usar el baseUrl corregido
-      if (url.startsWith("/")) {
-        const finalUrl = correctBaseUrl + url;
-        if (process.env.NODE_ENV === "development") {
-          console.log(`[NextAuth Redirect] URL relativa: ${url} -> ${finalUrl}`);
-        }
+      if (normalizedUrl.startsWith("/")) {
+        // Evitar barras duplicadas entre baseUrl y url
+        const separator = correctBaseUrl.endsWith("/") || normalizedUrl.startsWith("/") ? "" : "/";
+        const finalUrl = normalizeUrl(correctBaseUrl + separator + normalizedUrl);
         return finalUrl;
       }
       
-      // Si la URL es absoluta, SIEMPRE verificar y corregir puerto
+      // Si la URL es absoluta, verificar y corregir
       try {
-        const urlObj = new URL(url);
+        const urlObj = new URL(normalizedUrl);
         const nextAuthUrlObj = nextAuthUrl ? new URL(nextAuthUrl) : null;
         
         // Si es localhost en desarrollo, SIEMPRE corregir el puerto
@@ -124,36 +141,21 @@ export const authOptions: NextAuthOptions = {
             urlObj.port !== nextAuthUrlObj.port) {
           urlObj.port = nextAuthUrlObj.port;
           urlObj.protocol = nextAuthUrlObj.protocol;
-          const correctedUrl = urlObj.toString();
-          if (process.env.NODE_ENV === "development") {
-            console.log(`[NextAuth Redirect] Corrigiendo URL absoluta: ${url} -> ${correctedUrl}`);
-          }
-          return correctedUrl;
+          return normalizeUrl(urlObj.toString());
         }
         
-        // Si la URL contiene el baseUrl incorrecto, reemplazarlo
-        if (url.includes(baseUrl) && correctBaseUrl !== baseUrl) {
-          const correctedUrl = url.replace(baseUrl, correctBaseUrl);
-          if (process.env.NODE_ENV === "development") {
-            console.log(`[NextAuth Redirect] Reemplazando baseUrl en URL: ${url} -> ${correctedUrl}`);
-          }
-          return correctedUrl;
+        // Si la URL ya tiene el hostname correcto, normalizarla y retornarla
+        if (urlObj.hostname === (nextAuthUrlObj?.hostname || "localhost")) {
+          return normalizeUrl(urlObj.toString());
         }
+        
+        // Si la URL contiene barras múltiples, normalizarla
+        return normalizeUrl(normalizedUrl);
       } catch (error) {
-        console.warn('[NextAuth Redirect] Error procesando URL absoluta:', error);
+        // Si no se puede parsear como URL, asumir que es relativa y normalizar
+        const separator = correctBaseUrl.endsWith("/") || normalizedUrl.startsWith("/") ? "" : "/";
+        return normalizeUrl(correctBaseUrl + separator + normalizedUrl);
       }
-      
-      // Si la URL empieza con el baseUrl (correcto o incorrecto), intentar usar el corregido
-      if (url.startsWith(baseUrl) || url.startsWith(correctBaseUrl)) {
-        // Si el baseUrl fue corregido, usar la versión corregida
-        if (correctBaseUrl !== baseUrl && url.startsWith(baseUrl)) {
-          return url.replace(baseUrl, correctBaseUrl);
-        }
-        return url;
-      }
-      
-      // Para cualquier otro caso, usar el baseUrl corregido
-      return correctBaseUrl;
     }
   },
   pages: {

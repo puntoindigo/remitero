@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import { useColorTheme } from '@/contexts/ColorThemeContext';
 
 interface MessageModalProps {
   isOpen: boolean;
@@ -12,6 +13,8 @@ interface MessageModalProps {
 }
 
 export function MessageModal({ isOpen, onClose, type, title, message, details }: MessageModalProps) {
+  const { colors } = useColorTheme();
+  
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
@@ -150,7 +153,30 @@ export function MessageModal({ isOpen, onClose, type, title, message, details }:
                 e.stopPropagation();
                 onClose();
               }}
-              className={`${styles.buttonColor} text-white px-8 py-3 rounded-lg font-medium transition-colors shadow-md hover:shadow-lg transform hover:scale-105 transition-transform`}
+              className="btn-primary"
+              style={{
+                padding: '8px 16px',
+                border: 'none',
+                borderRadius: '6px',
+                background: colors.gradient,
+                color: 'white',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: '500',
+                minWidth: '100px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'all 0.2s',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-1px)';
+                e.currentTarget.style.boxShadow = `0 4px 12px ${colors.primary}50`;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = 'none';
+              }}
             >
               Entendido
             </button>
