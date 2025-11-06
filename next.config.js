@@ -12,15 +12,14 @@ const nextConfig = {
   experimental: {
     // Optimizar compilación de rutas
     optimizePackageImports: ['lucide-react', '@tanstack/react-query'],
-    // Pre-compilar rutas en build time para mejor performance
-    optimizeCss: true,
+    // optimizeCss requiere critters, deshabilitado temporalmente para evitar errores de build
+    // optimizeCss: true,
     // Optimizar imágenes
     optimizeServerReact: true,
   },
   // Compresión y optimización de producción
   compress: true,
-  // Optimización de bundle
-  swcMinify: true,
+  // swcMinify está habilitado por defecto en Next.js 15, no es necesario especificarlo
   // Configuración para mejorar HMR y evitar conexiones colgadas
   webpack: (config, { dev, isServer }) => {
     if (dev && !isServer) {
