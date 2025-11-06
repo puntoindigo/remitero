@@ -183,11 +183,23 @@ export const authOptions: NextAuthOptions = {
           }
 
           // Registrar login con Google
-          await logUserActivity((user as any).id, 'LOGIN', 'Inició sesión con Google');
+          try {
+            await logUserActivity((user as any).id, 'LOGIN', 'Inició sesión con Google');
+          } catch (logError) {
+            // No fallar el login si el log falla
+            console.error('Error logging user activity:', logError);
+          }
 
           return true;
-        } catch (error) {
+        } catch (error: any) {
           console.error('Error in Google signIn callback:', error);
+          // Log más detallado para debugging
+          if (error?.message) {
+            console.error('Error message:', error.message);
+          }
+          if (error?.stack) {
+            console.error('Error stack:', error.stack);
+          }
           return false;
         }
       }

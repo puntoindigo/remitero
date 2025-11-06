@@ -30,11 +30,29 @@ function LoginPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
 
-  // Verificar si hay un error de usuario desactivado en la URL
+  // Verificar si hay errores en la URL
   useEffect(() => {
     const errorParam = searchParams.get('error')
-    if (errorParam === 'UserInactive') {
+    if (errorParam === 'UserInactive' || errorParam === 'AccessDenied') {
       setError('Tu cuenta ha sido desactivada. Contacta al administrador para más información.')
+    } else if (errorParam === 'OAuthSignin') {
+      setError('Error al iniciar sesión con Google. Por favor, intenta nuevamente o contacta al administrador.')
+    } else if (errorParam === 'OAuthCallback') {
+      setError('Error en el proceso de autenticación con Google. Por favor, intenta nuevamente.')
+    } else if (errorParam === 'OAuthCreateAccount') {
+      setError('Error al crear la cuenta. Por favor, contacta al administrador.')
+    } else if (errorParam === 'EmailCreateAccount') {
+      setError('Error al crear la cuenta. Por favor, contacta al administrador.')
+    } else if (errorParam === 'Callback') {
+      setError('Error en el proceso de autenticación. Por favor, intenta nuevamente.')
+    } else if (errorParam === 'OAuthAccountNotLinked') {
+      setError('Esta cuenta de Google ya está asociada a otro usuario. Por favor, usa tu email y contraseña.')
+    } else if (errorParam === 'EmailSignin') {
+      setError('Error al enviar el email de verificación. Por favor, intenta nuevamente.')
+    } else if (errorParam === 'CredentialsSignin') {
+      setError('Email o contraseña incorrectos.')
+    } else if (errorParam === 'SessionRequired') {
+      setError('Por favor, inicia sesión para continuar.')
     }
   }, [searchParams])
 
@@ -344,15 +362,22 @@ function LoginPageContent() {
                   });
                   
                   if (result?.error) {
-                    // Si el error es AccessDenied, probablemente es usuario desactivado
-                    // Verificar el estado del usuario antes de mostrar el mensaje
+                    // Manejar diferentes tipos de errores de OAuth
                     if (result.error === "AccessDenied") {
-                      // Intentar obtener el email del usuario desde la sesión temporal o verificar
-                      // Por ahora, mostrar mensaje genérico pero útil
                       setError("Tu cuenta ha sido desactivada o no tienes permisos para acceder. Contacta al administrador para más información.");
                       router.replace('/auth/login');
+                    } else if (result.error === "OAuthSignin") {
+                      setError("Error al iniciar sesión con Google. Verifica que las credenciales de OAuth estén configuradas correctamente.");
+                      router.replace('/auth/login');
+                    } else if (result.error === "OAuthCallback") {
+                      setError("Error en el proceso de autenticación con Google. Por favor, intenta nuevamente.");
+                      router.replace('/auth/login');
+                    } else if (result.error === "OAuthAccountNotLinked") {
+                      setError("Esta cuenta de Google ya está asociada a otro usuario. Por favor, usa tu email y contraseña.");
+                      router.replace('/auth/login');
                     } else {
-                      setError("Error al iniciar sesión con Google. Intenta nuevamente.");
+                      setError(`Error al iniciar sesión con Google: ${result.error}. Intenta nuevamente o contacta al administrador.`);
+                      router.replace('/auth/login');
                     }
                     setIsLoading(false);
                   } else if (result?.ok) {
