@@ -78,18 +78,18 @@ export const authOptions: NextAuthOptions = {
           // Registrar login
           await logUserActivity(user.id, 'LOGIN', 'Inició sesión con credenciales');
 
-          return {
-            id: user.id,
-            email: user.email,
-            name: user.name,
-            role: user.role,
-            companyId: user.company_id,
+                return {
+                  id: user.id,
+                  email: user.email,
+                  name: user.name,
+                  role: user.role,
+                  companyId: user.company_id,
             companyName: companyName,
             impersonatingUserId: null,
             hasTemporaryPassword: user.has_temporary_password || false,
             enable_botonera: user.enable_botonera ?? false,
             enable_pinned_modals: user.enable_pinned_modals ?? false
-          } as any
+                } as any
         } catch (error) {
           return null
         }
@@ -262,6 +262,17 @@ export const authOptions: NextAuthOptions = {
       
       // Normalizar la URL entrante
       let normalizedUrl = url.trim();
+      
+      // Si la URL es relativa, construirla con baseUrl
+      if (normalizedUrl.startsWith('/')) {
+        normalizedUrl = correctBaseUrl + normalizedUrl;
+      }
+      
+      // Si viene de OAuth callback y no tiene destino específico, redirigir según rol
+      if (normalizedUrl === baseUrl || normalizedUrl === correctBaseUrl || normalizedUrl.includes('/api/auth/callback')) {
+        const destination = token?.role === 'SUPERADMIN' ? '/empresas' : '/dashboard';
+        normalizedUrl = correctBaseUrl + destination;
+      }
       
       // REGLA SIMPLE: Si el path contiene localhost:8000 (significa que está mal formado)
       // Redirigir según el rol: SUPERADMIN a /empresas, otros a /dashboard

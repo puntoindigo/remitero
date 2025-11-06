@@ -356,48 +356,14 @@ function LoginPageContent() {
                 setIsLoading(true);
                 setError("");
                 try {
-                  const result = await signIn("google", {
-                    redirect: false,
+                  // OAuth providers REQUIEREN redirect: true (no pueden usar redirect: false)
+                  // NextAuth manejará la redirección a Google y luego de vuelta
+                  await signIn("google", {
+                    redirect: true,
                     callbackUrl: "/dashboard"
                   });
-                  
-                  if (result?.error) {
-                    // Manejar diferentes tipos de errores de OAuth
-                    if (result.error === "AccessDenied") {
-                      setError("Tu cuenta ha sido desactivada o no tienes permisos para acceder. Contacta al administrador para más información.");
-                      router.replace('/auth/login');
-                    } else if (result.error === "OAuthSignin") {
-                      setError("Error al iniciar sesión con Google. Verifica que las credenciales de OAuth estén configuradas correctamente.");
-                      router.replace('/auth/login');
-                    } else if (result.error === "OAuthCallback") {
-                      setError("Error en el proceso de autenticación con Google. Por favor, intenta nuevamente.");
-                      router.replace('/auth/login');
-                    } else if (result.error === "OAuthAccountNotLinked") {
-                      setError("Esta cuenta de Google ya está asociada a otro usuario. Por favor, usa tu email y contraseña.");
-                      router.replace('/auth/login');
-                    } else {
-                      setError(`Error al iniciar sesión con Google: ${result.error}. Intenta nuevamente o contacta al administrador.`);
-                      router.replace('/auth/login');
-                    }
-                    setIsLoading(false);
-                  } else if (result?.ok) {
-                    const session = await getSession();
-                    const destination = session?.user?.role === "SUPERADMIN" ? "/empresas" : "/dashboard";
-                    
-                    // OPTIMIZACIÓN: Prefetch antes de navegar
-                    router.prefetch(destination);
-                    
-                    // Prefetch otras rutas críticas
-                    const criticalRoutes = session?.user?.role === "SUPERADMIN"
-                      ? ["/dashboard", "/usuarios", "/remitos", "/productos", "/clientes"]
-                      : ["/remitos", "/productos", "/clientes"];
-                    
-                    criticalRoutes.forEach(route => {
-                      setTimeout(() => router.prefetch(route), 0);
-                    });
-                    
-                    setTimeout(() => router.push(destination), 50);
-                  }
+                  // No necesitamos manejar el resultado aquí porque NextAuth redirigirá
+                  // El callback de NextAuth manejará la lógica después del OAuth
                 } catch (error) {
                   console.error("Error:", error);
                   setError("Error al iniciar sesión con Google. Intenta nuevamente.");
