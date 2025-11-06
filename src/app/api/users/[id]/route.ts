@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
 import { transformUser } from "@/lib/utils/supabase-transform";
 import bcrypt from "bcryptjs";
+import { logUserActivity } from "@/lib/user-activity-logger";
 
 export async function GET(
   request: NextRequest,
@@ -28,7 +29,7 @@ export async function GET(
       // ADMIN solo puede ver usuarios de su propia empresa
       // Verificaremos esto después de obtener el usuario
     } else {
-      // USER no puede ver otros usuarios
+      // OPERADOR no puede ver otros usuarios
       return NextResponse.json({ 
         error: "No autorizado", 
         message: "No tienes permisos para ver usuarios." 
@@ -47,7 +48,10 @@ export async function GET(
         phone,
         company_id,
         created_at,
-        updated_at
+        updated_at,
+        is_active,
+        enable_botonera,
+        enable_pinned_modals
       `)
       .eq('id', userId)
       .single();
@@ -102,7 +106,7 @@ export async function PUT(
 
     const { id: userId } = await params;
     const body = await request.json();
-    const { name, email, password, role, address, phone, companyId } = body;
+    const { name, email, password, role, address, phone, companyId, enableBotonera, enablePinnedModals, isActive } = body;
 
     // Verificar permisos de edición
     if (session.user.role === 'SUPERADMIN') {
@@ -111,7 +115,7 @@ export async function PUT(
       // ADMIN solo puede editar usuarios de su propia empresa
       // Verificaremos esto después de obtener el usuario
     } else {
-      // USER no puede editar usuarios
+      // OPERADOR no puede editar usuarios
       return NextResponse.json({ 
         error: "No autorizado", 
         message: "No tienes permisos para editar usuarios." 
@@ -167,6 +171,26 @@ export async function PUT(
     if (role) updateData.role = role;
     if (address !== undefined) updateData.address = address;
     if (phone !== undefined) updateData.phone = phone;
+    // Solo permitir cambiar enable_botonera si es el usuario actual o SUPERADMIN
+    if (enableBotonera !== undefined && (session.user.id === userId || session.user.role === 'SUPERADMIN')) {
+      updateData.enable_botonera = enableBotonera;
+    }
+    
+    // Solo permitir cambiar enable_pinned_modals si es el usuario actual o SUPERADMIN
+    if (enablePinnedModals !== undefined && (session.user.id === userId || session.user.role === 'SUPERADMIN')) {
+      updateData.enable_pinned_modals = enablePinnedModals;
+    }
+    // Permitir cambiar is_active solo si no es el propio usuario (no puede desactivarse a sí mismo)
+    if (isActive !== undefined && session.user.id !== userId) {
+      updateData.is_active = isActive;
+      // Registrar actividad
+      await logUserActivity(
+        session.user.id,
+        isActive ? 'ACTIVATE_USER' : 'DEACTIVATE_USER',
+        isActive ? `Activó usuario ${userId}` : `Desactivó usuario ${userId}`,
+        { targetUserId: userId }
+      );
+    }
     
     // Manejar companyId según el rol
     if (session.user.role === 'SUPERADMIN') {
@@ -198,6 +222,14 @@ export async function PUT(
       updateData.password = await bcrypt.hash(password, 10);
     }
 
+    // Verificar que hay algo que actualizar
+    if (Object.keys(updateData).length === 0) {
+      return NextResponse.json({ 
+        error: "Sin cambios",
+        message: "No se proporcionaron datos para actualizar."
+      }, { status: 400 });
+    }
+
     // Optimización: Sin JOIN de companies en UPDATE
     const { data: updatedUser, error } = await supabaseAdmin
       .from('users')
@@ -212,15 +244,21 @@ export async function PUT(
         phone,
         company_id,
         created_at,
-        updated_at
+        updated_at,
+        is_active,
+        enable_botonera,
+        enable_pinned_modals
       `)
       .single();
 
     if (error) {
       console.error('Error updating user:', error);
+      console.error('Update data:', updateData);
+      console.error('User ID:', userId);
+      console.error('Session user ID:', session.user.id);
       return NextResponse.json({ 
         error: "Error interno del servidor",
-        message: "No se pudo actualizar el usuario."
+        message: error.message || "No se pudo actualizar el usuario."
       }, { status: 500 });
     }
 
@@ -263,7 +301,7 @@ export async function DELETE(
       // ADMIN solo puede eliminar usuarios de su propia empresa
       // Verificaremos esto después de obtener el usuario
     } else {
-      // USER no puede eliminar usuarios
+      // OPERADOR no puede eliminar usuarios
       return NextResponse.json({ 
         error: "No autorizado", 
         message: "No tienes permisos para eliminar usuarios." 

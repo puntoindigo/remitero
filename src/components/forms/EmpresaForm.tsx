@@ -18,6 +18,7 @@ interface EmpresaFormProps {
   onSubmit: (data: EmpresaFormData) => Promise<void>;
   isSubmitting: boolean;
   editingEmpresa?: { id: string; name: string } | null;
+  embedded?: boolean; // Si es true, renderiza solo el contenido sin FormModal
 }
 
 export function EmpresaForm({
@@ -25,7 +26,8 @@ export function EmpresaForm({
   onClose,
   onSubmit,
   isSubmitting,
-  editingEmpresa
+  editingEmpresa,
+  embedded = false
 }: EmpresaFormProps) {
   const {
     register,
@@ -57,26 +59,59 @@ export function EmpresaForm({
     }
   };
 
+  const formContent = (
+    <div className="form-group">
+      <label>Nombre de la Empresa</label>
+      <input
+        {...register("name")}
+        type="text"
+        placeholder="Nombre de la empresa"
+        className="form-input-standard"
+      />
+      {errors?.name && (
+        <p className="error-message">{errors?.name.message}</p>
+      )}
+    </div>
+  );
+
+  // Si está en modo embebido, renderizar solo el contenido del formulario
+  if (embedded) {
+    return (
+      <form onSubmit={handleSubmit(handleFormSubmit)}>
+        {formContent}
+        <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end', marginTop: '1rem' }}>
+          <button
+            type="submit"
+            className="btn-primary"
+            disabled={isSubmitting}
+            style={{
+              padding: '8px 16px',
+              fontSize: '14px',
+            }}
+          >
+            {isSubmitting ? "Guardando..." : (editingEmpresa ? "Actualizar" : "Guardar")}
+          </button>
+        </div>
+      </form>
+    );
+  }
+
   return (
     <FormModal
       isOpen={isOpen}
       onClose={onClose}
       title={editingEmpresa ? "Editar Empresa" : "Nueva Empresa"}
+      modalId={editingEmpresa ? `empresa-${editingEmpresa.id}` : "nueva-empresa"}
+      modalComponent="EmpresaForm"
+      modalType="form"
+      modalProps={{
+        editingEmpresa
+      }}
       onSubmit={handleSubmit(handleFormSubmit)}
       submitText={editingEmpresa ? "Actualizar" : "Guardar"}
       isSubmitting={isSubmitting}
     >
-      <div className="form-group">
-        <label>Nombre de la Empresa</label>
-        <input
-          {...register("name")}
-          type="text"
-          placeholder="Nombre de la empresa"
-        />
-        {errors?.name && (
-          <p className="error-message">{errors?.name.message}</p>
-        )}
-      </div>
+      {formContent}
     </FormModal>
   );
 }

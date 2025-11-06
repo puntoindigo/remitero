@@ -2,12 +2,13 @@
 
 import { useState, useEffect } from "react"
 import { signIn, getSession } from "next-auth/react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { useColorTheme, ColorTheme, THEME_CONFIGS } from "@/contexts/ColorThemeContext"
 import ColorThemeSelector from "@/components/common/ColorThemeSelector"
+import { ForgotPasswordModal } from "@/components/common/ForgotPasswordModal"
 
 const loginSchema = z.object({
   email: z.string().email("Email inválido"),
@@ -21,8 +22,20 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
   const [isMounted, setIsMounted] = useState(false)
+  const [showForgotPassword, setShowForgotPassword] = useState(false)
+  const [isSendingPassword, setIsSendingPassword] = useState(false)
+  const [loginMethod, setLoginMethod] = useState<"select" | "email" | "gmail">("select")
   const { theme, colors, setTheme } = useColorTheme()
   const router = useRouter()
+  const searchParams = useSearchParams()
+
+  // Verificar si hay un error de usuario desactivado en la URL
+  useEffect(() => {
+    const errorParam = searchParams.get('error')
+    if (errorParam === 'UserInactive') {
+      setError('Tu cuenta ha sido desactivada. Contacta al administrador para más información.')
+    }
+  }, [searchParams])
 
   // Evitar mismatch de hidratación - solo usar tema después del mount
   useEffect(() => {
@@ -70,7 +83,28 @@ export default function LoginPage() {
         }
         
         if (result.error === "CredentialsSignin") {
-          setError("Email o contraseña incorrectos")
+          // Verificar si el usuario existe y está desactivado
+          try {
+            const checkResponse = await fetch('/api/auth/check-user-status', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email: data.email })
+            });
+            
+            if (checkResponse.ok) {
+              const { exists, isActive } = await checkResponse.json();
+              if (exists && !isActive) {
+                setError("Tu cuenta ha sido desactivada. Contacta al administrador para más información.");
+              } else {
+                setError("Email o contraseña incorrectos");
+              }
+            } else {
+              setError("Email o contraseña incorrectos");
+            }
+          } catch (checkError) {
+            // Si falla la verificación, mostrar mensaje genérico
+            setError("Email o contraseña incorrectos");
+          }
         } else if (result.error === "Configuration") {
           setError("Error de configuración del servidor. Contacta al administrador.")
         } else {
@@ -88,11 +122,26 @@ export default function LoginPage() {
         }
 
         const session = await getSession()
-        if (session?.user?.role === "SUPERADMIN") {
-          router.push("/empresas")
-        } else {
-          router.push("/dashboard")
-        }
+        
+        // OPTIMIZACIÓN: Prefetch la ruta de destino antes de navegar
+        const destination = session?.user?.role === "SUPERADMIN" ? "/empresas" : "/dashboard";
+        
+        // Prefetch inmediato para que la navegación sea instantánea
+        router.prefetch(destination);
+        
+        // También prefetch otras rutas críticas en background
+        const criticalRoutes = session?.user?.role === "SUPERADMIN"
+          ? ["/dashboard", "/usuarios", "/remitos", "/productos", "/clientes"]
+          : ["/remitos", "/productos", "/clientes"];
+        
+        criticalRoutes.forEach(route => {
+          setTimeout(() => router.prefetch(route), 0);
+        });
+        
+        // Navegar después de un pequeño delay para permitir que el prefetch se inicie
+        setTimeout(() => {
+          router.push(destination);
+        }, 50);
       }
     } catch (error) {
       console.error("Login error:", error)
@@ -101,6 +150,34 @@ export default function LoginPage() {
       setIsLoading(false)
     }
   }
+
+  const handleForgotPassword = async (email: string) => {
+    setIsSendingPassword(true);
+    try {
+      const response = await fetch('/api/auth/forgot-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || 'Error al enviar la contraseña temporal');
+      }
+
+      setShowForgotPassword(false);
+      setError(""); // Limpiar error si existe
+      // Mostrar mensaje de éxito (podrías usar un toast aquí)
+      alert('Se ha enviado una contraseña temporal a tu email. Por favor, revisa tu bandeja de entrada.');
+    } catch (error: any) {
+      throw error;
+    } finally {
+      setIsSendingPassword(false);
+    }
+  };
 
   // Usar tema default durante SSR para evitar mismatch
   const displayColors = isMounted ? colors : THEME_CONFIGS['blue']
@@ -114,8 +191,8 @@ export default function LoginPage() {
         backgroundSize: '100% 100%',
         backgroundRepeat: 'no-repeat',
         backgroundPosition: 'center',
-        position: 'relative',
-        overflow: 'hidden',
+      position: 'relative',
+      overflow: 'hidden',
         transition: 'background-image 0.5s ease',
         height: '100vh',
         minHeight: '100vh',
@@ -220,11 +297,224 @@ export default function LoginPage() {
             color: '#6b7280',
             margin: 0,
           }}>
-            Ingresa tus credenciales para continuar
+            {loginMethod === "select" ? "Selecciona un método de acceso" : "Ingresa tus credenciales para continuar"}
           </p>
         </div>
 
-        {/* Form */}
+        {/* Selección de método de login */}
+        {loginMethod === "select" && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            {/* Error Message */}
+            {error && (
+              <div 
+                key={error}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.75rem',
+                  padding: '0.75rem 1rem',
+                  marginBottom: '1rem',
+                  borderRadius: '0.5rem',
+                  background: '#fef2f2',
+                  border: '1px solid #fecaca',
+                  animation: 'slideIn 0.3s ease-out',
+                }}
+              >
+                <span style={{ fontSize: '1.25rem' }}>⚠️</span>
+                <span style={{
+                  fontSize: '0.875rem',
+                  color: '#dc2626',
+                }}>
+                  {error}
+                </span>
+              </div>
+            )}
+
+            {/* Botón Gmail */}
+            <button
+              type="button"
+              onClick={async () => {
+                setIsLoading(true);
+                setError("");
+                try {
+                  const result = await signIn("google", {
+                    redirect: false,
+                    callbackUrl: "/dashboard"
+                  });
+                  
+                  if (result?.error) {
+                    // Si el error es AccessDenied, probablemente es usuario desactivado
+                    // Verificar el estado del usuario antes de mostrar el mensaje
+                    if (result.error === "AccessDenied") {
+                      // Intentar obtener el email del usuario desde la sesión temporal o verificar
+                      // Por ahora, mostrar mensaje genérico pero útil
+                      setError("Tu cuenta ha sido desactivada o no tienes permisos para acceder. Contacta al administrador para más información.");
+                      router.replace('/auth/login');
+                    } else {
+                      setError("Error al iniciar sesión con Google. Intenta nuevamente.");
+                    }
+                    setIsLoading(false);
+                  } else if (result?.ok) {
+                    const session = await getSession();
+                    const destination = session?.user?.role === "SUPERADMIN" ? "/empresas" : "/dashboard";
+                    
+                    // OPTIMIZACIÓN: Prefetch antes de navegar
+                    router.prefetch(destination);
+                    
+                    // Prefetch otras rutas críticas
+                    const criticalRoutes = session?.user?.role === "SUPERADMIN"
+                      ? ["/dashboard", "/usuarios", "/remitos", "/productos", "/clientes"]
+                      : ["/remitos", "/productos", "/clientes"];
+                    
+                    criticalRoutes.forEach(route => {
+                      setTimeout(() => router.prefetch(route), 0);
+                    });
+                    
+                    setTimeout(() => router.push(destination), 50);
+                  }
+                } catch (error) {
+                  console.error("Error:", error);
+                  setError("Error al iniciar sesión con Google. Intenta nuevamente.");
+                  setIsLoading(false);
+                }
+              }}
+              disabled={isLoading}
+              style={{
+                width: '100%',
+                padding: '0.875rem 1.5rem',
+                fontSize: '1rem',
+                fontWeight: 500,
+                borderRadius: '0.5rem',
+                border: 'none',
+                background: isLoading ? '#9ca3af' : displayColors.primary,
+                color: '#fff',
+                cursor: isLoading ? 'not-allowed' : 'pointer',
+                transition: 'all 0.2s',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.75rem',
+                boxShadow: isLoading ? 'none' : '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+              }}
+              onMouseEnter={(e) => {
+                if (!isLoading) {
+                  e.currentTarget.style.transform = 'translateY(-1px)';
+                  e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!isLoading) {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)';
+                }
+              }}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+              </svg>
+              {isLoading ? "Accediendo..." : "Acceder con Gmail"}
+            </button>
+
+            {/* Divider */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              margin: '0.5rem 0',
+              gap: '1rem',
+            }}>
+              <div style={{
+                flex: 1,
+                height: '1px',
+                background: '#e5e7eb',
+              }} />
+              <span style={{
+                fontSize: '0.875rem',
+                color: '#6b7280',
+              }}>
+                o
+              </span>
+              <div style={{
+                flex: 1,
+                height: '1px',
+                background: '#e5e7eb',
+              }} />
+            </div>
+
+            {/* Botón Email */}
+            <button
+              type="button"
+              onClick={() => setLoginMethod("email")}
+              disabled={isLoading}
+              style={{
+                width: '100%',
+                padding: '0.875rem 1.5rem',
+                fontSize: '1rem',
+                fontWeight: 500,
+                borderRadius: '0.5rem',
+                border: '1px solid #d1d5db',
+                background: '#fff',
+                color: '#374151',
+                cursor: isLoading ? 'not-allowed' : 'pointer',
+                transition: 'all 0.2s',
+                boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+              }}
+              onMouseEnter={(e) => {
+                if (!isLoading) {
+                  e.currentTarget.style.background = '#f9fafb';
+                  e.currentTarget.style.borderColor = displayColors.primary;
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!isLoading) {
+                  e.currentTarget.style.background = '#fff';
+                  e.currentTarget.style.borderColor = '#d1d5db';
+                }
+              }}
+            >
+              Acceder con Email
+            </button>
+          </div>
+        )}
+
+        {/* Form de email/password */}
+        {loginMethod === "email" && (
+          <>
+            {/* Botón volver */}
+            <button
+              type="button"
+              onClick={() => {
+                setLoginMethod("select");
+                setError("");
+              }}
+              style={{
+                marginBottom: '1rem',
+                padding: '0.5rem 1rem',
+                fontSize: '0.875rem',
+                fontWeight: 500,
+                borderRadius: '0.375rem',
+                border: '1px solid #d1d5db',
+                background: '#fff',
+                color: '#374151',
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#f9fafb';
+                e.currentTarget.style.borderColor = displayColors.primary;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = '#fff';
+                e.currentTarget.style.borderColor = '#d1d5db';
+              }}
+            >
+              ← Volver
+            </button>
         <form onSubmit={handleSubmit(onSubmit)}>
           {/* Email */}
           <div style={{ marginBottom: '1.5rem' }}>
@@ -340,35 +630,58 @@ export default function LoginPage() {
 
           {/* Remember Me */}
           <div style={{
-            display: 'flex',
-            alignItems: 'center',
             marginBottom: '1.5rem',
             paddingTop: '0.5rem',
             paddingBottom: '0.5rem',
           }}>
+            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '1rem' }}>
             <input
               {...register("rememberMe")}
               id="rememberMe"
               type="checkbox"
-              style={{
-                width: '1rem',
-                height: '1rem',
-                marginRight: '0.75rem',
-                cursor: 'pointer',
-                accentColor: displayColors.primary,
-              }}
-            />
-            <label 
-              htmlFor="rememberMe" 
-              style={{
-                fontSize: '0.875rem',
-                color: '#4b5563',
-                cursor: 'pointer',
-                userSelect: 'none',
-              }}
-            >
+                style={{
+                  width: '1rem',
+                  height: '1rem',
+                  marginRight: '0.75rem',
+                  cursor: 'pointer',
+                  accentColor: displayColors.primary,
+                }}
+              />
+              <label 
+                htmlFor="rememberMe" 
+                style={{
+                  fontSize: '0.875rem',
+                  color: '#4b5563',
+                  cursor: 'pointer',
+                  userSelect: 'none',
+                }}
+              >
               Recordar mis datos
             </label>
+            </div>
+            <div style={{ marginTop: '0.5rem' }}>
+              <button
+                type="button"
+                onClick={() => setShowForgotPassword(true)}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  color: displayColors.primary,
+                  fontSize: '0.875rem',
+                  cursor: 'pointer',
+                  textDecoration: 'underline',
+                  padding: 0,
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.opacity = '0.8';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.opacity = '1';
+                }}
+              >
+                Olvidé mi contraseña
+              </button>
+            </div>
           </div>
 
           {/* Error Message */}
@@ -423,6 +736,7 @@ export default function LoginPage() {
               cursor: isLoading ? 'not-allowed' : 'pointer',
               transition: 'all 0.2s',
               opacity: isLoading ? 0.7 : 1,
+              marginTop: '1rem',
               boxShadow: `0 4px 12px ${displayColors.primary}40`,
             }}
             onMouseEnter={(e) => {
@@ -453,6 +767,8 @@ export default function LoginPage() {
             )}
           </button>
         </form>
+          </>
+        )}
 
         {/* Footer */}
         <div style={{
@@ -494,6 +810,13 @@ export default function LoginPage() {
           to { transform: rotate(360deg); }
         }
       `}</style>
+
+      <ForgotPasswordModal
+        isOpen={showForgotPassword}
+        onClose={() => setShowForgotPassword(false)}
+        onSubmit={handleForgotPassword}
+        isSubmitting={isSendingPassword}
+      />
     </div>
   )
 }

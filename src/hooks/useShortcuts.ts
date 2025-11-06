@@ -41,8 +41,8 @@ export function useShortcuts(shortcuts: ShortcutConfig[], enabled: boolean = tru
   const handleKeyDown = useCallback((event: KeyboardEvent) => {
     if (!enabled) return;
     
-    // Ignorar teclas reservadas para modales (ESC y Enter)
-    if (event.key === 'Escape' || event.key === 'Enter') {
+    // Ignorar ESC para modales
+    if (event.key === 'Escape') {
       return;
     }
     
@@ -55,9 +55,15 @@ export function useShortcuts(shortcuts: ShortcutConfig[], enabled: boolean = tru
       return;
     }
 
+    // Si se presiona ENTER, buscar el shortcut "n" (nuevo)
+    let keyToMatch = event.key.toLowerCase();
+    if (event.key === 'Enter' && !event.ctrlKey && !event.metaKey && !event.shiftKey && !event.altKey) {
+      keyToMatch = 'n';
+    }
+
     // Buscar el shortcut que coincida
     const matchedShortcut = shortcutsRef.current.find((shortcut) => {
-      const keyMatches = event.key.toLowerCase() === shortcut.key.toLowerCase();
+      const keyMatches = keyToMatch === shortcut.key.toLowerCase();
       const ctrlMatches = shortcut.ctrl ? event.ctrlKey || event.metaKey : !event.ctrlKey && !event.metaKey;
       const shiftMatches = shortcut.shift ? event.shiftKey : !event.shiftKey;
       const altMatches = shortcut.alt ? event.altKey : !event.altKey;
@@ -70,18 +76,45 @@ export function useShortcuts(shortcuts: ShortcutConfig[], enabled: boolean = tru
         event.preventDefault();
       }
       
-      // Ejecutar acción con manejo de errores
-      try {
-        const result = matchedShortcut.action();
-        // Si la acción retorna una promesa, manejar errores
-        if (result && typeof result === 'object' && 'catch' in result) {
-          (result as Promise<any>).catch((error) => {
-            console.error('Error ejecutando shortcut:', error);
-          });
-        }
-      } catch (error) {
-        console.error('Error ejecutando shortcut:', error);
+      // Iluminar el botón asociado si existe
+      const shortcutKey = matchedShortcut.key.toLowerCase();
+      const buttonSelector = `[data-shortcut="${shortcutKey}"], .new-button`;
+      const button = document.querySelector(buttonSelector) as HTMLElement;
+      
+      if (button) {
+        const originalBoxShadow = button.style.boxShadow || '';
+        const originalTransform = button.style.transform || '';
+        const originalTransition = button.style.transition || '';
+        
+        // Aplicar efecto de iluminación inmediatamente
+        button.style.boxShadow = '0 0 20px rgba(59, 130, 246, 0.8), 0 4px 12px rgba(59, 130, 246, 0.5)';
+        button.style.transform = 'translateY(-2px) scale(1.05)';
+        button.style.transition = 'all 0.2s ease';
+        
+        // Restaurar después de 400ms (más tiempo para que se note)
+        setTimeout(() => {
+          button.style.boxShadow = originalBoxShadow;
+          button.style.transform = originalTransform;
+          setTimeout(() => {
+            button.style.transition = originalTransition;
+          }, 200);
+        }, 400);
       }
+      
+      // Ejecutar acción después de un pequeño delay para que se note la iluminación primero
+      setTimeout(() => {
+        try {
+          const result = matchedShortcut.action();
+          // Si la acción retorna una promesa, manejar errores
+          if (result && typeof result === 'object' && 'catch' in result) {
+            (result as Promise<any>).catch((error) => {
+              console.error('Error ejecutando shortcut:', error);
+            });
+          }
+        } catch (error) {
+          console.error('Error ejecutando shortcut:', error);
+        }
+      }, 200); // Delay de 200ms para que se vea la iluminación primero
     }
   }, [enabled]);
 

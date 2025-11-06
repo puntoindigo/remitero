@@ -120,10 +120,24 @@ export async function PUT(
       }, { status: 500 });
     }
 
-    // Agregar category structure sin JOIN
+    // Obtener el nombre de la categoría si existe
+    let categoryName = '';
+    if (updatedProduct.category_id) {
+      const { data: category } = await supabaseAdmin
+        .from('categories')
+        .select('name')
+        .eq('id', updatedProduct.category_id)
+        .single();
+      
+      if (category) {
+        categoryName = category.name;
+      }
+    }
+
+    // Agregar category structure con nombre real
     const productWithCategory = {
       ...updatedProduct,
-      categories: updatedProduct.category_id ? { id: updatedProduct.category_id, name: '' } : null
+      categories: updatedProduct.category_id ? { id: updatedProduct.category_id, name: categoryName } : null
     };
 
     return NextResponse.json(transformProduct(productWithCategory));

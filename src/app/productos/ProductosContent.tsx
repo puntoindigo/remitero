@@ -25,6 +25,8 @@ import { SearchInput } from "@/components/common/SearchInput";
 import { useLoading } from "@/hooks/useLoading";
 import { LoadingButton } from "@/components/common/LoadingButton";
 import { useShortcuts } from "@/hooks/useShortcuts";
+import { useColorTheme } from "@/contexts/ColorThemeContext";
+import { StockToggle } from "@/components/common/StockToggle";
 
 import { 
   useProductosQuery,
@@ -43,6 +45,7 @@ import {
 function ProductosContent() {
   const { data: session } = useSession();
   const currentUser = useCurrentUserSimple();
+  const { colors } = useColorTheme();
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -383,18 +386,11 @@ function ProductosContent() {
       key: 'stock',
       label: 'Stock',
       render: (producto) => (
-        <div style={{ minWidth: 180 }}>
-          <FilterableSelect
-            options={[
-              { id: 'IN_STOCK', name: '✅ En Stock', color: '#16a34a' },
-              { id: 'OUT_OF_STOCK', name: '❌ Sin Stock', color: '#ef4444' }
-            ]}
-            value={producto.stock || 'OUT_OF_STOCK'}
+        <div style={{ display: 'flex', justifyContent: 'center', width: '40px' }}>
+          <StockToggle
+            value={(producto.stock || 'OUT_OF_STOCK') as "IN_STOCK" | "OUT_OF_STOCK"}
             onChange={(value) => handleStockChange(producto?.id, value)}
-            placeholder="Estado de stock"
-            searchFields={["name"]}
-            showColors={true}
-            searchable={false}
+            compact={true}
           />
         </div>
       )
@@ -446,6 +442,7 @@ function ProductosContent() {
                 placeholder="Seleccionar empresa"
                 searchFields={["name"]}
                 className="w-full"
+                useThemeColors={true}
               />
             </div>
           )}
@@ -470,6 +467,7 @@ function ProductosContent() {
                     placeholder="Filtrar por categoría"
                     searchFields={["name"]}
                     className="w-full"
+                    useThemeColors={true}
                   />
                 </div>
                 <div style={{ width: '220px' }}>
@@ -486,24 +484,37 @@ function ProductosContent() {
                     showColors={true}
                     searchable={false}
                     className="w-full"
+                    useThemeColors={true}
                   />
                 </div>
               </div>
               <button
                 onClick={handleNewProduct}
-                className="new-button"
+                className="btn-primary new-button"
+                data-shortcut="n"
                 style={{
                   display: 'flex',
                   alignItems: 'center',
                   gap: '0.5rem',
-                  padding: '0.5rem 1rem',
-                  backgroundColor: '#3b82f6',
+                  padding: '8px 16px',
+                  background: colors.gradient,
                   color: 'white',
                   border: 'none',
-                  borderRadius: '0.375rem',
+                  borderRadius: '6px',
                   cursor: 'pointer',
-                  fontSize: '0.875rem',
-                  fontWeight: '500'
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  minWidth: '100px',
+                  justifyContent: 'center',
+                  transition: 'all 0.2s',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-1px)';
+                  e.currentTarget.style.boxShadow = `0 4px 12px ${colors.primary}50`;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = 'none';
                 }}
               >
                 <Plus className="h-4 w-4" />

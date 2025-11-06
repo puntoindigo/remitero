@@ -27,6 +27,7 @@ interface EstadoRemitoFormProps {
     color: string;
     is_active: boolean;
   } | null;
+  companyId?: string; // ID de la empresa (opcional)
 }
 
 export function EstadoRemitoForm({
@@ -34,12 +35,14 @@ export function EstadoRemitoForm({
   onClose,
   onSubmit,
   isSubmitting,
-  editingEstado
+  editingEstado,
+  companyId
 }: EstadoRemitoFormProps) {
   const {
     register,
     handleSubmit,
     reset,
+    watch,
     formState: { errors }
   } = useForm<EstadoRemitoFormData>({
     resolver: zodResolver(estadoRemitoSchema),
@@ -90,6 +93,13 @@ export function EstadoRemitoForm({
       isOpen={isOpen}
       onClose={onClose}
       title={editingEstado ? "Editar Estado" : "Nuevo Estado"}
+      modalId={editingEstado ? `estado-${editingEstado.id}` : "nuevo-estado"}
+      modalComponent="EstadoRemitoForm"
+      modalType="form"
+      modalProps={{
+        editingEstado,
+        companyId
+      }}
       onSubmit={handleSubmit(handleFormSubmit)}
       submitText={editingEstado ? "Actualizar" : "Guardar"}
       isSubmitting={isSubmitting}
@@ -147,14 +157,52 @@ export function EstadoRemitoForm({
       </div>
 
       <div className="form-group" style={{ marginTop: '1.5rem', marginBottom: '1.5rem' }}>
-        <label className="checkbox-label" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <input
-            {...register("is_active")}
-            type="checkbox"
-            style={{ margin: 0 }}
-          />
-          Estado activo
-        </label>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div>
+            <div style={{ fontSize: '0.875rem', fontWeight: 500, color: '#1f2937' }}>
+              Estado activo
+            </div>
+          </div>
+          <label
+            style={{
+              position: 'relative',
+              display: 'inline-flex',
+              alignItems: 'center',
+              cursor: 'pointer',
+            }}
+          >
+            <input
+              {...register("is_active")}
+              type="checkbox"
+              style={{ display: 'none' }}
+            />
+            <div
+              style={{
+                width: '2.75rem',
+                height: '1.5rem',
+                backgroundColor: watch('is_active') ? '#3b82f6' : '#d1d5db',
+                borderRadius: '9999px',
+                position: 'relative',
+                transition: 'background-color 0.2s',
+                display: 'flex',
+                alignItems: 'center',
+                padding: '0.125rem',
+              }}
+            >
+              <div
+                style={{
+                  width: '1.25rem',
+                  height: '1.25rem',
+                  backgroundColor: '#fff',
+                  borderRadius: '50%',
+                  transform: watch('is_active') ? 'translateX(1.25rem)' : 'translateX(0)',
+                  transition: 'transform 0.2s',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                }}
+              />
+            </div>
+          </label>
+        </div>
         {errors.is_active && (
           <p className="error-message">{errors.is_active.message}</p>
         )}

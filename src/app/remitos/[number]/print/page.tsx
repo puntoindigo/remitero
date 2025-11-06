@@ -23,7 +23,14 @@ export default function PrintRemito() {
       setLoading(true);
       
       try {
-        const response = await fetch(`/api/remitos/number/${params?.number}`, {
+        const remitoNumber = params?.number;
+        if (!remitoNumber) {
+          console.error('🖨️ [PRINT] No number provided');
+          setLoading(false);
+          return;
+        }
+
+        const response = await fetch(`/api/remitos/number/${remitoNumber}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -37,6 +44,10 @@ export default function PrintRemito() {
         } else {
           const errorData = await response.json().catch(() => ({}));
           console.error('🖨️ [PRINT] Error response:', response.status, errorData);
+          // Mostrar error al usuario
+          if (response.status === 404) {
+            console.error('🖨️ [PRINT] Remito no encontrado con número:', remitoNumber);
+          }
         }
       } catch (error) {
         console.error("🖨️ [PRINT] Error fetching remito:", error);

@@ -61,7 +61,11 @@ export function useCreateClienteMutation() {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: clienteKeys.lists() });
+      // Invalidar y refetch inmediatamente para que los cambios se vean al instante
+      queryClient.invalidateQueries({ 
+        queryKey: clienteKeys.lists(),
+        refetchType: 'active' // Solo refetch queries activas (visibles)
+      });
     },
   });
 }
@@ -86,8 +90,15 @@ export function useUpdateClienteMutation() {
       return response.json();
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: clienteKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: clienteKeys.detail(variables.id) });
+      // Invalidar y refetch inmediatamente
+      queryClient.invalidateQueries({ 
+        queryKey: clienteKeys.lists(),
+        refetchType: 'active'
+      });
+      queryClient.invalidateQueries({ 
+        queryKey: clienteKeys.detail(variables.id),
+        refetchType: 'active'
+      });
     },
   });
 }
@@ -110,7 +121,11 @@ export function useDeleteClienteMutation() {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: clienteKeys.lists() });
+      // Invalidar y refetch inmediatamente
+      queryClient.invalidateQueries({ 
+        queryKey: clienteKeys.lists(),
+        refetchType: 'active'
+      });
     },
   });
 }

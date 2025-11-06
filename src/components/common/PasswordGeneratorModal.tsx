@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { X, RefreshCw, Copy, Eye, EyeOff } from "lucide-react";
 
 interface PasswordGeneratorModalProps {
@@ -34,6 +35,19 @@ export function PasswordGeneratorModal({
     if (isOpen) {
       generateNewPassword();
     }
+  }, [isOpen]);
+
+  // Bloquear scroll del body cuando el modal está abierto
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+
+    return () => {
+      document.body.style.overflow = '';
+    };
   }, [isOpen]);
 
   // Cerrar con ESC
@@ -81,9 +95,45 @@ export function PasswordGeneratorModal({
 
   if (!isOpen) return null;
 
-  return (
-    <div className="modal-overlay">
-      <div className="modal form-modal" style={{ maxWidth: '500px' }}>
+  if (typeof window === 'undefined') return null;
+
+  const modalContent = (
+    <div 
+      className="modal-overlay"
+      onClick={(e) => {
+        // Cerrar al hacer click en el overlay (no en el modal)
+        if (e.target === e.currentTarget) {
+          onClose();
+        }
+      }}
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        zIndex: 10000,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '20px',
+        backdropFilter: 'blur(4px)',
+        WebkitBackdropFilter: 'blur(4px)',
+      }}
+    >
+      <div 
+        className="modal form-modal" 
+        onClick={(e) => {
+          // Prevenir que los clicks dentro del modal cierren el overlay
+          e.stopPropagation();
+        }}
+        style={{ 
+          maxWidth: '500px',
+          position: 'relative',
+          zIndex: 10001,
+        }}
+      >
         <div className="modal-header">
           <h3>Generador de Contraseña</h3>
           <button
@@ -164,4 +214,6 @@ export function PasswordGeneratorModal({
       </div>
     </div>
   );
+
+  return createPortal(modalContent, document.body);
 }

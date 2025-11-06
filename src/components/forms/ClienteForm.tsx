@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { FormModal } from "@/components/common/FormModal";
+import { useColorTheme } from "@/contexts/ColorThemeContext";
 
 const clienteSchema = z.object({
   name: z.string().min(1, "El nombre es requerido"),
@@ -40,6 +41,7 @@ export function ClienteForm({
   editingCliente,
   nested = false
 }: ClienteFormProps) {
+  const { colors } = useColorTheme();
   const {
     register,
     handleSubmit,
@@ -87,12 +89,12 @@ export function ClienteForm({
     <>
       <div className="form-row">
         <div className="form-group">
-          <label className="form-label-large">Nombre del cliente *</label>
           <input
             {...register("name")}
             type="text"
-            placeholder="Ingresa el nombre del cliente"
+            placeholder="Nombre"
             className="form-input-standard"
+            required
           />
           {errors?.name && (
             <p className="error-message">{errors?.name.message}</p>
@@ -100,11 +102,10 @@ export function ClienteForm({
         </div>
 
         <div className="form-group">
-          <label className="form-label-large">Email</label>
           <input
             {...register("email")}
             type="email"
-            placeholder="cliente@email.com"
+            placeholder="email"
             className="form-input-standard"
           />
           {errors?.email && (
@@ -115,11 +116,10 @@ export function ClienteForm({
 
       <div className="form-row">
         <div className="form-group">
-          <label className="form-label-large">Teléfono</label>
           <input
             {...register("phone")}
             type="tel"
-            placeholder="+54 341 123-4567"
+            placeholder="telefono"
             className="form-input-standard"
           />
           {errors.phone && (
@@ -128,11 +128,10 @@ export function ClienteForm({
         </div>
 
         <div className="form-group">
-          <label className="form-label-large">Dirección</label>
           <input
             {...register("address")}
             type="text"
-            placeholder="Corrientes 1234, Rosario"
+            placeholder="direccion"
             className="form-input-standard"
           />
           {errors.address && (
@@ -152,6 +151,12 @@ export function ClienteForm({
       submitText={editingCliente ? "Actualizar" : "Guardar"}
       isSubmitting={isSubmitting}
       nested={nested}
+      modalId={editingCliente ? `cliente-${editingCliente.id}` : "nuevo-cliente"}
+      modalComponent="ClienteForm"
+      modalType="form"
+      modalProps={{
+        editingCliente
+      }}
     >
       {nested ? (
         <form onSubmit={handleSubmit(handleFormSubmit)}>
@@ -170,6 +175,32 @@ export function ClienteForm({
                 type="submit"
                 className="btn-primary"
                 disabled={isSubmitting}
+                style={{
+                  padding: '8px 16px',
+                  border: 'none',
+                  borderRadius: '6px',
+                  background: isSubmitting ? '#9ca3af' : colors.gradient,
+                  color: 'white',
+                  cursor: isSubmitting ? 'not-allowed' : 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  minWidth: '100px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'all 0.2s',
+                  opacity: isSubmitting ? 0.6 : 1,
+                }}
+                onMouseEnter={(e) => {
+                  if (!isSubmitting) {
+                    e.currentTarget.style.transform = 'translateY(-1px)';
+                    e.currentTarget.style.boxShadow = `0 4px 12px ${colors.primary}50`;
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = 'none';
+                }}
               >
                 {isSubmitting ? "Guardando..." : (editingCliente ? "Actualizar" : "Guardar")}
               </button>

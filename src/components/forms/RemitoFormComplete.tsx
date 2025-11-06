@@ -277,6 +277,16 @@ export function RemitoFormComplete({
       submitText={editingRemito ? "Actualizar" : "Crear"}
       isSubmitting={isSubmitting}
       modalClassName="remito-modal"
+      modalId={editingRemito ? `remito-${editingRemito.id}` : "nuevo-remito"}
+      modalComponent="RemitoFormComplete"
+      modalType="form"
+      modalProps={{
+        clients,
+        products,
+        estados,
+        companyId,
+        editingRemito
+      }}
     >
       {/* Error de validación */}
       {validationError && (
@@ -363,19 +373,14 @@ export function RemitoFormComplete({
       </div>
 
       {/* Tabla de productos */}
-      <div className="form-section">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-          <div style={{ fontSize: '20px', fontWeight: 400 }}>Productos</div>
-        </div>
-        
+      <div>
         <table>
           <thead>
             <tr>
               <th style={{ width: '50%', fontWeight: 400, fontSize: '15px' }}>Producto</th>
               <th style={{ width: '80px', fontWeight: 400, fontSize: '15px' }}>Cant.</th>
-              <th style={{ width: '140px', fontWeight: 400, fontSize: '15px' }}>Precio Unit.</th>
+              <th style={{ width: '140px', fontWeight: 400, fontSize: '15px' }}>Precio</th>
               <th style={{ width: '140px', fontWeight: 400, fontSize: '15px' }}>Total</th>
-              <th style={{ width: '60px', fontWeight: 400, fontSize: '15px' }}>Acciones</th>
             </tr>
           </thead>
           <tbody>
@@ -404,17 +409,18 @@ export function RemitoFormComplete({
                     currency: 'ARS' 
                   })}
                 </td>
-                <td style={{ fontSize: '14px' }}>
-                  {(Number(item.line_total) || 0).toLocaleString('es-AR', { 
-                    style: 'currency', 
-                    currency: 'ARS' 
-                  })}
-                </td>
-                <td>
+                <td style={{ fontSize: '14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <span>
+                    {(Number(item.line_total) || 0).toLocaleString('es-AR', { 
+                      style: 'currency', 
+                      currency: 'ARS' 
+                    })}
+                  </span>
                   <button
                     type="button"
                     onClick={() => handleRemoveItem(index)}
                     className="small danger"
+                    style={{ marginLeft: '0.5rem' }}
                   >
                     <Trash2 className="h-4 w-4" />
                   </button>
@@ -492,7 +498,6 @@ export function RemitoFormComplete({
                   })()
                 )}
               </td>
-              <td></td>
             </tr>
           </tbody>
         </table>
@@ -502,12 +507,11 @@ export function RemitoFormComplete({
       <div style={{ 
         display: 'flex', 
         justifyContent: 'flex-end', 
-        marginTop: '1rem',
-        padding: '1rem',
-        backgroundColor: '#f9fafb',
-        borderRadius: '6px'
+        marginTop: '0.5rem',
+        marginBottom: '0.5rem',
+        padding: '0.5rem 0'
       }}>
-        <div style={{ fontSize: '20px', fontWeight: 400 }}>
+        <div style={{ fontSize: '18px', fontWeight: 500 }}>
           Total: {total.toLocaleString('es-AR', { 
             style: 'currency', 
             currency: 'ARS' 
@@ -516,7 +520,7 @@ export function RemitoFormComplete({
       </div>
 
       {/* Notas (opcional) */}
-      <div className="form-group" style={{ marginTop: '1.5rem' }}>
+      <div className="form-group" style={{ marginTop: '0.5rem' }}>
         <button
           type="button"
           onClick={() => setShowNotes(!showNotes)}

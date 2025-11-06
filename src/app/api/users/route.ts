@@ -5,6 +5,7 @@ import { supabaseAdmin } from "@/lib/supabase";
 import { transformUsers, transformUser } from "@/lib/utils/supabase-transform";
 import bcrypt from "bcryptjs";
 import { logger } from "@/lib/logger";
+import { getLastUserActivity, getActionDescription, logUserActivity } from "@/lib/user-activity-logger";
 
 export async function GET(request: NextRequest) {
   try {
@@ -35,6 +36,7 @@ export async function GET(request: NextRequest) {
         company_id,
         created_at,
         updated_at,
+        is_active,
         companies (
           id,
           name
@@ -87,7 +89,7 @@ export async function GET(request: NextRequest) {
     }
 
     // USER no puede acceder a esta ruta
-    if (session.user.role === 'USER') {
+    if (session.user.role === 'OPERADOR') {
       return NextResponse.json({ 
         error: "No autorizado", 
         message: "No tienes permisos para ver usuarios." 
@@ -129,13 +131,23 @@ export async function GET(request: NextRequest) {
       }, { status: 500 });
     }
 
-    // Los datos de companies ya vienen en el JOIN, solo mapear la estructura
-    const usersWithCompanies = (users || []).map((user: any) => ({
-      ...user,
-      companies: user.companies || (user.company_id ? { id: user.company_id, name: null } : null)
-    }));
+    // Obtener último estado de actividad para cada usuario
+    const usersWithLastActivity = await Promise.all(
+      (users || []).map(async (user: any) => {
+        const lastActivity = await getLastUserActivity(user.id);
+        return {
+          ...user,
+          companies: user.companies || (user.company_id ? { id: user.company_id, name: null } : null),
+          lastActivity: lastActivity ? {
+            action: lastActivity.action,
+            description: lastActivity.description || getActionDescription(lastActivity.action, lastActivity.metadata as any),
+            createdAt: lastActivity.created_at
+          } : null
+        };
+      })
+    );
 
-    return NextResponse.json(transformUsers(usersWithCompanies));
+    return NextResponse.json(transformUsers(usersWithLastActivity));
   } catch (error: any) {
     console.error('Error in users GET:', error);
     return NextResponse.json({ 
@@ -165,28 +177,50 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { name, email, password, role, address, phone, companyId } = body;
+    const { email, password, role, companyId } = body;
 
     // Validaciones básicas
-    if (!name || !email || !password || !role) {
+    if (!email || !role) {
       return NextResponse.json({ 
         error: "Datos faltantes", 
-        message: "Nombre, email, contraseña y rol son requeridos." 
+        message: "Email y rol son requeridos." 
       }, { status: 400 });
     }
 
-    if (password?.length < 6) {
+    // Si el email no tiene @, autocompletarlo a @gmail.com
+    let finalEmail = email;
+    if (!finalEmail.includes('@')) {
+      finalEmail = `${finalEmail.trim()}@gmail.com`;
+    }
+    
+    // Detectar si es Gmail
+    const isGmail = finalEmail.toLowerCase().endsWith('@gmail.com') || finalEmail.toLowerCase().endsWith('@googlemail.com');
+    
+    // Si no es Gmail, requerir contraseña
+    if (!isGmail && (!password || password.length < 6)) {
       return NextResponse.json({ 
         error: "Contraseña inválida", 
-        message: "La contraseña debe tener al menos 6 caracteres." 
+        message: "La contraseña es requerida y debe tener al menos 6 caracteres para emails no Gmail." 
       }, { status: 400 });
+    }
+    
+    // Extraer nombre automáticamente desde el email
+    const localPart = finalEmail.split('@')[0];
+    let finalName: string;
+    const parts = localPart.split(/[._]/);
+    if (parts.length >= 2) {
+      finalName = parts.map(part => 
+        part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()
+      ).join(' ');
+    } else {
+      finalName = localPart.charAt(0).toUpperCase() + localPart.slice(1).toLowerCase();
     }
 
     // Verificar que el email no exista
     const { data: existingUser } = await supabaseAdmin
       .from('users')
       .select('id')
-      .eq('email', email)
+      .eq('email', finalEmail)
       .single();
 
     if (existingUser) {
@@ -196,8 +230,11 @@ export async function POST(request: NextRequest) {
       }, { status: 409 });
     }
 
-    // Hash de la contraseña
-    const hashedPassword = await bcrypt.hash(password, 10);
+    // Hash de la contraseña solo si se proporcionó (no requerida para Gmail)
+    let hashedPassword: string | null = null;
+    if (password && password.length > 0) {
+      hashedPassword = await bcrypt.hash(password, 10);
+    }
 
     // Determinar companyId
     // ADMIN siempre debe usar su propia empresa, no puede asignar usuarios a otras empresas
@@ -216,13 +253,12 @@ export async function POST(request: NextRequest) {
     const { data: newUser, error } = await supabaseAdmin
       .from('users')
       .insert([{
-        name,
-        email,
-        password: hashedPassword,
+        name: finalName,
+        email: finalEmail,
+        password: hashedPassword, // null para Gmail sin contraseña
         role,
-        address,
-        phone,
-        company_id: finalCompanyId
+        company_id: finalCompanyId,
+        is_active: true // Por defecto, todos los usuarios nuevos están activos
       }])
       .select(`
         id,
@@ -233,6 +269,7 @@ export async function POST(request: NextRequest) {
         phone,
         company_id,
         created_at,
+        is_active,
         companies (
           id,
           name
@@ -267,6 +304,14 @@ export async function POST(request: NextRequest) {
       'Usuario',
       newUser?.id,
       `Usuario: ${newUser?.name} (${newUser?.email}) - Rol: ${newUser.role}`
+    );
+
+    // Registrar actividad
+    await logUserActivity(
+      session.user.id,
+      'CREATE_USER',
+      `Creó usuario ${newUser?.name} (${newUser?.email})`,
+      { targetUserId: newUser?.id }
     );
 
     return NextResponse.json(transformUser(newUser), { status: 201 });

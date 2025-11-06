@@ -67,7 +67,11 @@ export function useCreateProductMutation() {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: productKeys.lists() });
+      // Invalidar y refetch inmediatamente
+      queryClient.invalidateQueries({ 
+        queryKey: productKeys.lists(),
+        refetchType: 'active'
+      });
     },
   });
 }
@@ -92,8 +96,15 @@ export function useUpdateProductMutation() {
       return response.json();
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: productKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: productKeys.detail(variables.id) });
+      // Invalidar y refetch inmediatamente
+      queryClient.invalidateQueries({ 
+        queryKey: productKeys.lists(),
+        refetchType: 'active'
+      });
+      queryClient.invalidateQueries({ 
+        queryKey: productKeys.detail(variables.id),
+        refetchType: 'active'
+      });
     },
   });
 }
@@ -116,7 +127,11 @@ export function useDeleteProductMutation() {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: productKeys.lists() });
+      // Invalidar y refetch inmediatamente
+      queryClient.invalidateQueries({ 
+        queryKey: productKeys.lists(),
+        refetchType: 'active'
+      });
     },
   });
 }

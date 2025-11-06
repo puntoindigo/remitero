@@ -7,16 +7,74 @@ import { z } from "zod";
 import { useSession } from "next-auth/react";
 import { FormModal } from "@/components/common/FormModal";
 import { PasswordGeneratorModal } from "@/components/common/PasswordGeneratorModal";
+import { useColorTheme } from "@/contexts/ColorThemeContext";
 import { Key } from "lucide-react";
 
+// Función para detectar si es email de Google
+const isGmailEmail = (email: string): boolean => {
+  const domain = email.split('@')[1]?.toLowerCase();
+  return domain === 'gmail.com' || domain === 'googlemail.com';
+};
+
+
 const userSchema = z.object({
-  name: z.string().min(1, "El nombre es requerido"),
-  email: z.string().email("Email inválido"),
-  password: z.string().min(6, "La contraseña debe tener al menos 6 caracteres").optional().or(z.literal("")),
-  role: z.enum(["SUPERADMIN", "ADMIN", "USER"]),
+  name: z.string().min(1, "Nombre requerido"),
+  email: z.string()
+    .min(1, "El email es requerido")
+    .refine((val) => {
+      // Permitir solo username (sin @) o email completo válido
+      if (!val.includes('@')) {
+        // Solo username: debe tener al menos 1 carácter, sin espacios, sin caracteres especiales problemáticos
+        return /^[a-zA-Z0-9._-]+$/.test(val.trim()) && val.trim().length > 0;
+      }
+      // Si tiene @, debe ser un email válido
+      return z.string().email().safeParse(val).success;
+    }, {
+      message: "Email inválido o formato incorrecto"
+    }),
+  password: z.string().optional().or(z.literal("")),
+  confirmPassword: z.string().optional().or(z.literal("")),
+  role: z.enum(["SUPERADMIN", "ADMIN", "OPERADOR"]),
+  companyId: z.string().optional(),
   phone: z.string().optional(),
   address: z.string().optional(),
-  companyId: z.string().optional(),
+  enableBotonera: z.boolean().optional(),
+}).refine((data) => {
+  // Si el email contiene @ (no es solo Gmail), requerir contraseña
+  const hasAtSymbol = data.email.includes('@');
+  if (!hasAtSymbol) {
+    return true; // Si es solo palabra (se autocompleta a Gmail), no requerir contraseña
+  }
+  // Si tiene @, verificar si es Gmail
+  const isGmail = isGmailEmail(data.email);
+  if (isGmail) {
+    return true; // Gmail no requiere contraseña
+  }
+  // Si no es Gmail, requerir contraseña
+  if (!data.password || data.password === "") {
+    return false;
+  }
+  return data.password === data.confirmPassword;
+}, {
+  message: "Las contraseñas no coinciden o son requeridas para emails no Gmail",
+  path: ["confirmPassword"],
+}).refine((data) => {
+  const hasAtSymbol = data.email.includes('@');
+  if (!hasAtSymbol) {
+    return true; // Solo palabra (se autocompleta a Gmail)
+  }
+  const isGmail = isGmailEmail(data.email);
+  if (isGmail) {
+    return true; // Gmail no requiere contraseña
+  }
+  // Si no es Gmail, requerir contraseña de al menos 6 caracteres
+  if (!data.password || data.password === "") {
+    return false;
+  }
+  return data.password.length >= 6;
+}, {
+  message: "La contraseña debe tener al menos 6 caracteres (requerida para emails no Gmail)",
+  path: ["password"],
 });
 
 type UsuarioFormData = z.infer<typeof userSchema>;
@@ -30,11 +88,13 @@ interface UsuarioFormProps {
     id: string;
     name: string;
     email: string;
-    role: "SUPERADMIN" | "ADMIN" | "USER";
+    role: "SUPERADMIN" | "ADMIN" | "OPERADOR";
+    companyId?: string;
     phone?: string;
     address?: string;
-    companyId?: string;
+    enableBotonera?: boolean;
   } | null;
+  isCurrentUser?: boolean;
   companies?: { id: string; name: string }[];
   companyId?: string;
 }
@@ -46,8 +106,10 @@ export function UsuarioForm({
   isSubmitting,
   editingUser,
   companies = [],
-  companyId
+  companyId,
+  isCurrentUser = false
 }: UsuarioFormProps) {
+  const { colors } = useColorTheme();
   const { data: session } = useSession();
   const [showPasswordGenerator, setShowPasswordGenerator] = React.useState(false);
   
@@ -64,12 +126,71 @@ export function UsuarioForm({
       name: editingUser?.name || "",
       email: editingUser?.email || "",
       password: "",
-      role: editingUser?.role || "USER",
+      confirmPassword: "",
+      role: editingUser?.role || "OPERADOR",
+      companyId: editingUser?.companyId || companyId || "",
       phone: editingUser?.phone || "",
       address: editingUser?.address || "",
-      companyId: editingUser?.companyId || companyId || ""
+      enableBotonera: editingUser?.enableBotonera ?? false
     }
   });
+
+  const passwordValue = watch("password");
+  const confirmPasswordValue = watch("confirmPassword");
+  const emailValue = watch("email");
+  const roleValue = watch("role");
+  
+  // Detectar si el email contiene @ (si tiene @, puede necesitar contraseña)
+  const hasAtSymbol = emailValue ? emailValue.includes('@') : false;
+  
+  // Detectar si es Gmail (solo palabra o @gmail.com)
+  const isGmail = emailValue ? (isGmailEmail(emailValue) || !hasAtSymbol) : false;
+  
+  // Auto-completar email: si es solo una palabra (sin @), agregar @gmail.com al perder el foco
+  const handleEmailBlur = () => {
+    if (emailValue && !emailValue.includes('@') && emailValue.trim().length > 0) {
+      const trimmed = emailValue.trim();
+      if (trimmed && !trimmed.includes('@')) {
+        setValue("email", `${trimmed}@gmail.com`, { shouldValidate: true });
+      }
+    }
+  };
+  
+  // Estado para manejar la animación de salida del error de contraseña
+  const [showPasswordError, setShowPasswordError] = React.useState(false);
+  const [showConfirmPasswordError, setShowConfirmPasswordError] = React.useState(false);
+  const [passwordErrorMessage, setPasswordErrorMessage] = React.useState('');
+  const [confirmPasswordErrorMessage, setConfirmPasswordErrorMessage] = React.useState('');
+  
+  // Efecto para manejar la animación de entrada/salida del error de contraseña
+  React.useEffect(() => {
+    if (errors.password?.message) {
+      setPasswordErrorMessage(errors.password.message);
+      setShowPasswordError(true);
+    } else if (showPasswordError) {
+      // Si hay error visible pero ya no hay error, iniciar animación de salida
+      const timer = setTimeout(() => {
+        setShowPasswordError(false);
+        setPasswordErrorMessage('');
+      }, 400);
+      return () => clearTimeout(timer);
+    }
+  }, [errors.password, showPasswordError]);
+  
+  // Efecto para manejar la animación de entrada/salida del error de confirmar contraseña
+  React.useEffect(() => {
+    if (errors.confirmPassword?.message) {
+      setConfirmPasswordErrorMessage(errors.confirmPassword.message);
+      setShowConfirmPasswordError(true);
+    } else if (showConfirmPasswordError) {
+      // Si hay error visible pero ya no hay error, iniciar animación de salida
+      const timer = setTimeout(() => {
+        setShowConfirmPasswordError(false);
+        setConfirmPasswordErrorMessage('');
+      }, 400);
+      return () => clearTimeout(timer);
+    }
+  }, [errors.confirmPassword, showConfirmPasswordError]);
 
   // Observar el valor del rol para mostrar/ocultar empresa
   const selectedRole = watch("role");
@@ -98,30 +219,43 @@ export function UsuarioForm({
   useEffect(() => {
     if (editingUser) {
       reset({
-        name: editingUser?.name,
+        name: editingUser?.name || "",
         email: editingUser?.email,
         password: "",
+        confirmPassword: "",
         role: editingUser.role,
-        phone: editingUser.phone || "",
-        address: editingUser.address || "",
-        companyId: editingUser.companyId || companyId || ""
-      }, []);
+        companyId: editingUser.companyId || companyId || "",
+        phone: editingUser?.phone || "",
+        address: editingUser?.address || "",
+        enableBotonera: editingUser?.enableBotonera ?? false
+      });
     } else {
       reset({
         name: "",
         email: "",
         password: "",
-        role: "USER",
+        confirmPassword: "",
+        role: "OPERADOR",
+        companyId: companyId || "",
         phone: "",
         address: "",
-        companyId: companyId || ""
+        enableBotonera: false
       });
     }
   }, [editingUser, companyId, reset]);
 
   const handleFormSubmit = async (data: UsuarioFormData) => {
     try {
-      await onSubmit(data);
+      // Si el email no tiene @, autocompletarlo a @gmail.com antes de enviar
+      let finalEmail = data.email;
+      if (finalEmail && !finalEmail.includes('@')) {
+        finalEmail = `${finalEmail.trim()}@gmail.com`;
+      }
+      
+      await onSubmit({
+        ...data,
+        email: finalEmail
+      });
       reset();
     } catch (error) {
       // Error handling is done in the parent component
@@ -136,11 +270,20 @@ export function UsuarioForm({
       onSubmit={handleSubmit(handleFormSubmit)}
       submitText={editingUser ? "Actualizar" : "Guardar"}
       isSubmitting={isSubmitting}
+      modalId={editingUser ? `usuario-${editingUser.id}` : "nuevo-usuario"}
+      modalComponent="UsuarioForm"
+      modalType="form"
+      modalProps={{
+        editingUser,
+        companies,
+        companyId,
+        isCurrentUser
+      }}
     >
       <div className="form-row">
         <div className="form-group">
           <label className="form-label-large">
-            Nombre
+            Nombre *
             {errors?.name && (
               <span style={{ color: '#ef4444', marginLeft: '8px', fontSize: '0.875rem', fontWeight: 'normal' }}>
                 {errors?.name.message}
@@ -150,7 +293,7 @@ export function UsuarioForm({
           <input
             {...register("name")}
             type="text"
-            placeholder="Nombre del usuario"
+            placeholder="Nombre completo"
             className="form-input-standard"
           />
         </div>
@@ -158,6 +301,11 @@ export function UsuarioForm({
         <div className="form-group">
           <label className="form-label-large">
             Email *
+            {!hasAtSymbol && (
+              <span style={{ marginLeft: '8px', fontSize: '0.75rem', color: '#6b7280', fontWeight: 'normal' }}>
+                (escribe solo el usuario o el email completo)
+              </span>
+            )}
             {errors?.email && (
               <span style={{ color: '#ef4444', marginLeft: '8px', fontSize: '0.875rem', fontWeight: 'normal' }}>
                 {errors?.email.message}
@@ -166,80 +314,197 @@ export function UsuarioForm({
           </label>
           <input
             {...register("email")}
-            type="email"
-            placeholder="email@ejemplo.com"
-            autoComplete="email"
+            type="text"
+            placeholder={hasAtSymbol ? "email@ejemplo.com" : "usuario (se completará como usuario@gmail.com)"}
+            autoComplete="off"
             className="form-input-standard"
+            onBlur={handleEmailBlur}
           />
+        </div>
+
+        <div className="form-group">
+          <label className="form-label-large">
+            Rol *
+            {errors?.role && (
+              <span style={{ color: '#ef4444', marginLeft: '8px', fontSize: '0.875rem', fontWeight: 'normal' }}>
+                {errors?.role.message}
+              </span>
+            )}
+          </label>
+          <select 
+            {...register("role")} 
+            className="form-select-standard"
+            style={{
+          color: roleValue === "OPERADOR" ? '#9ca3af' : '#111827',
+          fontStyle: roleValue === "OPERADOR" ? 'italic' : 'normal',
+            }}
+          >
+            <option value="OPERADOR" style={{ color: '#9ca3af', fontStyle: 'italic', backgroundColor: '#f9fafb' }}>Operador</option>
+            <option value="ADMIN">Administrador</option>
+            {session?.user?.role === "SUPERADMIN" && <option value="SUPERADMIN">Super Admin</option>}
+          </select>
         </div>
       </div>
 
       <div className="form-row">
         <div className="form-group">
-          <label className="form-label-large">Contraseña {!editingUser && "*"}</label>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <label className="form-label-large">
+            Teléfono
+            {errors?.phone && (
+              <span style={{ color: '#ef4444', marginLeft: '8px', fontSize: '0.875rem', fontWeight: 'normal' }}>
+                {errors?.phone.message}
+              </span>
+            )}
+          </label>
+          <input
+            {...register("phone")}
+            type="tel"
+            placeholder="Teléfono"
+            className="form-input-standard"
+          />
+        </div>
+
+        <div className="form-group">
+          <label className="form-label-large">
+            Dirección
+            {errors?.address && (
+              <span style={{ color: '#ef4444', marginLeft: '8px', fontSize: '0.875rem', fontWeight: 'normal' }}>
+                {errors?.address.message}
+              </span>
+            )}
+          </label>
+          <input
+            {...register("address")}
+            type="text"
+            placeholder="Dirección"
+            className="form-input-standard"
+          />
+        </div>
+      </div>
+
+      {/* Mostrar campos de contraseña solo si hay @ y no es Gmail */}
+      {hasAtSymbol && !isGmailEmail(emailValue) && (
+      <div className="form-row">
+        <div className="form-group">
+          <label className="form-label-large">
+            Contraseña {!editingUser && "*"}
+          </label>
+          <div style={{ position: 'relative', width: '100%' }}>
             <input
               {...register("password")}
               type="password"
               placeholder={editingUser ? "Dejar vacío para mantener la actual" : "Contraseña"}
               autoComplete={editingUser ? "new-password" : "new-password"}
               className="form-input-standard"
-              style={{ flex: 1 }}
+              style={{ 
+                paddingRight: '48px', 
+                width: '100%',
+                boxSizing: 'border-box'
+              }}
             />
             <button
-              type="button"
-              onClick={() => setShowPasswordGenerator(true)}
-              className="btn small secondary"
-              title="Generar contraseña automática"
-            >
-              <Key className="h-4 w-4" />
-            </button>
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setShowPasswordGenerator(true);
+                }}
+                title="Generar contraseña automática"
+                style={{
+                  position: 'absolute',
+                  right: '8px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  padding: '4px',
+                  width: '32px',
+                  height: '32px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  zIndex: 10,
+                  cursor: 'pointer',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '4px',
+                  background: '#ffffff',
+                  color: '#6b7280',
+                  transition: 'all 0.2s',
+                  margin: 0,
+                  boxSizing: 'border-box'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = '#f3f4f6';
+                  e.currentTarget.style.color = '#1f2937';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = '#ffffff';
+                  e.currentTarget.style.color = '#6b7280';
+                }}
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                }}
+              >
+                <Key className="h-4 w-4" />
+              </button>
           </div>
-          {errors.password && (
-            <p className="error-message">{errors.password.message}</p>
+          {showPasswordError && (
+            <p 
+              className="error-message"
+              style={{
+                opacity: errors.password ? 1 : 0,
+                transform: errors.password ? 'translateY(0)' : 'translateY(-10px)',
+                maxHeight: errors.password ? '100px' : '0',
+                marginTop: errors.password ? '0.5rem' : '0',
+                marginBottom: errors.password ? '0' : '0',
+                overflow: 'hidden',
+                transition: 'opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), margin 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
+              }}
+            >
+              {passwordErrorMessage}
+            </p>
           )}
         </div>
 
         <div className="form-group">
-          <label className="form-label-large">Rol</label>
-          <select {...register("role")} className="form-select-standard">
-            <option value="USER">Usuario</option>
-            <option value="ADMIN">Administrador</option>
-            {session?.user?.role === "SUPERADMIN" && <option value="SUPERADMIN">Super Admin</option>}
-          </select>
-          {errors.role && (
-            <p className="error-message">{errors.role.message}</p>
+          <label className="form-label-large">
+            Confirmar Contraseña {!editingUser && "*"}
+          </label>
+          <input
+            {...register("confirmPassword")}
+            type="password"
+            placeholder={editingUser ? "Dejar vacío si no cambias la contraseña" : "Confirmar contraseña"}
+            autoComplete="new-password"
+            className="form-input-standard"
+            style={{
+              borderColor: passwordValue && confirmPasswordValue 
+                ? (passwordValue === confirmPasswordValue ? '#10b981' : '#ef4444')
+                : undefined
+            }}
+          />
+          {showConfirmPasswordError && (
+            <p 
+              className="error-message"
+              style={{
+                opacity: errors.confirmPassword ? 1 : 0,
+                transform: errors.confirmPassword ? 'translateY(0)' : 'translateY(-10px)',
+                maxHeight: errors.confirmPassword ? '100px' : '0',
+                marginTop: errors.confirmPassword ? '0.5rem' : '0',
+                marginBottom: errors.confirmPassword ? '0' : '0',
+                overflow: 'hidden',
+                transition: 'opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), margin 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
+              }}
+            >
+              {confirmPasswordErrorMessage}
+            </p>
+          )}
+          {passwordValue && confirmPasswordValue && passwordValue === confirmPasswordValue && (
+            <p style={{ marginTop: '0.25rem', fontSize: '0.75rem', color: '#10b981' }}>
+              ✓ Las contraseñas coinciden
+            </p>
           )}
         </div>
       </div>
-
-      <div className="form-row">
-        <div className="form-group">
-          <label className="form-label-large">Teléfono</label>
-          <input
-            {...register("phone")}
-            type="tel"
-            placeholder="+54 341 123-4567"
-            className="form-input-standard"
-          />
-          {errors.phone && (
-            <p className="error-message">{errors.phone.message}</p>
-          )}
-        </div>
-
-        <div className="form-group">
-          <label className="form-label-large">Dirección</label>
-          <input
-            {...register("address")}
-            type="text"
-            placeholder="Corrientes 1234, Rosario"
-            className="form-input-standard"
-          />
-          {errors.address && (
-            <p className="error-message">{errors.address.message}</p>
-          )}
-        </div>
-      </div>
+      )}
 
       {shouldShowCompanyField && (
         <div className="form-row">
@@ -258,6 +523,42 @@ export function UsuarioForm({
             )}
           </div>
           <div style={{ flex: 1 }}></div>
+        </div>
+      )}
+
+      {/* Toggle para habilitar botonera (solo en desarrollo y para el usuario actual) */}
+      {isCurrentUser && process.env.NODE_ENV === 'development' && (
+        <div className="form-row">
+          <div className="form-group" style={{ flex: 1 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <input
+                {...register("enableBotonera")}
+                type="checkbox"
+                id="enableBotonera"
+                style={{
+                  width: '1.25rem',
+                  height: '1.25rem',
+                  cursor: 'pointer',
+                  accentColor: colors.primary,
+                }}
+              />
+              <label 
+                htmlFor="enableBotonera"
+                style={{
+                  fontSize: '0.875rem',
+                  color: '#4b5563',
+                  cursor: 'pointer',
+                  userSelect: 'none',
+                  fontWeight: 500,
+                }}
+              >
+                Habilitar Botonera (Solo desarrollo)
+              </label>
+            </div>
+            <p style={{ marginTop: '0.5rem', fontSize: '0.75rem', color: '#6b7280' }}>
+              Muestra la barra de navegación inferior con botones de Operaciones, Configuración y Administración
+            </p>
+          </div>
         </div>
       )}
 

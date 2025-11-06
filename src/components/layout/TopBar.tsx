@@ -2,22 +2,28 @@
 
 import { signOut, useSession } from "next-auth/react";
 import { useState, useEffect, useRef } from "react";
-import { LogOut, User, Shield, UserCheck } from "lucide-react";
+import { LogOut, User, Shield, UserCheck, Settings, ChevronDown } from "lucide-react";
 import { useCurrentUserSimple } from "@/hooks/useCurrentUserSimple";
 import { useImpersonation } from "@/hooks/useImpersonation";
 import DeleteConfirmModal from "@/components/common/DeleteConfirmModal";
 import { ShortcutText } from "@/components/common/ShortcutText";
 import { useColorTheme } from "@/contexts/ColorThemeContext";
 import ColorThemeSelector from "@/components/common/ColorThemeSelector";
+import { ConfiguracionModal } from "@/components/common/ConfiguracionModal";
+import { useRouter } from "next/navigation";
 
 export default function TopBar() {
   const { data: session } = useSession();
+  const [showConfigModal, setShowConfigModal] = useState(false);
   const currentUser = useCurrentUserSimple();
   const { stopImpersonation, isImpersonating } = useImpersonation();
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [showUserMenu, setShowUserMenu] = useState(false);
   const { colors } = useColorTheme();
   const topbarRef = useRef<HTMLDivElement>(null);
+  const userMenuRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
 
   // Aplicar tema al topbar con color más oscuro que el header
   useEffect(() => {
@@ -27,6 +33,47 @@ export default function TopBar() {
       topbarRef.current.style.transition = 'background-color 0.3s ease';
     }
   }, [colors.primary]);
+
+  // Cerrar menú al hacer click fuera
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setShowUserMenu(false);
+      }
+    };
+
+    if (showUserMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showUserMenu]);
+
+  const handleProfileClick = () => {
+    setShowUserMenu(false);
+    router.push('/perfil');
+  };
+
+  const handleSettingsClick = () => {
+    setShowUserMenu(false);
+    setShowConfigModal(true);
+  };
+
+  // Calcular posición del dropdown usando position fixed
+  const [dropdownPosition, setDropdownPosition] = useState<{ top: number; right: number } | null>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (showUserMenu && buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      setDropdownPosition({
+        top: rect.bottom + 8, // 8px de espacio
+        right: window.innerWidth - rect.right
+      });
+    }
+  }, [showUserMenu]);
 
   if (!session || !currentUser) {
     return null;
@@ -47,6 +94,13 @@ export default function TopBar() {
           stopImpersonation().catch(() => {
             // Ignorar errores silenciosamente
           });
+        }
+        
+        // Registrar logout antes de cerrar sesión
+        try {
+          await fetch('/api/auth/logout', { method: 'POST' });
+        } catch (error) {
+          // Ignorar errores silenciosamente
         }
         
         // Hacer logout sin redirigir automáticamente y sin callbackUrl
@@ -119,11 +173,32 @@ export default function TopBar() {
           <div className="topbar-right">
             <ColorThemeSelector />
             <div className="user-info-topbar">
-              <div className="user-details">
-                <span className="user-name">
+              <div className="user-details" style={{ position: 'relative', zIndex: 10001 }} ref={userMenuRef}>
+                <button
+                  ref={buttonRef}
+                  onClick={() => setShowUserMenu(!showUserMenu)}
+                  className="user-menu-trigger"
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    background: 'transparent',
+                    border: 'none',
+                    color: 'white',
+                    cursor: 'pointer',
+                    padding: '0.25rem 0.5rem',
+                    borderRadius: '0.375rem',
+                    transition: 'background-color 0.2s',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                  }}
+                >
                   <span 
                     style={{ 
-                      marginRight: '0.5rem',
                       fontSize: '1.1rem',
                       filter: 'drop-shadow(0 1px 2px rgba(255, 255, 255, 0.3)) brightness(1.2)',
                       display: 'inline-block'
@@ -131,14 +206,49 @@ export default function TopBar() {
                   >
                     👤
                   </span>
-                  {currentUser.isImpersonating 
-                    ? (typeof window !== 'undefined' && localStorage.getItem('impersonation') 
-                        ? JSON.parse(localStorage.getItem('impersonation')!).originalAdmin?.name 
-                        : 'Admin')
-                    : currentUser?.name
-                  }
-                </span>
-                {currentUser.role !== 'USER' && (
+                  <span className="user-name">
+                    {currentUser.isImpersonating 
+                      ? (typeof window !== 'undefined' && localStorage.getItem('impersonation') 
+                          ? JSON.parse(localStorage.getItem('impersonation')!).originalAdmin?.name 
+                          : 'Admin')
+                      : currentUser?.name
+                    }
+                  </span>
+                  <ChevronDown 
+                    className="h-3 w-3" 
+                    style={{
+                      transition: 'transform 0.2s',
+                      transform: showUserMenu ? 'rotate(180deg)' : 'rotate(0deg)'
+                    }}
+                  />
+                </button>
+                {showUserMenu && dropdownPosition && (
+                  <div 
+                    className="user-menu-dropdown" 
+                    style={{ 
+                      position: 'fixed',
+                      zIndex: 99999,
+                      top: `${dropdownPosition.top}px`,
+                      right: `${dropdownPosition.right}px`,
+                    }}
+                  >
+                    <button
+                      onClick={handleProfileClick}
+                      className="user-menu-item"
+                    >
+                      <User className="h-4 w-4" />
+                      <span>Perfil de usuario</span>
+                    </button>
+                    <button
+                      onClick={handleSettingsClick}
+                      className="user-menu-item"
+                    >
+                      <Settings className="h-4 w-4" />
+                      <span>Configuración</span>
+                    </button>
+                  </div>
+                )}
+                {currentUser.role !== 'OPERADOR' && (
                   <div className="user-role">
                     {getRoleIcon()}
                     <span>{getRoleText()}</span>
@@ -189,6 +299,11 @@ export default function TopBar() {
         message="¿Estás seguro de que deseas cerrar sesión?"
         confirmButtonText="Aceptar"
         isLoading={isLoggingOut}
+      />
+
+      <ConfiguracionModal
+        isOpen={showConfigModal}
+        onClose={() => setShowConfigModal(false)}
       />
     </>
   );

@@ -37,7 +37,7 @@ function CategoriasContent() {
   const { colors } = useColorTheme();
   
   // Verificar permisos - solo ADMIN y SUPERADMIN pueden acceder
-  if (currentUser?.role === 'USER') {
+  if (currentUser?.role === 'OPERADOR') {
     return (
       <main className="main-content">
         <div className="form-section">
@@ -268,6 +268,7 @@ function CategoriasContent() {
                 placeholder="Seleccionar empresa"
                 searchFields={["name"]}
                 className="w-full"
+                useThemeColors={true}
               />
             </div>
           )}
@@ -285,6 +286,7 @@ function CategoriasContent() {
               <button
                 onClick={handleNew}
                 className="btn-primary new-button"
+                data-shortcut="n"
                 style={{
                   display: 'flex',
                   alignItems: 'center',

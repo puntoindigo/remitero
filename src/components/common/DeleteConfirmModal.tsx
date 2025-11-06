@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { useColorTheme } from "@/contexts/ColorThemeContext";
 
 interface DeleteConfirmModalProps {
@@ -49,6 +50,19 @@ export default function DeleteConfirmModal({
     }
   };
 
+  // Bloquear scroll del body cuando el modal está abierto
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
+
   // Detectar teclas ENTER (confirmar) y ESC (cancelar)
   useEffect(() => {
     if (!isOpen) return;
@@ -71,25 +85,39 @@ export default function DeleteConfirmModal({
 
   if (!isOpen) return null;
 
-  return (
+  if (typeof window === 'undefined') return null;
+
+  const modalContent = (
     <div 
       className="modal-overlay"
+      onClick={(e) => {
+        // Cerrar al hacer click en el overlay (no en el modal)
+        if (e.target === e.currentTarget && !isProcessing && !isLoading) {
+          onCancel();
+        }
+      }}
       style={{
         position: 'fixed',
         top: 0,
         left: 0,
         right: 0,
         bottom: 0,
-        background: 'rgba(0, 0, 0, 0.5)',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
         zIndex: 10000,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '20px'
+        padding: '20px',
+        backdropFilter: 'blur(4px)',
+        WebkitBackdropFilter: 'blur(4px)',
       }}
     >
       <div 
         className="confirm-modal"
+        onClick={(e) => {
+          // Prevenir que los clicks dentro del modal cierren el overlay
+          e.stopPropagation();
+        }}
         style={{
           background: 'white',
           borderRadius: '8px',
@@ -99,10 +127,11 @@ export default function DeleteConfirmModal({
           maxHeight: '90vh',
           overflowY: 'auto',
           position: 'relative',
-          zIndex: 10001
+          zIndex: 10001,
+          overflow: 'hidden'
         }}
       >
-        <div className="modal-header" style={{ padding: '20px 20px 0 20px', borderBottom: '1px solid #e5e7eb' }}>
+        <div className="modal-header" style={{ padding: '20px', paddingBottom: '16px', borderBottom: '1px solid #e5e7eb', position: 'relative' }}>
           <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '600', color: '#111827' }}>{title}</h3>
           <button 
             onClick={onCancel}
@@ -111,8 +140,8 @@ export default function DeleteConfirmModal({
             type="button"
             style={{
               position: 'absolute',
-              top: '15px',
-              right: '15px',
+              top: '16px',
+              right: '16px',
               background: 'none',
               border: 'none',
               fontSize: '24px',
@@ -124,13 +153,13 @@ export default function DeleteConfirmModal({
             ×
           </button>
         </div>
-        <div className="modal-body" style={{ padding: '20px' }}>
+        <div className="modal-body" style={{ padding: '20px', paddingTop: '16px' }}>
           <p style={{ margin: '0', color: '#374151', fontSize: '16px' }}>{message}</p>
           {itemName && (
             <p style={{ margin: '10px 0 0 0', fontWeight: '500', color: '#111827', fontSize: '16px' }}>"{itemName}"</p>
           )}
         </div>
-        <div className="modal-footer" style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+        <div className="modal-footer" style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', padding: '16px 20px', borderTop: '1px solid #e5e7eb' }}>
           <button
             onClick={onCancel}
             disabled={isProcessing || isLoading}
@@ -168,6 +197,7 @@ export default function DeleteConfirmModal({
               minWidth: '100px',
               justifyContent: 'center',
               transition: 'all 0.2s',
+              marginRight: 0
             }}
             onMouseEnter={(e) => {
               if (!isProcessing && !isLoading) {
@@ -196,5 +226,7 @@ export default function DeleteConfirmModal({
       </div>
     </div>
   );
+
+  return createPortal(modalContent, document.body);
 }
 

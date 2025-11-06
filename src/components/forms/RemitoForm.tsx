@@ -2,6 +2,7 @@
 
 import React from "react";
 import { X } from "lucide-react";
+import { useColorTheme } from "@/contexts/ColorThemeContext";
 
 interface RemitoFormProps {
   isOpen: boolean;
@@ -22,6 +23,7 @@ export function RemitoForm({
   clients = [],
   estados = []
 }: RemitoFormProps) {
+  const { colors } = useColorTheme();
   if (!isOpen) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -121,7 +123,37 @@ export function RemitoForm({
             <button type="button" onClick={onClose} disabled={isSubmitting}>
               Cancelar
             </button>
-            <button type="submit" className="primary" disabled={isSubmitting}>
+            <button 
+              type="submit" 
+              className="btn-primary" 
+              disabled={isSubmitting}
+              style={{
+                padding: '8px 16px',
+                border: 'none',
+                borderRadius: '6px',
+                background: isSubmitting ? '#9ca3af' : colors.gradient,
+                color: 'white',
+                cursor: isSubmitting ? 'not-allowed' : 'pointer',
+                fontSize: '14px',
+                fontWeight: '500',
+                minWidth: '100px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'all 0.2s',
+                opacity: isSubmitting ? 0.6 : 1,
+              }}
+              onMouseEnter={(e) => {
+                if (!isSubmitting) {
+                  e.currentTarget.style.transform = 'translateY(-1px)';
+                  e.currentTarget.style.boxShadow = `0 4px 12px ${colors.primary}50`;
+                }
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = 'none';
+              }}
+            >
               {isSubmitting ? 'Guardando...' : (editingRemito ? 'Actualizar' : 'Crear')}
             </button>
           </div>

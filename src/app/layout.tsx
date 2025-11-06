@@ -7,16 +7,22 @@ import AuthenticatedLayout from "@/components/layout/AuthenticatedLayout";
 import EnvironmentBannerWrapper from "@/components/common/EnvironmentBannerWrapper";
 import ErrorBoundary from "@/components/common/ErrorBoundary";
 import { ColorThemeProvider } from "@/contexts/ColorThemeContext";
+import { AppPreloader } from "@/components/common/AppPreloader";
 
 export const metadata: Metadata = {
   title: "Sistema de Remitos",
   description: "Sistema de gestión de remitos con multi-empresa",
+  icons: {
+    icon: '/favicon.svg',
+    apple: '/favicon.svg',
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="es">
       <head>
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -73,6 +79,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <ErrorBoundary>
           <ColorThemeProvider>
+            <AppPreloader />
             <AuthSessionProvider>
               <QueryProvider>
                 {/* <EnvironmentBannerWrapper /> */}

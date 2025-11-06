@@ -2,6 +2,7 @@
 
 import React from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useColorTheme } from "@/contexts/ColorThemeContext";
 
 export interface PaginationProps {
   currentPage: number;
@@ -20,6 +21,7 @@ export function Pagination({
   onPageChange,
   className = ""
 }: PaginationProps) {
+  const { colors } = useColorTheme();
   
   if (totalPages <= 1) {
     return null;
@@ -82,6 +84,38 @@ export function Pagination({
           disabled={currentPage === 1}
           className="pagination-button"
           title="Página anterior"
+          style={{
+            background: 'white',
+            color: '#374151',
+            border: '1px solid #d1d5db',
+            transition: 'all 0.2s',
+          }}
+          onMouseEnter={(e) => {
+            if (!e.currentTarget.disabled) {
+              const element = e.currentTarget;
+              element.style.setProperty('background', colors.gradient, 'important');
+              element.style.setProperty('color', '#ffffff', 'important');
+              element.style.setProperty('border-color', colors.primary, 'important');
+              element.style.setProperty('transform', 'translateY(-1px)', 'important');
+              element.style.setProperty('box-shadow', `0 4px 12px ${colors.primary}50`, 'important');
+              // También cambiar color del icono
+              const icon = element.querySelector('svg');
+              if (icon) (icon as unknown as HTMLElement).style.setProperty('color', '#ffffff', 'important');
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (!e.currentTarget.disabled) {
+              const element = e.currentTarget;
+              element.style.setProperty('background', 'white', 'important');
+              element.style.setProperty('color', '#374151', 'important');
+              element.style.setProperty('border-color', '#d1d5db', 'important');
+              element.style.setProperty('transform', 'translateY(0)', 'important');
+              element.style.setProperty('box-shadow', 'none', 'important');
+              // Restaurar color del icono
+              const icon = element.querySelector('svg');
+              if (icon) (icon as unknown as HTMLElement).style.setProperty('color', '', 'important');
+            }
+          }}
         >
           <ChevronLeft className="h-4 w-4" />
         </button>
@@ -95,6 +129,37 @@ export function Pagination({
               className={`pagination-number ${
                 page === currentPage ? 'active' : ''
               } ${page === '...' ? 'ellipsis' : ''}`}
+              style={page === currentPage ? {
+                background: colors.gradient,
+                color: '#ffffff',
+                borderColor: colors.primary,
+                fontWeight: '600',
+              } : {
+                background: 'white',
+                color: '#374151',
+                border: '1px solid #d1d5db',
+                transition: 'all 0.2s',
+              }}
+              onMouseEnter={(e) => {
+                if (!e.currentTarget.disabled && page !== currentPage && page !== '...') {
+                  const element = e.currentTarget;
+                  element.style.setProperty('background', colors.gradient, 'important');
+                  element.style.setProperty('color', '#ffffff', 'important');
+                  element.style.setProperty('border-color', colors.primary, 'important');
+                  element.style.setProperty('transform', 'translateY(-1px)', 'important');
+                  element.style.setProperty('box-shadow', `0 4px 12px ${colors.primary}50`, 'important');
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!e.currentTarget.disabled && page !== currentPage && page !== '...') {
+                  const element = e.currentTarget;
+                  element.style.setProperty('background', 'white', 'important');
+                  element.style.setProperty('color', '#374151', 'important');
+                  element.style.setProperty('border-color', '#d1d5db', 'important');
+                  element.style.setProperty('transform', 'translateY(0)', 'important');
+                  element.style.setProperty('box-shadow', 'none', 'important');
+                }
+              }}
             >
               {page}
             </button>
@@ -106,6 +171,38 @@ export function Pagination({
           disabled={currentPage === totalPages}
           className="pagination-button"
           title="Página siguiente"
+          style={{
+            background: 'white',
+            color: '#374151',
+            border: '1px solid #d1d5db',
+            transition: 'all 0.2s',
+          }}
+          onMouseEnter={(e) => {
+            if (!e.currentTarget.disabled) {
+              const element = e.currentTarget;
+              element.style.setProperty('background', colors.gradient, 'important');
+              element.style.setProperty('color', '#ffffff', 'important');
+              element.style.setProperty('border-color', colors.primary, 'important');
+              element.style.setProperty('transform', 'translateY(-1px)', 'important');
+              element.style.setProperty('box-shadow', `0 4px 12px ${colors.primary}50`, 'important');
+              // También cambiar color del icono
+              const icon = element.querySelector('svg');
+              if (icon) (icon as unknown as HTMLElement).style.setProperty('color', '#ffffff', 'important');
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (!e.currentTarget.disabled) {
+              const element = e.currentTarget;
+              element.style.setProperty('background', 'white', 'important');
+              element.style.setProperty('color', '#374151', 'important');
+              element.style.setProperty('border-color', '#d1d5db', 'important');
+              element.style.setProperty('transform', 'translateY(0)', 'important');
+              element.style.setProperty('box-shadow', 'none', 'important');
+              // Restaurar color del icono
+              const icon = element.querySelector('svg');
+              if (icon) (icon as unknown as HTMLElement).style.setProperty('color', '', 'important');
+            }
+          }}
         >
           <ChevronRight className="h-4 w-4" />
         </button>

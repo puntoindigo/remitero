@@ -66,6 +66,12 @@ export function CategoriaForm({
       isOpen={isOpen}
       onClose={onClose}
       title={editingCategoria ? "Editar Categoría" : "Nueva Categoría"}
+      modalId={editingCategoria ? `categoria-${editingCategoria.id}` : "nueva-categoria"}
+      modalComponent="CategoriaForm"
+      modalType="form"
+      modalProps={{
+        editingCategoria
+      }}
       onSubmit={handleSubmit(handleFormSubmit)}
       submitText={editingCategoria ? "Actualizar" : "Guardar"}
       isSubmitting={isSubmitting}

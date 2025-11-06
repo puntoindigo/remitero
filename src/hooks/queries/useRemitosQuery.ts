@@ -80,8 +80,11 @@ export function useCreateRemitoMutation() {
       return response.json();
     },
     onSuccess: () => {
-      // Invalidar y refetch de todos los remitos
-      queryClient.invalidateQueries({ queryKey: remitoKeys.lists() });
+      // Invalidar y refetch inmediatamente
+      queryClient.invalidateQueries({ 
+        queryKey: remitoKeys.lists(),
+        refetchType: 'active'
+      });
     },
   });
 }
@@ -106,9 +109,15 @@ export function useUpdateRemitoMutation() {
       return response.json();
     },
     onSuccess: (_, variables) => {
-      // Invalidar remitos y el remito específico
-      queryClient.invalidateQueries({ queryKey: remitoKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: remitoKeys.detail(variables.id) });
+      // Invalidar y refetch inmediatamente
+      queryClient.invalidateQueries({ 
+        queryKey: remitoKeys.lists(),
+        refetchType: 'active'
+      });
+      queryClient.invalidateQueries({ 
+        queryKey: remitoKeys.detail(variables.id),
+        refetchType: 'active'
+      });
     },
   });
 }
@@ -131,8 +140,11 @@ export function useDeleteRemitoMutation() {
       return response.json();
     },
     onSuccess: () => {
-      // Invalidar todos los remitos
-      queryClient.invalidateQueries({ queryKey: remitoKeys.lists() });
+      // Invalidar y refetch inmediatamente
+      queryClient.invalidateQueries({ 
+        queryKey: remitoKeys.lists(),
+        refetchType: 'active'
+      });
     },
   });
 }

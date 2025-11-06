@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
 import { transformRemitos, transformRemito } from "@/lib/utils/supabase-transform";
+import { logUserActivity } from "@/lib/user-activity-logger";
 
 export async function GET(request: NextRequest) {
   try {
@@ -291,6 +292,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Ya no necesitamos crear historial de estado (tabla eliminada)
+
+    // Registrar actividad
+    await logUserActivity(session.user.id, 'CREATE_REMITO', `Creó remito #${nextNumber}`, {
+      remitoId: newRemito?.id,
+      remitoNumber: nextNumber,
+      clientId: clientId
+    });
 
     // Obtener el remito completo con relaciones
     const { data: completeRemito, error: fetchError } = await supabaseAdmin

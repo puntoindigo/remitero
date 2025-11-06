@@ -28,5 +28,17 @@ export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
     headers: {
       'x-client-info': 'remitero-nextjs',
     },
+    fetch: (url, options = {}) => {
+      // Agregar timeout a las peticiones de Supabase
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 segundos
+      
+      return fetch(url, {
+        ...options,
+        signal: controller.signal,
+      }).finally(() => {
+        clearTimeout(timeoutId);
+      });
+    },
   },
 })

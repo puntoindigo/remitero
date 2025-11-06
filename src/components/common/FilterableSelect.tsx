@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { ChevronDown, X, Search } from "lucide-react";
+import { useColorTheme } from "@/contexts/ColorThemeContext";
 
 interface FilterableSelectProps {
   options: Array<{ id: string; name: string; color?: string; [key: string]: any }>;
@@ -14,6 +15,7 @@ interface FilterableSelectProps {
   disabled?: boolean;
   showColors?: boolean;
   searchable?: boolean;
+  useThemeColors?: boolean; // Nueva prop para usar colores del tema
 }
 
 export default function FilterableSelect({
@@ -25,8 +27,10 @@ export default function FilterableSelect({
   className = "",
   disabled = false,
   showColors = false,
-  searchable = true
+  searchable = true,
+  useThemeColors = false
 }: FilterableSelectProps) {
+  const { colors } = useColorTheme();
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredOptions, setFilteredOptions] = useState(options);
@@ -63,12 +67,15 @@ export default function FilterableSelect({
 
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0, width: 0 });
   const rafRef = useRef<number | null>(null);
+  
   const updateDropdownPosition = () => {
     if (triggerRef.current) {
       const rect = triggerRef.current.getBoundingClientRect();
+      // getBoundingClientRect devuelve coordenadas relativas al viewport
+      // Como usamos position: fixed, estas coordenadas son perfectas
       setDropdownPosition({
-        top: rect.bottom + window.scrollY + 4,
-        left: rect.left + window.scrollX,
+        top: rect.bottom + 4, // 4px de espacio entre trigger y dropdown
+        left: rect.left,
         width: rect.width
       });
     }
@@ -83,26 +90,74 @@ export default function FilterableSelect({
     }
   };
 
-  // Actualizar posición cuando se abre el dropdown o cuando hay scroll
+  // Actualizar posición cuando se abre el dropdown o cuando hay scroll/resize
   useEffect(() => {
-    if (isOpen) {
-      updateDropdownPosition();
-      const handler = () => updateDropdownPosition();
-      window.addEventListener('resize', handler);
-      // Captura scrolls de contenedores
-      document.addEventListener('scroll', handler, true);
-      // Mantener pegado mediante RAF mientras esté abierto (por desplazamientos/transiciones)
-      const tick = () => {
+    if (!isOpen) {
+      // Asegurarse de cancelar el RAF cuando se cierra
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = null;
+      }
+      return;
+    }
+    
+    // Actualización inicial
+    updateDropdownPosition();
+    
+    // Handler para eventos de scroll/resize (throttled para evitar actualizaciones excesivas)
+    let lastUpdate = 0;
+    const throttleDelay = 16; // ~60fps
+    
+    const handler = () => {
+      const now = performance.now();
+      if (now - lastUpdate >= throttleDelay) {
+        updateDropdownPosition();
+        lastUpdate = now;
+      }
+    };
+    
+    // Escuchar eventos en todos los contenedores posibles
+    // Usar capture: true para capturar scrolls en cualquier nivel
+    const scrollElements: (Window | Document | Element)[] = [window, document];
+    
+    // Agregar también los contenedores scrollables más comunes
+    const scrollableContainers = document.querySelectorAll('[data-scroll-container], .data-table-wrapper, .main-content');
+    scrollableContainers.forEach(container => {
+      scrollElements.push(container);
+    });
+    
+    // Agregar listeners
+    scrollElements.forEach(element => {
+      element.addEventListener('scroll', handler, true);
+      element.addEventListener('resize', handler, true);
+    });
+    
+    // RAF para actualización continua sin throttle adicional (ya está en handler)
+    const tick = () => {
+      if (isOpen && triggerRef.current) {
         updateDropdownPosition();
         rafRef.current = requestAnimationFrame(tick);
-      };
-      rafRef.current = requestAnimationFrame(tick);
-      return () => {
-        window.removeEventListener('resize', handler);
-        document.removeEventListener('scroll', handler, true);
-        if (rafRef.current) cancelAnimationFrame(rafRef.current);
-      };
-    }
+      } else {
+        if (rafRef.current) {
+          cancelAnimationFrame(rafRef.current);
+          rafRef.current = null;
+        }
+      }
+    };
+    rafRef.current = requestAnimationFrame(tick);
+    
+    return () => {
+      // Limpiar todos los listeners
+      scrollElements.forEach(element => {
+        element.removeEventListener('scroll', handler, true);
+        element.removeEventListener('resize', handler, true);
+      });
+      
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = null;
+      }
+    };
   }, [isOpen]);
 
   const handleSelect = (optionId: string) => {
@@ -229,12 +284,53 @@ export default function FilterableSelect({
         type="button"
         onClick={handleToggle}
         disabled={disabled}
-        className={`vercel-select-trigger ${isOpen ? 'vercel-select-open' : ''} ${disabled ? 'vercel-select-disabled' : ''}`}
-        style={showColors && selectedOption?.color ? {
-          border: `1px solid ${selectedOption.color}`,
-          backgroundColor: `${selectedOption.color}22`,
-          minHeight: 'unset'
-        } : { minHeight: 'unset' }}
+        className={`vercel-select-trigger ${isOpen ? 'vercel-select-open' : ''} ${disabled ? 'vercel-select-disabled' : ''} ${useThemeColors ? 'vercel-select-theme-enabled' : ''}`}
+        style={(() => {
+          const baseStyle: React.CSSProperties = { minHeight: 'unset' };
+          
+          // Solo aplicar estilos si muestra colores (no para theme colors, esos van en hover)
+          if (showColors && selectedOption?.color) {
+            return {
+              ...baseStyle,
+              border: `1px solid ${selectedOption.color}`,
+              backgroundColor: `${selectedOption.color}22`,
+            };
+          }
+          
+          return baseStyle;
+        })()}
+        onMouseEnter={(e) => {
+          if (useThemeColors && !disabled) {
+            e.currentTarget.style.background = colors.gradient;
+            e.currentTarget.style.color = '#ffffff';
+            e.currentTarget.style.borderColor = colors.primary;
+            // Aplicar color blanco al texto y todos los iconos internos
+            const valueText = e.currentTarget.querySelector('.vercel-select-value');
+            const clearIcon = e.currentTarget.querySelector('.vercel-select-clear-icon');
+            const chevron = e.currentTarget.querySelector('.vercel-select-chevron');
+            const clearButton = e.currentTarget.querySelector('.vercel-select-clear');
+            if (valueText) (valueText as HTMLElement).style.color = '#ffffff';
+            if (clearIcon) (clearIcon as HTMLElement).style.color = '#ffffff';
+            if (chevron) (chevron as HTMLElement).style.color = '#ffffff';
+            if (clearButton) (clearButton as HTMLElement).style.color = '#ffffff';
+          }
+        }}
+        onMouseLeave={(e) => {
+          if (useThemeColors && !disabled) {
+            e.currentTarget.style.background = '';
+            e.currentTarget.style.color = '';
+            e.currentTarget.style.borderColor = '';
+            // Restaurar color por defecto al texto y a los iconos
+            const valueText = e.currentTarget.querySelector('.vercel-select-value');
+            const clearIcon = e.currentTarget.querySelector('.vercel-select-clear-icon');
+            const chevron = e.currentTarget.querySelector('.vercel-select-chevron');
+            const clearButton = e.currentTarget.querySelector('.vercel-select-clear');
+            if (valueText) (valueText as HTMLElement).style.color = '';
+            if (clearIcon) (clearIcon as HTMLElement).style.color = '';
+            if (chevron) (chevron as HTMLElement).style.color = '';
+            if (clearButton) (clearButton as HTMLElement).style.color = '';
+          }
+        }}
       >
         <span className={`vercel-select-value ${value ? 'vercel-select-has-value' : ''}`} style={{ display: 'inline-flex', alignItems: 'center' }}>
           {showColors && selectedOption?.color && (

@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
 import { transformRemito } from "@/lib/utils/supabase-transform";
+import { logUserActivity } from "@/lib/user-activity-logger";
 
 export async function GET(
   request: NextRequest,
@@ -268,6 +269,23 @@ export async function PUT(
       }, { status: 500 });
     }
 
+    // Obtener número del remito para el log
+    const { data: remitoForLog } = await supabaseAdmin
+      .from('remitos')
+      .select('number')
+      .eq('id', remitoId)
+      .single();
+
+    // Registrar actividad
+    await logUserActivity(session.user.id, 'UPDATE_REMITO',
+      remitoForLog?.number ? `Actualizó remito #${remitoForLog.number}` : 'Actualizó un remito',
+      {
+        remitoId: remitoId,
+        remitoNumber: remitoForLog?.number,
+        clientId: clientId
+      }
+    );
+
     // Obtener el remito completo actualizado
     const { data: completeRemito, error: fetchError } = await supabaseAdmin
       .from('remitos')
@@ -382,6 +400,13 @@ export async function DELETE(
 
     // Ya no existe tabla status_history
 
+    // Obtener número del remito antes de eliminarlo para el log
+    const { data: remitoForLog } = await supabaseAdmin
+      .from('remitos')
+      .select('number')
+      .eq('id', remitoId)
+      .single();
+
     // Eliminar el remito
     const { error: deleteError } = await supabaseAdmin
       .from('remitos')
@@ -395,6 +420,15 @@ export async function DELETE(
         message: "No se pudo eliminar el remito."
       }, { status: 500 });
     }
+
+    // Registrar actividad
+    await logUserActivity(session.user.id, 'DELETE_REMITO',
+      remitoForLog?.number ? `Eliminó remito #${remitoForLog.number}` : 'Eliminó un remito',
+      {
+        remitoId: remitoId,
+        remitoNumber: remitoForLog?.number
+      }
+    );
 
     return NextResponse.json({ message: "Remito eliminado correctamente" });
   } catch (error: any) {

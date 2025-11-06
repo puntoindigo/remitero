@@ -3,12 +3,13 @@
 import { useSession } from "next-auth/react"
 import { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
-import { FileText, Package, Users, Building2, Tag, ShoppingBag, Plus, Eye } from "lucide-react"
+import { FileText, Package, Users, Building2, Tag, ShoppingBag, Plus, Eye, Building } from "lucide-react"
 import Link from "next/link"
 import { useCurrentUserSimple } from "@/hooks/useCurrentUserSimple"
 import { useEmpresas } from "@/hooks/useEmpresas"
 import FilterableSelect from "@/components/common/FilterableSelect"
 import { useShortcuts } from "@/hooks/useShortcuts"
+import { PinnedModalsPanel } from "@/components/common/PinnedModalsPanel"
 
 interface DashboardStats {
   remitos: {
@@ -23,6 +24,7 @@ interface DashboardStats {
   clientes: number;
   categorias: number;
   usuarios: number;
+  empresas: number;
 }
 
 interface TodayStats {
@@ -43,7 +45,8 @@ export default function DashboardPage() {
     productos: { total: 0, conStock: 0, sinStock: 0 },
     clientes: 0,
     categorias: 0,
-    usuarios: 0
+    usuarios: 0,
+    empresas: 0
   })
   const [todayStats, setTodayStats] = useState<TodayStats>({
     usuarios: 0,
@@ -82,20 +85,31 @@ export default function DashboardPage() {
     }
     const loadStats = async () => {
       // Determinar el companyId efectivo
+      // Si es SUPERADMIN y selectedCompanyId es "", significa "Todas las empresas" (null)
+      // Si es SUPERADMIN y selectedCompanyId tiene valor, usar ese valor
+      // Si no es SUPERADMIN, usar el companyId del usuario
       const effectiveCompanyId = currentUser?.role === "SUPERADMIN" 
-        ? (selectedCompanyId || null)
+        ? (selectedCompanyId === "" ? null : (selectedCompanyId || null))
         : currentUser?.companyId;
       
-      if (!effectiveCompanyId) return
+      // Para SUPERADMIN, permitir null (todas las empresas)
+      // Para otros roles, requerir companyId
+      if (!effectiveCompanyId && currentUser?.role !== "SUPERADMIN") return
       
       // Evitar cargas repetidas por el mismo companyId
-      if (lastFetchedCompanyId.current === effectiveCompanyId) return;
+      // Usar string "all" para representar null (todas las empresas) en el tracking
+      const trackingKey = effectiveCompanyId || "all";
+      if (lastFetchedCompanyId.current === trackingKey) return;
       // Evitar iniciar dos fetch simultáneos para el mismo companyId
-      if (inFlightCompanyId.current === effectiveCompanyId) return;
-      inFlightCompanyId.current = effectiveCompanyId;
+      if (inFlightCompanyId.current === trackingKey) return;
+      inFlightCompanyId.current = trackingKey;
       
       try {
-        const resp = await fetch(`/api/dashboard?companyId=${effectiveCompanyId}`, { signal: abortController.signal });
+        // Si effectiveCompanyId es null (todas las empresas), no pasar el parámetro
+        const url = effectiveCompanyId 
+          ? `/api/dashboard?companyId=${effectiveCompanyId}` 
+          : `/api/dashboard`;
+        const resp = await fetch(url, { signal: abortController.signal });
         if (!resp.ok) throw new Error('Error al cargar dashboard agregado');
         const data = await resp.json();
 
@@ -108,7 +122,8 @@ export default function DashboardPage() {
           },
           clientes: data.clientes?.total || 0,
           categorias: data.categorias?.total || 0,
-          usuarios: data.usuarios?.total || 0
+          usuarios: data.usuarios?.total || 0,
+          empresas: data.empresas?.total || 0
         })
 
         setTodayStats({
@@ -118,7 +133,7 @@ export default function DashboardPage() {
           categorias: data.categorias?.today || 0
         })
         // Marcar como cargado exitosamente para este companyId
-        lastFetchedCompanyId.current = effectiveCompanyId;
+        lastFetchedCompanyId.current = trackingKey;
       } catch (error: any) {
         // Silenciar abortos esperados al cambiar rápido de empresa o desmontar
         if (error?.name === 'AbortError') {
@@ -137,7 +152,8 @@ export default function DashboardPage() {
           productos: { total: 0, conStock: 0, sinStock: 0 },
           clientes: 0,
           categorias: 0,
-          usuarios: 0
+          usuarios: 0,
+          empresas: 0
         });
         setTodayStats({
           usuarios: 0,
@@ -153,9 +169,10 @@ export default function DashboardPage() {
       }
     }
 
+    // OPTIMIZADO: Reducir debounce a 50ms para carga más rápida
     debounceTimer.current = setTimeout(() => {
       loadStats();
-    }, 150);
+    }, 50);
 
     return () => {
       if (debounceTimer.current) clearTimeout(debounceTimer.current as any);
@@ -176,6 +193,7 @@ export default function DashboardPage() {
       case "Clientes": return "/clientes/nuevo";
       case "Categorías": return "/categorias/nuevo";
       case "Usuarios": return "/usuarios/nuevo";
+      case "Empresas": return "/empresas/nuevo";
       default: return "/";
     }
   };
@@ -187,6 +205,7 @@ export default function DashboardPage() {
       case "Clientes": return "Cliente";
       case "Categorías": return "Categoría";
       case "Usuarios": return "Usuario";
+      case "Empresas": return "Empresa";
       default: return title;
     }
   };
@@ -271,6 +290,20 @@ export default function DashboardPage() {
     })
   }
 
+  // Agregar tarjeta de empresas solo si el usuario es SUPERADMIN
+  if (currentUser?.role === 'SUPERADMIN') {
+    cards.push({
+      title: "Empresas",
+      icon: Building,
+      color: "bg-cyan-500",
+      textColor: "text-cyan-600",
+      bgColor: "bg-cyan-50",
+      stats: [
+        { label: "Total", value: stats.empresas, link: "/empresas" }
+      ]
+    })
+  }
+
   // Shortcut para ir al dashboard (si no está en uso globalmente)
   // Nota: El shortcut 'D' ya existe en Header.tsx globalmente, pero lo agregamos aquí
   // para asegurar que funcione incluso si Header no está montado
@@ -282,11 +315,16 @@ export default function DashboardPage() {
     }
   ], true);
 
-  if (isLoading) {
+  // OPTIMIZADO: No mostrar loading spinner - mostrar contenido inmediatamente con skeleton o datos en cache
+  // Solo mostrar loading si realmente no hay datos (primera carga)
+  if (isLoading && stats.remitos.total === 0 && stats.productos.total === 0 && stats.clientes === 0) {
     return (
       <main className="main-content">
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+        <div className="form-section">
+          <h2>Tablero de Control</h2>
+          <div className="flex justify-center items-center h-32">
+            <div className="text-gray-500 text-sm">Cargando datos...</div>
+          </div>
         </div>
       </main>
     )
@@ -299,16 +337,23 @@ export default function DashboardPage() {
         
           {/* Selector de empresa para SUPERADMIN */}
           {currentUser?.role === "SUPERADMIN" && empresas?.length > 0 && (
-            <div style={{ marginBottom: '1.5rem', maxWidth: '400px' }}>
+            <div style={{ marginBottom: '1.5rem', width: '100%' }}>
               <FilterableSelect
-                options={empresas}
+                options={[
+                  { id: "", name: "Todas las empresas" },
+                  ...empresas
+                ]}
                 value={selectedCompanyId}
                 onChange={setSelectedCompanyId}
                 placeholder="Seleccionar empresa"
                 className="w-full"
+                useThemeColors={true}
               />
             </div>
           )}
+
+          {/* Panel de Modales Anclados */}
+          <PinnedModalsPanel />
 
         <div className="dashboard-grid">
           {cards.map((card) => (

@@ -2,9 +2,10 @@
 
 import React, { useState, Suspense, useCallback, useEffect } from "react";
 import { useSession } from "next-auth/react";
-import { Plus, Building2, Users } from "lucide-react";
+import { Plus, Building2, Users, Edit, Trash2 } from "lucide-react";
 import { formatDate } from "@/lib/utils/formatters";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { MessageModal } from "@/components/common/MessageModal";
 import DeleteConfirmModal from "@/components/common/DeleteConfirmModal";
 import { EmpresaForm } from "@/components/forms/EmpresaForm";
@@ -25,6 +26,7 @@ import { useColorTheme } from "@/contexts/ColorThemeContext";
 function EmpresasContent() {
   const { data: session } = useSession();
   const { colors } = useColorTheme();
+  const router = useRouter();
   const {
     editingItem: editingCompany,
     showForm,
@@ -119,6 +121,67 @@ function EmpresasContent() {
         minute: '2-digit',
         hour12: false
       })
+    },
+    {
+      key: 'actions',
+      label: 'Acciones',
+      render: (empresa) => (
+        <div className="action-buttons">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              router.push(`/usuarios?companyId=${empresa.id}`);
+            }}
+            className="action-button"
+            title="Ver usuarios de esta empresa"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.25rem',
+              padding: '6px 12px',
+              background: colors.gradient,
+              color: 'white',
+              border: 'none',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontSize: '14px',
+              fontWeight: '500',
+              transition: 'all 0.2s',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-1px)';
+              e.currentTarget.style.boxShadow = `0 4px 12px ${colors.primary}50`;
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = 'none';
+            }}
+          >
+            <Users className="h-4 w-4" />
+          </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleEdit(empresa);
+            }}
+            className="action-button edit-button"
+            title="Editar"
+          >
+            <Edit className="h-4 w-4" />
+          </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDeleteEmpresa(empresa);
+            }}
+            className="action-button delete-button"
+            title="Eliminar"
+          >
+            <Trash2 className="h-4 w-4" />
+          </button>
+        </div>
+      )
     }
   ];
 
@@ -211,6 +274,7 @@ function EmpresasContent() {
             <button
               onClick={handleNew}
               className="btn-primary new-button"
+              data-shortcut="n"
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -246,6 +310,7 @@ function EmpresasContent() {
             columns={columns}
             showSearch={false}
             showNewButton={false}
+            showActions={false}
             onEdit={(empresa) => handleEdit(empresa)}
             onDelete={(empresa) => handleDeleteRequest(empresa.id, empresa.name)}
             actionsColumnLabel="Acciones"

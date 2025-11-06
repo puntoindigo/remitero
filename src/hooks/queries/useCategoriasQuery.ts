@@ -57,7 +57,11 @@ export function useCreateCategoriaMutation() {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: categoryKeys.lists() });
+      // Invalidar y refetch inmediatamente
+      queryClient.invalidateQueries({ 
+        queryKey: categoryKeys.lists(),
+        refetchType: 'active'
+      });
     },
   });
 }
@@ -82,8 +86,15 @@ export function useUpdateCategoriaMutation() {
       return response.json();
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: categoryKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: categoryKeys.detail(variables.id) });
+      // Invalidar y refetch inmediatamente
+      queryClient.invalidateQueries({ 
+        queryKey: categoryKeys.lists(),
+        refetchType: 'active'
+      });
+      queryClient.invalidateQueries({ 
+        queryKey: categoryKeys.detail(variables.id),
+        refetchType: 'active'
+      });
     },
   });
 }
@@ -106,7 +117,11 @@ export function useDeleteCategoriaMutation() {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: categoryKeys.lists() });
+      // Invalidar y refetch inmediatamente
+      queryClient.invalidateQueries({ 
+        queryKey: categoryKeys.lists(),
+        refetchType: 'active'
+      });
     },
   });
 }

@@ -70,7 +70,7 @@ export function useTheme(): UseThemeReturn {
     document.body.className = document.body.className
       .replace(/theme-\w+/g, '')
       .trim();
-    document.body.classList.add(`theme-${currentTheme}, []`);
+    document.body.classList.add(`theme-${currentTheme}`);
 
     document.head.appendChild(link);
 

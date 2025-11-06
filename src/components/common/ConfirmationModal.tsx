@@ -1,6 +1,7 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
+import { createPortal } from "react-dom";
 import { CheckCircle, AlertCircle, Info, AlertTriangle } from "lucide-react";
 
 interface ConfirmationModalProps {
@@ -26,7 +27,22 @@ export function ConfirmationModal({
   cancelText = 'Cancelar',
   isLoading = false
 }: ConfirmationModalProps) {
+  // Bloquear scroll del body cuando el modal está abierto
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
+
   if (!isOpen) return null;
+
+  if (typeof window === 'undefined') return null;
 
   const getIcon = () => {
     switch (type) {
@@ -54,9 +70,42 @@ export function ConfirmationModal({
     }
   };
 
-  return (
-    <div className="modal-overlay">
-      <div className="modal">
+  const modalContent = (
+    <div 
+      className="modal-overlay"
+      onClick={(e) => {
+        // Cerrar al hacer click en el overlay (no en el modal)
+        if (e.target === e.currentTarget && !isLoading) {
+          onClose();
+        }
+      }}
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        zIndex: 10000,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '20px',
+        backdropFilter: 'blur(4px)',
+        WebkitBackdropFilter: 'blur(4px)',
+      }}
+    >
+      <div 
+        className="modal"
+        onClick={(e) => {
+          // Prevenir que los clicks dentro del modal cierren el overlay
+          e.stopPropagation();
+        }}
+        style={{
+          position: 'relative',
+          zIndex: 10001,
+        }}
+      >
         <div className="modal-header">
           <div className="flex items-center gap-4">
             {getIcon()}
@@ -89,4 +138,6 @@ export function ConfirmationModal({
       </div>
     </div>
   );
+
+  return createPortal(modalContent, document.body);
 }

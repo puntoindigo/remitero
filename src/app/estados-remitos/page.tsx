@@ -40,7 +40,7 @@ function EstadosRemitosContent() {
   }
   
   // Verificar permisos - solo ADMIN y SUPERADMIN pueden acceder
-  if (currentUser?.role === 'USER') {
+  if (currentUser?.role === 'OPERADOR') {
     return (
       <main className="main-content">
         <div className="form-section">
@@ -287,6 +287,7 @@ function EstadosRemitosContent() {
           onSubmit={onSubmit}
           isSubmitting={isSubmitting}
           editingEstado={editingEstado}
+          companyId={companyId}
         />
 
         <div className="form-section">
@@ -302,6 +303,7 @@ function EstadosRemitosContent() {
                 placeholder="Seleccionar empresa"
                 searchFields={["name"]}
                 className="w-full"
+                useThemeColors={true}
               />
             </div>
           )}

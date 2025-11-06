@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { LoadingSpinner } from './LoadingSpinner';
+import { useColorTheme } from '@/contexts/ColorThemeContext';
 
 interface LoadingOverlayProps {
   isLoading: boolean;
@@ -10,6 +10,7 @@ interface LoadingOverlayProps {
   className?: string;
   showProgress?: boolean;
   size?: 'sm' | 'md' | 'lg';
+  fullScreen?: boolean;
 }
 
 export function LoadingOverlay({
@@ -18,47 +19,143 @@ export function LoadingOverlay({
   progress,
   className = '',
   showProgress = false,
-  size = 'md'
+  size = 'md',
+  fullScreen = true
 }: LoadingOverlayProps) {
+  const { colors } = useColorTheme();
+
   if (!isLoading) return null;
 
   const sizeClasses = {
-    sm: 'h-4 w-4',
-    md: 'h-6 w-6',
-    lg: 'h-8 w-8'
+    sm: { width: '1rem', height: '1rem', borderWidth: '2px' },
+    md: { width: '2rem', height: '2rem', borderWidth: '3px' },
+    lg: { width: '3.5rem', height: '3.5rem', borderWidth: '4px' }
+  };
+
+  const spinnerSize = sizeClasses[size];
+
+  const overlayStyle: React.CSSProperties = {
+    position: fullScreen ? 'fixed' : 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backdropFilter: 'blur(4px)',
+    zIndex: 9999,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    animation: 'fadeIn 0.2s ease-in-out',
   };
 
   return (
-    <div className={`fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 ${className}`}>
-      <div className="bg-white rounded-lg p-6 shadow-xl max-w-sm w-full mx-4">
-        <div className="flex flex-col items-center space-y-4">
+    <>
+      <div style={overlayStyle} className={className}>
+        <div
+          style={{
+            backgroundColor: '#fff',
+            borderRadius: '1rem',
+            padding: '2rem 2.5rem',
+            boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '1.5rem',
+            minWidth: '280px',
+            maxWidth: '90vw',
+            animation: 'slideUp 0.3s ease-out',
+          }}
+        >
           {/* Spinner */}
-          <div className="flex items-center justify-center">
-            <div className={`animate-spin rounded-full border-b-2 border-blue-600 ${sizeClasses[size]}`}></div>
-          </div>
+          <div
+            style={{
+              width: spinnerSize.width,
+              height: spinnerSize.height,
+              border: `${spinnerSize.borderWidth} solid #e5e7eb`,
+              borderTop: `${spinnerSize.borderWidth} solid ${colors.primary}`,
+              borderRadius: '50%',
+              animation: 'spin 0.8s linear infinite',
+            }}
+          />
           
           {/* Message */}
-          <div className="text-center">
-            <p className="text-gray-900 font-medium">{message}</p>
+          <div style={{ textAlign: 'center' }}>
+            <p style={{ 
+              fontSize: '1rem', 
+              fontWeight: 500, 
+              color: '#1f2937',
+              margin: 0 
+            }}>
+              {message}
+            </p>
           </div>
           
           {/* Progress Bar */}
           {showProgress && progress !== undefined && (
-            <div className="w-full">
-              <div className="flex justify-between text-sm text-gray-600 mb-1">
+            <div style={{ width: '100%', marginTop: '0.5rem' }}>
+              <div style={{ 
+                display: 'flex', 
+                justifyContent: 'space-between', 
+                fontSize: '0.875rem', 
+                color: '#6b7280', 
+                marginBottom: '0.5rem' 
+              }}>
                 <span>Progreso</span>
                 <span>{Math.round(progress)}%</span>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
+              <div style={{ 
+                width: '100%', 
+                backgroundColor: '#e5e7eb', 
+                borderRadius: '9999px', 
+                height: '0.5rem' 
+              }}>
                 <div 
-                  className="bg-blue-600 h-2 rounded-full transition-all duration-300 ease-out"
-                  style={{ width: `${Math.min(100, Math.max(0, progress))}%` }}
-                ></div>
+                  style={{ 
+                    backgroundColor: colors.primary,
+                    height: '100%',
+                    borderRadius: '9999px',
+                    transition: 'width 0.3s ease-out',
+                    width: `${Math.min(100, Math.max(0, progress))}%`
+                  }}
+                />
               </div>
             </div>
           )}
         </div>
       </div>
-    </div>
+
+      {/* Estilos de animación */}
+      <style jsx global>{`
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
+          }
+        }
+
+        @keyframes slideUp {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        @keyframes spin {
+          from {
+            transform: rotate(0deg);
+          }
+          to {
+            transform: rotate(360deg);
+          }
+        }
+      `}</style>
+    </>
   );
 }

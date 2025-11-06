@@ -50,6 +50,7 @@ declare module "next-auth/jwt" {
     role: string
     companyId?: string
     companyName?: string
+    hasTemporaryPassword?: boolean
     originalAdmin?: {
       id: string
       name: string

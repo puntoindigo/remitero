@@ -60,6 +60,7 @@ export function OptimizedPageLayout({
               placeholder="Seleccionar empresa"
               searchFields={["name"]}
               className="w-full"
+              useThemeColors={true}
             />
           </div>
         )}

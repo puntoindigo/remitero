@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, Suspense, useCallback, useMemo } from "react";
+import React, { useState, useEffect, Suspense, useCallback, useMemo, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { Plus, FileText, Calendar, User, Package } from "lucide-react";
@@ -92,6 +92,13 @@ function RemitosContent() {
     // Mapeo por nombre/id se hará cuando los estados estén cargados
     return urlStatus ? '' : 'all';
   });
+  
+  // Filtro de cliente: se inicializa desde la URL (si existe); caso contrario, 'all'
+  const [selectedClientFilter, setSelectedClientFilter] = useState<string>(() => {
+    if (typeof window === 'undefined') return 'all';
+    const urlClient = new URLSearchParams(window.location.search).get('client');
+    return urlClient || 'all';
+  });
 
   // Eliminar persistencia: no guardamos el filtro
 
@@ -137,16 +144,78 @@ function RemitosContent() {
     }
   }, [selectedStatusFilter, estadosActivos, router, pathname, searchParams]);
 
-  // Filtrar remitos por estado
-  const filteredRemitos = useMemo(() => {
-    if (!remitos || selectedStatusFilter === 'all' || !selectedStatusFilter) {
-      return remitos;
+  // Actualizar filtro de cliente desde la URL (solo lectura, no escritura)
+  useEffect(() => {
+    const urlClient = searchParams.get('client');
+    if (urlClient && urlClient !== selectedClientFilter) {
+      // Solo actualizar si viene de la URL y es diferente
+      setSelectedClientFilter(urlClient);
+    } else if (!urlClient && selectedClientFilter !== 'all' && selectedClientFilter !== '') {
+      // Solo resetear si la URL no tiene client y el estado no es 'all' ni vacío
+      // Pero evitar si acabamos de llegar desde otra página
+      const isInitialMount = !searchParams.toString();
+      if (!isInitialMount) {
+        setSelectedClientFilter('all');
+      }
     }
-    // Si el filtro no coincide con ningún estado conocido aún, no aplicar filtro
-    const isKnownStatus = (estadosActivos || []).some(e => e.id === selectedStatusFilter);
-    if (!isKnownStatus) return remitos;
-    return remitos.filter((remito: Remito) => remito.status?.id === selectedStatusFilter);
-  }, [remitos, selectedStatusFilter, estadosActivos]);
+  }, [searchParams]); // Solo depende de searchParams, no de selectedClientFilter
+  
+  // Empujar cambios del filtro de cliente a la URL (solo cuando el usuario cambia el filtro manualmente)
+  const isInitialClientLoad = useRef(true);
+  
+  useEffect(() => {
+    // En el primer render, no hacer nada (el efecto de lectura de URL ya estableció el estado)
+    if (isInitialClientLoad.current) {
+      const urlClient = searchParams.get('client');
+      if (urlClient) {
+        isInitialClientLoad.current = false;
+        return; // No actualizar la URL si ya viene en la URL
+      }
+      isInitialClientLoad.current = false;
+    }
+    
+    // Evitar actualizar si el cambio viene de la URL (para evitar loops)
+    const urlClient = searchParams.get('client') || '';
+    
+    // Si el estado coincide con la URL, no hacer nada
+    if ((selectedClientFilter === 'all' && !urlClient) || 
+        (selectedClientFilter !== 'all' && urlClient === selectedClientFilter)) {
+      return;
+    }
+    
+    const params = new URLSearchParams(searchParams as any);
+    
+    if (selectedClientFilter && selectedClientFilter !== 'all') {
+      params.set('client', selectedClientFilter);
+    } else {
+      params.delete('client');
+    }
+    
+    const qs = params.toString();
+    router.replace(qs ? `${pathname}?${qs}` : `${pathname}`, { scroll: false });
+  }, [selectedClientFilter, router, pathname]); // No incluir searchParams para evitar loops
+
+  // Filtrar remitos por estado y cliente
+  const filteredRemitos = useMemo(() => {
+    if (!remitos) return remitos;
+    
+    let filtered = remitos;
+    
+    // Filtrar por estado
+    if (selectedStatusFilter && selectedStatusFilter !== 'all') {
+      const isKnownStatus = (estadosActivos || []).some(e => e.id === selectedStatusFilter);
+      if (isKnownStatus) {
+        filtered = filtered.filter((remito: Remito) => remito.status?.id === selectedStatusFilter);
+      }
+    }
+    
+    // Filtrar por cliente
+    if (selectedClientFilter && selectedClientFilter !== 'all') {
+      filtered = filtered.filter((remito: Remito) => remito.client?.id === selectedClientFilter);
+    }
+    
+    return filtered;
+  }, [remitos, selectedStatusFilter, selectedClientFilter, estadosActivos]);
   
   // Loading state management
   const { loading: loadingState, startLoading, stopLoading } = useLoading();
@@ -169,6 +238,9 @@ function RemitosContent() {
   // Ahora que ya conocemos showForm, cargar productos y clientes solo cuando se abre el formulario
   const { data: products = [] } = useProductosQuery(showForm ? (companyId || undefined) : undefined);
   const { data: clients = [], refetch: refetchClientes } = useClientesQuery(showForm ? (companyId || undefined) : undefined);
+  
+  // Cargar clientes para el filtro (siempre, no solo cuando se abre el formulario)
+  const { data: allClients = [] } = useClientesQuery(companyId || undefined);
 
   const { modalState, showSuccess: showModalSuccess, showError: showModalError, closeModal } = useMessageModal();
   const { toasts, showSuccess: showToastSuccess, showError: showToastError, removeToast } = useToast();
@@ -214,7 +286,7 @@ function RemitosContent() {
 
   // Función de eliminación con useCallback para evitar problemas de hoisting
   const handleDeleteRemito = useCallback((remito: Remito) => {
-    handleDeleteRequest(remito?.id, `Remito #${remito.number}, []`);
+    handleDeleteRequest(remito?.id, `Remito #${remito.number}`);
   }, [handleDeleteRequest]);
 
   const handlePrintRemito = useCallback((remito: Remito) => {
@@ -340,8 +412,10 @@ function RemitosContent() {
         showToastSuccess("Remito creado correctamente");
         handleCloseForm();
         
-        // No abrir automáticamente la impresión - el usuario puede imprimir desde el listado
-        // si desea hacerlo, puede usar el botón de imprimir en la tabla
+        // Ofrecer imprimir el remito recién creado
+        if (newRemito?.number && window.confirm('¿Deseas imprimir el remito ahora?')) {
+          window.open(`/remitos/${newRemito.number}/print`, '_blank');
+        }
       }
     } catch (error: any) {
       console.error('Error al crear/actualizar remito:', error);
@@ -401,7 +475,7 @@ function RemitosContent() {
     {
       key: 'total',
       label: 'Total',
-      render: (remito) => `$${remito.total.toFixed(2)}`
+      render: (remito) => `$${remito.total.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
     },
     {
       key: 'createdAt',
@@ -432,11 +506,12 @@ function RemitosContent() {
               placeholder="Seleccionar empresa"
               searchFields={["name"]}
               className="w-full"
+              useThemeColors={true}
             />
           </div>
         )}
 
-        {/* Barra de búsqueda, filtro de estado y botón nuevo */}
+        {/* Barra de búsqueda, filtros y botón nuevo */}
         {!needsCompanySelection && (
           <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1rem', justifyContent: 'space-between', flexWrap: 'wrap' }}>
             <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flex: 1, minWidth: '300px' }}>
@@ -461,12 +536,31 @@ function RemitosContent() {
                   searchFields={["name"]}
                   showColors={true}
                   searchable={false}
+                  useThemeColors={true}
+                />
+              </div>
+              <div style={{ minWidth: '200px' }}>
+                <FilterableSelect
+                  options={[
+                    { id: 'all', name: 'Todos los clientes' },
+                    ...(allClients || []).map((cliente) => ({
+                      id: cliente.id,
+                      name: cliente.name
+                    }))
+                  ]}
+                  value={selectedClientFilter}
+                  onChange={(value) => setSelectedClientFilter(value || 'all')}
+                  placeholder="Filtrar por cliente"
+                  searchFields={["name"]}
+                  searchable={true}
+                  useThemeColors={true}
                 />
               </div>
             </div>
             <button
               onClick={handleNewRemito}
               className="btn-primary new-button"
+              data-shortcut="n"
               style={{
                 display: 'flex',
                 alignItems: 'center',

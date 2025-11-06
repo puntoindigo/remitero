@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useSession, signOut } from 'next-auth/react';
 import { useTheme } from '@/hooks/useTheme';
 import { ThemeSelector } from './ThemeSelector';
+import { ConfiguracionModal } from '@/components/common/ConfiguracionModal';
 import { 
   User, 
   Settings, 
@@ -22,6 +23,7 @@ export function UserPanel({ className = '' }: UserPanelProps) {
   const { currentTheme, themeConfig } = useTheme();
   const [isOpen, setIsOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [showConfigModal, setShowConfigModal] = useState(false);
 
   const handleLogout = async () => {
     setIsOpen(false);
@@ -47,8 +49,8 @@ export function UserPanel({ className = '' }: UserPanelProps) {
   };
 
   const handleSettings = () => {
-    // Navegar a configuración
-    window.location.href = '/configuracion';
+    setIsOpen(false);
+    setShowConfigModal(true);
   };
 
   return (
@@ -67,7 +69,7 @@ export function UserPanel({ className = '' }: UserPanelProps) {
             {session?.user?.name || 'Usuario'}
           </div>
           <div className="text-xs text-gray-300">
-            {session?.user?.role || 'USER'}
+            {session?.user?.role || 'OPERADOR'}
           </div>
         </div>
         {isOpen ? (
@@ -167,6 +169,11 @@ export function UserPanel({ className = '' }: UserPanelProps) {
           </div>
         </>
       )}
+
+      <ConfiguracionModal
+        isOpen={showConfigModal}
+        onClose={() => setShowConfigModal(false)}
+      />
     </div>
   );
 }

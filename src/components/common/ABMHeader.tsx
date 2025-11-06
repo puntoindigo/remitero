@@ -56,6 +56,7 @@ export function ABMHeader({
             placeholder="Seleccionar empresa"
             searchFields={["name"]}
             className="w-full"
+            useThemeColors={true}
           />
         </div>
       )}

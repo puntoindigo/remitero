@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useColorTheme } from '@/contexts/ColorThemeContext';
 
 interface MessageModalProps {
@@ -44,6 +45,8 @@ export function MessageModal({ isOpen, onClose, type, title, message, details }:
   }, [isOpen, onClose]);
 
   if (!isOpen) return null;
+
+  if (typeof window === 'undefined') return null;
 
   const getTypeStyles = () => {
     switch (type) {
@@ -105,9 +108,42 @@ export function MessageModal({ isOpen, onClose, type, title, message, details }:
   const displayMessage = shouldHideTitle ? message : title;
   const hasSecondaryMessage = !shouldHideTitle && message;
 
-  return (
-    <div className="modal-overlay">
-      <div className="modal max-w-md">
+  const modalContent = (
+    <div 
+      className="modal-overlay"
+      onClick={(e) => {
+        // Cerrar al hacer click en el overlay (no en el modal)
+        if (e.target === e.currentTarget) {
+          onClose();
+        }
+      }}
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        zIndex: 10000,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '20px',
+        backdropFilter: 'blur(4px)',
+        WebkitBackdropFilter: 'blur(4px)',
+      }}
+    >
+      <div 
+        className="modal max-w-md"
+        onClick={(e) => {
+          // Prevenir que los clicks dentro del modal cierren el overlay
+          e.stopPropagation();
+        }}
+        style={{
+          position: 'relative',
+          zIndex: 10001,
+        }}
+      >
         <div className="modal-content" style={{ padding: '0' }}>
           {/* Header con ícono grande centrado */}
           <div className={`${styles.bgColor} ${styles.borderColor} border-b-2 px-6 py-8 text-center`}>
@@ -192,4 +228,6 @@ export function MessageModal({ isOpen, onClose, type, title, message, details }:
       </div>
     </div>
   );
+
+  return createPortal(modalContent, document.body);
 }

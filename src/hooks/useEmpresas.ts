@@ -11,13 +11,13 @@ export interface Empresa {
 }
 
 export function useEmpresas() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const [empresas, setEmpresas] = useState<Empresa[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Verificar que la sesión esté disponible
-  if (!session) {
+  // Verificar que la sesión esté disponible y completamente cargada
+  if (status === 'loading' || !session) {
     return {
       empresas: [],
       isLoading: true,
@@ -43,7 +43,12 @@ export function useEmpresas() {
       
       let response;
       try {
-        response = await fetch("/api/companies");
+        response = await fetch("/api/companies", {
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
       } catch (networkError) {
         // Manejar errores de red (pueden ser Events)
         console.error('Network error:', networkError);
@@ -92,6 +97,7 @@ export function useEmpresas() {
       try {
         response = await fetch("/api/companies", {
           method: "POST",
+          credentials: 'include',
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ name })
         });
@@ -133,6 +139,7 @@ export function useEmpresas() {
       try {
         response = await fetch(`/api/companies/${id}`, {
           method: "PUT",
+          credentials: 'include',
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ name })
         });
@@ -178,6 +185,7 @@ export function useEmpresas() {
       try {
         response = await fetch(`/api/companies/${id}`, {
           method: "DELETE",
+          credentials: 'include',
         });
       } catch (networkError) {
         const errorMessage = networkError instanceof Error 
@@ -206,6 +214,11 @@ export function useEmpresas() {
   };
 
   useEffect(() => {
+    // Esperar a que la sesión esté completamente cargada
+    if (status === 'loading') {
+      return;
+    }
+    
     if (!session) {
       setIsLoading(false);
       return;
@@ -216,7 +229,7 @@ export function useEmpresas() {
     } else if (session.user) {
       setIsLoading(false);
     }
-  }, [session, loadEmpresas]);
+  }, [session, status, loadEmpresas]);
 
   return {
     empresas,

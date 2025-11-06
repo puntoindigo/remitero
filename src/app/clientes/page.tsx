@@ -2,7 +2,7 @@
 
 import React, { Suspense, useCallback, useEffect } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
-import { Plus, Users, Mail, Phone, MapPin } from "lucide-react";
+import { Plus, Users, Mail, Phone, MapPin, FileText, Edit, Trash2 } from "lucide-react";
 import { formatDate } from "@/lib/utils/formatters";
 import { MessageModal } from "@/components/common/MessageModal";
 import DeleteConfirmModal from "@/components/common/DeleteConfirmModal";
@@ -25,8 +25,10 @@ import { ShortcutText } from "@/components/common/ShortcutText";
 import { SearchInput } from "@/components/common/SearchInput";
 import { useShortcuts } from "@/hooks/useShortcuts";
 import { useCRUDPage } from "@/hooks/useCRUDPage";
+import { useColorTheme } from "@/contexts/ColorThemeContext";
 
 function ClientesContent() {
+  const { colors } = useColorTheme();
   // 🚀 Hook optimizado que carga todo en paralelo
   const {
     companyId,
@@ -171,6 +173,44 @@ function ClientesContent() {
       key: 'createdAt',
       label: 'Registrado',
       render: (cliente) => formatDate(cliente.createdAt)
+    },
+    {
+      key: 'actions',
+      label: 'Acciones',
+      render: (cliente) => (
+        <div className="action-buttons">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              router.push(`/remitos?client=${cliente.id}`);
+            }}
+            className="action-button print-html-button"
+            title="Ver remitos de este cliente"
+          >
+            <FileText className="h-4 w-4" />
+          </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleEdit(cliente);
+            }}
+            className="action-button edit-button"
+            title="Editar"
+          >
+            <Edit className="h-4 w-4" />
+          </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDeleteCliente(cliente);
+            }}
+            className="action-button delete-button"
+            title="Eliminar"
+          >
+            <Trash2 className="h-4 w-4" />
+          </button>
+        </div>
+      )
     }
   ];
 
@@ -235,19 +275,31 @@ function ClientesContent() {
           </div>
           <button
             onClick={handleNew}
-            className="new-button"
+            className="btn-primary new-button"
+            data-shortcut="n"
             style={{
               display: 'flex',
               alignItems: 'center',
               gap: '0.5rem',
-              padding: '0.5rem 1rem',
-              backgroundColor: '#3b82f6',
+              padding: '8px 16px',
+              background: colors.gradient,
               color: 'white',
               border: 'none',
-              borderRadius: '0.375rem',
+              borderRadius: '6px',
               cursor: 'pointer',
-              fontSize: '0.875rem',
-              fontWeight: '500'
+              fontSize: '14px',
+              fontWeight: '500',
+              minWidth: '100px',
+              justifyContent: 'center',
+              transition: 'all 0.2s',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-1px)';
+              e.currentTarget.style.boxShadow = `0 4px 12px ${colors.primary}50`;
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = 'none';
             }}
           >
             <Plus className="h-4 w-4" />
@@ -264,6 +316,7 @@ function ClientesContent() {
             columns={columns}
             showSearch={false}
             showNewButton={false}
+            showActions={false}
           />
           <Pagination {...paginationConfig} />
         </>

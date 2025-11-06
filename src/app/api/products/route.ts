@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
+import { formatSupabaseError, isNetworkError } from "@/lib/utils/supabaseErrorHandler";
 import { transformProducts, transformProduct } from "@/lib/utils/supabase-transform";
 
 export async function GET(request: NextRequest) {
@@ -93,24 +94,60 @@ export async function GET(request: NextRequest) {
 
     if (error) {
       console.error('Error fetching products:', error);
+      
+      // Manejar errores de red específicamente
+      if (isNetworkError(error)) {
+        return NextResponse.json({ 
+          error: "Error de conexión",
+          message: formatSupabaseError(error)
+        }, { status: 503 });
+      }
+      
       return NextResponse.json({ 
         error: "Error interno del servidor",
-        message: "No se pudieron cargar los productos."
+        message: formatSupabaseError(error) || "No se pudieron cargar los productos."
       }, { status: 500 });
     }
 
-    // Agregar estructura mínima para categories sin JOIN costoso
+    // Obtener todas las categorías únicas que se usan en los productos
+    const categoryIds = [...new Set((products || []).map((p: any) => p.category_id).filter(Boolean))];
+    
+    let categoryMap = new Map<string, { id: string; name: string }>();
+    
+    if (categoryIds.length > 0) {
+      const { data: categories } = await supabaseAdmin
+        .from('categories')
+        .select('id, name')
+        .in('id', categoryIds);
+      
+      if (categories) {
+        categoryMap = new Map(categories.map((cat: any) => [cat.id, { id: cat.id, name: cat.name }]));
+      }
+    }
+
+    // Agregar estructura de categories con nombres reales
     const productsWithCategories = (products || []).map((product: any) => ({
       ...product,
-      categories: product.category_id ? { id: product.category_id, name: '' } : null
+      categories: product.category_id && categoryMap.has(product.category_id)
+        ? categoryMap.get(product.category_id)!
+        : null
     }));
 
     return NextResponse.json(transformProducts(productsWithCategories));
   } catch (error: any) {
     console.error('Error in products GET:', error);
+    
+    // Manejar errores de red específicamente
+    if (isNetworkError(error)) {
+      return NextResponse.json({ 
+        error: "Error de conexión",
+        message: formatSupabaseError(error)
+      }, { status: 503 });
+    }
+    
     return NextResponse.json({ 
       error: "Error interno del servidor",
-      message: "Ocurrió un error inesperado."
+      message: formatSupabaseError(error) || "Ocurrió un error inesperado."
     }, { status: 500 });
   }
 }
@@ -178,24 +215,56 @@ export async function POST(request: NextRequest) {
 
     if (error) {
       console.error('Error creating product:', error);
+      
+      // Manejar errores de red específicamente
+      if (isNetworkError(error)) {
+        return NextResponse.json({ 
+          error: "Error de conexión",
+          message: formatSupabaseError(error)
+        }, { status: 503 });
+      }
+      
       return NextResponse.json({ 
         error: "Error interno del servidor",
-        message: "No se pudo crear el producto."
+        message: formatSupabaseError(error) || "No se pudo crear el producto."
       }, { status: 500 });
     }
 
-    // Agregar category structure sin JOIN
+    // Obtener el nombre de la categoría si existe
+    let categoryName = '';
+    if (newProduct.category_id) {
+      const { data: category } = await supabaseAdmin
+        .from('categories')
+        .select('name')
+        .eq('id', newProduct.category_id)
+        .single();
+      
+      if (category) {
+        categoryName = category.name;
+      }
+    }
+
+    // Agregar category structure con nombre real
     const productWithCategory = {
       ...newProduct,
-      categories: newProduct.category_id ? { id: newProduct.category_id, name: '' } : null
+      categories: newProduct.category_id ? { id: newProduct.category_id, name: categoryName } : null
     };
 
     return NextResponse.json(transformProduct(productWithCategory));
   } catch (error: any) {
     console.error('Error in products POST:', error);
+    
+    // Manejar errores de red específicamente
+    if (isNetworkError(error)) {
+      return NextResponse.json({ 
+        error: "Error de conexión",
+        message: formatSupabaseError(error)
+      }, { status: 503 });
+    }
+    
     return NextResponse.json({ 
       error: "Error interno del servidor",
-      message: "Ocurrió un error inesperado."
+      message: formatSupabaseError(error) || "Ocurrió un error inesperado."
     }, { status: 500 });
   }
 }

@@ -4,7 +4,7 @@ export const userSchema = z.object({
   name: z.string().min(1, "Nombre requerido"),
   email: z.string().email("Email inválido"),
   password: z.string().min(6, "Password debe tener al menos 6 caracteres").optional().or(z.literal("")),
-  role: z.enum(["SUPERADMIN", "ADMIN", "USER"]),
+  role: z.enum(["SUPERADMIN", "ADMIN", "OPERADOR"]),
   address: z.string().optional(),
   phone: z.string().optional(),
   companyId: z.string().optional()
@@ -22,7 +22,7 @@ export const productSchema = z.object({
   name: z.string().min(1, "Nombre de producto requerido"),
   description: z.string().optional(),
   price: z.number().min(0, "Precio debe ser mayor a 0"),
-  categoryId: z.string().optional(),
+  categoryId: z.string().min(1, "Categoría requerida"),
   stock: z.enum(["IN_STOCK", "OUT_OF_STOCK"]).optional()
 })
 

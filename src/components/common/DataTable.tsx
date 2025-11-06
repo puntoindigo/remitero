@@ -112,6 +112,7 @@ export function DataTable<T>({
             <button
               onClick={onNew}
               className="btn-primary new-button"
+              data-shortcut="n"
               style={{
                 background: colors.gradient,
                 color: 'white',

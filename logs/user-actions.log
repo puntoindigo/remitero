@@ -1,3 +1,6 @@
 [2025-10-25T23:43:45.624Z] Super Administrador (superadmin@remitero.com) [SUPERADMIN] - CREATE Usuario (ID: 46fa5c09-db61-4609-996a-8435cdab20a4) | Usuario: provee (provee.daeiman@gmail.com) - Rol: USER
 [2025-10-26T00:58:22.161Z] Super Administrador (superadmin@remitero.com) [SUPERADMIN] - IMPERSONATION_START Usuario (ID: 46fa5c09-db61-4609-996a-8435cdab20a4) | Impersonando a provee (provee.daeiman@gmail.com)
 [2025-10-26T13:02:13.627Z] Super Administrador (superadmin@remitero.com) [SUPERADMIN] - CREATE Usuario (ID: 6750ef65-3b86-4b52-8d18-419d94a31bfb) | Usuario: test2 (test2@remitos.com) - Rol: USER
+[2025-11-04T22:25:58.544Z] Diego Andres Eiman (superadmin@remitero.com) [SUPERADMIN] - CREATE Usuario (ID: ab6330ba-6c71-4840-bdb4-bd2ac99c5832) | Usuario: ana (ana@gmail.com) - Rol: USER
+[2025-11-05T03:37:00.162Z] Diego Andrés Eiman (daeiman@gmail.com) [SUPERADMIN] - CREATE Usuario (ID: 02735fa6-2503-4646-8a41-d5466570b97d) | Usuario: Taxipedidos (taxipedidos@gmail.com) - Rol: USER
+[2025-11-06T01:19:04.267Z] Diego Andrés Eiman (daeiman@gmail.com) [SUPERADMIN] - IMPERSONATION_START Usuario (ID: 02735fa6-2503-4646-8a41-d5466570b97d) | Impersonando a Taxi Pedidos (taxipedidos@gmail.com)

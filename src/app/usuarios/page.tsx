@@ -3,12 +3,13 @@
 import React, { useState, useEffect, Suspense, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
-import { Plus, Users, Building2, Mail, Phone, Edit, Trash2 } from "lucide-react";
+import { Plus, Users, Building2, Mail, Phone, Edit, Trash2, Circle, Activity } from "lucide-react";
 import { formatDate } from "@/lib/utils/formatters";
 import FilterableSelect from "@/components/common/FilterableSelect";
 import { MessageModal } from "@/components/common/MessageModal";
 import DeleteConfirmModal from "@/components/common/DeleteConfirmModal";
 import { UsuarioForm } from "@/components/forms/UsuarioForm";
+import { UserActivityLogModal } from "@/components/common/UserActivityLogModal";
 import { useMessageModal } from "@/hooks/useMessageModal";
 import { useUsuarios } from "@/hooks/useUsuarios";
 import { useUsuariosQuery, type Usuario, usuarioKeys } from "@/hooks/queries/useUsuariosQuery";
@@ -37,7 +38,7 @@ function UsuariosContent() {
   const pathname = usePathname();
   
   // Bloquear acceso para usuarios con rol USER
-  if (currentUser?.role === 'USER') {
+  if (currentUser?.role === 'OPERADOR') {
     return (
       <main className="main-content">
         <div className="form-section">
@@ -88,6 +89,8 @@ function UsuariosContent() {
   
   const { modalState, showSuccess, showError, closeModal } = useMessageModal();
   const { startImpersonation, canImpersonate } = useImpersonation();
+  const [toggleActiveUser, setToggleActiveUser] = useState<Usuario | null>(null);
+  const [selectedUserForLogs, setSelectedUserForLogs] = useState<Usuario | null>(null);
   
   const queryClient = useQueryClient();
   const { data: usuarios = [], isLoading, error } = useUsuariosQuery(companyId || undefined);
@@ -175,6 +178,11 @@ function UsuariosContent() {
         await createUsuario(data);
         showSuccess("Éxito", "Usuario creado correctamente");
       }
+      // Invalidar la query de React Query para refrescar la lista
+      await queryClient.invalidateQueries({ 
+        queryKey: usuarioKeys.lists(),
+        exact: false
+      });
       handleCloseForm();
     } catch (error: any) {
       showError(error.message || "Error al guardar el usuario");
@@ -188,6 +196,11 @@ function UsuariosContent() {
     
     try {
       await deleteUsuario(showDeleteConfirm?.id);
+      // Invalidar la query de React Query para refrescar la lista
+      await queryClient.invalidateQueries({ 
+        queryKey: usuarioKeys.lists(),
+        exact: false
+      });
       handleCancelDelete();
       showSuccess("Usuario eliminado correctamente");
     } catch (error: any) {
@@ -210,6 +223,46 @@ function UsuariosContent() {
     }
   };
 
+  const handleToggleActive = (usuario: Usuario) => {
+    setToggleActiveUser(usuario);
+  };
+
+  const confirmToggleActive = async () => {
+    if (!toggleActiveUser) return;
+
+    const newActiveState = !(toggleActiveUser.is_active ?? true);
+    const action = newActiveState ? 'activar' : 'desactivar';
+
+    try {
+      const response = await fetch(`/api/users/${toggleActiveUser.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          isActive: newActiveState
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Error al cambiar el estado del usuario');
+      }
+
+      // Invalidar la query para refrescar la lista
+      await queryClient.invalidateQueries({ 
+        queryKey: usuarioKeys.lists(),
+        exact: false
+      });
+
+      showSuccess("Éxito", `Usuario ${action === 'activar' ? 'activado' : 'desactivado'} correctamente`);
+      setToggleActiveUser(null);
+    } catch (error: any) {
+      showError(error.message || `Error al ${action} el usuario`);
+      setToggleActiveUser(null);
+    }
+  };
+
   // Determinar si mostrar columnas de Empresa e Impersonar
   const isSuperAdmin = currentUser?.role === 'SUPERADMIN';
   // Solo mostrar columna Empresa si es SUPERADMIN Y no hay una empresa seleccionada (mostrando todas)
@@ -220,9 +273,36 @@ function UsuariosContent() {
     {
       key: 'name',
       label: 'Usuario',
-      render: (usuario) => (
-        <div className="usuario-info">
+      render: (usuario: Usuario) => (
+        <div className="usuario-info" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <div className="usuario-name">{usuario?.name}</div>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setSelectedUserForLogs(usuario);
+            }}
+            style={{
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              padding: '0.25rem',
+              borderRadius: '4px',
+              display: 'flex',
+              alignItems: 'center',
+              color: '#6b7280',
+            }}
+            title="Ver log de actividad completo"
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#f3f4f6';
+              e.currentTarget.style.color = '#3b82f6';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'transparent';
+              e.currentTarget.style.color = '#6b7280';
+            }}
+          >
+            <Activity className="h-4 w-4" />
+          </button>
         </div>
       )
     },
@@ -250,6 +330,56 @@ function UsuariosContent() {
         </span>
       )
     },
+    {
+      key: 'is_active',
+      label: 'Activo',
+      render: (usuario: Usuario) => {
+        const isActive = usuario.is_active ?? true;
+        // No permitir desactivarse a sí mismo
+        const canToggle = currentUser?.id !== usuario.id;
+        
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <button
+              onClick={() => canToggle && handleToggleActive(usuario)}
+              disabled={!canToggle}
+              title={canToggle ? (isActive ? 'Click para desactivar' : 'Click para activar') : 'No puedes desactivarte a ti mismo'}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '0.5rem',
+                background: 'transparent',
+                border: 'none',
+                cursor: canToggle ? 'pointer' : 'not-allowed',
+                opacity: canToggle ? 1 : 0.5,
+                transition: 'transform 0.2s',
+              }}
+              onMouseEnter={(e) => {
+                if (canToggle) {
+                  e.currentTarget.style.transform = 'scale(1.2)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'scale(1)';
+              }}
+            >
+              <Circle
+                className="h-5 w-5"
+                fill={isActive ? '#10b981' : '#ef4444'}
+                style={{
+                  color: isActive ? '#10b981' : '#ef4444',
+                  filter: isActive 
+                    ? 'drop-shadow(0 0 6px rgba(16, 185, 129, 0.6))' 
+                    : 'drop-shadow(0 0 6px rgba(239, 68, 68, 0.6))',
+                  transition: 'all 0.2s',
+                }}
+              />
+            </button>
+          </div>
+        );
+      }
+    },
     // Solo mostrar columna Empresa si es SUPERADMIN y no hay empresa seleccionada
     ...(showCompanyColumn ? [{
       key: 'company',
@@ -266,14 +396,55 @@ function UsuariosContent() {
       )
     }] : []),
     {
+      key: 'lastActivity',
+      label: 'Último estado',
+      render: (usuario: Usuario) => {
+        if (usuario.lastActivity) {
+          const date = new Date(usuario.lastActivity.createdAt);
+          const now = new Date();
+          const diffMs = now.getTime() - date.getTime();
+          const diffMins = Math.floor(diffMs / 60000);
+          const diffHours = Math.floor(diffMs / 3600000);
+          const diffDays = Math.floor(diffMs / 86400000);
+          
+          let timeAgo = '';
+          if (diffMins < 1) {
+            timeAgo = 'Hace un momento';
+          } else if (diffMins < 60) {
+            timeAgo = `Hace ${diffMins} min`;
+          } else if (diffHours < 24) {
+            timeAgo = `Hace ${diffHours} h`;
+          } else if (diffDays < 7) {
+            timeAgo = `Hace ${diffDays} d`;
+          } else {
+            timeAgo = date.toLocaleDateString('es-AR', {
+              day: '2-digit',
+              month: '2-digit',
+              year: 'numeric'
+            });
+          }
+          
+          return (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+              <div style={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                {usuario.lastActivity.description}
+              </div>
+              <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>
+                {timeAgo}
+              </div>
+            </div>
+          );
+        }
+        return <span style={{ color: '#9ca3af', fontSize: '0.875rem' }}>Sin actividad</span>;
+      }
+    },
+    {
       key: 'createdAt',
       label: 'Registrado',
-      render: (usuario) => new Date(usuario.createdAt).toLocaleString('es-AR', {
+      render: (usuario) => new Date(usuario.createdAt).toLocaleDateString('es-AR', {
         year: 'numeric',
         month: '2-digit',
         day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
         hour12: false
       })
     },
@@ -359,6 +530,7 @@ function UsuariosContent() {
                 placeholder="Seleccionar empresa"
                 searchFields={["name"]}
                 className="w-full"
+                useThemeColors={true}
               />
             </div>
           )}
@@ -375,6 +547,7 @@ function UsuariosContent() {
             <button
               onClick={handleNew}
               className="btn-primary new-button"
+              data-shortcut="n"
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -425,6 +598,26 @@ function UsuariosContent() {
           onConfirm={handleDelete}
           title="Eliminar Usuario"
           message={`¿Estás seguro de que deseas eliminar el usuario "${showDeleteConfirm?.name}"?`}
+        />
+
+        {/* Modal de confirmación para toggle activo/inactivo */}
+        <DeleteConfirmModal
+          isOpen={!!toggleActiveUser}
+          onCancel={() => setToggleActiveUser(null)}
+          onConfirm={confirmToggleActive}
+          title={toggleActiveUser?.is_active ? "Desactivar Usuario" : "Activar Usuario"}
+          message={toggleActiveUser?.is_active 
+            ? `¿Estás seguro de que deseas desactivar el usuario "${toggleActiveUser?.name}"? El usuario no podrá iniciar sesión.`
+            : `¿Estás seguro de que deseas activar el usuario "${toggleActiveUser?.name}"?`}
+          confirmButtonText={toggleActiveUser?.is_active ? "Desactivar" : "Activar"}
+        />
+
+        {/* Modal de log de actividad */}
+        <UserActivityLogModal
+          isOpen={!!selectedUserForLogs}
+          onClose={() => setSelectedUserForLogs(null)}
+          userId={selectedUserForLogs?.id || ''}
+          userName={selectedUserForLogs?.name || ''}
         />
 
         {/* Modal de mensajes */}

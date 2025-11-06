@@ -6,11 +6,17 @@ export interface Usuario {
   id: string;
   name: string;
   email: string;
-  role: 'SUPERADMIN' | 'ADMIN' | 'USER';
+  role: 'SUPERADMIN' | 'ADMIN' | 'OPERADOR';
   phone?: string;
   address?: string;
   company?: { id: string; name: string } | null;
   createdAt: string;
+  is_active?: boolean;
+  lastActivity?: {
+    action: string;
+    description: string;
+    createdAt: string;
+  } | null;
 }
 
 export const usuarioKeys = {
