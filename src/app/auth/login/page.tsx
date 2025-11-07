@@ -64,7 +64,8 @@ function LoginPageContent() {
           setError('Error al iniciar sesión con Google. Por favor, intenta nuevamente o contacta al administrador.');
         });
     } else if (errorParam === 'OAuthCallback') {
-      setError('Error en el proceso de autenticación con Google. Por favor, intenta nuevamente.')
+      console.error('❌ [Login] Error OAuthCallback detectado');
+      setError('Error en el proceso de autenticación con Google. Esto puede deberse a un problema con la base de datos o la configuración. Por favor, intenta nuevamente o contacta al administrador.')
     } else if (errorParam === 'OAuthCreateAccount') {
       setError('Error al crear la cuenta. Por favor, contacta al administrador.')
     } else if (errorParam === 'EmailCreateAccount') {

@@ -142,7 +142,7 @@ export const authOptions: NextAuthOptions = {
         try {
           const email = user.email;
           if (!email) {
-            console.error('❌ [NextAuth signIn] No hay email en user object');
+            console.error('❌ [NextAuth signIn] No se pudo obtener el email del usuario de Google');
             return false;
           }
           console.log('🔐 [NextAuth signIn] Email encontrado:', email);
@@ -203,20 +203,27 @@ export const authOptions: NextAuthOptions = {
             console.log('🔐 [NextAuth signIn] Usuario no existe, creando nuevo usuario...');
             // Nota: En producción, podrías querer redirigir a un formulario de registro
             // o asignar automáticamente a una empresa por defecto
-            const { data: newUser, error } = await supabaseAdmin
+            const { data: newUser, error: createError } = await supabaseAdmin
               .from('users')
               .insert([{
                 email: email,
                 name: user.name || email.split('@')[0],
-                password: '', // Sin contraseña para usuarios de Google
+                password: null, // Sin contraseña para usuarios de Google (null en lugar de string vacío)
                 role: 'OPERADOR', // Rol por defecto
                 company_id: null, // Se asignará después
+                is_active: true, // Activo por defecto
               }])
               .select()
               .single();
 
-            if (error || !newUser) {
-              console.error('❌ [NextAuth signIn] Error creando usuario:', error);
+            if (createError || !newUser) {
+              console.error('❌ [NextAuth signIn] Error creando usuario:', createError);
+              console.error('❌ [NextAuth signIn] Detalles del error:', {
+                code: createError?.code,
+                message: createError?.message,
+                details: createError?.details,
+                hint: createError?.hint
+              });
               return false;
             }
             console.log('✅ [NextAuth signIn] Nuevo usuario creado:', newUser.id);
