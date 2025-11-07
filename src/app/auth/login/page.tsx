@@ -33,10 +33,36 @@ function LoginPageContent() {
   // Verificar si hay errores en la URL
   useEffect(() => {
     const errorParam = searchParams.get('error')
+    const callbackUrl = searchParams.get('callbackUrl')
+    
+    console.log('🔍 [Login] Verificando parámetros de URL', {
+      error: errorParam,
+      callbackUrl: callbackUrl,
+      fullUrl: window.location.href
+    });
+    
     if (errorParam === 'UserInactive' || errorParam === 'AccessDenied') {
+      console.log('❌ [Login] Error detectado: Usuario desactivado');
       setError('Tu cuenta ha sido desactivada. Contacta al administrador para más información.')
     } else if (errorParam === 'OAuthSignin') {
-      setError('Error al iniciar sesión con Google. Por favor, intenta nuevamente o contacta al administrador.')
+      console.log('❌ [Login] Error detectado: OAuthSignin - Verificando configuración...');
+      // Verificar configuración cuando hay error OAuthSignin
+      fetch('/api/auth/debug')
+        .then(res => res.json())
+        .then(config => {
+          console.log('🔍 [Login] Configuración OAuth:', config);
+          if (!config.hasGoogleClientId || !config.hasGoogleClientSecret) {
+            setError('Error de configuración: Faltan credenciales de Google OAuth. Contacta al administrador.');
+          } else if (!config.nextAuthUrl) {
+            setError('Error de configuración: NEXTAUTH_URL no está configurado. Contacta al administrador.');
+          } else {
+            setError(`Error al iniciar sesión con Google. Verifica que la URL de callback (${config.expectedCallbackUrl}) esté configurada en Google Cloud Console.`);
+          }
+        })
+        .catch(err => {
+          console.error('❌ [Login] Error verificando configuración:', err);
+          setError('Error al iniciar sesión con Google. Por favor, intenta nuevamente o contacta al administrador.');
+        });
     } else if (errorParam === 'OAuthCallback') {
       setError('Error en el proceso de autenticación con Google. Por favor, intenta nuevamente.')
     } else if (errorParam === 'OAuthCreateAccount') {

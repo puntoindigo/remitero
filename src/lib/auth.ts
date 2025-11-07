@@ -5,6 +5,15 @@ import bcrypt from "bcryptjs"
 import { supabaseAdmin } from "./supabase"
 import { logUserActivity } from "./user-activity-logger"
 
+// Log de configuración al cargar el módulo
+console.log('🔧 [NextAuth Config] Inicializando configuración...', {
+  hasSecret: !!process.env.NEXTAUTH_SECRET,
+  hasGoogleClientId: !!process.env.GOOGLE_CLIENT_ID,
+  hasGoogleClientSecret: !!process.env.GOOGLE_CLIENT_SECRET,
+  nextAuthUrl: process.env.NEXTAUTH_URL,
+  googleClientIdPrefix: process.env.GOOGLE_CLIENT_ID?.substring(0, 20) + '...'
+});
+
 export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
   providers: [
@@ -17,7 +26,9 @@ export const authOptions: NextAuthOptions = {
           access_type: "offline",
           response_type: "code"
         }
-      }
+      },
+      // Agregar logging en el provider
+      checks: ["pkce", "state"],
     }),
     CredentialsProvider({
       credentials: {
@@ -336,8 +347,14 @@ export const authOptions: NextAuthOptions = {
       if (normalizedUrl === baseUrl || normalizedUrl === correctBaseUrl || normalizedUrl.includes('/api/auth/callback')) {
         const destination = token?.role === 'SUPERADMIN' ? '/empresas' : '/dashboard';
         normalizedUrl = correctBaseUrl + destination;
-        console.log('🔄 [NextAuth redirect] Detectado callback OAuth, redirigiendo a:', destination);
+        console.log('🔄 [NextAuth redirect] Detectado callback OAuth, redirigiendo a:', destination, {
+          tokenRole: token?.role,
+          hasToken: !!token
+        });
       }
+      
+      // Log final antes de retornar
+      console.log('🔄 [NextAuth redirect] URL final a retornar:', normalizedUrl);
       
       // REGLA SIMPLE: Si el path contiene localhost:8000 (significa que está mal formado)
       // Redirigir según el rol: SUPERADMIN a /empresas, otros a /dashboard
