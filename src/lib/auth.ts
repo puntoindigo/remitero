@@ -350,8 +350,37 @@ export const authOptions: NextAuthOptions = {
       
       // Función para normalizar URLs y evitar barras múltiples
       const normalizeUrl = (urlStr: string): string => {
+        // Remover caracteres inválidos al inicio (@, espacios, etc)
+        let cleaned = urlStr.trim().replace(/^[@\s]+/, '');
         // Normalizar múltiples barras consecutivas a una sola
-        return urlStr.replace(/\/+/g, '/');
+        cleaned = cleaned.replace(/\/+/g, '/');
+        // Remover duplicación de dominio (ej: remitero-dev.vercel.app/remitero-dev.vercel.app)
+        cleaned = cleaned.replace(/([^\/]+\.vercel\.app)\/\1/g, '$1');
+        return cleaned;
+      };
+      
+      // Función para extraer solo el origin de una URL
+      const extractOrigin = (urlStr: string): string => {
+        // Limpiar primero
+        let cleaned = urlStr.trim().replace(/^[@\s]+/, '');
+        
+        // Si no tiene protocolo, agregarlo
+        if (!cleaned.startsWith('http://') && !cleaned.startsWith('https://')) {
+          cleaned = `https://${cleaned}`;
+        }
+        
+        try {
+          const urlObj = new URL(cleaned);
+          return urlObj.origin; // Retorna solo "https://remitero-dev.vercel.app"
+        } catch {
+          // Fallback: extraer origin manualmente con regex
+          const match = cleaned.match(/^(https?:\/\/[^\/]+)/);
+          if (match) {
+            return match[1];
+          }
+          // Si todo falla, retornar limpio
+          return cleaned.split('/')[0] + '//' + cleaned.split('/')[2]?.split('/')[0] || cleaned;
+        }
       };
       
       // PRIMERO: Calcular correctBaseUrl correctamente (solo origin, sin path)
@@ -359,41 +388,29 @@ export const authOptions: NextAuthOptions = {
       let correctBaseUrl: string;
       
       if (process.env.NODE_ENV === "development" && effectiveNextAuthUrl) {
-        try {
-          const nextAuthUrlObj = new URL(effectiveNextAuthUrl);
-          correctBaseUrl = nextAuthUrlObj.origin; // Solo "http://localhost:8000", sin path
-        } catch (error) {
-          console.warn('⚠️ [NextAuth Redirect] Error parsing NEXTAUTH_URL:', error);
-          correctBaseUrl = 'http://localhost:8000';
-        }
+        correctBaseUrl = extractOrigin(effectiveNextAuthUrl);
       } else {
-        // En producción, construir desde baseUrl (solo origin)
-        try {
-          const baseUrlStr = baseUrl.startsWith('http') ? baseUrl : `https://${baseUrl}`;
-          const baseUrlObj = new URL(baseUrlStr);
-          correctBaseUrl = baseUrlObj.origin; // Solo origin, sin path
-        } catch {
-          // Fallback: extraer origin manualmente
-          const match = baseUrl.match(/^(https?:\/\/[^\/]+)/);
-          correctBaseUrl = match ? match[1] : baseUrl.replace(/\/+$/, '');
-        }
+        // En producción, usar baseUrl pero asegurarse de que solo sea el origin
+        correctBaseUrl = extractOrigin(baseUrl);
       }
       
       console.log('🔄 [NextAuth redirect] correctBaseUrl calculado:', correctBaseUrl);
       
-      // Normalizar la URL entrante
-      let normalizedUrl = url.trim();
+      // Limpiar y normalizar la URL entrante
+      let normalizedUrl = normalizeUrl(url);
       console.log('🔄 [NextAuth redirect] URL normalizada inicial:', normalizedUrl);
       
       // Determinar destino según rol
       const destination = token?.role === 'SUPERADMIN' ? '/empresas' : '/dashboard';
       
       // Si viene de OAuth callback o la URL es el baseUrl, redirigir según rol
-      if (normalizedUrl === baseUrl || 
+      const cleanBaseUrl = normalizeUrl(baseUrl);
+      if (normalizedUrl === cleanBaseUrl || 
           normalizedUrl === correctBaseUrl || 
           normalizedUrl.includes('/api/auth/callback') ||
           normalizedUrl === `${correctBaseUrl}/` ||
-          normalizedUrl === `${baseUrl}/`) {
+          normalizedUrl === `${cleanBaseUrl}/` ||
+          normalizedUrl.endsWith('/') && normalizedUrl.replace(/\/$/, '') === correctBaseUrl) {
         const finalUrl = correctBaseUrl + destination;
         console.log('🔄 [NextAuth redirect] Detectado callback OAuth, redirigiendo a:', finalUrl, {
           tokenRole: token?.role,
@@ -411,26 +428,28 @@ export const authOptions: NextAuthOptions = {
       
       // Si la URL es absoluta, verificar y corregir
       try {
-        const urlObj = new URL(normalizedUrl);
+        // Limpiar la URL antes de parsearla
+        const cleanedUrl = normalizedUrl.replace(/^[@\s]+/, '').replace(/([^\/]+\.vercel\.app)\/\1/g, '$1');
+        const urlObj = new URL(cleanedUrl);
         const correctBaseUrlObj = new URL(correctBaseUrl);
         
-        // Si el hostname coincide, usar la URL tal cual (pero normalizada)
-        if (urlObj.hostname === correctBaseUrlObj.hostname) {
-          const finalUrl = normalizeUrl(urlObj.toString());
-          console.log('🔄 [NextAuth redirect] URL absoluta con hostname correcto:', finalUrl);
-          return finalUrl;
+        // Si el hostname coincide, usar solo el path y reconstruir con el origin correcto
+        if (urlObj.hostname === correctBaseUrlObj.hostname || urlObj.hostname.includes('remitero-dev.vercel.app')) {
+          const path = urlObj.pathname + urlObj.search;
+          const finalUrl = correctBaseUrl + (path.startsWith('/') ? path : '/' + path);
+          console.log('🔄 [NextAuth redirect] URL absoluta corregida (mismo hostname):', finalUrl);
+          return normalizeUrl(finalUrl);
         }
         
-        // Si el hostname no coincide, reemplazar con el correcto
-        urlObj.protocol = correctBaseUrlObj.protocol;
-        urlObj.hostname = correctBaseUrlObj.hostname;
-        urlObj.port = correctBaseUrlObj.port;
-        const finalUrl = normalizeUrl(urlObj.toString());
-        console.log('🔄 [NextAuth redirect] URL absoluta corregida:', finalUrl);
-        return finalUrl;
+        // Si el hostname no coincide, reemplazar completamente
+        const path = urlObj.pathname + urlObj.search;
+        const finalUrl = correctBaseUrl + (path.startsWith('/') ? path : '/' + path);
+        console.log('🔄 [NextAuth redirect] URL absoluta corregida (hostname diferente):', finalUrl);
+        return normalizeUrl(finalUrl);
       } catch (error) {
         // Si no se puede parsear como URL, asumir que es relativa
-        const finalUrl = correctBaseUrl + (normalizedUrl.startsWith('/') ? '' : '/') + normalizedUrl;
+        const cleaned = normalizedUrl.replace(/^[@\s]+/, '').replace(/^https?:\/\/[^\/]+/, '');
+        const finalUrl = correctBaseUrl + (cleaned.startsWith('/') ? cleaned : '/' + cleaned);
         console.log('🔄 [NextAuth redirect] URL no parseable, tratada como relativa:', finalUrl);
         return normalizeUrl(finalUrl);
       }
