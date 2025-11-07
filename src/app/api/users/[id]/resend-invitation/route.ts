@@ -6,7 +6,7 @@ import { sendInvitationEmail } from "@/lib/email";
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -26,7 +26,7 @@ export async function POST(
       );
     }
 
-    const userId = params.id;
+    const { id: userId } = await params;
 
     // Obtener el usuario
     const { data: user, error: userError } = await supabaseAdmin
@@ -69,7 +69,11 @@ export async function POST(
     });
 
   } catch (error: any) {
-    console.error('❌ [API] Error al reenviar invitación:', error);
+    console.error('❌ [API] Error al reenviar invitación:', {
+      message: error.message,
+      stack: error.stack,
+      name: error.name
+    });
     return NextResponse.json(
       { error: error.message || "Error al reenviar invitación" },
       { status: 500 }
