@@ -289,14 +289,27 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (error) {
-      console.error('Error creating user:', error);
+      console.error('❌ [Users] Error creating user:', {
+        error: error.message,
+        code: error.code,
+        details: error.details,
+        hint: error.hint
+      });
       return NextResponse.json({ 
         error: "Error interno del servidor",
-        message: "No se pudo crear el usuario."
+        message: error.message || "No se pudo crear el usuario."
       }, { status: 500 });
     }
 
-    console.log('User created successfully:', { 
+    if (!newUser) {
+      console.error('❌ [Users] Usuario creado pero newUser es null');
+      return NextResponse.json({ 
+        error: "Error interno del servidor",
+        message: "El usuario se creó pero no se pudo recuperar."
+      }, { status: 500 });
+    }
+
+    console.log('✅ [Users] User created successfully:', { 
       id: newUser?.id, 
       name: newUser?.name, 
       email: newUser?.email,
@@ -304,26 +317,34 @@ export async function POST(request: NextRequest) {
       role: newUser.role
     });
 
-    // Log de creación de usuario
-    logger.logCreate(
-      {
-        id: session.user.id,
-        email: session.user.email,
-        name: session.user.name,
-        role: session.user.role
-      },
-      'Usuario',
-      newUser?.id,
-      `Usuario: ${newUser?.name} (${newUser?.email}) - Rol: ${newUser.role}`
-    );
+    // Log de creación de usuario (no crítico)
+    try {
+      logger.logCreate(
+        {
+          id: session.user.id,
+          email: session.user.email,
+          name: session.user.name,
+          role: session.user.role
+        },
+        'Usuario',
+        newUser?.id,
+        `Usuario: ${newUser?.name} (${newUser?.email}) - Rol: ${newUser.role}`
+      );
+    } catch (logError: any) {
+      console.warn('⚠️ [Users] Error en logger.logCreate (no crítico):', logError.message);
+    }
 
-    // Registrar actividad
-    await logUserActivity(
-      session.user.id,
-      'CREATE_USER',
-      `Creó usuario ${newUser?.name} (${newUser?.email})`,
-      { targetUserId: newUser?.id }
-    );
+    // Registrar actividad (no crítico)
+    try {
+      await logUserActivity(
+        session.user.id,
+        'CREATE_USER',
+        `Creó usuario ${newUser?.name} (${newUser?.email})`,
+        { targetUserId: newUser?.id }
+      );
+    } catch (activityError: any) {
+      console.warn('⚠️ [Users] Error al registrar actividad (no crítico):', activityError.message);
+    }
 
     // Enviar email de invitación al nuevo usuario
     try {
@@ -358,12 +379,37 @@ export async function POST(request: NextRequest) {
       console.error('⚠️ [Users] El usuario fue creado correctamente, pero el email falló');
     }
 
-    return NextResponse.json(transformUser(newUser), { status: 201 });
+    // Transformar y retornar el usuario creado
+    try {
+      const transformedUser = transformUser(newUser);
+      if (!transformedUser) {
+        console.error('❌ [Users] Error al transformar usuario:', newUser);
+        return NextResponse.json({ 
+          error: "Error interno del servidor",
+          message: "No se pudo procesar el usuario creado."
+        }, { status: 500 });
+      }
+      return NextResponse.json(transformedUser, { status: 201 });
+    } catch (transformError: any) {
+      console.error('❌ [Users] Error al transformar usuario:', {
+        error: transformError.message,
+        stack: transformError.stack,
+        newUser
+      });
+      return NextResponse.json({ 
+        error: "Error interno del servidor",
+        message: "El usuario se creó pero hubo un error al procesarlo."
+      }, { status: 500 });
+    }
   } catch (error: any) {
-    console.error('Error in users POST:', error);
+    console.error('❌ [Users] Error in users POST:', {
+      error: error.message,
+      stack: error.stack,
+      name: error.name
+    });
     return NextResponse.json({ 
       error: "Error interno del servidor",
-      message: "Ocurrió un error inesperado."
+      message: error.message || "Ocurrió un error inesperado."
     }, { status: 500 });
   }
 }
