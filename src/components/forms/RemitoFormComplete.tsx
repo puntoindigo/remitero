@@ -274,7 +274,7 @@ export function RemitoFormComplete({
       onSubmit={handleSubmit(handleFormSubmit, (errors) => {
         console.log('Validation errors:', errors);
       })}
-      submitText={editingRemito ? "Actualizar" : "Crear"}
+      submitText={editingRemito ? "Actualizar" : "Guardar"}
       isSubmitting={isSubmitting}
       modalClassName="remito-modal"
       modalId={editingRemito ? `remito-${editingRemito.id}` : "nuevo-remito"}
@@ -306,70 +306,62 @@ export function RemitoFormComplete({
       
       {/* Cliente */}
       <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <label style={{ minWidth: '80px', marginBottom: 0, fontWeight: 400, fontSize: '15px' }}>Cliente *</label>
-          <div style={{ flex: 1, display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-            <div style={{ flex: 1 }}>
-              <FilterableSelect
-                options={clients.map(client => ({ id: client?.id, name: client?.name }))}
-                value={watch("clientId") || ""}
-                onChange={(value) => setValue("clientId", value)}
-                placeholder="Seleccionar cliente"
-                searchFields={["name"]}
-              />
-              {errors.clientId && (
-                <p className="error-message">{errors.clientId.message}</p>
-              )}
-            </div>
-            <button
-              type="button"
-              onClick={handleNewClient}
-              className="btn small secondary"
-              title="Agregar nuevo cliente"
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.25rem',
-                padding: '0.5rem',
-                backgroundColor: '#6b7280',
-                color: 'white',
-                border: 'none',
-                borderRadius: '0.375rem',
-                cursor: 'pointer',
-                fontSize: '0.75rem',
-                fontWeight: '500',
-                minWidth: 'auto'
-              }}
-            >
-              <Plus className="h-3 w-3" />
-            </button>
+        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+          <div style={{ flex: 1 }}>
+            <FilterableSelect
+              options={clients.map(client => ({ id: client?.id, name: client?.name }))}
+              value={watch("clientId") || ""}
+              onChange={(value) => setValue("clientId", value)}
+              placeholder="Seleccionar cliente"
+              searchFields={["name"]}
+            />
+            {errors.clientId && (
+              <p className="error-message">{errors.clientId.message}</p>
+            )}
           </div>
+          <button
+            type="button"
+            onClick={handleNewClient}
+            className="btn small secondary"
+            title="Agregar nuevo cliente"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.25rem',
+              padding: '0.5rem',
+              backgroundColor: '#6b7280',
+              color: 'white',
+              border: 'none',
+              borderRadius: '0.375rem',
+              cursor: 'pointer',
+              fontSize: '0.75rem',
+              fontWeight: '500',
+              minWidth: 'auto'
+            }}
+          >
+            <Plus className="h-3 w-3" />
+          </button>
         </div>
       </div>
 
       {/* Estado */}
       <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <label style={{ minWidth: '80px', marginBottom: 0, fontWeight: 400, fontSize: '15px' }}>Estado *</label>
-          <div style={{ flex: 1 }}>
-            <FilterableSelect
-              options={estados.map(estado => ({ 
-                id: estado?.id, 
-                name: estado?.name,
-                color: estado.color 
-              }))}
-              value={watch("status") || ""}
-              onChange={(value) => setValue("status", value)}
-              placeholder="Seleccionar estado"
-              searchFields={["name"]}
-              showColors={true}
-              searchable={false}
-            />
-            {errors.status && (
-              <p className="error-message">{errors.status.message}</p>
-            )}
-          </div>
-        </div>
+        <FilterableSelect
+          options={estados.map(estado => ({ 
+            id: estado?.id, 
+            name: estado?.name,
+            color: estado.color 
+          }))}
+          value={watch("status") || ""}
+          onChange={(value) => setValue("status", value)}
+          placeholder="Seleccionar estado"
+          searchFields={["name"]}
+          showColors={true}
+          searchable={false}
+        />
+        {errors.status && (
+          <p className="error-message">{errors.status.message}</p>
+        )}
       </div>
 
       {/* Tabla de productos */}

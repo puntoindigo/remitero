@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { X, Check } from "lucide-react";
 import FilterableSelect from "../common/FilterableSelect";
 import { ProductForm as ProductFormData, productSchema } from "@/lib/validations";
 import { FormModal } from "@/components/common/FormModal";
@@ -230,44 +231,17 @@ export function ProductoForm({
         categories
       }}
     >
-      <div style={{ position: 'relative' }}>
-        {/* LED de stock arriba a la derecha */}
-        <div
-          onClick={(e) => {
-            e.stopPropagation();
-            toggleStock();
-          }}
-          style={{
-            position: 'absolute',
-            top: '0',
-            right: '0',
-            width: '12px',
-            height: '12px',
-            borderRadius: '50%',
-            backgroundColor: isInStock ? '#16a34a' : '#ef4444',
-            boxShadow: isInStock 
-              ? '0 0 4px rgba(22, 163, 74, 0.6)' 
-              : '0 0 4px rgba(239, 68, 68, 0.6)',
-            border: '1px solid white',
-            cursor: 'pointer',
-            zIndex: 10,
-            transition: 'all 0.2s ease',
-          }}
-          title="Modificar stock"
-        />
-
-        <FilterableSelect
-          options={categories.map(cat => ({ id: cat?.id, name: cat?.name }))}
-          value={watch("categoryId") || ""}
-          onChange={(value) => setValue("categoryId", value || "", { shouldValidate: true })}
-          placeholder="Seleccionar categoría *"
-          searchFields={["name"]}
-          className="form-select-standard"
-        />
-        {errors?.categoryId && (
-          <p className="error-message">{errors?.categoryId.message}</p>
-        )}
-      </div>
+      <FilterableSelect
+        options={categories.map(cat => ({ id: cat?.id, name: cat?.name }))}
+        value={watch("categoryId") || ""}
+        onChange={(value) => setValue("categoryId", value || "", { shouldValidate: true })}
+        placeholder="Seleccionar categoría *"
+        searchFields={["name"]}
+        className="form-select-standard"
+      />
+      {errors?.categoryId && (
+        <p className="error-message">{errors?.categoryId.message}</p>
+      )}
 
       <div className="form-row" style={{ display: 'flex', justifyContent: 'space-between', gap: '16px' }}>
         <div className="form-group" style={{ flex: 1 }}>
@@ -311,6 +285,41 @@ export function ProductoForm({
         {errors.description && (
           <p className="error-message">{errors.description.message}</p>
         )}
+      </div>
+
+      {/* Stock abajo a la izquierda */}
+      <div style={{ 
+        display: 'flex', 
+        alignItems: 'center', 
+        gap: '0.5rem',
+        marginTop: '0.5rem'
+      }}>
+        <span style={{ fontSize: '14px', fontWeight: 500 }}>Stock:</span>
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            toggleStock();
+          }}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '24px',
+            height: '24px',
+            border: 'none',
+            background: 'transparent',
+            cursor: 'pointer',
+            padding: 0,
+          }}
+          title="Modificar stock"
+        >
+          {isInStock ? (
+            <Check className="h-5 w-5" style={{ color: '#16a34a' }} />
+          ) : (
+            <X className="h-5 w-5" style={{ color: '#ef4444' }} />
+          )}
+        </button>
       </div>
     </FormModal>
   );

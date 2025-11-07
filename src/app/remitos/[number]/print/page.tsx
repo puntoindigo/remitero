@@ -12,7 +12,7 @@ export default function PrintRemito() {
   const currentUser = useCurrentUserSimple();
   const [remito, setRemito] = useState<Remito | null>(null);
   const [loading, setLoading] = useState(true);
-  const ENABLE_AUTO_PRINT = false; // Deshabilitar impresión automática para pruebas
+  const ENABLE_AUTO_PRINT = true; // Habilitar impresión automática
   
   // Obtener nombre de empresa: primero del remito, luego del usuario, finalmente valor por defecto
   const companyName = remito?.companyName || (remito as any)?.company?.name || currentUser?.companyName || 'Sistema de Gestión';
@@ -64,7 +64,7 @@ export default function PrintRemito() {
     }
   }, [params?.number]);
 
-  // Impresión automática (deshabilitada)
+  // Impresión automática
   useEffect(() => {
     if (!ENABLE_AUTO_PRINT) return;
     if (remito && !loading && typeof window !== 'undefined') {
@@ -79,30 +79,27 @@ export default function PrintRemito() {
     }
   }, [remito, loading, ENABLE_AUTO_PRINT]);
 
-  // Cerrar pestaña después de imprimir (deshabilitado)
+  // Cerrar pestaña después de imprimir
   useEffect(() => {
     if (!ENABLE_AUTO_PRINT) return;
     const handleAfterPrint = () => {
       try {
-        window.close();
+        // Esperar un poco antes de cerrar para asegurar que la impresión se completó
+        setTimeout(() => {
+          window.close();
+        }, 500);
       } catch (err: any) {
         // No se pudo cerrar la ventana automáticamente
       }
     };
 
-    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      // No hacer nada, solo capturar el evento
-    };
-
     if (typeof window !== 'undefined') {
       window.addEventListener('afterprint', handleAfterPrint);
-      window.addEventListener('beforeunload', handleBeforeUnload);
     }
 
     return () => {
       if (typeof window !== 'undefined') {
         window.removeEventListener('afterprint', handleAfterPrint);
-        window.removeEventListener('beforeunload', handleBeforeUnload);
       }
     };
   }, [remito, loading, ENABLE_AUTO_PRINT]);

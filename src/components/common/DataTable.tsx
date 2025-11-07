@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Edit, Trash2, Plus, Printer, FileText } from "lucide-react";
+import { Edit, Trash2, Plus, Printer } from "lucide-react";
 import { LoadingSpinner } from "./LoadingSpinner";
 import { LoadingTable } from "./LoadingTable";
 import { ShortcutText } from "./ShortcutText";
@@ -25,7 +25,6 @@ export interface DataTableProps<T> {
   onEdit?: (item: T) => void;
   onDelete?: (item: T) => void;
   onPrint?: (item: T) => void;
-  onPrintHTML?: (item: T) => void;
   onNew?: () => void;
   newButtonText?: string;
   newButtonIcon?: React.ReactNode;
@@ -51,7 +50,6 @@ export function DataTable<T>({
   onEdit,
   onDelete,
   onPrint,
-  onPrintHTML,
   onNew,
   newButtonText = "Nuevo",
   newButtonIcon = <Plus className="h-4 w-4 mr-2" />,
@@ -159,7 +157,7 @@ export function DataTable<T>({
                   {column.label}
                 </th>
               ))}
-              {showActions && (onEdit || onDelete || onPrint || onPrintHTML) && (
+              {showActions && (onEdit || onDelete || onPrint) && (
                 <th className="actions-column">{actionsColumnLabel}</th>
               )}
             </tr>
@@ -178,23 +176,14 @@ export function DataTable<T>({
                     }
                   </td>
                 ))}
-                {showActions && (onEdit || onDelete || onPrint || onPrintHTML) && (
+                {showActions && (onEdit || onDelete || onPrint) && (
                   <td className="actions-cell">
                     <div className="action-buttons">
-                      {onPrintHTML && (
-                        <button
-                          onClick={() => onPrintHTML(item)}
-                          className="action-button print-html-button"
-                          title="Imprimir HTML"
-                        >
-                          <FileText className="h-4 w-4" />
-                        </button>
-                      )}
                       {onPrint && (
                         <button
                           onClick={() => onPrint(item)}
                           className="action-button print-button"
-                          title="Imprimir PDF"
+                          title="Imprimir"
                         >
                           <Printer className="h-4 w-4" />
                         </button>

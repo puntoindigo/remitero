@@ -3,11 +3,12 @@
 import React, { useState, useEffect, Suspense, useCallback, useMemo, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
-import { Plus, FileText, Calendar, User, Package } from "lucide-react";
+import { Plus, FileText, Calendar, User, Package, Printer } from "lucide-react";
 import { formatDate } from "@/lib/utils/formatters";
 import FilterableSelect from "@/components/common/FilterableSelect";
 import { MessageModal } from "@/components/common/MessageModal";
 import DeleteConfirmModal from "@/components/common/DeleteConfirmModal";
+import { ConfirmationModal } from "@/components/common/ConfirmationModal";
 import { ToastContainer } from "@/components/common/Toast.jsx";
 import { useMessageModal } from "@/hooks/useMessageModal";
 import { useToast } from "@/hooks/useToast.js";
@@ -245,6 +246,8 @@ function RemitosContent() {
   const { modalState, showSuccess: showModalSuccess, showError: showModalError, closeModal } = useMessageModal();
   const { toasts, showSuccess: showToastSuccess, showError: showToastError, removeToast } = useToast();
   const { updateStatus } = useDirectUpdate();
+  const [showPrintConfirm, setShowPrintConfirm] = useState(false);
+  const [remitoToPrint, setRemitoToPrint] = useState<Remito | null>(null);
 
   // Detectar si viene de /nuevo y abrir formulario
   useEffect(() => {
@@ -291,13 +294,6 @@ function RemitosContent() {
 
   const handlePrintRemito = useCallback((remito: Remito) => {
     if (remito?.number) {
-      // Abrir PDF generado por el servidor usando número de remito
-      window.open(`/api/remitos/number/${remito.number}/pdf`, '_blank');
-    }
-  }, []);
-
-  const handlePrintRemitoHTML = useCallback((remito: Remito) => {
-    if (remito?.number) {
       // Abrir vista de impresión HTML en nueva pestaña usando número de remito
       window.open(`/remitos/${remito.number}/print`, '_blank');
     }
@@ -327,7 +323,6 @@ function RemitosContent() {
     },
     onDelete: handleDeleteRemito,
     onPrint: handlePrintRemito,
-    onPrintHTML: handlePrintRemitoHTML,
     onNew: handleNewRemito,
     getItemId: (remito) => remito?.id,
     emptyMessage: "No hay remitos",
@@ -412,9 +407,10 @@ function RemitosContent() {
         showToastSuccess("Remito creado correctamente");
         handleCloseForm();
         
-        // Ofrecer imprimir el remito recién creado
-        if (newRemito?.number && window.confirm('¿Deseas imprimir el remito ahora?')) {
-          window.open(`/remitos/${newRemito.number}/print`, '_blank');
+        // Ofrecer imprimir el remito recién creado con modal personalizado
+        if (newRemito?.number) {
+          setRemitoToPrint(newRemito as any);
+          setShowPrintConfirm(true);
         }
       }
     } catch (error: any) {
@@ -675,6 +671,27 @@ function RemitosContent() {
 
         {/* Toast notifications */}
         <ToastContainer toasts={toasts} onRemove={removeToast} />
+
+        {/* Modal de confirmación para imprimir */}
+        <ConfirmationModal
+          isOpen={showPrintConfirm}
+          onClose={() => {
+            setShowPrintConfirm(false);
+            setRemitoToPrint(null);
+          }}
+          onConfirm={() => {
+            if (remitoToPrint?.number) {
+              window.open(`/remitos/${remitoToPrint.number}/print`, '_blank');
+            }
+            setShowPrintConfirm(false);
+            setRemitoToPrint(null);
+          }}
+          title="¿Imprimir remito?"
+          message={`¿Deseas imprimir el remito #${remitoToPrint?.number} ahora?`}
+          type="info"
+          confirmText="Sí, imprimir"
+          cancelText="No"
+        />
       </div>
     </main>
   );
