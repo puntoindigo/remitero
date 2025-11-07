@@ -1961,16 +1961,25 @@ form svg {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  transition: box-shadow 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  cursor: pointer;
 }
 
 .dashboard-card:hover {
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  background-color: #f9fafb;
+  transform: scale(1.02);
 }
 
 .dashboard-card-header {
   padding: 0.875rem 1rem;
   border-bottom: 1px solid #e5e7eb;
+  background-color: #f8f9fa;
+  transition: background-color 0.3s ease;
+}
+
+.dashboard-card:hover .dashboard-card-header {
+  background-color: #f1f3f5;
 }
 
 .dashboard-card-title {
