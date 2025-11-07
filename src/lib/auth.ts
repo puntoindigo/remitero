@@ -354,109 +354,85 @@ export const authOptions: NextAuthOptions = {
         return urlStr.replace(/\/+/g, '/');
       };
       
-      // SIEMPRE usar NEXTAUTH_URL como fuente de verdad para el puerto
-      const nextAuthUrl = NEXTAUTH_URL || cleanEnv(process.env.NEXTAUTH_URL);
-      let correctBaseUrl = baseUrl.replace(/\/+$/, ''); // Eliminar barras al final
+      // PRIMERO: Calcular correctBaseUrl correctamente (solo origin, sin path)
+      const effectiveNextAuthUrl = NEXTAUTH_URL || cleanEnv(process.env.NEXTAUTH_URL);
+      let correctBaseUrl: string;
       
-      // Normalizar la URL entrante
-      let normalizedUrl = url.trim();
-      console.log('🔄 [NextAuth redirect] URL normalizada inicial:', normalizedUrl);
-      
-      // Si la URL es relativa, construirla con baseUrl
-      if (normalizedUrl.startsWith('/')) {
-        normalizedUrl = correctBaseUrl + normalizedUrl;
-      }
-      
-      // Si viene de OAuth callback y no tiene destino específico, redirigir según rol
-      if (normalizedUrl === baseUrl || normalizedUrl === correctBaseUrl || normalizedUrl.includes('/api/auth/callback')) {
-        const destination = token?.role === 'SUPERADMIN' ? '/empresas' : '/dashboard';
-        normalizedUrl = correctBaseUrl + destination;
-        console.log('🔄 [NextAuth redirect] Detectado callback OAuth, redirigiendo a:', destination, {
-          tokenRole: token?.role,
-          hasToken: !!token
-        });
-      }
-      
-      // Log final antes de retornar
-      console.log('🔄 [NextAuth redirect] URL final a retornar:', normalizedUrl);
-      
-      // REGLA SIMPLE: Si el path contiene localhost:8000 (significa que está mal formado)
-      // Redirigir según el rol: SUPERADMIN a /empresas, otros a /dashboard
-      if (normalizedUrl.includes('localhost:8000')) {
-        // Determinar destino según rol
-        const destination = token?.role === 'SUPERADMIN' ? '/empresas' : '/dashboard';
-        
-        // Construir URL correcta usando NEXTAUTH_URL
-        const effectiveNextAuthUrl = nextAuthUrl || NEXTAUTH_URL || cleanEnv(process.env.NEXTAUTH_URL);
-        if (effectiveNextAuthUrl) {
-          try {
-            const nextAuthUrlObj = new URL(effectiveNextAuthUrl);
-            const finalUrl = nextAuthUrlObj.origin + destination;
-            console.log('🔄 [NextAuth redirect] URL construida desde NEXTAUTH_URL:', finalUrl);
-            return finalUrl;
-          } catch (error) {
-            console.error('❌ [NextAuth redirect] Error construyendo URL:', error);
-          }
-        }
-        normalizedUrl = destination;
-      }
-      
-      // SIEMPRE usar NEXTAUTH_URL como base en desarrollo (solo origin, sin path)
-      const effectiveNextAuthUrl = nextAuthUrl || NEXTAUTH_URL || cleanEnv(process.env.NEXTAUTH_URL);
       if (process.env.NODE_ENV === "development" && effectiveNextAuthUrl) {
         try {
           const nextAuthUrlObj = new URL(effectiveNextAuthUrl);
           correctBaseUrl = nextAuthUrlObj.origin; // Solo "http://localhost:8000", sin path
         } catch (error) {
           console.warn('⚠️ [NextAuth Redirect] Error parsing NEXTAUTH_URL:', error);
-          // Fallback
           correctBaseUrl = 'http://localhost:8000';
         }
       } else {
-        // En producción, construir desde baseUrl
+        // En producción, construir desde baseUrl (solo origin)
         try {
-          const baseUrlObj = new URL(baseUrl.startsWith('http') ? baseUrl : `https://${baseUrl}`);
-          correctBaseUrl = baseUrlObj.origin;
+          const baseUrlStr = baseUrl.startsWith('http') ? baseUrl : `https://${baseUrl}`;
+          const baseUrlObj = new URL(baseUrlStr);
+          correctBaseUrl = baseUrlObj.origin; // Solo origin, sin path
         } catch {
-          correctBaseUrl = baseUrl.replace(/\/+$/, '');
+          // Fallback: extraer origin manualmente
+          const match = baseUrl.match(/^(https?:\/\/[^\/]+)/);
+          correctBaseUrl = match ? match[1] : baseUrl.replace(/\/+$/, '');
         }
+      }
+      
+      console.log('🔄 [NextAuth redirect] correctBaseUrl calculado:', correctBaseUrl);
+      
+      // Normalizar la URL entrante
+      let normalizedUrl = url.trim();
+      console.log('🔄 [NextAuth redirect] URL normalizada inicial:', normalizedUrl);
+      
+      // Determinar destino según rol
+      const destination = token?.role === 'SUPERADMIN' ? '/empresas' : '/dashboard';
+      
+      // Si viene de OAuth callback o la URL es el baseUrl, redirigir según rol
+      if (normalizedUrl === baseUrl || 
+          normalizedUrl === correctBaseUrl || 
+          normalizedUrl.includes('/api/auth/callback') ||
+          normalizedUrl === `${correctBaseUrl}/` ||
+          normalizedUrl === `${baseUrl}/`) {
+        const finalUrl = correctBaseUrl + destination;
+        console.log('🔄 [NextAuth redirect] Detectado callback OAuth, redirigiendo a:', finalUrl, {
+          tokenRole: token?.role,
+          hasToken: !!token
+        });
+        return normalizeUrl(finalUrl);
       }
       
       // Si la URL es relativa (empieza con /), construir la URL completa
       if (normalizedUrl.startsWith("/")) {
-        const separator = correctBaseUrl.endsWith("/") ? "" : "/";
-        const finalUrl = normalizeUrl(correctBaseUrl + separator + normalizedUrl);
-        return finalUrl;
+        const finalUrl = correctBaseUrl + normalizedUrl;
+        console.log('🔄 [NextAuth redirect] URL relativa construida:', finalUrl);
+        return normalizeUrl(finalUrl);
       }
       
       // Si la URL es absoluta, verificar y corregir
       try {
         const urlObj = new URL(normalizedUrl);
-        const effectiveNextAuthUrl = nextAuthUrl || NEXTAUTH_URL || cleanEnv(process.env.NEXTAUTH_URL);
-        const nextAuthUrlObj = effectiveNextAuthUrl ? new URL(effectiveNextAuthUrl) : null;
+        const correctBaseUrlObj = new URL(correctBaseUrl);
         
-        // Si es localhost en desarrollo, SIEMPRE corregir el puerto
-        if (urlObj.hostname === "localhost" && 
-            process.env.NODE_ENV === "development" &&
-            nextAuthUrlObj &&
-            nextAuthUrlObj.hostname === "localhost" &&
-            urlObj.port !== nextAuthUrlObj.port) {
-          urlObj.port = nextAuthUrlObj.port;
-          urlObj.protocol = nextAuthUrlObj.protocol;
-          return normalizeUrl(urlObj.toString());
+        // Si el hostname coincide, usar la URL tal cual (pero normalizada)
+        if (urlObj.hostname === correctBaseUrlObj.hostname) {
+          const finalUrl = normalizeUrl(urlObj.toString());
+          console.log('🔄 [NextAuth redirect] URL absoluta con hostname correcto:', finalUrl);
+          return finalUrl;
         }
         
-        // Si la URL ya tiene el hostname correcto, normalizarla y retornarla
-        if (urlObj.hostname === (nextAuthUrlObj?.hostname || "localhost")) {
-          return normalizeUrl(urlObj.toString());
-        }
-        
-        // Si la URL contiene barras múltiples, normalizarla
-        return normalizeUrl(normalizedUrl);
+        // Si el hostname no coincide, reemplazar con el correcto
+        urlObj.protocol = correctBaseUrlObj.protocol;
+        urlObj.hostname = correctBaseUrlObj.hostname;
+        urlObj.port = correctBaseUrlObj.port;
+        const finalUrl = normalizeUrl(urlObj.toString());
+        console.log('🔄 [NextAuth redirect] URL absoluta corregida:', finalUrl);
+        return finalUrl;
       } catch (error) {
-        // Si no se puede parsear como URL, asumir que es relativa y normalizar
-        const separator = correctBaseUrl.endsWith("/") || normalizedUrl.startsWith("/") ? "" : "/";
-        return normalizeUrl(correctBaseUrl + separator + normalizedUrl);
+        // Si no se puede parsear como URL, asumir que es relativa
+        const finalUrl = correctBaseUrl + (normalizedUrl.startsWith('/') ? '' : '/') + normalizedUrl;
+        console.log('🔄 [NextAuth redirect] URL no parseable, tratada como relativa:', finalUrl);
+        return normalizeUrl(finalUrl);
       }
     }
   },
