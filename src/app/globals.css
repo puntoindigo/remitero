@@ -3600,16 +3600,26 @@ form svg {
 }
 
 /* Remover cualquier estilo de contenedor del FilterableSelect en formularios */
-.form-group .vercel-select-container {
+.form-group .vercel-select-container,
+.modal-body .vercel-select-container {
   /* permitir estilos inline del trigger */
-  padding: 0;
-  margin: 0;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
 }
 
 /* no forzar background/border dentro del select para permitir colores dinámicos */
-.form-group .vercel-select-container * { box-shadow: none; }
+.form-group .vercel-select-container *,
+.modal-body .vercel-select-container * { 
+  box-shadow: none !important; 
+}
 
-.form-group .vercel-select-trigger { border-radius: 6px; }
+.form-group .vercel-select-trigger,
+.modal-body .vercel-select-trigger { 
+  border-radius: 6px; 
+}
 
 /* Badge styles for roles */
 .badge-superadmin {

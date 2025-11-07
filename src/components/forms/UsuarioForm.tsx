@@ -194,7 +194,18 @@ export function UsuarioForm({
 
   // Observar el valor del rol para mostrar/ocultar empresa
   const selectedRole = watch("role");
-  const isCurrentUserSuperAdmin = session?.user?.role === "SUPERADMIN";
+  const currentUserRole = session?.user?.role;
+  const isCurrentUserSuperAdmin = currentUserRole === "SUPERADMIN";
+  const isCurrentUserAdmin = currentUserRole === "ADMIN";
+  const isCurrentUserOperador = currentUserRole === "OPERADOR";
+
+  // Determinar si se puede editar el rol:
+  // - OPERADOR: No puede editar roles (ni el suyo ni de otros)
+  // - ADMIN: Solo puede asignar OPERADOR o ADMIN (no SUPERADMIN)
+  // - SUPERADMIN: Puede asignar cualquier rol
+  // - Si está editando su propio perfil, no puede cambiar su rol
+  const canEditRole = (isCurrentUserAdmin || isCurrentUserSuperAdmin) && !isCurrentUserOperador && !isCurrentUser;
+
   // Mostrar campo de empresa solo si:
   // 1. El usuario actual es SUPERADMIN
   // 2. El rol seleccionado no es SUPERADMIN
@@ -322,28 +333,33 @@ export function UsuarioForm({
           />
         </div>
 
-        <div className="form-group">
-          <label className="form-label-large">
-            Rol *
-            {errors?.role && (
-              <span style={{ color: '#ef4444', marginLeft: '8px', fontSize: '0.875rem', fontWeight: 'normal' }}>
-                {errors?.role.message}
-              </span>
-            )}
-          </label>
-          <select 
-            {...register("role")} 
-            className="form-select-standard"
-            style={{
-          color: roleValue === "OPERADOR" ? '#9ca3af' : '#111827',
-          fontStyle: roleValue === "OPERADOR" ? 'italic' : 'normal',
-            }}
-          >
-            <option value="OPERADOR" style={{ color: '#9ca3af', fontStyle: 'italic', backgroundColor: '#f9fafb' }}>Operador</option>
-            <option value="ADMIN">Administrador</option>
-            {session?.user?.role === "SUPERADMIN" && <option value="SUPERADMIN">Super Admin</option>}
-          </select>
-        </div>
+        {canEditRole && (
+          <div className="form-group">
+            <label className="form-label-large">
+              Rol *
+              {errors?.role && (
+                <span style={{ color: '#ef4444', marginLeft: '8px', fontSize: '0.875rem', fontWeight: 'normal' }}>
+                  {errors?.role.message}
+                </span>
+              )}
+            </label>
+            <select 
+              {...register("role")} 
+              className="form-select-standard"
+              style={{
+                color: roleValue === "OPERADOR" ? '#9ca3af' : '#111827',
+                fontStyle: roleValue === "OPERADOR" ? 'italic' : 'normal',
+              }}
+            >
+              <option value="OPERADOR" style={{ color: '#9ca3af', fontStyle: 'italic', backgroundColor: '#f9fafb' }}>Operador</option>
+              <option value="ADMIN">Administrador</option>
+              {isCurrentUserSuperAdmin && <option value="SUPERADMIN">Super Admin</option>}
+              {!isCurrentUserSuperAdmin && isCurrentUserAdmin && (
+                <option value="SUPERADMIN" disabled style={{ color: '#9ca3af', fontStyle: 'italic' }}>Super Admin (no disponible)</option>
+              )}
+            </select>
+          </div>
+        )}
       </div>
 
       <div className="form-row">
