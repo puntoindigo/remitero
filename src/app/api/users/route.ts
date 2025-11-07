@@ -6,6 +6,7 @@ import { transformUsers, transformUser } from "@/lib/utils/supabase-transform";
 import bcrypt from "bcryptjs";
 import { logger } from "@/lib/logger";
 import { getLastUserActivity, getActionDescription, logUserActivity } from "@/lib/user-activity-logger";
+import { sendInvitationEmail } from "@/lib/email";
 
 export async function GET(request: NextRequest) {
   try {
@@ -209,7 +210,7 @@ export async function POST(request: NextRequest) {
     let finalName: string;
     const parts = localPart.split(/[._]/);
     if (parts.length >= 2) {
-      finalName = parts.map(part => 
+      finalName = parts.map((part: string) => 
         part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()
       ).join(' ');
     } else {
@@ -313,6 +314,26 @@ export async function POST(request: NextRequest) {
       `Creó usuario ${newUser?.name} (${newUser?.email})`,
       { targetUserId: newUser?.id }
     );
+
+    // Enviar email de invitación al nuevo usuario
+    try {
+      const loginUrl = process.env.NEXTAUTH_URL 
+        ? `${process.env.NEXTAUTH_URL.replace(/\/$/, '')}/auth/login`
+        : 'https://remitero-dev.vercel.app/auth/login';
+      
+      await sendInvitationEmail({
+        to: finalEmail,
+        userName: finalName,
+        userEmail: finalEmail,
+        role: newUser.role,
+        loginUrl
+      });
+      
+      console.log('✅ [Users] Email de invitación enviado a:', finalEmail);
+    } catch (emailError: any) {
+      // No fallar la creación del usuario si el email falla, solo loguear el error
+      console.error('⚠️ [Users] Error al enviar email de invitación (no crítico):', emailError.message);
+    }
 
     return NextResponse.json(transformUser(newUser), { status: 201 });
   } catch (error: any) {
