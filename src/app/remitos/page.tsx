@@ -488,8 +488,12 @@ function RemitosContent() {
   ];
 
   return (
-    <main className="main-content">
-      <div className="form-section">
+    <>
+      {/* Toast notifications - arriba de toda la pantalla */}
+      <ToastContainer toasts={toasts} onRemove={removeToast} />
+      
+      <main className="main-content">
+        <div className="form-section">
         <h2>Gestión de Remitos</h2>
         
         {/* Selector de empresa - ancho completo */}
@@ -669,8 +673,7 @@ function RemitosContent() {
           details={modalState.details}
         />
 
-        {/* Toast notifications */}
-        <ToastContainer toasts={toasts} onRemove={removeToast} />
+        {/* Toast notifications - movido fuera del contenido principal */}
 
         {/* Modal de confirmación para imprimir */}
         <ConfirmationModal
@@ -694,6 +697,7 @@ function RemitosContent() {
         />
       </div>
     </main>
+    </>
   );
 }
 

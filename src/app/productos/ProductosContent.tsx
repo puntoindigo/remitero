@@ -26,7 +26,7 @@ import { useLoading } from "@/hooks/useLoading";
 import { LoadingButton } from "@/components/common/LoadingButton";
 import { useShortcuts } from "@/hooks/useShortcuts";
 import { useColorTheme } from "@/contexts/ColorThemeContext";
-import { StockToggle } from "@/components/common/StockToggle";
+import { StatusToggle } from "@/components/common/StatusToggle";
 
 import { 
   useProductosQuery,
@@ -274,7 +274,7 @@ function ProductosContent() {
     }
   }, [searchTerm, router, pathname, searchParams]);
 
-  const handleStockChange = async (productId: string, newStock: string) => {
+  const handleStockChange = async (productId: string, newStock: "IN_STOCK" | "OUT_OF_STOCK") => {
     try {
       const response = await fetch(`/api/products/${productId}`, {
         method: 'PUT',
@@ -379,21 +379,25 @@ function ProductosContent() {
       label: 'Precio',
       render: (producto) => {
         const price = producto.price || 0;
-        return `$${typeof price === 'number' ? price.toFixed(2) : '0.00'}`;
+        return `$${typeof price === 'number' ? price.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0,00'}`;
       }
     },
     {
       key: 'stock',
       label: 'Stock',
-      render: (producto) => (
-        <div style={{ display: 'flex', justifyContent: 'center', width: '40px' }}>
-          <StockToggle
-            value={(producto.stock || 'OUT_OF_STOCK') as "IN_STOCK" | "OUT_OF_STOCK"}
-            onChange={(value) => handleStockChange(producto?.id, value)}
-            compact={true}
-          />
-        </div>
-      )
+      render: (producto) => {
+        const isInStock = (producto.stock || 'OUT_OF_STOCK') === 'IN_STOCK';
+        return (
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <StatusToggle
+              value={isInStock}
+              onChange={(value) => handleStockChange(producto?.id, value ? 'IN_STOCK' : 'OUT_OF_STOCK')}
+              title="Modificar stock"
+              size={20}
+            />
+          </div>
+        );
+      }
     },
     {
       key: 'createdAt',
@@ -417,8 +421,9 @@ function ProductosContent() {
   }
 
   return (
-    <main className="main-content">
-      <div className="px-4 py-6 sm:px-0">
+    <>
+      <main className="main-content">
+        <div className="px-4 py-6 sm:px-0">
         {/* Formulario */}
         <ProductoForm
           isOpen={showForm}
@@ -565,8 +570,9 @@ function ProductosContent() {
           message={modalState.message}
           details={modalState.details}
         />
-      </div>
-    </main>
+        </div>
+      </main>
+    </>
   );
 }
 

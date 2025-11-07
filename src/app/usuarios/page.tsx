@@ -3,7 +3,8 @@
 import React, { useState, useEffect, Suspense, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
-import { Plus, Users, Building2, Mail, Phone, Edit, Trash2, Circle, Activity } from "lucide-react";
+import { Plus, Users, Building2, Mail, Phone, Edit, Trash2, Activity } from "lucide-react";
+import { StatusToggle } from "@/components/common/StatusToggle";
 import { formatDate } from "@/lib/utils/formatters";
 import FilterableSelect from "@/components/common/FilterableSelect";
 import { MessageModal } from "@/components/common/MessageModal";
@@ -274,35 +275,8 @@ function UsuariosContent() {
       key: 'name',
       label: 'Usuario',
       render: (usuario: Usuario) => (
-        <div className="usuario-info" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <div className="usuario-name">{usuario?.name}</div>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setSelectedUserForLogs(usuario);
-            }}
-            style={{
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              padding: '0.25rem',
-              borderRadius: '4px',
-              display: 'flex',
-              alignItems: 'center',
-              color: '#6b7280',
-            }}
-            title="Ver log de actividad completo"
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = '#f3f4f6';
-              e.currentTarget.style.color = '#3b82f6';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = 'transparent';
-              e.currentTarget.style.color = '#6b7280';
-            }}
-          >
-            <Activity className="h-4 w-4" />
-          </button>
+        <div style={{ fontSize: '0.875rem', fontWeight: 500 }}>
+          {usuario?.name}
         </div>
       )
     },
@@ -340,42 +314,21 @@ function UsuariosContent() {
         
         return (
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <button
-              onClick={() => canToggle && handleToggleActive(usuario)}
-              disabled={!canToggle}
-              title={canToggle ? (isActive ? 'Click para desactivar' : 'Click para activar') : 'No puedes desactivarte a ti mismo'}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: '0.5rem',
-                background: 'transparent',
-                border: 'none',
-                cursor: canToggle ? 'pointer' : 'not-allowed',
-                opacity: canToggle ? 1 : 0.5,
-                transition: 'transform 0.2s',
-              }}
-              onMouseEnter={(e) => {
-                if (canToggle) {
-                  e.currentTarget.style.transform = 'scale(1.2)';
-                }
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'scale(1)';
-              }}
-            >
-              <Circle
-                className="h-5 w-5"
-                fill={isActive ? '#10b981' : '#ef4444'}
-                style={{
-                  color: isActive ? '#10b981' : '#ef4444',
-                  filter: isActive 
-                    ? 'drop-shadow(0 0 6px rgba(16, 185, 129, 0.6))' 
-                    : 'drop-shadow(0 0 6px rgba(239, 68, 68, 0.6))',
-                  transition: 'all 0.2s',
-                }}
+            {canToggle ? (
+              <StatusToggle
+                value={isActive}
+                onChange={() => handleToggleActive(usuario)}
+                title={isActive ? 'Click para desactivar' : 'Click para activar'}
+                size={20}
               />
-            </button>
+            ) : (
+              <StatusToggle
+                value={isActive}
+                onChange={() => {}}
+                title="No puedes desactivarte a ti mismo"
+                size={20}
+              />
+            )}
           </div>
         );
       }
@@ -425,28 +378,97 @@ function UsuariosContent() {
           }
           
           return (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-              <div style={{ fontSize: '0.875rem', fontWeight: 500 }}>
-                {usuario.lastActivity.description}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', flex: 1 }}>
+                <div style={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                  {usuario.lastActivity.description}
+                </div>
+                <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>
+                  {timeAgo}
+                </div>
               </div>
-              <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>
-                {timeAgo}
-              </div>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedUserForLogs(usuario);
+                }}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  padding: '0.25rem',
+                  borderRadius: '4px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  color: '#6b7280',
+                }}
+                title="Ver log de actividad completo"
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#f3f4f6';
+                  e.currentTarget.style.color = '#3b82f6';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                  e.currentTarget.style.color = '#6b7280';
+                }}
+              >
+                <Activity className="h-4 w-4" />
+              </button>
             </div>
           );
         }
-        return <span style={{ color: '#9ca3af', fontSize: '0.875rem' }}>Sin actividad</span>;
+        
+        // Si no hay actividad, mostrar "Alta: [fecha]"
+        const altaDate = new Date(usuario.createdAt);
+        const altaFormatted = altaDate.toLocaleDateString('es-AR', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: false
+        });
+        
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', flex: 1 }}>
+              <div style={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                Alta
+              </div>
+              <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>
+                {altaFormatted}
+              </div>
+            </div>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setSelectedUserForLogs(usuario);
+              }}
+              style={{
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                padding: '0.25rem',
+                borderRadius: '4px',
+                display: 'flex',
+                alignItems: 'center',
+                color: '#6b7280',
+              }}
+              title="Ver log de actividad completo"
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#f3f4f6';
+                e.currentTarget.style.color = '#3b82f6';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent';
+                e.currentTarget.style.color = '#6b7280';
+              }}
+            >
+              <Activity className="h-4 w-4" />
+            </button>
+          </div>
+        );
       }
-    },
-    {
-      key: 'createdAt',
-      label: 'Registrado',
-      render: (usuario) => new Date(usuario.createdAt).toLocaleDateString('es-AR', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour12: false
-      })
     },
     // Solo mostrar columna Impersonar si es SUPERADMIN
     ...(isSuperAdmin ? [{
@@ -501,8 +523,9 @@ function UsuariosContent() {
   }
 
   return (
-    <main className="main-content">
-      <div className="px-4 py-6 sm:px-0">
+    <>
+      <main className="main-content">
+        <div className="px-4 py-6 sm:px-0">
         {/* Formulario */}
         <UsuarioForm
           isOpen={showForm}
@@ -629,8 +652,9 @@ function UsuariosContent() {
           message={modalState.message}
           details={modalState.details}
         />
-      </div>
-    </main>
+        </div>
+      </main>
+    </>
   );
 }
 

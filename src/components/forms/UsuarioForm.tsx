@@ -312,11 +312,6 @@ export function UsuarioForm({
         <div className="form-group">
           <label className="form-label-large">
             Email *
-            {!hasAtSymbol && (
-              <span style={{ marginLeft: '8px', fontSize: '0.75rem', color: '#6b7280', fontWeight: 'normal' }}>
-                (escribe solo el usuario o el email completo)
-              </span>
-            )}
             {errors?.email && (
               <span style={{ color: '#ef4444', marginLeft: '8px', fontSize: '0.875rem', fontWeight: 'normal' }}>
                 {errors?.email.message}
@@ -326,7 +321,7 @@ export function UsuarioForm({
           <input
             {...register("email")}
             type="text"
-            placeholder={hasAtSymbol ? "email@ejemplo.com" : "usuario (se completará como usuario@gmail.com)"}
+            placeholder="email@ejemplo.com"
             autoComplete="off"
             className="form-input-standard"
             onBlur={handleEmailBlur}
