@@ -135,15 +135,25 @@ export async function GET(request: NextRequest) {
     // Obtener último estado de actividad para cada usuario
     const usersWithLastActivity = await Promise.all(
       (users || []).map(async (user: any) => {
-        const lastActivity = await getLastUserActivity(user.id);
+        let lastActivity = null;
+        try {
+          const activity = await getLastUserActivity(user.id);
+          if (activity) {
+            lastActivity = {
+              action: activity.action,
+              description: activity.description || getActionDescription(activity.action, activity.metadata as any),
+              createdAt: activity.created_at
+            };
+          }
+        } catch (activityError: any) {
+          // Si falla obtener la actividad, continuar sin ella (no crítico)
+          console.warn(`⚠️ [Users] Error al obtener actividad para usuario ${user.id}:`, activityError.message);
+        }
+        
         return {
           ...user,
           companies: user.companies || (user.company_id ? { id: user.company_id, name: null } : null),
-          lastActivity: lastActivity ? {
-            action: lastActivity.action,
-            description: lastActivity.description || getActionDescription(lastActivity.action, lastActivity.metadata as any),
-            createdAt: lastActivity.created_at
-          } : null
+          lastActivity
         };
       })
     );

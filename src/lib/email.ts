@@ -72,18 +72,19 @@ export async function sendInvitationEmail({
       return false;
     }
 
-    // Verificar conexión antes de enviar
-    try {
-      await transporter.verify();
-      console.log('✅ [Email] Conexión con servidor de email verificada');
-    } catch (verifyError: any) {
-      console.error('❌ [Email] Error al verificar conexión con servidor de email:', {
-        error: verifyError.message,
-        code: verifyError.code,
-        command: verifyError.command
-      });
-      return false;
-    }
+    // Verificar conexión antes de enviar (opcional, puede ser lento)
+    // Comentado temporalmente para evitar errores en producción
+    // try {
+    //   await transporter.verify();
+    //   console.log('✅ [Email] Conexión con servidor de email verificada');
+    // } catch (verifyError: any) {
+    //   console.error('❌ [Email] Error al verificar conexión con servidor de email:', {
+    //     error: verifyError.message,
+    //     code: verifyError.code,
+    //     command: verifyError.command
+    //   });
+    //   return false;
+    // }
 
     // Mapear roles a nombres legibles
     const roleNames: Record<string, string> = {
