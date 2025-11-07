@@ -138,229 +138,139 @@ export default function PrintRemito() {
 
   const total = (remito.remitoItems || remito.items || []).reduce((sum, item) => sum + (Number(item.line_total) || 0), 0);
   
-  // Crear array de 16 líneas mínimo, completando con líneas vacías si es necesario
+  // Dividir items en páginas de máximo 17 líneas
   const items = remito.remitoItems || remito.items || [];
-  const minLines = 16;
-  const paddedItems: any[] = [...items];
+  const maxLinesPerPage = 17;
+  const totalPages = Math.max(1, Math.ceil(items.length / maxLinesPerPage));
   
-  // Agregar líneas vacías hasta completar 16 líneas mínimo
-  while (paddedItems.length < minLines) {
-    paddedItems.push({
-      quantity: '',
-      product_name: '',
-      unit_price: '',
-      line_total: ''
-    });
-  }
+  // Función para dividir items en páginas
+  const getItemsForPage = (pageNumber: number) => {
+    const startIndex = (pageNumber - 1) * maxLinesPerPage;
+    const endIndex = startIndex + maxLinesPerPage;
+    return items.slice(startIndex, endIndex);
+  };
+  
+  // Función para renderizar una página completa
+  const renderPage = (pageNumber: number, pageItems: any[], isLastPage: boolean, copyType: 'original' | 'copy') => {
+    const isFirstPage = pageNumber === 1;
+    const className = copyType === 'original' ? 'print-original' : 'print-copy';
+    
+    return (
+      <div key={`${copyType}-page-${pageNumber}`} className={className}>
+        <div className="print-header">
+          <div className="print-header-top">
+            <h1 data-is-fallback={isFallback ? "true" : undefined}>{companyName}</h1>
+            <div className="print-remito-number">
+              <strong>N°: {remito.number}</strong>
+            </div>
+          </div>
+          <div className="print-header-bottom">
+            <h2>REMITO DE ENTREGA</h2>
+            <div className="print-date-inline">
+              <p>
+                <strong>Fecha:</strong> {new Date(remito.createdAt).toLocaleDateString('es-AR')}
+                {totalPages > 1 && (
+                  <span style={{ marginLeft: '8px' }}>| Página {pageNumber} de {totalPages}</span>
+                )}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Solo mostrar info del cliente en la primera página */}
+        {isFirstPage && (
+          <div className="print-info-section" style={{ marginBottom: '20px' }}>
+            <div className="print-client-info">
+              <p><strong>{remito.client.name}</strong></p>
+              {remito.client.address && <p>{remito.client.address}</p>}
+              {remito.client.phone && <p>Tel: {remito.client.phone}</p>}
+            </div>
+          </div>
+        )}
+
+        {!isFirstPage && (
+          <div className="print-spacer" style={{ height: '20px', flexShrink: 0 }}></div>
+        )}
+
+        <div className="print-items">
+          <table className="print-table">
+            <colgroup>
+              <col style={{ width: '10%' }} />
+              <col style={{ width: '50%' }} />
+              <col style={{ width: '20%' }} />
+              <col style={{ width: '20%' }} />
+            </colgroup>
+            <thead>
+              <tr>
+                <th>Cant.</th>
+                <th>Descripción</th>
+                <th>Precio Unit.</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              {pageItems.map((item, index) => (
+                <tr key={index}>
+                  <td style={{ textAlign: 'center' }}>{item.quantity}</td>
+                  <td>{item.product_name}</td>
+                  <td style={{ textAlign: 'right' }}>
+                    {item.unit_price ? `$${(Number(item.unit_price) || 0).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : ''}
+                  </td>
+                  <td style={{ textAlign: 'right' }}>
+                    {item.line_total ? `$${(Number(item.line_total) || 0).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : ''}
+                  </td>
+                </tr>
+              ))}
+              {/* Mostrar total solo en la última página */}
+              {isLastPage && (
+                <tr>
+                  <td style={{ textAlign: 'center' }}></td>
+                  <td></td>
+                  <td colSpan={2} style={{ textAlign: 'right' }}>
+                    <div className="print-total-inline">
+                      <p><strong>TOTAL: ${total.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong></p>
+                    </div>
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Mostrar notas solo en la última página */}
+        {isLastPage && remito.notes && (
+          <div className="print-notes" style={{ marginTop: '20px', paddingTop: '10px', borderTop: '1px solid #ccc' }}>
+            <p><strong>Observaciones:</strong></p>
+            <p>{remito.notes}</p>
+          </div>
+        )}
+      </div>
+    );
+  };
 
   return (
     <>
-      <div 
-        data-print-wrapper
-        className="print-container"
-      >
-      {/* Original Copy - Left Half */}
-      <div className="print-original">
-              <div className="print-header">
-                <div className="print-header-top">
-                  <h1 data-is-fallback={isFallback ? "true" : undefined}>{companyName}</h1>
-                  <div className="print-remito-number">
-                    <strong>N°: {remito.number}</strong>
-                  </div>
-                </div>
-                <div className="print-header-bottom">
-                  <h2>REMITO DE ENTREGA</h2>
-                  <div className="print-date-inline">
-                    <p><strong>Fecha:</strong> {new Date(remito.createdAt).toLocaleDateString('es-AR')}</p>
-                  </div>
-                </div>
-              </div>
-
-        <div className="print-info-section" style={{ marginBottom: '20px' }}>
-          <div className="print-client-info">
-            <p><strong>{remito.client.name}</strong></p>
-            {remito.client.address && <p>{remito.client.address}</p>}
-            {remito.client.phone && <p>Tel: {remito.client.phone}</p>}
+      {/* Renderizar cada página física con ambas copias lado a lado */}
+      {Array.from({ length: totalPages }, (_, i) => {
+        const pageNumber = i + 1;
+        const pageItems = getItemsForPage(pageNumber);
+        const isLastPage = pageNumber === totalPages;
+        
+        return (
+          <div 
+            key={`page-${pageNumber}`}
+            data-print-wrapper
+            className="print-container"
+            style={{ pageBreakAfter: isLastPage ? 'auto' : 'always' }}
+          >
+            {/* Copia original (izquierda) */}
+            {renderPage(pageNumber, pageItems, isLastPage, 'original')}
+            
+            {/* Copia del cliente (derecha) */}
+            {renderPage(pageNumber, pageItems, isLastPage, 'copy')}
           </div>
-        </div>
-
-        <div className="print-spacer" style={{ height: '20px', flexShrink: 0 }}></div>
-
-        <div className="print-items">
-          <table className="print-table">
-            <colgroup>
-              <col style={{ width: '10%' }} />
-              <col style={{ width: '50%' }} />
-              <col style={{ width: '20%' }} />
-              <col style={{ width: '20%' }} />
-            </colgroup>
-            <thead>
-              <tr>
-                <th>Cant.</th>
-                <th>Descripción</th>
-                <th>Precio Unit.</th>
-                <th>Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              {paddedItems.map((item, index) => {
-                // Si es la última fila y no tiene contenido, mostrar el total
-                const isLastRow = index === paddedItems.length - 1;
-                const hasContent = item.product_name || item.quantity || item.unit_price || item.line_total;
-                
-                if (isLastRow && !hasContent) {
-                  // Última fila con total usando colspan
-                  return (
-                    <tr key={index}>
-                      <td style={{ textAlign: 'center' }}></td>
-                      <td></td>
-                      <td colSpan={2} style={{ textAlign: 'right' }}>
-                        <div className="print-total-inline">
-                          <p><strong>TOTAL: ${total.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong></p>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                }
-                
-                return (
-                  <tr key={index}>
-                    <td style={{ textAlign: 'center' }}>{item.quantity}</td>
-                    <td>{item.product_name}</td>
-                    <td style={{ textAlign: 'right' }}>
-                      {item.unit_price ? `$${(Number(item.unit_price) || 0).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : ''}
-                    </td>
-                    <td style={{ textAlign: 'right' }}>
-                      {item.line_total ? `$${(Number(item.line_total) || 0).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : ''}
-                    </td>
-                  </tr>
-                );
-              })}
-              {/* Si todas las filas tienen contenido, agregar fila adicional para el total */}
-              {paddedItems.every(item => item.product_name || item.quantity || item.unit_price || item.line_total) && (
-                <tr>
-                  <td style={{ textAlign: 'center' }}></td>
-                  <td></td>
-                  <td colSpan={2} style={{ textAlign: 'right' }}>
-                    <div className="print-total-inline">
-                      <p><strong>TOTAL: ${total.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong></p>
-                    </div>
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        {remito.notes && (
-          <div className="print-notes" style={{ marginTop: '20px', paddingTop: '10px', borderTop: '1px solid #ccc' }}>
-            <p><strong>Observaciones:</strong></p>
-            <p>{remito.notes}</p>
-          </div>
-        )}
-      </div>
-
-      {/* Client Copy - Right Half */}
-      <div className="print-copy">
-              <div className="print-header">
-                <div className="print-header-top">
-                  <h1 data-is-fallback={isFallback ? "true" : undefined}>{companyName}</h1>
-                  <div className="print-remito-number">
-                    <strong>N°: {remito.number}</strong>
-                  </div>
-                </div>
-                <div className="print-header-bottom">
-                  <h2>REMITO DE ENTREGA</h2>
-                  <div className="print-date-inline">
-                    <p><strong>Fecha:</strong> {new Date(remito.createdAt).toLocaleDateString('es-AR')}</p>
-                  </div>
-                </div>
-              </div>
-
-        <div className="print-info-section" style={{ marginBottom: '20px' }}>
-          <div className="print-client-info">
-            <p><strong>{remito.client.name}</strong></p>
-            {remito.client.address && <p>{remito.client.address}</p>}
-            {remito.client.phone && <p>Tel: {remito.client.phone}</p>}
-          </div>
-        </div>
-
-        <div className="print-spacer" style={{ height: '20px', flexShrink: 0 }}></div>
-
-        <div className="print-items">
-          <table className="print-table">
-            <colgroup>
-              <col style={{ width: '10%' }} />
-              <col style={{ width: '50%' }} />
-              <col style={{ width: '20%' }} />
-              <col style={{ width: '20%' }} />
-            </colgroup>
-            <thead>
-              <tr>
-                <th>Cant.</th>
-                <th>Descripción</th>
-                <th>Precio Unit.</th>
-                <th>Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              {paddedItems.map((item, index) => {
-                // Si es la última fila y no tiene contenido, mostrar el total
-                const isLastRow = index === paddedItems.length - 1;
-                const hasContent = item.product_name || item.quantity || item.unit_price || item.line_total;
-                
-                if (isLastRow && !hasContent) {
-                  // Última fila con total usando colspan
-                  return (
-                    <tr key={index}>
-                      <td style={{ textAlign: 'center' }}></td>
-                      <td></td>
-                      <td colSpan={2} style={{ textAlign: 'right' }}>
-                        <div className="print-total-inline">
-                          <p><strong>TOTAL: ${total.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong></p>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                }
-                
-                return (
-                  <tr key={index}>
-                    <td style={{ textAlign: 'center' }}>{item.quantity}</td>
-                    <td>{item.product_name}</td>
-                    <td style={{ textAlign: 'right' }}>
-                      {item.unit_price ? `$${(Number(item.unit_price) || 0).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : ''}
-                    </td>
-                    <td style={{ textAlign: 'right' }}>
-                      {item.line_total ? `$${(Number(item.line_total) || 0).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : ''}
-                    </td>
-                  </tr>
-                );
-              })}
-              {/* Si todas las filas tienen contenido, agregar fila adicional para el total */}
-              {paddedItems.every(item => item.product_name || item.quantity || item.unit_price || item.line_total) && (
-                <tr>
-                  <td style={{ textAlign: 'center' }}></td>
-                  <td></td>
-                  <td colSpan={2} style={{ textAlign: 'right' }}>
-                    <div className="print-total-inline">
-                      <p><strong>TOTAL: ${total.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong></p>
-                    </div>
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        {remito.notes && (
-          <div className="print-notes" style={{ marginTop: '20px', paddingTop: '10px', borderTop: '1px solid #ccc' }}>
-            <p><strong>Observaciones:</strong></p>
-            <p>{remito.notes}</p>
-          </div>
-        )}
-      </div>
-      </div>
+        );
+      })}
     </>
   );
 }

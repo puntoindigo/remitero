@@ -48,6 +48,7 @@ hr *,
   padding: 8mm 10mm 2mm 10mm !important;
   border: 1px solid #000 !important;
   page-break-inside: avoid !important;
+  page-break-after: auto !important;
   position: relative !important;
   display: flex !important;
   flex-direction: column !important;
@@ -732,6 +733,9 @@ body > div:not(.print-container):not([data-print-content]) {
            page-break-inside: avoid !important;
            background: white !important;
          }
+         
+         /* Asegurar que cada contenedor de página se rompa correctamente */
+         /* El page-break se controla desde el componente con estilos inline */
 
   /* Asegurar que elementos específicos mantengan su display correcto */
   .print-container table {
