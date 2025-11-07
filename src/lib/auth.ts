@@ -101,37 +101,62 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async signIn({ user, account, profile }) {
+      console.log('🔐 [NextAuth signIn] Iniciado', { 
+        provider: account?.provider, 
+        email: user.email,
+        hasAccount: !!account,
+        hasProfile: !!profile
+      });
+      
       // Si es login con Google, verificar o crear usuario en la BD
       if (account?.provider === "google") {
+        console.log('🔐 [NextAuth signIn] Procesando login con Google');
         try {
           const email = user.email;
           if (!email) {
+            console.error('❌ [NextAuth signIn] No hay email en user object');
             return false;
           }
+          console.log('🔐 [NextAuth signIn] Email encontrado:', email);
 
           // Buscar si el usuario ya existe
-          const { data: existingUser } = await supabaseAdmin
+          console.log('🔐 [NextAuth signIn] Buscando usuario en BD...');
+          const { data: existingUser, error: findError } = await supabaseAdmin
             .from('users')
             .select('*')
             .eq('email', email)
             .single();
 
+          if (findError && findError.code !== 'PGRST116') {
+            console.error('❌ [NextAuth signIn] Error buscando usuario:', findError);
+          }
+
           if (existingUser) {
+            console.log('✅ [NextAuth signIn] Usuario existente encontrado:', existingUser.id);
             // Verificar si el usuario está activo
             if (existingUser.is_active === false) {
+              console.error('❌ [NextAuth signIn] Usuario desactivado, denegando acceso');
               // Usuario desactivado, no permitir login
               // Retornar false para que NextAuth deniegue el acceso
               return false;
             }
+            console.log('✅ [NextAuth signIn] Usuario está activo');
 
             // Usuario existe y está activo, actualizar información si es necesario
-            await supabaseAdmin
+            console.log('🔐 [NextAuth signIn] Actualizando información del usuario...');
+            const { error: updateError } = await supabaseAdmin
               .from('users')
               .update({
                 name: user.name || existingUser.name,
                 updated_at: new Date().toISOString(),
               })
               .eq('id', existingUser.id);
+            
+            if (updateError) {
+              console.error('⚠️ [NextAuth signIn] Error actualizando usuario:', updateError);
+            } else {
+              console.log('✅ [NextAuth signIn] Usuario actualizado correctamente');
+            }
             
             // Asignar datos del usuario existente al objeto user
             user.id = existingUser.id;
@@ -140,8 +165,14 @@ export const authOptions: NextAuthOptions = {
             (user as any).hasTemporaryPassword = false;
             (user as any).enable_botonera = existingUser.enable_botonera ?? false;
             (user as any).enable_pinned_modals = existingUser.enable_pinned_modals ?? false;
+            console.log('🔐 [NextAuth signIn] Datos asignados al user object:', {
+              id: user.id,
+              role: (user as any).role,
+              companyId: (user as any).companyId
+            });
           } else {
             // Usuario no existe, crear uno nuevo con rol USER por defecto
+            console.log('🔐 [NextAuth signIn] Usuario no existe, creando nuevo usuario...');
             // Nota: En producción, podrías querer redirigir a un formulario de registro
             // o asignar automáticamente a una empresa por defecto
             const { data: newUser, error } = await supabaseAdmin
@@ -157,9 +188,10 @@ export const authOptions: NextAuthOptions = {
               .single();
 
             if (error || !newUser) {
-              console.error('Error creating Google user:', error);
+              console.error('❌ [NextAuth signIn] Error creando usuario:', error);
               return false;
             }
+            console.log('✅ [NextAuth signIn] Nuevo usuario creado:', newUser.id);
 
             user.id = newUser.id;
             (user as any).role = newUser.role;
@@ -167,10 +199,15 @@ export const authOptions: NextAuthOptions = {
             (user as any).hasTemporaryPassword = false;
             (user as any).enable_botonera = newUser.enable_botonera ?? false;
             (user as any).enable_pinned_modals = newUser.enable_pinned_modals ?? false;
+            console.log('🔐 [NextAuth signIn] Datos asignados al nuevo user:', {
+              id: user.id,
+              role: (user as any).role
+            });
           }
 
           // Obtener nombre de la empresa si el usuario tiene company_id
           if ((user as any).companyId) {
+            console.log('🔐 [NextAuth signIn] Obteniendo nombre de empresa...');
             const { data: company } = await supabaseAdmin
               .from('companies')
               .select('name')
@@ -179,34 +216,52 @@ export const authOptions: NextAuthOptions = {
             
             if (company) {
               (user as any).companyName = company.name;
+              console.log('✅ [NextAuth signIn] Empresa encontrada:', company.name);
             }
           }
 
           // Registrar login con Google
           try {
+            console.log('🔐 [NextAuth signIn] Registrando actividad de login...');
             await logUserActivity((user as any).id, 'LOGIN', 'Inició sesión con Google');
+            console.log('✅ [NextAuth signIn] Actividad registrada');
           } catch (logError) {
             // No fallar el login si el log falla
-            console.error('Error logging user activity:', logError);
+            console.error('⚠️ [NextAuth signIn] Error logging user activity (no crítico):', logError);
           }
 
+          console.log('✅ [NextAuth signIn] Login con Google exitoso, retornando true');
           return true;
         } catch (error: any) {
-          console.error('Error in Google signIn callback:', error);
+          console.error('❌ [NextAuth signIn] Error en callback de Google:', error);
           // Log más detallado para debugging
           if (error?.message) {
-            console.error('Error message:', error.message);
+            console.error('❌ [NextAuth signIn] Error message:', error.message);
           }
           if (error?.stack) {
-            console.error('Error stack:', error.stack);
+            console.error('❌ [NextAuth signIn] Error stack:', error.stack);
           }
+          console.error('❌ [NextAuth signIn] Retornando false - acceso denegado');
           return false;
         }
       }
+      console.log('✅ [NextAuth signIn] No es Google provider, retornando true');
       return true;
     },
     async jwt({ token, user, account, trigger }) {
+      console.log('🔑 [NextAuth jwt] Callback ejecutado', {
+        hasUser: !!user,
+        hasAccount: !!account,
+        provider: account?.provider,
+        trigger
+      });
+      
       if (user) {
+        console.log('🔑 [NextAuth jwt] Procesando user object:', {
+          id: user.id,
+          email: user.email,
+          role: (user as any).role
+        });
         token.role = user.role || (user as any).role
         token.companyId = user.companyId || (user as any).companyId
         token.companyName = (user as any).companyName
@@ -250,6 +305,14 @@ export const authOptions: NextAuthOptions = {
       return session
     },
     async redirect({ url, baseUrl, token }) {
+      console.log('🔄 [NextAuth redirect] Callback ejecutado', {
+        url,
+        baseUrl,
+        hasToken: !!token,
+        role: token?.role,
+        nextAuthUrl: process.env.NEXTAUTH_URL
+      });
+      
       // Función para normalizar URLs y evitar barras múltiples
       const normalizeUrl = (urlStr: string): string => {
         // Normalizar múltiples barras consecutivas a una sola
@@ -262,6 +325,7 @@ export const authOptions: NextAuthOptions = {
       
       // Normalizar la URL entrante
       let normalizedUrl = url.trim();
+      console.log('🔄 [NextAuth redirect] URL normalizada inicial:', normalizedUrl);
       
       // Si la URL es relativa, construirla con baseUrl
       if (normalizedUrl.startsWith('/')) {
@@ -272,6 +336,7 @@ export const authOptions: NextAuthOptions = {
       if (normalizedUrl === baseUrl || normalizedUrl === correctBaseUrl || normalizedUrl.includes('/api/auth/callback')) {
         const destination = token?.role === 'SUPERADMIN' ? '/empresas' : '/dashboard';
         normalizedUrl = correctBaseUrl + destination;
+        console.log('🔄 [NextAuth redirect] Detectado callback OAuth, redirigiendo a:', destination);
       }
       
       // REGLA SIMPLE: Si el path contiene localhost:8000 (significa que está mal formado)

@@ -353,19 +353,22 @@ function LoginPageContent() {
             <button
               type="button"
               onClick={async () => {
+                console.log('🔵 [Login] Click en botón Gmail');
                 setIsLoading(true);
                 setError("");
                 try {
+                  console.log('🔵 [Login] Llamando a signIn("google")...');
                   // OAuth providers REQUIEREN redirect: true (no pueden usar redirect: false)
                   // NextAuth manejará la redirección a Google y luego de vuelta
-                  await signIn("google", {
+                  const result = await signIn("google", {
                     redirect: true,
                     callbackUrl: "/dashboard"
                   });
+                  console.log('🔵 [Login] Resultado de signIn:', result);
                   // No necesitamos manejar el resultado aquí porque NextAuth redirigirá
                   // El callback de NextAuth manejará la lógica después del OAuth
                 } catch (error) {
-                  console.error("Error:", error);
+                  console.error("❌ [Login] Error en signIn:", error);
                   setError("Error al iniciar sesión con Google. Intenta nuevamente.");
                   setIsLoading(false);
                 }
