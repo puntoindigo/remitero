@@ -2,21 +2,39 @@ import nodemailer from 'nodemailer';
 
 // Configuración del transporter de Gmail
 const createTransporter = () => {
-  const emailUser = process.env.EMAIL_USER;
-  const emailPassword = process.env.EMAIL_PASSWORD;
+  const emailUser = process.env.EMAIL_USER?.trim();
+  const emailPassword = process.env.EMAIL_PASSWORD?.trim();
+
+  console.log('🔍 [Email] Verificando configuración:', {
+    hasEmailUser: !!emailUser,
+    hasEmailPassword: !!emailPassword,
+    emailUserLength: emailUser?.length || 0,
+    emailPasswordLength: emailPassword?.length || 0,
+    emailUserPreview: emailUser ? `${emailUser.substring(0, 3)}***@${emailUser.split('@')[1] || '***'}` : 'No configurado'
+  });
 
   if (!emailUser || !emailPassword) {
-    console.warn('⚠️ [Email] Variables de entorno EMAIL_USER o EMAIL_PASSWORD no configuradas');
+    console.error('❌ [Email] Variables de entorno EMAIL_USER o EMAIL_PASSWORD no configuradas');
+    console.error('❌ [Email] EMAIL_USER:', emailUser ? 'Configurado' : 'FALTANTE');
+    console.error('❌ [Email] EMAIL_PASSWORD:', emailPassword ? 'Configurado' : 'FALTANTE');
     return null;
   }
 
-  return nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: emailUser,
-      pass: emailPassword
-    }
-  });
+  try {
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: emailUser,
+        pass: emailPassword
+      }
+    });
+
+    console.log('✅ [Email] Transporter creado exitosamente');
+    return transporter;
+  } catch (error: any) {
+    console.error('❌ [Email] Error al crear transporter:', error.message);
+    return null;
+  }
 };
 
 interface SendInvitationEmailParams {
@@ -37,11 +55,33 @@ export async function sendInvitationEmail({
   role,
   loginUrl
 }: SendInvitationEmailParams): Promise<boolean> {
+  console.log('📧 [Email] Iniciando envío de email de invitación:', {
+    to,
+    userName,
+    userEmail,
+    role,
+    loginUrl
+  });
+
   try {
     const transporter = createTransporter();
     
     if (!transporter) {
       console.error('❌ [Email] No se pudo crear el transporter de email');
+      console.error('❌ [Email] Verifica que EMAIL_USER y EMAIL_PASSWORD estén configurados en Vercel');
+      return false;
+    }
+
+    // Verificar conexión antes de enviar
+    try {
+      await transporter.verify();
+      console.log('✅ [Email] Conexión con servidor de email verificada');
+    } catch (verifyError: any) {
+      console.error('❌ [Email] Error al verificar conexión con servidor de email:', {
+        error: verifyError.message,
+        code: verifyError.code,
+        command: verifyError.command
+      });
       return false;
     }
 
@@ -190,11 +230,15 @@ Este es un email automático, por favor no respondas a este mensaje.
       `
     };
 
+    console.log('📤 [Email] Enviando email...');
     const info = await transporter.sendMail(mailOptions);
-    console.log('✅ [Email] Email de invitación enviado:', {
+    
+    console.log('✅ [Email] Email de invitación enviado exitosamente:', {
       to,
       messageId: info.messageId,
-      response: info.response
+      response: info.response,
+      accepted: info.accepted,
+      rejected: info.rejected
     });
     
     return true;
@@ -202,8 +246,22 @@ Este es un email automático, por favor no respondas a este mensaje.
     console.error('❌ [Email] Error al enviar email de invitación:', {
       to,
       error: error.message,
+      code: error.code,
+      command: error.command,
+      response: error.response,
+      responseCode: error.responseCode,
       stack: error.stack
     });
+
+    // Errores comunes y sus soluciones
+    if (error.code === 'EAUTH') {
+      console.error('❌ [Email] Error de autenticación - Verifica EMAIL_USER y EMAIL_PASSWORD');
+    } else if (error.code === 'ECONNECTION') {
+      console.error('❌ [Email] Error de conexión - Verifica tu conexión a internet');
+    } else if (error.responseCode === 535) {
+      console.error('❌ [Email] Error 535 - Credenciales inválidas. Verifica que EMAIL_PASSWORD sea una contraseña de aplicación de Gmail');
+    }
+
     return false;
   }
 }

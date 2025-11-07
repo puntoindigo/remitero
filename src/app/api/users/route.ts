@@ -321,7 +321,9 @@ export async function POST(request: NextRequest) {
         ? `${process.env.NEXTAUTH_URL.replace(/\/$/, '')}/auth/login`
         : 'https://remitero-dev.vercel.app/auth/login';
       
-      await sendInvitationEmail({
+      console.log('📧 [Users] Intentando enviar email de invitación a:', finalEmail);
+      
+      const emailSent = await sendInvitationEmail({
         to: finalEmail,
         userName: finalName,
         userEmail: finalEmail,
@@ -329,10 +331,21 @@ export async function POST(request: NextRequest) {
         loginUrl
       });
       
-      console.log('✅ [Users] Email de invitación enviado a:', finalEmail);
+      if (emailSent) {
+        console.log('✅ [Users] Email de invitación enviado exitosamente a:', finalEmail);
+      } else {
+        console.warn('⚠️ [Users] No se pudo enviar el email de invitación a:', finalEmail);
+        console.warn('⚠️ [Users] El usuario fue creado correctamente, pero el email no se envió');
+        console.warn('⚠️ [Users] Revisa los logs anteriores para ver el error específico');
+      }
     } catch (emailError: any) {
       // No fallar la creación del usuario si el email falla, solo loguear el error
-      console.error('⚠️ [Users] Error al enviar email de invitación (no crítico):', emailError.message);
+      console.error('❌ [Users] Excepción al enviar email de invitación (no crítico):', {
+        error: emailError.message,
+        stack: emailError.stack,
+        to: finalEmail
+      });
+      console.error('⚠️ [Users] El usuario fue creado correctamente, pero el email falló');
     }
 
     return NextResponse.json(transformUser(newUser), { status: 201 });
