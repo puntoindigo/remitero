@@ -6,7 +6,9 @@ import { Plus, Tag, Edit, Trash2 } from "lucide-react";
 import FilterableSelect from "@/components/common/FilterableSelect";
 import { MessageModal } from "@/components/common/MessageModal";
 import DeleteConfirmModal from "@/components/common/DeleteConfirmModal";
+import { ToastContainer } from "@/components/common/Toast.jsx";
 import { useMessageModal } from "@/hooks/useMessageModal";
+import { useToast } from "@/hooks/useToast.js";
 import { useCRUDPage } from "@/hooks/useCRUDPage";
 import { useEstadosRemitos, EstadoRemitoFormData } from "@/hooks/useEstadosRemitos";
 import { useEstadosRemitosQuery, estadoKeys, type EstadoRemito as EstadoRemitoQ } from "@/hooks/queries/useEstadosRemitosQuery";
@@ -93,6 +95,7 @@ function EstadosRemitosContent() {
   } = useCRUDPage<EstadoRemitoQ>();
 
   const { modalState, showSuccess, showError, closeModal } = useMessageModal();
+  const { toasts, showSuccess: showToastSuccess, showError: showToastError, removeToast } = useToast();
 
   // Hook para empresas
   const { empresas } = useEmpresas();
@@ -177,10 +180,10 @@ function EstadosRemitosContent() {
       await deleteEstado(showDeleteConfirm?.id);
       await queryClient.invalidateQueries({ queryKey: estadoKeys.lists() });
       handleCancelDelete();
-      showSuccess("Estado eliminado correctamente", "Éxito");
+      showToastSuccess("Estado eliminado correctamente");
     } catch (error: any) {
       handleCancelDelete();
-      showError(error instanceof Error ? error.message : "Error al eliminar estado");
+      showToastError(error instanceof Error ? error.message : "Error al eliminar estado");
     }
   };
 
@@ -392,6 +395,9 @@ function EstadosRemitosContent() {
           message={modalState.message}
           details={modalState.details}
         />
+
+        {/* Toast Container */}
+        <ToastContainer toasts={toasts} onRemove={removeToast} />
       </div>
     </main>
   );

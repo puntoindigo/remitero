@@ -6,8 +6,10 @@ import { Plus, Users, Mail, Phone, MapPin, FileText, Edit, Trash2 } from "lucide
 import { formatDate } from "@/lib/utils/formatters";
 import { MessageModal } from "@/components/common/MessageModal";
 import DeleteConfirmModal from "@/components/common/DeleteConfirmModal";
+import { ToastContainer } from "@/components/common/Toast.jsx";
 import { ClienteForm } from "@/components/forms/ClienteForm";
 import { useMessageModal } from "@/hooks/useMessageModal";
+import { useToast } from "@/hooks/useToast.js";
 import { 
   useClientesQuery, 
   useCreateClienteMutation,
@@ -49,6 +51,7 @@ function ClientesContent() {
   } = useCRUDPage<Cliente>();
 
   const { modalState, showSuccess, showError, closeModal } = useMessageModal();
+  const { toasts, showSuccess: showToastSuccess, showError: showToastError, removeToast } = useToast();
   
   // 🚀 REACT QUERY: Reemplaza state y fetch
   const { data: clientes = [], isLoading } = useClientesQuery(companyId || undefined);
@@ -241,10 +244,10 @@ function ClientesContent() {
     try {
       await deleteMutation.mutateAsync(showDeleteConfirm.id);
       handleCancelDelete();
-      showSuccess("Cliente eliminado correctamente");
+      showToastSuccess("Cliente eliminado correctamente");
     } catch (error: any) {
       handleCancelDelete();
-      showError(error instanceof Error ? error.message : "Error al eliminar cliente");
+      showToastError(error instanceof Error ? error.message : "Error al eliminar cliente");
     }
   };
 
@@ -338,6 +341,9 @@ function ClientesContent() {
         title={modalState.title}
         message={modalState.message}
       />
+
+      {/* Toast Container */}
+      <ToastContainer toasts={toasts} onRemove={removeToast} />
     </OptimizedPageLayout>
   );
 }

@@ -9,9 +9,12 @@ import { formatDate } from "@/lib/utils/formatters";
 import FilterableSelect from "@/components/common/FilterableSelect";
 import { MessageModal } from "@/components/common/MessageModal";
 import DeleteConfirmModal from "@/components/common/DeleteConfirmModal";
+import { ConfirmationModal } from "@/components/common/ConfirmationModal";
+import { ToastContainer } from "@/components/common/Toast.jsx";
 import { UsuarioForm } from "@/components/forms/UsuarioForm";
 import { UserActivityLogModal } from "@/components/common/UserActivityLogModal";
 import { useMessageModal } from "@/hooks/useMessageModal";
+import { useToast } from "@/hooks/useToast.js";
 import { useUsuarios } from "@/hooks/useUsuarios";
 import { useUsuariosQuery, type Usuario, usuarioKeys } from "@/hooks/queries/useUsuariosQuery";
 import { useQueryClient } from "@tanstack/react-query";
@@ -89,9 +92,12 @@ function UsuariosContent() {
   } = useCRUDPage<Usuario>();
   
   const { modalState, showSuccess, showError, closeModal } = useMessageModal();
+  const { toasts, showSuccess: showToastSuccess, showError: showToastError, removeToast } = useToast();
   const { startImpersonation, canImpersonate } = useImpersonation();
   const [toggleActiveUser, setToggleActiveUser] = useState<Usuario | null>(null);
   const [selectedUserForLogs, setSelectedUserForLogs] = useState<Usuario | null>(null);
+  const [userToResendInvitation, setUserToResendInvitation] = useState<Usuario | null>(null);
+  const [isResendingInvitation, setIsResendingInvitation] = useState(false);
   
   const queryClient = useQueryClient();
   const { data: usuarios = [], isLoading, error } = useUsuariosQuery(companyId || undefined);
@@ -203,10 +209,36 @@ function UsuariosContent() {
         exact: false
       });
       handleCancelDelete();
-      showSuccess("Usuario eliminado correctamente");
+      showToastSuccess("Usuario eliminado correctamente");
     } catch (error: any) {
       handleCancelDelete();
-      showError(error instanceof Error ? error.message : "Error al eliminar usuario");
+      showToastError(error instanceof Error ? error.message : "Error al eliminar usuario");
+    }
+  };
+
+  const handleResendInvitation = async () => {
+    if (!userToResendInvitation) return;
+    
+    setIsResendingInvitation(true);
+    try {
+      const response = await fetch(`/api/users/${userToResendInvitation.id}/resend-invitation`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Error al reenviar invitación');
+      }
+
+      setUserToResendInvitation(null);
+      showToastSuccess("Invitación reenviada correctamente");
+    } catch (error: any) {
+      showToastError(error instanceof Error ? error.message : "Error al reenviar invitación");
+    } finally {
+      setIsResendingInvitation(false);
     }
   };
 
@@ -387,6 +419,115 @@ function UsuariosContent() {
                   {timeAgo}
                 </div>
               </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setUserToResendInvitation(usuario);
+                  }}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    padding: '0.25rem',
+                    borderRadius: '4px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    color: '#6b7280',
+                  }}
+                  title="Reenviar invitación"
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#f3f4f6';
+                    e.currentTarget.style.color = '#3b82f6';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                    e.currentTarget.style.color = '#6b7280';
+                  }}
+                >
+                  <Mail className="h-4 w-4" />
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedUserForLogs(usuario);
+                  }}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    padding: '0.25rem',
+                    borderRadius: '4px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    color: '#6b7280',
+                  }}
+                  title="Ver log de actividad completo"
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#f3f4f6';
+                    e.currentTarget.style.color = '#3b82f6';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                    e.currentTarget.style.color = '#6b7280';
+                  }}
+                >
+                  <Activity className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+          );
+        }
+        
+        // Si no hay actividad, mostrar "Alta: [fecha]"
+        const altaDate = new Date(usuario.createdAt);
+        const altaFormatted = altaDate.toLocaleDateString('es-AR', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: false
+        });
+        
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', flex: 1 }}>
+              <div style={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                Alta
+              </div>
+              <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>
+                {altaFormatted}
+              </div>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setUserToResendInvitation(usuario);
+                }}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  padding: '0.25rem',
+                  borderRadius: '4px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  color: '#6b7280',
+                }}
+                title="Reenviar invitación"
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#f3f4f6';
+                  e.currentTarget.style.color = '#3b82f6';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                  e.currentTarget.style.color = '#6b7280';
+                }}
+              >
+                <Mail className="h-4 w-4" />
+              </button>
               <button
                 onClick={(e) => {
                   e.stopPropagation();
@@ -415,57 +556,6 @@ function UsuariosContent() {
                 <Activity className="h-4 w-4" />
               </button>
             </div>
-          );
-        }
-        
-        // Si no hay actividad, mostrar "Alta: [fecha]"
-        const altaDate = new Date(usuario.createdAt);
-        const altaFormatted = altaDate.toLocaleDateString('es-AR', {
-          year: 'numeric',
-          month: '2-digit',
-          day: '2-digit',
-          hour: '2-digit',
-          minute: '2-digit',
-          hour12: false
-        });
-        
-        return (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', flex: 1 }}>
-              <div style={{ fontSize: '0.875rem', fontWeight: 500 }}>
-                Alta
-              </div>
-              <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>
-                {altaFormatted}
-              </div>
-            </div>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setSelectedUserForLogs(usuario);
-              }}
-              style={{
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
-                padding: '0.25rem',
-                borderRadius: '4px',
-                display: 'flex',
-                alignItems: 'center',
-                color: '#6b7280',
-              }}
-              title="Ver log de actividad completo"
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = '#f3f4f6';
-                e.currentTarget.style.color = '#3b82f6';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = 'transparent';
-                e.currentTarget.style.color = '#6b7280';
-              }}
-            >
-              <Activity className="h-4 w-4" />
-            </button>
           </div>
         );
       }
@@ -652,6 +742,20 @@ function UsuariosContent() {
           message={modalState.message}
           details={modalState.details}
         />
+
+        {/* Modal de confirmación para reenviar invitación */}
+        <ConfirmationModal
+          isOpen={!!userToResendInvitation}
+          onCancel={() => setUserToResendInvitation(null)}
+          onConfirm={handleResendInvitation}
+          title="Reenviar Invitación"
+          message={`¿Deseas reenviar la invitación al usuario "${userToResendInvitation?.name}" (${userToResendInvitation?.email})?`}
+          confirmButtonText="Reenviar"
+          isLoading={isResendingInvitation}
+        />
+
+        {/* Toast Container */}
+        <ToastContainer toasts={toasts} onRemove={removeToast} />
         </div>
       </main>
     </>

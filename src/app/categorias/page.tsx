@@ -8,8 +8,10 @@ import { formatDate } from "@/lib/utils/formatters";
 import FilterableSelect from "@/components/common/FilterableSelect";
 import { MessageModal } from "@/components/common/MessageModal";
 import DeleteConfirmModal from "@/components/common/DeleteConfirmModal";
+import { ToastContainer } from "@/components/common/Toast.jsx";
 import { CategoriaForm } from "@/components/forms/CategoriaForm";
 import { useMessageModal } from "@/hooks/useMessageModal";
+import { useToast } from "@/hooks/useToast.js";
 import { 
   useCategoriasQuery,
   useCreateCategoriaMutation,
@@ -74,6 +76,7 @@ function CategoriasContent() {
     handleCancelDelete
   } = useCRUDPage<Categoria>();
   const { modalState, showSuccess, showError, closeModal } = useMessageModal();
+  const { toasts, showSuccess: showToastSuccess, showError: showToastError, removeToast } = useToast();
   
   const { empresas } = useEmpresas();
   
@@ -176,10 +179,10 @@ function CategoriasContent() {
     try {
       await deleteMutation.mutateAsync(showDeleteConfirm.id);
       handleCancelDelete();
-      showSuccess("Categoría eliminada correctamente");
+      showToastSuccess("Categoría eliminada correctamente");
     } catch (error: any) {
       handleCancelDelete();
-      showError(error instanceof Error ? error.message : "Error al eliminar categoría");
+      showToastError(error instanceof Error ? error.message : "Error al eliminar categoría");
     }
   };
 
@@ -355,6 +358,9 @@ function CategoriasContent() {
           message={modalState.message}
           details={modalState.details}
         />
+
+        {/* Toast Container */}
+        <ToastContainer toasts={toasts} onRemove={removeToast} />
       </div>
     </main>
   );
