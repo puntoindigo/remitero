@@ -26,13 +26,25 @@ const createTransporter = () => {
       auth: {
         user: emailUser,
         pass: emailPassword
-      }
+      },
+      // Agregar opciones de debug y timeout
+      debug: false, // Cambiar a true para más detalles
+      logger: false
     });
 
     console.log('✅ [Email] Transporter creado exitosamente');
+    console.log('✅ [Email] Configuración:', {
+      service: 'gmail',
+      user: emailUser?.substring(0, 3) + '***@' + emailUser?.split('@')[1],
+      passwordLength: emailPassword?.length || 0
+    });
     return transporter;
   } catch (error: any) {
-    console.error('❌ [Email] Error al crear transporter:', error.message);
+    console.error('❌ [Email] Error al crear transporter:', {
+      message: error.message,
+      code: error.code,
+      stack: error.stack
+    });
     return null;
   }
 };
@@ -232,6 +244,14 @@ Este es un email automático, por favor no respondas a este mensaje.
     };
 
     console.log('📤 [Email] Enviando email...');
+    console.log('📤 [Email] Mail options:', {
+      from: mailOptions.from,
+      to: mailOptions.to,
+      subject: mailOptions.subject,
+      hasHtml: !!mailOptions.html,
+      hasText: !!mailOptions.text
+    });
+    
     const info = await transporter.sendMail(mailOptions);
     
     console.log('✅ [Email] Email de invitación enviado exitosamente:', {
@@ -251,16 +271,32 @@ Este es un email automático, por favor no respondas a este mensaje.
       command: error.command,
       response: error.response,
       responseCode: error.responseCode,
+      responseMessage: error.responseMessage,
+      errno: error.errno,
+      syscall: error.syscall,
+      hostname: error.hostname,
+      port: error.port,
       stack: error.stack
     });
 
     // Errores comunes y sus soluciones
     if (error.code === 'EAUTH') {
-      console.error('❌ [Email] Error de autenticación - Verifica EMAIL_USER y EMAIL_PASSWORD');
+      console.error('❌ [Email] Error de autenticación (EAUTH)');
+      console.error('❌ [Email] Posibles causas:');
+      console.error('   1. EMAIL_PASSWORD no es una contraseña de aplicación de Gmail');
+      console.error('   2. La contraseña de aplicación fue revocada o eliminada');
+      console.error('   3. EMAIL_USER no es correcto');
+      console.error('❌ [Email] Verifica en Google Cloud Console: https://myaccount.google.com/apppasswords');
     } else if (error.code === 'ECONNECTION') {
       console.error('❌ [Email] Error de conexión - Verifica tu conexión a internet');
     } else if (error.responseCode === 535) {
-      console.error('❌ [Email] Error 535 - Credenciales inválidas. Verifica que EMAIL_PASSWORD sea una contraseña de aplicación de Gmail');
+      console.error('❌ [Email] Error 535 - Credenciales inválidas');
+      console.error('❌ [Email] Verifica que EMAIL_PASSWORD sea una contraseña de aplicación de Gmail (16 caracteres)');
+      console.error('❌ [Email] La contraseña normal de Gmail NO funciona, debe ser una contraseña de aplicación');
+    } else if (error.code === 'ETIMEDOUT') {
+      console.error('❌ [Email] Timeout - El servidor de Gmail no respondió a tiempo');
+    } else if (error.code === 'ENOTFOUND') {
+      console.error('❌ [Email] No se pudo resolver el hostname del servidor de Gmail');
     }
 
     return false;
