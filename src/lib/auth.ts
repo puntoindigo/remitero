@@ -5,21 +5,38 @@ import bcrypt from "bcryptjs"
 import { supabaseAdmin } from "./supabase"
 import { logUserActivity } from "./user-activity-logger"
 
+// Limpiar variables de entorno (remover espacios y newlines)
+const cleanEnv = (value: string | undefined): string | undefined => {
+  return value?.trim().replace(/\n/g, '');
+};
+
+const NEXTAUTH_URL = cleanEnv(process.env.NEXTAUTH_URL);
+const GOOGLE_CLIENT_ID = cleanEnv(process.env.GOOGLE_CLIENT_ID);
+const GOOGLE_CLIENT_SECRET = cleanEnv(process.env.GOOGLE_CLIENT_SECRET);
+
 // Log de configuración al cargar el módulo
 console.log('🔧 [NextAuth Config] Inicializando configuración...', {
   hasSecret: !!process.env.NEXTAUTH_SECRET,
-  hasGoogleClientId: !!process.env.GOOGLE_CLIENT_ID,
-  hasGoogleClientSecret: !!process.env.GOOGLE_CLIENT_SECRET,
-  nextAuthUrl: process.env.NEXTAUTH_URL,
-  googleClientIdPrefix: process.env.GOOGLE_CLIENT_ID?.substring(0, 20) + '...'
+  hasGoogleClientId: !!GOOGLE_CLIENT_ID,
+  hasGoogleClientSecret: !!GOOGLE_CLIENT_SECRET,
+  nextAuthUrl: NEXTAUTH_URL,
+  nextAuthUrlRaw: process.env.NEXTAUTH_URL,
+  googleClientIdPrefix: GOOGLE_CLIENT_ID?.substring(0, 20) + '...',
+  googleClientIdLength: GOOGLE_CLIENT_ID?.length
 });
+
+if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
+  console.error('❌ [NextAuth Config] ERROR: Variables de Google OAuth no están configuradas!');
+  console.error('❌ [NextAuth Config] GOOGLE_CLIENT_ID:', GOOGLE_CLIENT_ID ? 'OK' : 'FALTA');
+  console.error('❌ [NextAuth Config] GOOGLE_CLIENT_SECRET:', GOOGLE_CLIENT_SECRET ? 'OK' : 'FALTA');
+}
 
 export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
   providers: [
     GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      clientId: GOOGLE_CLIENT_ID!,
+      clientSecret: GOOGLE_CLIENT_SECRET!,
       authorization: {
         params: {
           prompt: "select_account", // Solo pide seleccionar cuenta, no consent cada vez
@@ -321,7 +338,7 @@ export const authOptions: NextAuthOptions = {
         baseUrl,
         hasToken: !!token,
         role: token?.role,
-        nextAuthUrl: process.env.NEXTAUTH_URL
+        nextAuthUrl: NEXTAUTH_URL || cleanEnv(process.env.NEXTAUTH_URL)
       });
       
       // Función para normalizar URLs y evitar barras múltiples
@@ -331,7 +348,7 @@ export const authOptions: NextAuthOptions = {
       };
       
       // SIEMPRE usar NEXTAUTH_URL como fuente de verdad para el puerto
-      const nextAuthUrl = process.env.NEXTAUTH_URL;
+      const nextAuthUrl = NEXTAUTH_URL || cleanEnv(process.env.NEXTAUTH_URL);
       let correctBaseUrl = baseUrl.replace(/\/+$/, ''); // Eliminar barras al final
       
       // Normalizar la URL entrante
@@ -363,25 +380,28 @@ export const authOptions: NextAuthOptions = {
         const destination = token?.role === 'SUPERADMIN' ? '/empresas' : '/dashboard';
         
         // Construir URL correcta usando NEXTAUTH_URL
-        if (nextAuthUrl) {
+        const effectiveNextAuthUrl = nextAuthUrl || NEXTAUTH_URL || cleanEnv(process.env.NEXTAUTH_URL);
+        if (effectiveNextAuthUrl) {
           try {
-            const nextAuthUrlObj = new URL(nextAuthUrl);
+            const nextAuthUrlObj = new URL(effectiveNextAuthUrl);
             const finalUrl = nextAuthUrlObj.origin + destination;
+            console.log('🔄 [NextAuth redirect] URL construida desde NEXTAUTH_URL:', finalUrl);
             return finalUrl;
           } catch (error) {
-            // Silenciar error
+            console.error('❌ [NextAuth redirect] Error construyendo URL:', error);
           }
         }
         normalizedUrl = destination;
       }
       
       // SIEMPRE usar NEXTAUTH_URL como base en desarrollo (solo origin, sin path)
-      if (process.env.NODE_ENV === "development" && nextAuthUrl) {
+      const effectiveNextAuthUrl = nextAuthUrl || NEXTAUTH_URL || cleanEnv(process.env.NEXTAUTH_URL);
+      if (process.env.NODE_ENV === "development" && effectiveNextAuthUrl) {
         try {
-          const nextAuthUrlObj = new URL(nextAuthUrl);
+          const nextAuthUrlObj = new URL(effectiveNextAuthUrl);
           correctBaseUrl = nextAuthUrlObj.origin; // Solo "http://localhost:8000", sin path
         } catch (error) {
-          console.warn('[NextAuth Redirect] Error parsing NEXTAUTH_URL:', error);
+          console.warn('⚠️ [NextAuth Redirect] Error parsing NEXTAUTH_URL:', error);
           // Fallback
           correctBaseUrl = 'http://localhost:8000';
         }
@@ -405,7 +425,8 @@ export const authOptions: NextAuthOptions = {
       // Si la URL es absoluta, verificar y corregir
       try {
         const urlObj = new URL(normalizedUrl);
-        const nextAuthUrlObj = nextAuthUrl ? new URL(nextAuthUrl) : null;
+        const effectiveNextAuthUrl = nextAuthUrl || NEXTAUTH_URL || cleanEnv(process.env.NEXTAUTH_URL);
+        const nextAuthUrlObj = effectiveNextAuthUrl ? new URL(effectiveNextAuthUrl) : null;
         
         // Si es localhost en desarrollo, SIEMPRE corregir el puerto
         if (urlObj.hostname === "localhost" && 
