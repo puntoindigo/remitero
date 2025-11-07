@@ -573,6 +573,9 @@ function ProductosContent() {
           message={modalState.message}
           details={modalState.details}
         />
+
+        {/* Toast Container */}
+        <ToastContainer toasts={toasts} onRemove={removeToast} />
         </div>
       </main>
     </>
