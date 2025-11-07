@@ -34,7 +34,7 @@ const userSchema = z.object({
     }),
   password: z.string().optional().or(z.literal("")),
   confirmPassword: z.string().optional().or(z.literal("")),
-  role: z.enum(["SUPERADMIN", "ADMIN", "OPERADOR"]),
+  role: z.enum(["SUPERADMIN", "ADMIN", "USER"]),
   companyId: z.string().optional(),
   phone: z.string().optional(),
   address: z.string().optional(),
@@ -88,7 +88,7 @@ interface UsuarioFormProps {
     id: string;
     name: string;
     email: string;
-    role: "SUPERADMIN" | "ADMIN" | "OPERADOR";
+    role: "SUPERADMIN" | "ADMIN" | "USER";
     companyId?: string;
     phone?: string;
     address?: string;
@@ -127,7 +127,7 @@ export function UsuarioForm({
       email: editingUser?.email || "",
       password: "",
       confirmPassword: "",
-      role: editingUser?.role || "OPERADOR",
+      role: editingUser?.role || "USER",
       companyId: editingUser?.companyId || companyId || "",
       phone: editingUser?.phone || "",
       address: editingUser?.address || "",
@@ -197,11 +197,11 @@ export function UsuarioForm({
   const currentUserRole = session?.user?.role;
   const isCurrentUserSuperAdmin = currentUserRole === "SUPERADMIN";
   const isCurrentUserAdmin = currentUserRole === "ADMIN";
-  const isCurrentUserOperador = currentUserRole === "OPERADOR";
+  const isCurrentUserOperador = currentUserRole === "USER";
 
   // Determinar si se puede editar el rol:
-  // - OPERADOR: No puede editar roles (ni el suyo ni de otros)
-  // - ADMIN: Solo puede asignar OPERADOR o ADMIN (no SUPERADMIN)
+  // - USER: No puede editar roles (ni el suyo ni de otros)
+  // - ADMIN: Solo puede asignar USER o ADMIN (no SUPERADMIN)
   // - SUPERADMIN: Puede asignar cualquier rol
   // - Si está editando su propio perfil, no puede cambiar su rol
   const canEditRole = (isCurrentUserAdmin || isCurrentUserSuperAdmin) && !isCurrentUserOperador && !isCurrentUser;
@@ -246,7 +246,7 @@ export function UsuarioForm({
         email: "",
         password: "",
         confirmPassword: "",
-        role: "OPERADOR",
+        role: "USER",
         companyId: companyId || "",
         phone: "",
         address: "",
@@ -342,11 +342,11 @@ export function UsuarioForm({
               {...register("role")} 
               className="form-select-standard"
               style={{
-                color: roleValue === "OPERADOR" ? '#9ca3af' : '#111827',
-                fontStyle: roleValue === "OPERADOR" ? 'italic' : 'normal',
+                color: roleValue === "USER" ? '#9ca3af' : '#111827',
+                fontStyle: roleValue === "USER" ? 'italic' : 'normal',
               }}
             >
-              <option value="OPERADOR" style={{ color: '#9ca3af', fontStyle: 'italic', backgroundColor: '#f9fafb' }}>Operador</option>
+              <option value="USER" style={{ color: '#9ca3af', fontStyle: 'italic', backgroundColor: '#f9fafb' }}>Usuario</option>
               <option value="ADMIN">Administrador</option>
               {isCurrentUserSuperAdmin && <option value="SUPERADMIN">Super Admin</option>}
               {!isCurrentUserSuperAdmin && isCurrentUserAdmin && (

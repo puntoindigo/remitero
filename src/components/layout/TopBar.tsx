@@ -248,7 +248,7 @@ export default function TopBar() {
                     </button>
                   </div>
                 )}
-                {currentUser.role !== 'OPERADOR' && (
+                {currentUser.role !== 'USER' && (
                   <div className="user-role">
                     {getRoleIcon()}
                     <span>{getRoleText()}</span>

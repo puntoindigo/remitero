@@ -7,7 +7,7 @@ export interface Usuario {
   id: string;
   name: string;
   email: string;
-  role: "SUPERADMIN" | "ADMIN" | "OPERADOR";
+  role: "SUPERADMIN" | "ADMIN" | "USER";
   phone?: string;
   address?: string;
   companyId?: string;
@@ -19,7 +19,7 @@ export interface UsuarioFormData {
   name: string;
   email: string;
   password?: string;
-  role: "SUPERADMIN" | "ADMIN" | "OPERADOR";
+  role: "SUPERADMIN" | "ADMIN" | "USER";
   phone?: string;
   address?: string;
   companyId?: string;

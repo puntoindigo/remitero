@@ -29,7 +29,7 @@ export async function GET(
       // ADMIN solo puede ver usuarios de su propia empresa
       // Verificaremos esto después de obtener el usuario
     } else {
-      // OPERADOR no puede ver otros usuarios
+      // USER no puede ver otros usuarios
       return NextResponse.json({ 
         error: "No autorizado", 
         message: "No tienes permisos para ver usuarios." 
@@ -115,7 +115,7 @@ export async function PUT(
       // ADMIN solo puede editar usuarios de su propia empresa
       // Verificaremos esto después de obtener el usuario
     } else {
-      // OPERADOR no puede editar usuarios
+      // USER no puede editar usuarios
       return NextResponse.json({ 
         error: "No autorizado", 
         message: "No tienes permisos para editar usuarios." 
@@ -301,7 +301,7 @@ export async function DELETE(
       // ADMIN solo puede eliminar usuarios de su propia empresa
       // Verificaremos esto después de obtener el usuario
     } else {
-      // OPERADOR no puede eliminar usuarios
+      // USER no puede eliminar usuarios
       return NextResponse.json({ 
         error: "No autorizado", 
         message: "No tienes permisos para eliminar usuarios." 

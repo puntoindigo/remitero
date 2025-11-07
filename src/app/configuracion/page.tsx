@@ -36,7 +36,7 @@ export default function ConfiguracionPage() {
                   </h2>
                   <p className="text-gray-600">{session?.user?.email}</p>
                   <span className="inline-block px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full mt-1">
-                    {session?.user?.role || 'OPERADOR'}
+                    {session?.user?.role || 'USER'}
                   </span>
                 </div>
               </div>

@@ -37,7 +37,7 @@ function CategoriasContent() {
   const { colors } = useColorTheme();
   
   // Verificar permisos - solo ADMIN y SUPERADMIN pueden acceder
-  if (currentUser?.role === 'OPERADOR') {
+  if (currentUser?.role === 'USER') {
     return (
       <main className="main-content">
         <div className="form-section">

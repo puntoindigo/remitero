@@ -6,7 +6,7 @@ export interface Usuario {
   id: string;
   name: string;
   email: string;
-  role: 'SUPERADMIN' | 'ADMIN' | 'OPERADOR';
+  role: 'SUPERADMIN' | 'ADMIN' | 'USER';
   phone?: string;
   address?: string;
   company?: { id: string; name: string } | null;

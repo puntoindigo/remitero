@@ -36,7 +36,7 @@ export function useRoutePrefetch() {
         '/categorias',
         '/estados-remitos',
       ],
-      OPERADOR: [
+      USER: [
         '/dashboard',
         '/remitos',
         '/productos',
@@ -45,7 +45,7 @@ export function useRoutePrefetch() {
     };
 
     const userRole = session.user.role as keyof typeof criticalRoutes;
-    const routesToPrefetch = criticalRoutes[userRole] || criticalRoutes.OPERADOR;
+    const routesToPrefetch = criticalRoutes[userRole] || criticalRoutes.USER;
 
     // Prefetch todas las rutas críticas en paralelo
     // Usar requestIdleCallback si está disponible para no bloquear el UI

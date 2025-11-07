@@ -3511,8 +3511,8 @@ form svg {
   opacity: 0.7 !important;
 }
 
-/* Cuando el select tiene el valor OPERADOR seleccionado, mostrar el texto en gris */
-.form-select-standard[value="OPERADOR"] {
+/* Cuando el select tiene el valor USER seleccionado, mostrar el texto en gris */
+.form-select-standard[value="USER"] {
   color: #9ca3af !important;
 }
 

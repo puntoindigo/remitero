@@ -169,7 +169,7 @@ export function ConfiguracionModal({ isOpen, onClose }: ConfiguracionModalProps)
                       display: 'inline-block',
                     }}
                   >
-                    {session?.user?.role || 'OPERADOR'}
+                    {session?.user?.role || 'USER'}
                   </div>
                   <Shield className="h-3 w-3" style={{ color: '#6b7280' }} />
                   <span style={{ fontSize: '0.75rem', color: '#6b7280' }}>

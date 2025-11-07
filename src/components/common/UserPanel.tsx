@@ -69,7 +69,7 @@ export function UserPanel({ className = '' }: UserPanelProps) {
             {session?.user?.name || 'Usuario'}
           </div>
           <div className="text-xs text-gray-300">
-            {session?.user?.role || 'OPERADOR'}
+            {session?.user?.role || 'USER'}
           </div>
         </div>
         {isOpen ? (

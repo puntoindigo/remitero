@@ -90,7 +90,7 @@ export async function GET(request: NextRequest) {
     }
 
     // USER no puede acceder a esta ruta
-    if (session.user.role === 'OPERADOR') {
+    if (session.user.role === 'USER') {
       return NextResponse.json({ 
         error: "No autorizado", 
         message: "No tienes permisos para ver usuarios." 

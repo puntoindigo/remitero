@@ -90,7 +90,7 @@ export async function sendInvitationEmail({
     const roleNames: Record<string, string> = {
       'SUPERADMIN': 'Super Administrador',
       'ADMIN': 'Administrador',
-      'OPERADOR': 'Operador'
+      'USER': 'Usuario'
     };
 
     const roleName = roleNames[role] || role;

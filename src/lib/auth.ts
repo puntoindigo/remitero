@@ -209,7 +209,7 @@ export const authOptions: NextAuthOptions = {
                 email: email,
                 name: user.name || email.split('@')[0],
                 password: null, // Sin contraseña para usuarios de Google (null en lugar de string vacío)
-                role: 'OPERADOR', // Rol por defecto
+                role: 'USER', // Rol por defecto
                 company_id: null, // Se asignará después
                 is_active: true, // Activo por defecto
               }])

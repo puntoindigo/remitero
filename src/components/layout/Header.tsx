@@ -146,7 +146,7 @@ export default function Header() {
 
   // Configurar shortcuts de navegación con verificación de permisos
   useShortcuts([
-    { key: 'd', action: () => safeNavigate('/dashboard', ['ADMIN', 'OPERADOR']), description: 'Dashboard' },
+    { key: 'd', action: () => safeNavigate('/dashboard', ['ADMIN', 'USER']), description: 'Dashboard' },
     { key: 'r', action: () => safeNavigate('/remitos'), description: 'Remitos' },
     { key: 'c', action: () => safeNavigate('/clientes'), description: 'Clientes' },
     { key: 'p', action: () => safeNavigate('/productos'), description: 'Productos' },

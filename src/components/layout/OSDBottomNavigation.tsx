@@ -111,7 +111,7 @@ export function OSDBottomNavigation() {
       label: "Tablero",
       icon: LayoutDashboard,
       path: "/dashboard",
-      roles: ["ADMIN", "OPERADOR"],
+      roles: ["ADMIN", "USER"],
     },
     {
       id: "operations",

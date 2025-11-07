@@ -39,7 +39,7 @@ function UsuariosContent() {
   const pathname = usePathname();
   
   // Bloquear acceso para usuarios con rol USER
-  if (currentUser?.role === 'OPERADOR') {
+  if (currentUser?.role === 'USER') {
     return (
       <main className="main-content">
         <div className="form-section">
