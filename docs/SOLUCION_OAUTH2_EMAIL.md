@@ -40,7 +40,11 @@ Usa OAuth2 cuando:
 ### Paso 3: Configurar Pantalla de Consentimiento OAuth
 
 1. Ve a: **APIs & Services** → **OAuth consent screen**
-2. Selecciona "External" (a menos que tengas Google Workspace)
+2. Selecciona **"External"** (Usuarios externos)
+   - **IMPORTANTE**: Aunque dice "modo de prueba", esto es suficiente para tu caso
+   - El modo de prueba permite enviar emails desde tu cuenta (`puntoindigo3@gmail.com`)
+   - Solo necesitas agregar tu email como usuario de prueba
+   - **NO necesitas verificación completa** si solo envías emails desde tu propia cuenta
 3. Haz clic en "CREATE"
 4. Completa el formulario:
    - **App name**: "Sistema de Remitos"
@@ -53,8 +57,17 @@ Usa OAuth2 cuando:
    - `https://www.googleapis.com/auth/gmail.compose`
 8. Haz clic en "UPDATE" y luego "SAVE AND CONTINUE"
 9. En "Test users", agrega `puntoindigo3@gmail.com`
+   - **Esto es crucial**: Tu cuenta debe estar en la lista de usuarios de prueba
+   - Puedes agregar más emails si necesitas
 10. Haz clic en "SAVE AND CONTINUE"
 11. Revisa y haz clic en "BACK TO DASHBOARD"
+
+**Nota sobre Modo de Prueba**:
+- ✅ **SÍ funciona para enviar emails** desde tu cuenta
+- ✅ **SÍ funciona en producción** (Vercel)
+- ✅ **NO necesitas verificación** si solo envías desde tu propia cuenta
+- ⚠️ Solo necesitarías verificación si quisieras que otros usuarios autoricen tu app
+- ⚠️ Para tu caso (enviar emails del sistema), el modo de prueba es perfecto
 
 ### Paso 4: Crear Credenciales OAuth2
 
