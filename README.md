@@ -9,6 +9,10 @@ Esta carpeta contiene toda la documentación del proyecto organizada por categor
 - **CHANGELOG.md** - Historial de cambios y versiones
 - **RESUMEN_ACTUALIZACION_COMPLETA.md** - Resumen detallado de la última actualización
 
+### 🎯 Planificación y Roadmap
+- **[NAVEGACION_Y_ACCESIBILIDAD.md](./docs/NAVEGACION_Y_ACCESIBILIDAD.md)** - Propuesta completa de sistema de navegación y accesibilidad por teclado
+- **[TAREAS_PENDIENTES.md](./docs/TAREAS_PENDIENTES.md)** - Lista completa de tareas pendientes, mejoras futuras y bugs conocidos
+
 ### 🔧 Documentación Técnica
 - **AUDITORIA_ABMS.md** - Auditoría de los ABMs del sistema
 - **BUGFIX_ERROR_HANDLING.md** - Documentación de corrección de errores
