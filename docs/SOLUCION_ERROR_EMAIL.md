@@ -104,11 +104,66 @@ Esto te mostrará:
 
 ## ⚠️ Problemas Comunes
 
-### Problema 1: "No puedo ver contraseñas de aplicaciones"
+### Problema 1: "La opción de configuración que buscas no está disponible para tu cuenta"
+**Este es el problema que estás experimentando**
+
+**Causas posibles**:
+1. La cuenta no tiene Verificación en 2 pasos habilitada
+2. La cuenta es una cuenta de Google Workspace (empresarial) con restricciones
+3. La cuenta tiene restricciones de seguridad activadas
+4. La cuenta es muy nueva o tiene limitaciones
+
+**Soluciones**:
+
+#### Solución A: Habilitar Verificación en 2 Pasos (Recomendado)
+1. Ve a: https://myaccount.google.com/security
+2. Busca "Verificación en 2 pasos"
+3. Si dice "Desactivada", haz clic y actívala
+4. Sigue el proceso de configuración (puede requerir teléfono)
+5. Una vez activada, espera 5-10 minutos
+6. Intenta generar la contraseña de aplicación nuevamente
+
+#### Solución B: Usar OAuth2 (Más Moderno y Mejor)
+Si las contraseñas de aplicación no están disponibles, puedes usar OAuth2:
+
+1. **Crear proyecto en Google Cloud Console**:
+   - Ve a: https://console.cloud.google.com/
+   - Crea un nuevo proyecto o usa uno existente
+   - Habilita "Gmail API"
+
+2. **Crear credenciales OAuth2**:
+   - Ve a: APIs & Services → Credentials
+   - Crea "OAuth 2.0 Client ID"
+   - Tipo: "Desktop app" o "Web application"
+   - Descarga el archivo JSON de credenciales
+
+3. **Configurar Nodemailer con OAuth2**:
+   - Usa `nodemailer-google-oauth2` o configura OAuth2 manualmente
+   - Requiere `refresh_token` en lugar de contraseña
+
+**Nota**: Esta solución requiere cambios en el código. Si prefieres, puedo implementarla.
+
+#### Solución C: Usar Otra Cuenta de Google
+Si tienes otra cuenta de Google que SÍ permite contraseñas de aplicación:
+1. Genera la contraseña desde esa cuenta
+2. Usa esa cuenta como `EMAIL_USER` en Vercel
+3. Actualiza `EMAIL_USER` y `EMAIL_PASSWORD` en Vercel
+
+**IMPORTANTE**: Asegúrate de que esa cuenta tenga acceso para enviar emails en nombre del sistema.
+
+#### Solución D: Usar Servicio de Email Alternativo
+Si ninguna cuenta de Google funciona, considera:
+- **SendGrid** (tier gratuito: 100 emails/día)
+- **Resend** (tier gratuito: 3,000 emails/mes)
+- **AWS SES** (muy económico)
+- **Mailgun** (tier gratuito: 5,000 emails/mes)
+
+### Problema 2: "No puedo ver contraseñas de aplicaciones"
 **Solución**: 
 - Asegúrate de tener Verificación en 2 pasos habilitada
 - Ve directamente a: https://myaccount.google.com/apppasswords
 - Si no aparece, busca "Contraseñas de aplicaciones" en la búsqueda de Google Account
+- Si es cuenta de Google Workspace, puede requerir permisos del administrador
 
 ### Problema 2: "La contraseña tiene más/menos de 16 caracteres"
 **Solución**:
@@ -147,17 +202,35 @@ Antes de reportar que sigue sin funcionar, verifica:
 
 ---
 
+## 🔄 Solución Alternativa: OAuth2
+
+Si las contraseñas de aplicación no están disponibles para tu cuenta (`puntoindigo3@gmail.com`), puedes usar **OAuth2** que es más moderno y funciona con todas las cuentas de Google.
+
+**Ver documentación completa**: [SOLUCION_OAUTH2_EMAIL.md](./SOLUCION_OAUTH2_EMAIL.md)
+
+**Ventajas**:
+- ✅ Funciona con cuentas que no permiten contraseñas de aplicación
+- ✅ Más seguro
+- ✅ Funciona con Google Workspace
+- ✅ Tokens se renuevan automáticamente
+
+**Si prefieres que lo implemente**: Solo necesito que me proporciones:
+1. Client ID y Client Secret (de Google Cloud Console)
+2. Refresh Token (obtenido del flujo OAuth2)
+
+---
+
 ## 🔄 Si Nada Funciona
 
 Si después de seguir todos los pasos sigue sin funcionar:
 
-1. **Genera una nueva contraseña de aplicación** (revoca la anterior)
-2. **Verifica que la cuenta de Google no esté bloqueada** por actividad sospechosa
+1. **Usa OAuth2** (ver documentación arriba)
+2. **Usa otra cuenta de Google** que sí permita contraseñas de aplicación
 3. **Considera usar un servicio alternativo**:
-   - SendGrid (tiene tier gratuito)
-   - AWS SES
-   - Resend
-   - Mailgun
+   - SendGrid (tiene tier gratuito: 100 emails/día)
+   - Resend (tier gratuito: 3,000 emails/mes)
+   - AWS SES (muy económico)
+   - Mailgun (tier gratuito: 5,000 emails/mes)
 
 ---
 
