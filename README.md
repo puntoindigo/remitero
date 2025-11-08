@@ -22,6 +22,7 @@ Esta carpeta contiene toda la documentación del proyecto organizada por categor
 - **BUGFIX_ERROR_HANDLING.md** - Documentación de corrección de errores
 - **DIAGNOSTICO_ERROR_REMITOS.md** - Diagnóstico específico de errores en remitos
 - **PROPUESTA_PERFORMANCE.md** - Propuesta de optimización de rendimiento
+- **[SOLUCION_ERROR_EMAIL.md](./docs/SOLUCION_ERROR_EMAIL.md)** - Guía completa para resolver error 535 de Gmail (credenciales inválidas)
 
 ### 📊 Reportes y Análisis
 - **CAMBIOS_RECIENTES.md** - Lista de cambios recientes
