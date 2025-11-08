@@ -13,6 +13,10 @@ Esta carpeta contiene toda la documentación del proyecto organizada por categor
 - **[NAVEGACION_Y_ACCESIBILIDAD.md](./docs/NAVEGACION_Y_ACCESIBILIDAD.md)** - Propuesta completa de sistema de navegación y accesibilidad por teclado
 - **[TAREAS_PENDIENTES.md](./docs/TAREAS_PENDIENTES.md)** - Lista completa de tareas pendientes, mejoras futuras y bugs conocidos
 
+### 🧪 Testing y Desarrollo
+- **[TEST_NAVEGACION.md](./docs/TEST_NAVEGACION.md)** - Suite completa de tests que recorre el 100% de la navegación de la aplicación
+- **[AGENTS.md](./docs/AGENTS.md)** - Guía completa para agentes IA con toda la información necesaria para trabajar en el proyecto
+
 ### 🔧 Documentación Técnica
 - **AUDITORIA_ABMS.md** - Auditoría de los ABMs del sistema
 - **BUGFIX_ERROR_HANDLING.md** - Documentación de corrección de errores
