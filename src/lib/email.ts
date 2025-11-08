@@ -282,11 +282,24 @@ Este es un email automático, por favor no respondas a este mensaje.
     // Errores comunes y sus soluciones
     if (error.code === 'EAUTH') {
       console.error('❌ [Email] Error de autenticación (EAUTH)');
-      console.error('❌ [Email] Posibles causas:');
-      console.error('   1. EMAIL_PASSWORD no es una contraseña de aplicación de Gmail');
-      console.error('   2. La contraseña de aplicación fue revocada o eliminada');
-      console.error('   3. EMAIL_USER no es correcto');
-      console.error('❌ [Email] Verifica en Google Cloud Console: https://myaccount.google.com/apppasswords');
+      console.error('❌ [Email] Response Code:', error.responseCode);
+      if (error.responseCode === 535) {
+        console.error('❌ [Email] Error 535: Credenciales inválidas');
+        console.error('❌ [Email] SOLUCIÓN:');
+        console.error('   1. Ve a: https://myaccount.google.com/apppasswords');
+        console.error('   2. Genera una NUEVA contraseña de aplicación (16 caracteres)');
+        console.error('   3. Asegúrate de tener Verificación en 2 pasos habilitada');
+        console.error('   4. Actualiza EMAIL_PASSWORD en Vercel con la nueva contraseña');
+        console.error('   5. Verifica que EMAIL_USER sea exactamente: puntoindigo3@gmail.com');
+        console.error('   6. Haz redeploy después de cambiar las variables');
+        console.error('❌ [Email] Documentación completa: docs/SOLUCION_ERROR_EMAIL.md');
+      } else {
+        console.error('❌ [Email] Posibles causas:');
+        console.error('   1. EMAIL_PASSWORD no es una contraseña de aplicación de Gmail');
+        console.error('   2. La contraseña de aplicación fue revocada o eliminada');
+        console.error('   3. EMAIL_USER no es correcto');
+        console.error('❌ [Email] Verifica en: https://myaccount.google.com/apppasswords');
+      }
     } else if (error.code === 'ECONNECTION') {
       console.error('❌ [Email] Error de conexión - Verifica tu conexión a internet');
     } else if (error.responseCode === 535) {
