@@ -48,17 +48,30 @@ export async function POST(
       : 'https://remitero-dev.vercel.app/auth/login';
 
     // Enviar el email de invitación
-    const emailSent = await sendInvitationEmail({
-      to: user.email,
-      userName: user.name || user.email.split('@')[0],
-      userEmail: user.email,
-      role: user.role,
-      loginUrl
-    });
+    try {
+      const emailSent = await sendInvitationEmail({
+        to: user.email,
+        userName: user.name || user.email.split('@')[0],
+        userEmail: user.email,
+        role: user.role,
+        loginUrl
+      });
 
-    if (!emailSent) {
+      if (!emailSent) {
+        console.error('❌ [API] sendInvitationEmail retornó false');
+        return NextResponse.json(
+          { error: "Error al enviar el email de invitación. Verifica la configuración de email." },
+          { status: 500 }
+        );
+      }
+    } catch (emailError: any) {
+      console.error('❌ [API] Error al llamar sendInvitationEmail:', {
+        message: emailError.message,
+        stack: emailError.stack,
+        name: emailError.name
+      });
       return NextResponse.json(
-        { error: "Error al enviar el email de invitación" },
+        { error: `Error al enviar el email: ${emailError.message || "Error desconocido"}` },
         { status: 500 }
       );
     }
