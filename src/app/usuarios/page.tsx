@@ -317,6 +317,7 @@ function UsuariosContent() {
     {
       key: 'name',
       label: 'Usuario',
+      width: showCompanyColumn ? '120px' : '150px', // Más espacio si no hay columna Empresa
       render: (usuario: Usuario) => (
         <div style={{ fontSize: '0.875rem', fontWeight: 500 }}>
           {usuario?.name}
@@ -380,6 +381,7 @@ function UsuariosContent() {
     ...(showCompanyColumn ? [{
       key: 'company',
       label: 'Empresa',
+      width: '180px', // Más espacio para nombres de empresa
       render: (usuario: Usuario) => (
         usuario.company ? (
           <div className="company-info">
@@ -420,16 +422,16 @@ function UsuariosContent() {
           }
           
           return (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'nowrap' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: '0.875rem', fontWeight: 500, whiteSpace: 'nowrap' }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', flexWrap: 'nowrap' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: '0.875rem', fontWeight: 500 }}>
                   {usuario.lastActivity.description}
                 </div>
-                <div style={{ fontSize: '0.75rem', color: '#6b7280', whiteSpace: 'nowrap' }}>
+                <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>
                   {timeAgo}
                 </div>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', flexShrink: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', flexShrink: 0, marginTop: '2px' }}>
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
@@ -530,16 +532,16 @@ function UsuariosContent() {
         });
         
         return (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'nowrap' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: '0.875rem', fontWeight: 500, whiteSpace: 'nowrap' }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', flexWrap: 'nowrap' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: '0.875rem', fontWeight: 500 }}>
                 Alta
               </div>
-              <div style={{ fontSize: '0.75rem', color: '#6b7280', whiteSpace: 'nowrap' }}>
+              <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>
                 {altaFormatted}
               </div>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', flexShrink: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', flexShrink: 0, marginTop: '2px' }}>
               <button
                 onClick={(e) => {
                   e.stopPropagation();
