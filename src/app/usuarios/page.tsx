@@ -422,7 +422,7 @@ function UsuariosContent() {
           }
           
           return (
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', flexWrap: 'nowrap' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'nowrap' }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', flex: 1, minWidth: 0 }}>
                 <div style={{ fontSize: '0.875rem', fontWeight: 500 }}>
                   {usuario.lastActivity.description}
@@ -431,7 +431,7 @@ function UsuariosContent() {
                   {timeAgo}
                 </div>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', flexShrink: 0, marginTop: '2px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', flexShrink: 0 }}>
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
@@ -532,7 +532,7 @@ function UsuariosContent() {
         });
         
         return (
-          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', flexWrap: 'nowrap' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'nowrap' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', flex: 1, minWidth: 0 }}>
               <div style={{ fontSize: '0.875rem', fontWeight: 500 }}>
                 Alta
@@ -541,7 +541,7 @@ function UsuariosContent() {
                 {altaFormatted}
               </div>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', flexShrink: 0, marginTop: '2px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', flexShrink: 0 }}>
               <button
                 onClick={(e) => {
                   e.stopPropagation();
