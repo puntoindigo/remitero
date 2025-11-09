@@ -234,7 +234,7 @@ export async function sendInvitationEmail({
               padding: 30px;
             }
             .header {
-              text-align: center;
+              text-align: left;
               margin-bottom: 30px;
             }
             .header h1 {
@@ -261,7 +261,7 @@ export async function sendInvitationEmail({
             .button {
               display: inline-block;
               background-color: #2563eb;
-              color: #ffffff;
+              color: #ffffff !important;
               padding: 12px 24px;
               text-decoration: none;
               border-radius: 6px;
@@ -270,6 +270,7 @@ export async function sendInvitationEmail({
             }
             .button:hover {
               background-color: #1d4ed8;
+              color: #ffffff !important;
             }
             .footer {
               margin-top: 30px;
@@ -304,8 +305,8 @@ export async function sendInvitationEmail({
                 <li>O usar tu email y contraseña si se te asignó una</li>
               </ul>
               
-              <div style="text-align: center;">
-                <a href="${loginUrl}" class="button">Acceder al Sistema</a>
+              <div style="text-align: left;">
+                <a href="${loginUrl}" class="button" style="color: #ffffff !important;">Acceder al Sistema</a>
               </div>
               
               <p style="margin-top: 30px;">
@@ -315,7 +316,7 @@ export async function sendInvitationEmail({
             
             <div class="footer">
               <p>Este es un email automático, por favor no respondas a este mensaje.</p>
-              <p>&copy; ${new Date().getFullYear()} Sistema de Remitos. Todos los derechos reservados.</p>
+              <p>&copy; ${new Date().getFullYear()} Sistema de Remitos - Punto Indigo. Todos los derechos reservados.</p>
             </div>
           </div>
         </body>

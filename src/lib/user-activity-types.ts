@@ -21,6 +21,7 @@ export type ActivityAction =
   | 'DELETE_USER'
   | 'ACTIVATE_USER'
   | 'DEACTIVATE_USER'
+  | 'RESEND_INVITATION'
   | 'UPDATE_PROFILE'
   | 'VIEW_REPORT'
   | 'EXPORT_DATA'
@@ -104,6 +105,8 @@ export function getActionDescription(action: ActivityAction, metadata?: Activity
       return 'Activó un usuario';
     case 'DEACTIVATE_USER':
       return 'Desactivó un usuario';
+    case 'RESEND_INVITATION':
+      return 'Reenvió invitación';
     case 'UPDATE_PROFILE':
       return 'Actualizó su perfil';
     case 'VIEW_REPORT':

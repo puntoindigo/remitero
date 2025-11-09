@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
 import { sendInvitationEmail } from "@/lib/email";
+import { logUserActivity } from "@/lib/user-activity-logger";
 
 export async function POST(
   request: NextRequest,
@@ -96,6 +97,23 @@ export async function POST(
       }
 
       console.log('✅ [Resend Invitation] Email enviado exitosamente');
+      
+      // Registrar actividad de reenvío de invitación
+      try {
+        await logUserActivity(
+          user.id,
+          'RESEND_INVITATION',
+          `Invitación reenviada a ${user.name} (${user.email})`,
+          { 
+            targetUserId: user.id,
+            resentBy: session.user.id,
+            resentByEmail: session.user.email
+          }
+        );
+        console.log('✅ [Resend Invitation] Actividad registrada');
+      } catch (activityError: any) {
+        console.warn('⚠️ [Resend Invitation] Error al registrar actividad (no crítico):', activityError.message);
+      }
     } catch (emailError: any) {
       console.error('❌ [Resend Invitation] Error al llamar sendInvitationEmail:', {
         message: emailError.message,
