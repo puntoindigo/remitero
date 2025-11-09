@@ -103,7 +103,7 @@ export async function POST(
         await logUserActivity(
           user.id,
           'RESEND_INVITATION',
-          `Invitación reenviada a ${user.name} (${user.email})`,
+          'Invitación reenviada',
           { 
             targetUserId: user.id,
             resentBy: session.user.id,

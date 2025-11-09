@@ -233,14 +233,19 @@ function UsuariosContent() {
         throw new Error(errorData.error || 'Error al reenviar invitación');
       }
 
-      // Invalidar la query para refrescar la lista y mostrar la nueva actividad
+      setUserToResendInvitation(null);
+      showToastSuccess("Invitación reenviada correctamente");
+      
+      // Invalidar y refetch la query para refrescar la lista y mostrar la nueva actividad
       await queryClient.invalidateQueries({ 
         queryKey: usuarioKeys.lists(),
         exact: false
       });
-
-      setUserToResendInvitation(null);
-      showToastSuccess("Invitación reenviada correctamente");
+      // Forzar refetch inmediato
+      await queryClient.refetchQueries({ 
+        queryKey: usuarioKeys.lists(),
+        exact: false
+      });
     } catch (error: any) {
       showToastError(error instanceof Error ? error.message : "Error al reenviar invitación");
     } finally {
