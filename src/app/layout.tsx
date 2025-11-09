@@ -46,7 +46,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     if (msg.includes('Failed to fetch') || 
                         msg.includes('NetworkError') ||
                         msg.includes('Load failed') ||
-                        msg.includes('Network request failed')) {
+                        msg.includes('Network request failed') ||
+                        msg.includes('navegó') ||
+                        msg.includes('Unexpected identifier')) {
                       return true;
                     }
                   }

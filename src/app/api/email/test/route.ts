@@ -114,6 +114,7 @@ export async function POST(request: NextRequest) {
 
 /**
  * Endpoint GET para verificar configuración de email sin enviar
+ * Compatible con código antiguo y nuevo
  */
 export async function GET(request: NextRequest) {
   try {
@@ -135,26 +136,57 @@ export async function GET(request: NextRequest) {
     }
 
     const emailUser = process.env.EMAIL_USER?.trim();
-    const emailPassword = process.env.EMAIL_PASSWORD?.trim();
+    // Leer EMAIL_PASSWORD pero verificar que realmente existe (no undefined)
+    const emailPasswordRaw = process.env.EMAIL_PASSWORD;
+    const emailPassword = emailPasswordRaw ? emailPasswordRaw.trim() : undefined;
     const nextAuthUrl = process.env.NEXTAUTH_URL?.trim();
+    
+    // Variables OAuth2
+    const oauthClientId = process.env.GOOGLE_OAUTH_CLIENT_ID?.trim();
+    const oauthClientSecret = process.env.GOOGLE_OAUTH_CLIENT_SECRET?.trim();
+    const oauthRefreshToken = process.env.GOOGLE_OAUTH_REFRESH_TOKEN?.trim();
+
+    const hasOAuth2 = !!(oauthClientId && oauthClientSecret && oauthRefreshToken);
+    const hasAppPassword = !!(emailUser && emailPassword);
+    
+    // Debug: Log de variables para diagnóstico
+    console.log('🔍 [Email Test GET] Variables de entorno:', {
+      hasEmailUser: !!emailUser,
+      hasEmailPassword: !!emailPassword,
+      emailPasswordLength: emailPassword?.length || 0,
+      emailPasswordRawLength: emailPasswordRaw?.length || 0,
+      hasOAuth2,
+      hasOAuthClientId: !!oauthClientId,
+      hasOAuthClientSecret: !!oauthClientSecret,
+      hasOAuthRefreshToken: !!oauthRefreshToken
+    });
 
     return NextResponse.json({
+      status: "ok",
+      message: "Configuración de email",
       config: {
         hasEmailUser: !!emailUser,
-        hasEmailPassword: !!emailPassword,
-        emailUserLength: emailUser?.length || 0,
-        emailPasswordLength: emailPassword?.length || 0,
         emailUserPreview: emailUser 
           ? `${emailUser.substring(0, 3)}***@${emailUser.split('@')[1] || '***'}` 
           : 'No configurado',
         hasNextAuthUrl: !!nextAuthUrl,
         nextAuthUrl: nextAuthUrl || 'No configurado',
-        environment: process.env.NODE_ENV || 'unknown'
+        environment: process.env.NODE_ENV || 'unknown',
+        // OAuth2
+        hasOAuth2: hasOAuth2,
+        hasOAuthClientId: !!oauthClientId,
+        oauthClientIdPreview: oauthClientId 
+          ? `${oauthClientId.substring(0, 20)}...` 
+          : 'No configurado',
+        hasOAuthClientSecret: !!oauthClientSecret,
+        hasOAuthRefreshToken: !!oauthRefreshToken,
+        // App Password (fallback)
+        hasAppPassword: hasAppPassword,
+        emailPasswordLength: emailPassword?.length || 0
       },
-      ready: !!(emailUser && emailPassword),
-      message: emailUser && emailPassword 
-        ? "Configuración de email lista" 
-        : "Configuración de email incompleta"
+      ready: hasOAuth2 || hasAppPassword,
+      method: hasOAuth2 ? 'OAuth2' : (hasAppPassword ? 'App Password' : 'No configurado'),
+      recommendation: hasOAuth2 ? 'Usando OAuth2 (recomendado)' : (hasAppPassword ? 'Usando App Password (fallback)' : '⚠️ Configura OAuth2 o App Password')
     });
 
   } catch (error: any) {

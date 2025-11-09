@@ -1,49 +1,150 @@
 import nodemailer from 'nodemailer';
+import { google } from 'googleapis';
 
-// Configuración del transporter de Gmail
-const createTransporter = () => {
+// Configuración del transporter de Gmail con OAuth2
+const createTransporter = async () => {
   const emailUser = process.env.EMAIL_USER?.trim();
-  const emailPassword = process.env.EMAIL_PASSWORD?.trim();
+  
+  // Intentar primero con OAuth2
+  const oauthClientId = process.env.GOOGLE_OAUTH_CLIENT_ID?.trim();
+  const oauthClientSecret = process.env.GOOGLE_OAUTH_CLIENT_SECRET?.trim();
+  const oauthRefreshToken = process.env.GOOGLE_OAUTH_REFRESH_TOKEN?.trim();
 
+  const hasOAuth2Complete = !!(oauthClientId && oauthClientSecret && oauthRefreshToken && emailUser);
+  
   console.log('🔍 [Email] Verificando configuración:', {
     hasEmailUser: !!emailUser,
-    hasEmailPassword: !!emailPassword,
-    emailUserLength: emailUser?.length || 0,
-    emailPasswordLength: emailPassword?.length || 0,
-    emailUserPreview: emailUser ? `${emailUser.substring(0, 3)}***@${emailUser.split('@')[1] || '***'}` : 'No configurado'
+    hasOAuth2Complete: hasOAuth2Complete,
+    hasOAuthClientId: !!oauthClientId,
+    hasOAuthClientSecret: !!oauthClientSecret,
+    hasOAuthRefreshToken: !!oauthRefreshToken,
+    emailUserPreview: emailUser ? `${emailUser.substring(0, 3)}***@${emailUser.split('@')[1] || '***'}` : 'No configurado',
+    emailPasswordLength: process.env.EMAIL_PASSWORD?.trim().length || 0,
+    willUseOAuth2: hasOAuth2Complete
   });
 
-  if (!emailUser || !emailPassword) {
-    console.error('❌ [Email] Variables de entorno EMAIL_USER o EMAIL_PASSWORD no configuradas');
-    console.error('❌ [Email] EMAIL_USER:', emailUser ? 'Configurado' : 'FALTANTE');
-    console.error('❌ [Email] EMAIL_PASSWORD:', emailPassword ? 'Configurado' : 'FALTANTE');
+  // Si tenemos OAuth2 configurado, usarlo (PRIORIDAD)
+  if (oauthClientId && oauthClientSecret && oauthRefreshToken && emailUser) {
+    console.log('🔐 [Email] OAuth2 detectado - Usando OAuth2 (NO contraseña de aplicación)');
+    console.log('🔐 [Email] OAuth2 configurado:', {
+      hasClientId: !!oauthClientId,
+      hasClientSecret: !!oauthClientSecret,
+      hasRefreshToken: !!oauthRefreshToken,
+      emailUser: emailUser.substring(0, 3) + '***'
+    });
+    
+    try {
+      const oauth2Client = new google.auth.OAuth2(
+        oauthClientId,
+        oauthClientSecret,
+        'https://developers.google.com/oauthplayground'
+      );
+
+      oauth2Client.setCredentials({
+        refresh_token: oauthRefreshToken
+      });
+
+      // Obtener access token
+      let accessToken: string | null | undefined;
+      try {
+        console.log('🔐 [Email] Obteniendo access token...');
+        const accessTokenResponse = await oauth2Client.getAccessToken();
+        accessToken = accessTokenResponse.token;
+      } catch (tokenError: any) {
+        console.error('❌ [Email] Error al obtener access token:', {
+          message: tokenError.message,
+          code: tokenError.code,
+          response: tokenError.response
+        });
+        throw new Error(`Error al obtener access token: ${tokenError.message}. Verifica que el refresh token sea válido.`);
+      }
+
+      if (!accessToken) {
+        console.error('❌ [Email] No se pudo obtener access token (token es null/undefined)');
+        throw new Error('No se pudo obtener access token. Verifica que el refresh token sea válido.');
+      }
+
+      console.log('✅ [Email] Access token obtenido exitosamente');
+
+      const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          type: 'OAuth2',
+          user: emailUser,
+          clientId: oauthClientId,
+          clientSecret: oauthClientSecret,
+          refreshToken: oauthRefreshToken,
+          accessToken: accessToken
+        }
+      });
+
+      console.log('✅ [Email] Transporter OAuth2 creado exitosamente - USANDO OAUTH2');
+      return transporter;
+    } catch (error: any) {
+      console.error('❌ [Email] Error al crear transporter OAuth2:', {
+        message: error.message,
+        code: error.code
+      });
+      console.error('❌ [Email] OAuth2 falló - NO se hará fallback a contraseña de aplicación');
+      throw error; // NO hacer fallback, lanzar el error directamente
+    }
+  } else {
+    console.log('⚠️ [Email] OAuth2 NO configurado. Variables faltantes:', {
+      hasClientId: !!oauthClientId,
+      hasClientSecret: !!oauthClientSecret,
+      hasRefreshToken: !!oauthRefreshToken,
+      hasEmailUser: !!emailUser
+    });
+    console.log('⚠️ [Email] Si OAuth2 no está configurado, se intentará usar contraseña de aplicación');
+  }
+
+  // Fallback a contraseña de aplicación si OAuth2 no está configurado
+  const emailPassword = process.env.EMAIL_PASSWORD?.trim();
+  
+  // Si no hay OAuth2 y no hay contraseña, no podemos enviar emails
+  if (!emailPassword) {
+    console.log('⚠️ [Email] EMAIL_PASSWORD no configurado (esto es correcto si usas OAuth2)');
+    if (!hasOAuth2) {
+      console.error('❌ [Email] No hay método de autenticación configurado');
+      console.error('❌ [Email] Para OAuth2 necesitas: GOOGLE_OAUTH_CLIENT_ID, GOOGLE_OAUTH_CLIENT_SECRET, GOOGLE_OAUTH_REFRESH_TOKEN');
+      console.error('❌ [Email] O para contraseña de aplicación: EMAIL_USER, EMAIL_PASSWORD');
+      return null;
+    }
+    // Si tenemos OAuth2, no necesitamos contraseña
+    return null; // Ya deberíamos haber retornado el transporter OAuth2 arriba
+  }
+  
+  if (!emailUser) {
+    console.error('❌ [Email] EMAIL_USER no configurado');
+    return null;
+  }
+
+  // Validar longitud de contraseña de aplicación (debe ser 16 caracteres)
+  if (emailPassword.length !== 16) {
+    console.error('❌ [Email] La contraseña de aplicación debe tener exactamente 16 caracteres');
+    console.error(`❌ [Email] Longitud actual: ${emailPassword.length} caracteres`);
+    console.error('❌ [Email] Genera una nueva contraseña de aplicación en: https://myaccount.google.com/apppasswords');
     return null;
   }
 
   try {
+    console.log('🔑 [Email] Usando contraseña de aplicación (fallback)');
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
         user: emailUser,
         pass: emailPassword
       },
-      // Agregar opciones de debug y timeout
-      debug: false, // Cambiar a true para más detalles
+      debug: false,
       logger: false
     });
 
     console.log('✅ [Email] Transporter creado exitosamente');
-    console.log('✅ [Email] Configuración:', {
-      service: 'gmail',
-      user: emailUser?.substring(0, 3) + '***@' + emailUser?.split('@')[1],
-      passwordLength: emailPassword?.length || 0
-    });
     return transporter;
   } catch (error: any) {
     console.error('❌ [Email] Error al crear transporter:', {
       message: error.message,
-      code: error.code,
-      stack: error.stack
+      code: error.code
     });
     return null;
   }
@@ -76,11 +177,11 @@ export async function sendInvitationEmail({
   });
 
   try {
-    const transporter = createTransporter();
+    const transporter = await createTransporter();
     
     if (!transporter) {
       console.error('❌ [Email] No se pudo crear el transporter de email');
-      console.error('❌ [Email] Verifica que EMAIL_USER y EMAIL_PASSWORD estén configurados en Vercel');
+      console.error('❌ [Email] Verifica las variables de entorno en Vercel');
       return false;
     }
 

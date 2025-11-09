@@ -85,12 +85,17 @@ export async function POST(
       });
 
       if (!emailSent) {
-        console.error('❌ [API] sendInvitationEmail retornó false');
+        console.error('❌ [Resend Invitation] sendInvitationEmail retornó false');
         return NextResponse.json(
-          { error: "Error al enviar el email de invitación. Verifica la configuración de email." },
+          { 
+            error: "Error al enviar el email de invitación. Verifica la configuración de email.",
+            hint: "Asegúrate de tener configuradas las variables GOOGLE_OAUTH_CLIENT_ID, GOOGLE_OAUTH_CLIENT_SECRET, GOOGLE_OAUTH_REFRESH_TOKEN y EMAIL_USER en Vercel."
+          },
           { status: 500 }
         );
       }
+
+      console.log('✅ [Resend Invitation] Email enviado exitosamente');
     } catch (emailError: any) {
       console.error('❌ [Resend Invitation] Error al llamar sendInvitationEmail:', {
         message: emailError.message,
@@ -102,14 +107,22 @@ export async function POST(
         userId,
         userEmail: user.email
       });
+      
+      // Mensaje más amigable para el usuario
+      let userMessage = "Error al enviar el email de invitación.";
+      if (emailError.message?.includes('refresh token')) {
+        userMessage = "Error de autenticación OAuth2. Verifica que el refresh token sea válido.";
+      } else if (emailError.message?.includes('access token')) {
+        userMessage = "Error al obtener token de acceso. Verifica la configuración OAuth2.";
+      } else if (emailError.code === 'EAUTH' || emailError.responseCode === 535) {
+        userMessage = "Error de autenticación con Gmail. Verifica las credenciales.";
+      }
+      
       return NextResponse.json(
         { 
-          error: `Error al enviar el email: ${emailError.message || "Error desconocido"}`,
-          details: {
-            code: emailError.code,
-            responseCode: emailError.responseCode,
-            responseMessage: emailError.responseMessage
-          }
+          error: userMessage,
+          details: emailError.message,
+          hint: "Revisa los logs del servidor para más detalles."
         },
         { status: 500 }
       );

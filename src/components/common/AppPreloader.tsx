@@ -13,6 +13,20 @@ interface AppPreloaderProps {
  */
 export function AppPreloader({ onComplete }: AppPreloaderProps) {
   const { colors } = useColorTheme();
+  
+  // Detectar inmediatamente si es una página de error de auth (antes de cualquier estado)
+  const isAuthErrorPage = typeof window !== 'undefined' && 
+    window.location.href.includes('/auth/login') && 
+    (window.location.href.includes('error=OAuthCallback') || 
+     window.location.href.includes('error=OAuthSignin') || 
+     window.location.href.includes('error=AccessDenied') ||
+     window.location.href.includes('error=UserInactive'));
+  
+  // Si es página de error, no mostrar preloader
+  if (isAuthErrorPage) {
+    return null;
+  }
+  
   const [progress, setProgress] = useState(0);
   const [isCompiling, setIsCompiling] = useState(true);
   const [message, setMessage] = useState('Compilando aplicación...');

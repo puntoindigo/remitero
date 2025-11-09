@@ -224,7 +224,7 @@ export default function TopBar() {
                 </button>
                 {showUserMenu && dropdownPosition && (
                   <div 
-                    className="user-menu-dropdown" 
+                    className="user-menu-dropdown user-menu-dropdown-dark" 
                     style={{ 
                       position: 'fixed',
                       zIndex: 99999,
@@ -234,17 +234,26 @@ export default function TopBar() {
                   >
                     <button
                       onClick={handleProfileClick}
-                      className="user-menu-item"
+                      className="user-menu-item user-menu-item-dark"
                     >
                       <User className="h-4 w-4" />
                       <span>Perfil de usuario</span>
                     </button>
                     <button
                       onClick={handleSettingsClick}
-                      className="user-menu-item"
+                      className="user-menu-item user-menu-item-dark"
                     >
                       <Settings className="h-4 w-4" />
                       <span>Configuración</span>
+                    </button>
+                    <button
+                      onClick={handleLogoutRequest}
+                      className="user-menu-item user-menu-item-dark user-menu-item-logout"
+                      title="Cerrar sesión (S)"
+                    >
+                      <span style={{ fontSize: '1rem' }}>🔒</span>
+                      <span>Salir</span>
+                      <span style={{ marginLeft: 'auto', fontSize: '0.75rem', opacity: 0.7 }}>(S)</span>
                     </button>
                   </div>
                 )}
@@ -264,7 +273,7 @@ export default function TopBar() {
               </div>
               
               <div className="topbar-actions">
-                {currentUser.isImpersonating ? (
+                {currentUser.isImpersonating && (
                   <button 
                     onClick={handleStopImpersonation} 
                     className="topbar-button impersonation-button"
@@ -273,15 +282,6 @@ export default function TopBar() {
                   >
                     <LogOut className="h-4 w-4" />
                     <span>Volver</span>
-                  </button>
-                ) : (
-                  <button 
-                    onClick={handleLogoutRequest} 
-                    className="topbar-button logout-button"
-                    title="Cerrar sesión (S)"
-                  >
-                    <span style={{ fontSize: '1rem' }}>🔒</span>
-                    <ShortcutText text="Salir" shortcutKey="s" />
                   </button>
                 )}
               </div>

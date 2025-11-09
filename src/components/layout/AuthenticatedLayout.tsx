@@ -31,7 +31,28 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
   const { isOnline } = useNetworkStatus();
   const { isLoading: isNavigating, message: navigationMessage } = useNavigationLoading();
   
+  // Rutas que no requieren autenticación
+  const publicRoutes = ["/auth/login", "/auth/error", "/manual"];
+  const isPrintRoute = pathname.match(/\/remitos\/[^\/]+\/print/);
+  const isPublicRoute = publicRoutes.some(route => pathname.startsWith(route)) || pathname === "/" || isPrintRoute;
+  
+  // Detectar si hay error en la URL (para no hacer precaches)
+  // Hacerlo síncrono para evitar problemas con hooks
+  const hasAuthError = typeof window !== 'undefined' && (
+    window.location.href.includes('error=OAuthCallback') || 
+    window.location.href.includes('error=OAuthSignin') || 
+    window.location.href.includes('error=AccessDenied') ||
+    window.location.href.includes('error=UserInactive')
+  );
+  
+  // Si es una ruta pública (incluida impresión), renderizar sin autenticación
+  // NO ejecutar hooks de prefetch en rutas públicas o con errores
+  if (isPublicRoute || hasAuthError) {
+    return <>{children}</>;
+  }
+  
   // OPTIMIZACIÓN: Prefetch rutas críticas y warm-up de APIs después del login
+  // Solo se ejecuta si NO es ruta pública y NO hay error
   useRoutePrefetch();
   useApiWarmup();
   
@@ -41,16 +62,6 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
       setShowChangePassword(true);
     }
   }, [session]);
-
-  // Rutas que no requieren autenticación
-  const publicRoutes = ["/auth/login", "/auth/error", "/manual"];
-  const isPrintRoute = pathname.match(/\/remitos\/[^\/]+\/print/);
-  const isPublicRoute = publicRoutes.some(route => pathname.startsWith(route)) || pathname === "/" || isPrintRoute;
-
-  // Si es una ruta pública (incluida impresión), renderizar sin autenticación
-  if (isPublicRoute) {
-    return <>{children}</>;
-  }
 
   // Redirección simple sin useEffect - ya corregido
   if (status === "unauthenticated") {

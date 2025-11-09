@@ -3750,6 +3750,12 @@ form svg {
   opacity: 1 !important;
 }
 
+.user-menu-dropdown-dark {
+  background: #475569 !important;
+  border: 1px solid #334155 !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2) !important;
+}
+
 @keyframes slideDown {
   from {
     opacity: 0;
@@ -3793,6 +3799,30 @@ form svg {
 .user-menu-item svg {
   color: #6b7280;
   flex-shrink: 0;
+}
+
+.user-menu-item-dark {
+  background: transparent !important;
+  color: white !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.user-menu-item-dark:hover {
+  background-color: #334155 !important;
+}
+
+.user-menu-item-dark:last-child {
+  border-bottom: none !important;
+}
+
+.user-menu-item-dark svg {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.user-menu-item-logout {
+  border-top: 1px solid rgba(255, 255, 255, 0.2) !important;
+  margin-top: 0.25rem !important;
+  padding-top: 0.875rem !important;
 }
 
 .user-name {

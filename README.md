@@ -2,6 +2,20 @@
 
 Esta carpeta contiene toda la documentación del proyecto organizada por categorías.
 
+## 📚 Manual Completo
+
+**👉 [Acceder al Manual Completo](./docs/manual/00-INDICE.md)** - Documentación organizada y estructurada por categorías y niveles de experiencia.
+
+El manual incluye:
+- 🚀 Inicio Rápido
+- ⚙️ Configuración
+- 🔐 Autenticación
+- 💻 Desarrollo
+- 🚀 Despliegue
+- 🔧 Troubleshooting
+- 📚 Referencia Técnica
+- 📋 Planificación
+
 ## 📁 Estructura de Documentación
 
 ### 📋 Documentación Principal

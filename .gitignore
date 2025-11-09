@@ -47,3 +47,7 @@ scripts/*-migrate.js
 scripts/*-create.js
 scripts/*-data.js
 .env*.local
+client_secret_*.json
+OBTENER_REFRESH_TOKEN.md
+scripts/get-refresh-token-simple.md
+scripts/get-refresh-token.js
