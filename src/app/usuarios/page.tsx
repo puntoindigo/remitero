@@ -233,6 +233,12 @@ function UsuariosContent() {
         throw new Error(errorData.error || 'Error al reenviar invitación');
       }
 
+      // Invalidar la query para refrescar la lista y mostrar la nueva actividad
+      await queryClient.invalidateQueries({ 
+        queryKey: usuarioKeys.lists(),
+        exact: false
+      });
+
       setUserToResendInvitation(null);
       showToastSuccess("Invitación reenviada correctamente");
     } catch (error: any) {
