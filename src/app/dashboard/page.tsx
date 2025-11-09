@@ -193,7 +193,7 @@ export default function DashboardPage() {
       case "Clientes": return "/clientes/nuevo";
       case "Categorías": return "/categorias/nuevo";
       case "Usuarios": return "/usuarios/nuevo";
-      case "Empresas": return "/empresas/nuevo";
+      case "Empresas": return "/empresas";
       default: return "/";
     }
   };
