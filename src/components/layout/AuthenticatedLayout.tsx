@@ -31,6 +31,11 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
   const { isOnline } = useNetworkStatus();
   const { isLoading: isNavigating, message: navigationMessage } = useNavigationLoading();
   
+  // IMPORTANTE: Todos los hooks deben llamarse ANTES de cualquier return condicional
+  // Los hooks internos manejarán la lógica condicional
+  useRoutePrefetch();
+  useApiWarmup();
+  
   // Rutas que no requieren autenticación
   const publicRoutes = ["/auth/login", "/auth/error", "/manual"];
   const isPrintRoute = pathname.match(/\/remitos\/[^\/]+\/print/);
@@ -45,23 +50,18 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
     window.location.href.includes('error=UserInactive')
   );
   
-  // Si es una ruta pública (incluida impresión), renderizar sin autenticación
-  // NO ejecutar hooks de prefetch en rutas públicas o con errores
-  if (isPublicRoute || hasAuthError) {
-    return <>{children}</>;
-  }
-  
-  // OPTIMIZACIÓN: Prefetch rutas críticas y warm-up de APIs después del login
-  // Solo se ejecuta si NO es ruta pública y NO hay error
-  useRoutePrefetch();
-  useApiWarmup();
-  
   // Detectar si el usuario tiene contraseña temporal (DEBE estar antes de cualquier return)
   useEffect(() => {
     if (session?.user && (session.user as any).hasTemporaryPassword) {
       setShowChangePassword(true);
     }
   }, [session]);
+  
+  // Si es una ruta pública (incluida impresión), renderizar sin autenticación
+  // Esto debe ir DESPUÉS de todos los hooks
+  if (isPublicRoute || hasAuthError) {
+    return <>{children}</>;
+  }
 
   // Redirección simple sin useEffect - ya corregido
   if (status === "unauthenticated") {

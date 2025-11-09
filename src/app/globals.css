@@ -1,3 +1,8 @@
+/* Tailwind CSS Directives */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 /* Segoe UI es una fuente del sistema (Windows), no necesita cargarse desde Google Fonts */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
@@ -4218,4 +4223,35 @@ aside::-webkit-scrollbar-thumb:hover {
   font-size: 0.75em;
   opacity: 0.6;
   margin-left: 0.25rem;
+}
+
+/* Override para el layout del manual - evitar interferencias */
+.manual-page-wrapper {
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.manual-page-wrapper .manual-content-wrapper {
+  padding-left: 1rem;
+  padding-right: 1rem;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
+@media (min-width: 640px) {
+  .manual-page-wrapper .manual-content-wrapper {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+    padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .manual-page-wrapper .manual-content-wrapper {
+    padding-left: 2rem;
+    padding-right: 2rem;
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+  }
 }

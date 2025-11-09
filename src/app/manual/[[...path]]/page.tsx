@@ -39,14 +39,14 @@ export default async function ManualPathPage({ params }: ManualPathPageProps) {
     ];
 
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+      <div className="manual-page-wrapper min-h-screen bg-gray-50 dark:bg-gray-950" style={{ padding: 0, margin: 0 }}>
         <div className="flex flex-col lg:flex-row">
           {/* Sidebar */}
           <ManualSidebar />
 
           {/* Contenido principal */}
           <main className="flex-1 lg:ml-72 min-h-screen">
-            <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 max-w-4xl">
+            <div className="manual-content-wrapper mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 max-w-4xl">
               {/* Breadcrumb */}
               <ManualBreadcrumb breadcrumbs={breadcrumbs} />
 
