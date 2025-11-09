@@ -174,6 +174,12 @@ export default function TopBar() {
             <ColorThemeSelector />
             <div className="user-info-topbar">
               <div className="user-details" style={{ position: 'relative', zIndex: 10001 }} ref={userMenuRef}>
+                {currentUser.role !== 'USER' && (
+                  <div className="user-role">
+                    {getRoleIcon()}
+                    <span>{getRoleText()}</span>
+                  </div>
+                )}
                 <button
                   ref={buttonRef}
                   onClick={() => setShowUserMenu(!showUserMenu)}
@@ -255,12 +261,6 @@ export default function TopBar() {
                       <span>Salir</span>
                       <span style={{ marginLeft: 'auto', fontSize: '0.75rem', opacity: 0.7 }}>(S)</span>
                     </button>
-                  </div>
-                )}
-                {currentUser.role !== 'USER' && (
-                  <div className="user-role">
-                    {getRoleIcon()}
-                    <span>{getRoleText()}</span>
                   </div>
                 )}
                 {currentUser.isImpersonating && (

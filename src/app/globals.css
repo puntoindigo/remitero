@@ -3815,12 +3815,20 @@ form svg {
   border-bottom: none !important;
 }
 
+.user-menu-item-dark.user-menu-item-logout {
+  border-bottom: none !important;
+}
+
+/* Eliminar border-bottom del item anterior a Salir */
+.user-menu-item-dark:has(+ .user-menu-item-logout) {
+  border-bottom: none !important;
+}
+
 .user-menu-item-dark svg {
   color: rgba(255, 255, 255, 0.9) !important;
 }
 
 .user-menu-item-logout {
-  border-top: 1px solid rgba(255, 255, 255, 0.2) !important;
   margin-top: 0.25rem !important;
   padding-top: 0.875rem !important;
 }
@@ -3986,4 +3994,228 @@ form svg {
 .remito-status-select:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+/* ========================================
+   MANUAL - Estilos personalizados
+   ======================================== */
+
+/* Scroll suave para toda la página */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Estilos para el sidebar del manual */
+.manual-sidebar-section {
+  transition: all 0.2s ease;
+}
+
+/* Scrollbar personalizado para el sidebar */
+aside::-webkit-scrollbar {
+  width: 6px;
+}
+
+aside::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+aside::-webkit-scrollbar-thumb {
+  background: rgba(156, 163, 175, 0.3);
+  border-radius: 3px;
+  transition: background 0.2s ease;
+}
+
+aside::-webkit-scrollbar-thumb:hover {
+  background: rgba(156, 163, 175, 0.5);
+}
+
+/* Dark mode scrollbar */
+.dark aside::-webkit-scrollbar-thumb {
+  background: rgba(75, 85, 99, 0.3);
+}
+
+.dark aside::-webkit-scrollbar-thumb:hover {
+  background: rgba(75, 85, 99, 0.5);
+}
+
+/* Estilos para el contenido del manual */
+.manual-content {
+  line-height: 1.7;
+}
+
+.manual-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.5rem;
+  margin: 1.5rem 0;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* Mejoras para enlaces en el contenido */
+.manual-content a {
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.manual-content a:hover {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* Estilos para código inline */
+.manual-content code {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;
+  font-size: 0.9em;
+}
+
+/* Estilos para bloques de código */
+.manual-content pre {
+  position: relative;
+  overflow-x: auto;
+}
+
+.manual-content pre code {
+  display: block;
+  padding: 0;
+  background: transparent;
+  border: none;
+}
+
+/* Mejoras para listas */
+.manual-content ul,
+.manual-content ol {
+  line-height: 1.8;
+}
+
+.manual-content li {
+  margin-bottom: 0.5rem;
+}
+
+.manual-content li > p {
+  margin-bottom: 0.5rem;
+}
+
+/* Estilos para tablas */
+.manual-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+}
+
+.manual-content table th {
+  font-weight: 600;
+  text-align: left;
+}
+
+/* Estilos para blockquotes */
+.manual-content blockquote {
+  position: relative;
+  margin: 1.5rem 0;
+}
+
+.manual-content blockquote::before {
+  content: '"';
+  position: absolute;
+  left: -0.5rem;
+  top: -0.5rem;
+  font-size: 3rem;
+  line-height: 1;
+  opacity: 0.2;
+  font-family: Georgia, serif;
+}
+
+/* Animaciones mejoradas */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideInFromTop {
+  from {
+    transform: translateY(-10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInFromBottom {
+  from {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Aplicar animaciones */
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.animate-slide-in-from-top {
+  animation: slideInFromTop 0.3s ease-out;
+}
+
+.animate-slide-in-from-bottom {
+  animation: slideInFromBottom 0.3s ease-out;
+}
+
+/* Mejoras para mobile */
+@media (max-width: 768px) {
+  .manual-content {
+    font-size: 0.95rem;
+  }
+
+  .manual-content h1 {
+    font-size: 1.75rem;
+  }
+
+  .manual-content h2 {
+    font-size: 1.5rem;
+  }
+
+  .manual-content h3 {
+    font-size: 1.25rem;
+  }
+
+  .manual-content pre {
+    font-size: 0.85rem;
+    padding: 0.75rem;
+  }
+
+  .manual-content table {
+    font-size: 0.875rem;
+  }
+}
+
+/* Mejoras para el sidebar en mobile */
+@media (max-width: 1024px) {
+  aside {
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Focus states mejorados para accesibilidad */
+.manual-content a:focus,
+.manual-content button:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Estilos para elementos interactivos */
+.manual-content a[href^="http"]::after {
+  content: " ↗";
+  font-size: 0.75em;
+  opacity: 0.6;
+  margin-left: 0.25rem;
 }
