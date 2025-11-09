@@ -383,8 +383,7 @@ function UsuariosContent() {
       render: (usuario: Usuario) => (
         usuario.company ? (
           <div className="company-info">
-            <Building2 className="h-3 w-3 inline" />
-            &nbsp;{usuario.company.name}
+            {usuario.company.name}
           </div>
         ) : (
           <span className="text-gray-400">Sin empresa</span>
@@ -421,16 +420,16 @@ function UsuariosContent() {
           }
           
           return (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', flex: 1 }}>
-                <div style={{ fontSize: '0.875rem', fontWeight: 500 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'nowrap' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: '0.875rem', fontWeight: 500, whiteSpace: 'nowrap' }}>
                   {usuario.lastActivity.description}
                 </div>
-                <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>
+                <div style={{ fontSize: '0.75rem', color: '#6b7280', whiteSpace: 'nowrap' }}>
                   {timeAgo}
                 </div>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', flexShrink: 0 }}>
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
@@ -485,6 +484,35 @@ function UsuariosContent() {
                 >
                   <Activity className="h-4 w-4" />
                 </button>
+                {isSuperAdmin && canImpersonate(usuario) && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleImpersonate(usuario);
+                    }}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      padding: '0.25rem',
+                      borderRadius: '4px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      color: '#6b7280',
+                    }}
+                    title="Impersonar usuario"
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = '#f3f4f6';
+                      e.currentTarget.style.color = colors.primary;
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = 'transparent';
+                      e.currentTarget.style.color = '#6b7280';
+                    }}
+                  >
+                    <Users className="h-4 w-4" />
+                  </button>
+                )}
               </div>
             </div>
           );
@@ -502,16 +530,16 @@ function UsuariosContent() {
         });
         
         return (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', flex: 1 }}>
-              <div style={{ fontSize: '0.875rem', fontWeight: 500 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'nowrap' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: '0.875rem', fontWeight: 500, whiteSpace: 'nowrap' }}>
                 Alta
               </div>
-              <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>
+              <div style={{ fontSize: '0.75rem', color: '#6b7280', whiteSpace: 'nowrap' }}>
                 {altaFormatted}
               </div>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', flexShrink: 0 }}>
               <button
                 onClick={(e) => {
                   e.stopPropagation();
@@ -566,51 +594,40 @@ function UsuariosContent() {
               >
                 <Activity className="h-4 w-4" />
               </button>
+              {isSuperAdmin && canImpersonate(usuario) && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleImpersonate(usuario);
+                  }}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    padding: '0.25rem',
+                    borderRadius: '4px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    color: '#6b7280',
+                  }}
+                  title="Impersonar usuario"
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#f3f4f6';
+                    e.currentTarget.style.color = colors.primary;
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                    e.currentTarget.style.color = '#6b7280';
+                  }}
+                >
+                  <Users className="h-4 w-4" />
+                </button>
+              )}
             </div>
           </div>
         );
       }
-    },
-    // Solo mostrar columna Impersonar si es SUPERADMIN
-    ...(isSuperAdmin ? [{
-      key: 'impersonate',
-      label: 'Impersonar',
-      render: (usuario: Usuario) => (
-        canImpersonate(usuario) ? (
-          <button
-            onClick={() => handleImpersonate(usuario)}
-            className="btn-primary"
-            title="Impersonar usuario"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '0.25rem',
-              padding: '6px 12px',
-              background: colors.gradient,
-              color: 'white',
-              border: 'none',
-              borderRadius: '6px',
-              cursor: 'pointer',
-              fontSize: '14px',
-              fontWeight: '500',
-              minWidth: '80px',
-              transition: 'all 0.2s',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-1px)';
-              e.currentTarget.style.boxShadow = `0 4px 12px ${colors.primary}50`;
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = 'none';
-            }}
-          >
-            <Users className="h-4 w-4" />
-          </button>
-        ) : null
-      )
-    }] : [])
+    }
   ];
 
   if (isLoading) {
