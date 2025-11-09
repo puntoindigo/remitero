@@ -23,9 +23,10 @@ const createTransporter = async () => {
     willUseOAuth2: hasOAuth2Complete
   });
 
-  // Si tenemos OAuth2 configurado, usarlo (PRIORIDAD)
+  // Si tenemos OAuth2 configurado, intentar usarlo primero
+  let oauth2Failed = false;
   if (oauthClientId && oauthClientSecret && oauthRefreshToken && emailUser) {
-    console.log('🔐 [Email] OAuth2 detectado - Usando OAuth2 (NO contraseña de aplicación)');
+    console.log('🔐 [Email] OAuth2 detectado - Intentando usar OAuth2 primero');
     console.log('🔐 [Email] OAuth2 configurado:', {
       hasClientId: !!oauthClientId,
       hasClientSecret: !!oauthClientSecret,
@@ -51,48 +52,62 @@ const createTransporter = async () => {
         const accessTokenResponse = await oauth2Client.getAccessToken();
         accessToken = accessTokenResponse.token;
       } catch (tokenError: any) {
-        console.error('❌ [Email] Error al obtener access token:', {
-          message: tokenError.message,
-          code: tokenError.code,
-          response: tokenError.response
-        });
-        throw new Error(`Error al obtener access token: ${tokenError.message}. Verifica que el refresh token sea válido.`);
-      }
-
-      if (!accessToken) {
-        console.error('❌ [Email] No se pudo obtener access token (token es null/undefined)');
-        throw new Error('No se pudo obtener access token. Verifica que el refresh token sea válido.');
-      }
-
-      console.log('✅ [Email] Access token obtenido exitosamente');
-
-      const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-          type: 'OAuth2',
-          user: emailUser,
-          clientId: oauthClientId,
-          clientSecret: oauthClientSecret,
-          refreshToken: oauthRefreshToken,
-          accessToken: accessToken
+        const errorData = tokenError.response?.data || {};
+        const isInvalidGrant = tokenError.message?.includes('invalid_grant') || 
+                              errorData.error === 'invalid_grant' ||
+                              tokenError.code === 400;
+        
+        if (isInvalidGrant) {
+          console.warn('⚠️ [Email] Refresh token inválido/expirado. Haciendo fallback a contraseña de aplicación...');
+          oauth2Failed = true;
+          // NO lanzar error, continuar con fallback
+        } else {
+          console.error('❌ [Email] Error al obtener access token:', {
+            message: tokenError.message,
+            code: tokenError.code,
+            response: tokenError.response
+          });
+          throw new Error(`Error al obtener access token: ${tokenError.message}. Verifica que el refresh token sea válido.`);
         }
-      });
+      }
 
-      console.log('✅ [Email] Transporter OAuth2 creado exitosamente - USANDO OAUTH2');
-      return transporter;
-    } catch (error: any) {
-      console.error('❌ [Email] Error al crear transporter OAuth2:', {
-        message: error.message,
-        code: error.code,
-        errorType: error.response?.data?.error || 'unknown'
-      });
-      
-      // Si el error es invalid_grant (token expirado/revocado), hacer fallback a contraseña
-      if (error.message?.includes('invalid_grant') || error.response?.data?.error === 'invalid_grant') {
-        console.warn('⚠️ [Email] Refresh token inválido/expirado. Intentando fallback a contraseña de aplicación...');
-        // Continuar con el código de abajo para intentar contraseña de aplicación
+      // Si OAuth2 falló, continuar con fallback
+      if (oauth2Failed) {
+        // Continuar al código de abajo para usar contraseña
+      } else if (!accessToken) {
+        console.error('❌ [Email] No se pudo obtener access token (token es null/undefined)');
+        oauth2Failed = true;
+        // Continuar con fallback
       } else {
-        console.error('❌ [Email] OAuth2 falló con error no recuperable');
+        console.log('✅ [Email] Access token obtenido exitosamente');
+
+        const transporter = nodemailer.createTransport({
+          service: 'gmail',
+          auth: {
+            type: 'OAuth2',
+            user: emailUser,
+            clientId: oauthClientId,
+            clientSecret: oauthClientSecret,
+            refreshToken: oauthRefreshToken,
+            accessToken: accessToken
+          }
+        });
+
+        console.log('✅ [Email] Transporter OAuth2 creado exitosamente - USANDO OAUTH2');
+        return transporter;
+      }
+    } catch (error: any) {
+      const errorData = error.response?.data || {};
+      const isInvalidGrant = error.message?.includes('invalid_grant') || 
+                            errorData.error === 'invalid_grant' ||
+                            error.code === 400;
+      
+      if (isInvalidGrant) {
+        console.warn('⚠️ [Email] OAuth2 falló con invalid_grant. Haciendo fallback a contraseña de aplicación...');
+        oauth2Failed = true;
+        // NO lanzar error, continuar con fallback
+      } else {
+        console.error('❌ [Email] OAuth2 falló con error no recuperable:', error.message);
         throw error; // Lanzar error si no es invalid_grant
       }
     }
@@ -127,8 +142,10 @@ const createTransporter = async () => {
   }
   
   // Si llegamos aquí, OAuth2 falló o no está configurado, usar contraseña como fallback
-  if (hasOAuth2Complete) {
+  if (hasOAuth2Complete && oauth2Failed) {
     console.log('⚠️ [Email] Usando contraseña de aplicación como fallback (OAuth2 falló)');
+  } else if (!hasOAuth2Complete) {
+    console.log('⚠️ [Email] OAuth2 no configurado, usando contraseña de aplicación');
   }
   
   if (!emailUser) {
