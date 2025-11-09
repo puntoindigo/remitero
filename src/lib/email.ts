@@ -83,10 +83,18 @@ const createTransporter = async () => {
     } catch (error: any) {
       console.error('❌ [Email] Error al crear transporter OAuth2:', {
         message: error.message,
-        code: error.code
+        code: error.code,
+        errorType: error.response?.data?.error || 'unknown'
       });
-      console.error('❌ [Email] OAuth2 falló - NO se hará fallback a contraseña de aplicación');
-      throw error; // NO hacer fallback, lanzar el error directamente
+      
+      // Si el error es invalid_grant (token expirado/revocado), hacer fallback a contraseña
+      if (error.message?.includes('invalid_grant') || error.response?.data?.error === 'invalid_grant') {
+        console.warn('⚠️ [Email] Refresh token inválido/expirado. Intentando fallback a contraseña de aplicación...');
+        // Continuar con el código de abajo para intentar contraseña de aplicación
+      } else {
+        console.error('❌ [Email] OAuth2 falló con error no recuperable');
+        throw error; // Lanzar error si no es invalid_grant
+      }
     }
   } else {
     console.log('⚠️ [Email] OAuth2 NO configurado. Variables faltantes:', {
@@ -98,20 +106,29 @@ const createTransporter = async () => {
     console.log('⚠️ [Email] Si OAuth2 no está configurado, se intentará usar contraseña de aplicación');
   }
 
-  // Fallback a contraseña de aplicación si OAuth2 no está configurado
+  // Fallback a contraseña de aplicación si OAuth2 no está configurado o falló
   const emailPassword = process.env.EMAIL_PASSWORD?.trim();
   
-  // Si no hay OAuth2 y no hay contraseña, no podemos enviar emails
+  // Si no hay contraseña y OAuth2 falló, no podemos enviar emails
   if (!emailPassword) {
-    console.log('⚠️ [Email] EMAIL_PASSWORD no configurado (esto es correcto si usas OAuth2)');
-    if (!hasOAuth2) {
+    if (hasOAuth2Complete) {
+      // Si OAuth2 estaba configurado pero falló, y no hay contraseña, no podemos enviar
+      console.error('❌ [Email] OAuth2 falló y no hay contraseña de aplicación como fallback');
+      console.error('❌ [Email] Soluciones:');
+      console.error('   1. Obtén un nuevo refresh token válido desde OAuth Playground');
+      console.error('   2. O configura EMAIL_PASSWORD como fallback en Vercel');
+      return null;
+    } else {
       console.error('❌ [Email] No hay método de autenticación configurado');
       console.error('❌ [Email] Para OAuth2 necesitas: GOOGLE_OAUTH_CLIENT_ID, GOOGLE_OAUTH_CLIENT_SECRET, GOOGLE_OAUTH_REFRESH_TOKEN');
       console.error('❌ [Email] O para contraseña de aplicación: EMAIL_USER, EMAIL_PASSWORD');
       return null;
     }
-    // Si tenemos OAuth2, no necesitamos contraseña
-    return null; // Ya deberíamos haber retornado el transporter OAuth2 arriba
+  }
+  
+  // Si llegamos aquí, OAuth2 falló o no está configurado, usar contraseña como fallback
+  if (hasOAuth2Complete) {
+    console.log('⚠️ [Email] Usando contraseña de aplicación como fallback (OAuth2 falló)');
   }
   
   if (!emailUser) {

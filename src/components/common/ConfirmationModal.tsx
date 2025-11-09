@@ -6,12 +6,14 @@ import { CheckCircle, AlertCircle, Info, AlertTriangle } from "lucide-react";
 
 interface ConfirmationModalProps {
   isOpen: boolean;
-  onClose: () => void;
+  onClose?: () => void;
+  onCancel?: () => void;
   onConfirm: () => void;
   title: string;
   message: string;
   type?: 'success' | 'warning' | 'error' | 'info';
   confirmText?: string;
+  confirmButtonText?: string; // Alias para confirmText
   cancelText?: string;
   isLoading?: boolean;
 }
@@ -19,14 +21,21 @@ interface ConfirmationModalProps {
 export function ConfirmationModal({
   isOpen,
   onClose,
+  onCancel,
   onConfirm,
   title,
   message,
   type = 'info',
   confirmText = 'Confirmar',
+  confirmButtonText,
   cancelText = 'Cancelar',
   isLoading = false
 }: ConfirmationModalProps) {
+  // Usar onCancel si está disponible, sino onClose
+  const handleCancel = onCancel || onClose || (() => {});
+  // Usar confirmButtonText si está disponible, sino confirmText
+  const finalConfirmText = confirmButtonText || confirmText;
+  
   // Bloquear scroll del body cuando el modal está abierto
   useEffect(() => {
     if (isOpen) {
@@ -39,6 +48,22 @@ export function ConfirmationModal({
       document.body.style.overflow = '';
     };
   }, [isOpen]);
+
+  // Manejar tecla ESC para cerrar
+  useEffect(() => {
+    if (!isOpen || isLoading) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        event.stopPropagation();
+        handleCancel();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown, { capture: true });
+    return () => window.removeEventListener('keydown', handleKeyDown, { capture: true });
+  }, [isOpen, isLoading, handleCancel]);
 
   if (!isOpen) return null;
 
@@ -76,7 +101,7 @@ export function ConfirmationModal({
       onClick={(e) => {
         // Cerrar al hacer click en el overlay (no en el modal)
         if (e.target === e.currentTarget && !isLoading) {
-          onClose();
+          handleCancel();
         }
       }}
       style={{
@@ -106,10 +131,12 @@ export function ConfirmationModal({
           zIndex: 10001,
         }}
       >
-        <div className="modal-header">
-          <div className="flex items-center gap-4">
-            {getIcon()}
-            <h2>{title}</h2>
+        <div className="modal-header" style={{ overflow: 'visible' }}>
+          <div className="flex items-center gap-4" style={{ alignItems: 'flex-start' }}>
+            <div style={{ flexShrink: 0, marginTop: '2px' }}>
+              {getIcon()}
+            </div>
+            <h2 style={{ margin: 0 }}>{title}</h2>
           </div>
         </div>
         
@@ -120,9 +147,9 @@ export function ConfirmationModal({
         <div className="modal-actions">
           <button 
             type="button" 
-            onClick={onClose}
+            onClick={handleCancel}
             disabled={isLoading}
-            className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+            className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {cancelText}
           </button>
@@ -132,7 +159,7 @@ export function ConfirmationModal({
             disabled={isLoading}
             className={`px-4 py-2 rounded-md font-medium disabled:opacity-50 ${getButtonClass()}`}
           >
-            {isLoading ? 'Procesando...' : confirmText}
+            {isLoading ? 'Procesando...' : finalConfirmText}
           </button>
         </div>
       </div>
