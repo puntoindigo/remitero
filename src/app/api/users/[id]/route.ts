@@ -116,24 +116,10 @@ export async function PUT(
     const body = await request.json();
     const { name, email, password, role, address, phone, companyId, enableBotonera, enablePinnedModals, isActive } = body;
 
-    // Verificar permisos de edición
-    if (session.user.role === 'SUPERADMIN') {
-      // SUPERADMIN puede editar cualquier usuario
-    } else if (session.user.role === 'ADMIN') {
-      // ADMIN solo puede editar usuarios de su propia empresa
-      // Verificaremos esto después de obtener el usuario
-    } else {
-      // USER no puede editar usuarios
-      return NextResponse.json({ 
-        error: "No autorizado", 
-        message: "No tienes permisos para editar usuarios." 
-      }, { status: 403 });
-    }
-
-    // Verificar que el usuario existe y obtener su company_id
+    // Verificar que el usuario existe y obtener su company_id y rol
     const { data: existingUser, error: fetchError } = await supabaseAdmin
       .from('users')
-      .select('id, email, company_id')
+      .select('id, email, company_id, role')
       .eq('id', userId)
       .single();
 
@@ -144,8 +130,12 @@ export async function PUT(
       }, { status: 404 });
     }
 
-    // Verificar permisos específicos para ADMIN
-    if (session.user.role === 'ADMIN') {
+    // Verificar permisos de edición
+    const isEditingOwnProfile = session.user.id === userId;
+    
+    if (session.user.role === 'SUPERADMIN') {
+      // SUPERADMIN puede editar cualquier usuario
+    } else if (session.user.role === 'ADMIN') {
       // ADMIN solo puede editar usuarios de su propia empresa
       if (existingUser.company_id !== session.user.companyId) {
         return NextResponse.json({ 
@@ -153,6 +143,42 @@ export async function PUT(
           message: "No tienes permisos para editar usuarios de otras empresas." 
         }, { status: 403 });
       }
+    } else if (session.user.role === 'USER') {
+      // USER solo puede editar su propio perfil
+      if (!isEditingOwnProfile) {
+        return NextResponse.json({ 
+          error: "No autorizado", 
+          message: "No tienes permisos para editar otros usuarios." 
+        }, { status: 403 });
+      }
+      
+      // USER no puede cambiar ciertos campos de su perfil
+      if (role !== undefined && role !== existingUser.role) {
+        return NextResponse.json({ 
+          error: "No autorizado", 
+          message: "No puedes cambiar tu rol." 
+        }, { status: 403 });
+      }
+      
+      if (companyId !== undefined) {
+        return NextResponse.json({ 
+          error: "No autorizado", 
+          message: "No puedes cambiar tu empresa." 
+        }, { status: 403 });
+      }
+      
+      if (isActive !== undefined) {
+        return NextResponse.json({ 
+          error: "No autorizado", 
+          message: "No puedes cambiar tu estado de activación." 
+        }, { status: 403 });
+      }
+    } else {
+      // Rol desconocido
+      return NextResponse.json({ 
+        error: "No autorizado", 
+        message: "No tienes permisos para editar usuarios." 
+      }, { status: 403 });
     }
 
     // Verificar que el email no esté en uso por otro usuario
@@ -176,20 +202,27 @@ export async function PUT(
     const updateData: any = {};
     if (name) updateData.name = name;
     if (email) updateData.email = email;
-    if (role) updateData.role = role;
+    
+    // Solo permitir cambiar el rol si no es USER o si es SUPERADMIN
+    if (role && (session.user.role === 'SUPERADMIN' || (session.user.role === 'ADMIN' && !isEditingOwnProfile))) {
+      updateData.role = role;
+    }
+    
     if (address !== undefined) updateData.address = address;
     if (phone !== undefined) updateData.phone = phone;
+    
     // Solo permitir cambiar enable_botonera si es el usuario actual o SUPERADMIN
-    if (enableBotonera !== undefined && (session.user.id === userId || session.user.role === 'SUPERADMIN')) {
+    if (enableBotonera !== undefined && (isEditingOwnProfile || session.user.role === 'SUPERADMIN')) {
       updateData.enable_botonera = enableBotonera;
     }
     
     // Solo permitir cambiar enable_pinned_modals si es el usuario actual o SUPERADMIN
-    if (enablePinnedModals !== undefined && (session.user.id === userId || session.user.role === 'SUPERADMIN')) {
+    if (enablePinnedModals !== undefined && (isEditingOwnProfile || session.user.role === 'SUPERADMIN')) {
       updateData.enable_pinned_modals = enablePinnedModals;
     }
+    
     // Permitir cambiar is_active solo si no es el propio usuario (no puede desactivarse a sí mismo)
-    if (isActive !== undefined && session.user.id !== userId) {
+    if (isActive !== undefined && !isEditingOwnProfile) {
       updateData.is_active = isActive;
       // Registrar actividad
       await logUserActivity(
@@ -221,6 +254,7 @@ export async function PUT(
         updateData.company_id = session.user.companyId;
       }
     }
+    // USER no puede cambiar companyId (ya validado arriba)
 
     // Hash de la contraseña si se proporciona
     if (password && password.trim() !== '') {
