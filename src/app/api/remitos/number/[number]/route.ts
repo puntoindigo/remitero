@@ -20,95 +20,23 @@ export async function GET(
       }, { status: 400 });
     }
     
-    // Permitir acceso público para impresión (si la ruta incluye /print o tiene header X-Print-Request)
-    // Para peticiones de impresión, siempre permitir acceso sin verificar sesión
+    // Detectar si es petición de impresión
     const referer = request.headers.get('referer') || '';
     const printHeader = request.headers.get('x-print-request');
-    const userAgent = request.headers.get('user-agent') || '';
     const isPrintRequest = referer.includes('/print') || 
                           request.url.includes('/print') || 
-                          printHeader === 'true' ||
-                          userAgent.includes('print');
+                          printHeader === 'true';
     
-    console.log('[API] GET remito by number:', {
-      remitoNumber: remitoNumberInt,
-      hasSession: !!session?.user,
-      isPrintRequest,
-      referer,
-      printHeader,
-      url: request.url
-    });
-    
-    // Para peticiones de impresión, siempre permitir acceso (con o sin sesión)
-    // Esto permite que funcione en nuevas pestañas donde la sesión puede no estar disponible
-    if (isPrintRequest) {
-      console.log('[API] Petición de impresión detectada - permitiendo acceso sin restricciones');
-    } else if (!session?.user) {
+    // Para peticiones de impresión, permitir acceso sin sesión
+    if (!isPrintRequest && !session?.user) {
       return NextResponse.json({ 
         error: "No autorizado", 
         message: "Sesión no encontrada. Por favor, inicia sesión." 
       }, { status: 401 });
     }
 
-    // Primero verificar si el remito existe (sin JOINs para evitar problemas)
-    // NO filtrar por company_id en peticiones de impresión
-    let existsQuery = supabaseAdmin
-      .from('remitos')
-      .select('id, number, company_id')
-      .eq('number', remitoNumberInt);
-    
-    // Solo filtrar por company_id si NO es petición de impresión y hay sesión
-    if (!isPrintRequest && session?.user && session.user.role !== 'SUPERADMIN' && session.user.companyId) {
-      existsQuery = existsQuery.eq('company_id', session.user.companyId);
-      console.log('[API] Verificación inicial - filtrando por company_id:', session.user.companyId);
-    } else {
-      console.log('[API] Verificación inicial - NO filtrando por company_id (isPrintRequest:', isPrintRequest, ')');
-    }
-    
-    const { data: remitoExists, error: existsError } = await existsQuery.maybeSingle();
-    
-    console.log('[API] Verificación inicial de remito:', {
-      exists: !!remitoExists,
-      remitoId: remitoExists?.id,
-      remitoNumber: remitoExists?.number,
-      companyId: remitoExists?.company_id,
-      searchedNumber: remitoNumberInt,
-      errorCode: existsError?.code,
-      errorMessage: existsError?.message
-    });
-    
-    if (existsError && existsError.code !== 'PGRST116') {
-      console.error('[API] Error verificando existencia del remito:', existsError);
-      return NextResponse.json({ 
-        error: "Error al buscar remito",
-        message: existsError.message || "Ocurrió un error al buscar el remito."
-      }, { status: 500 });
-    }
-    
-    if (!remitoExists) {
-      // Intentar buscar sin filtro de company_id para ver si existe pero en otra empresa
-      const { data: remitoSinFiltro } = await supabaseAdmin
-        .from('remitos')
-        .select('id, number, company_id')
-        .eq('number', remitoNumberInt)
-        .maybeSingle();
-      
-      if (remitoSinFiltro) {
-        console.log('[API] Remito existe pero en otra empresa:', remitoSinFiltro.company_id);
-        return NextResponse.json({ 
-          error: "Remito no encontrado",
-          message: `El remito #${remitoNumberInt} existe pero no tienes acceso a él.`
-        }, { status: 404 });
-      }
-      
-      return NextResponse.json({ 
-        error: "Remito no encontrado",
-        message: `El remito #${remitoNumberInt} no existe en la base de datos.`
-      }, { status: 404 });
-    }
-
-    // Ahora obtener el remito completo con todas sus relaciones
-    let query = supabaseAdmin
+    // Obtener el remito directamente por número (sin filtros de company_id para impresión)
+    const { data: remito, error } = await supabaseAdmin
       .from('remitos')
       .select(`
         id,
@@ -147,36 +75,26 @@ export async function GET(
           line_total
         )
       `)
-      .eq('id', remitoExists.id);
-    
-    // Obtener el remito completo (ya verificamos que existe, ahora por ID para evitar problemas)
-    const { data: remito, error } = await query.single();
-    
-    console.log('[API] Query result:', {
-      found: !!remito,
-      error: error?.message || error?.code,
-      remitoId: remito?.id,
-      remitoCompanyId: remito?.company_id,
-      remitoNumber: remito?.number
-    });
+      .eq('number', remitoNumberInt)
+      .maybeSingle();
 
     if (error) {
-      console.error('[API] Error obteniendo remito completo:', error);
+      console.error('[API] Error obteniendo remito:', error);
       return NextResponse.json({ 
-        error: "Error al obtener remito",
-        message: error.message || "Ocurrió un error al obtener los datos del remito."
+        error: "Error al buscar remito",
+        message: error.message || "Ocurrió un error al buscar el remito."
       }, { status: 500 });
     }
 
     if (!remito) {
       return NextResponse.json({ 
         error: "Remito no encontrado",
-        message: "El remito especificado no existe."
+        message: `El remito #${remitoNumberInt} no existe.`
       }, { status: 404 });
     }
 
-    // Verificar permisos solo si hay sesión activa Y NO es una petición de impresión
-    if (session?.user && !isPrintRequest) {
+    // Verificar permisos solo si NO es petición de impresión y hay sesión
+    if (!isPrintRequest && session?.user) {
       if (session.user.role !== 'SUPERADMIN' && remito.company_id !== session.user.companyId) {
         return NextResponse.json({ 
           error: "No autorizado",
@@ -185,7 +103,7 @@ export async function GET(
       }
     }
 
-    // Usar datos reales de JOINs cuando estén disponibles
+    // Construir respuesta con datos completos
     const remitoWithStructures = {
       ...remito,
       clients: remito.clients || (remito.client_id ? {
