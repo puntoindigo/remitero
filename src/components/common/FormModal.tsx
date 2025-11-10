@@ -157,7 +157,7 @@ export function FormModal({
           borderRadius: modalClassName === 'perfil-modal' ? '0.75rem' : '8px',
           width: modalClassName === 'perfil-modal' ? '100%' : 'fit-content',
           minWidth: '300px',
-          maxWidth: modalClassName === 'perfil-modal' ? '500px' : '90vw',
+          maxWidth: modalClassName === 'perfil-modal' ? '700px' : '90vw',
           maxHeight: modalClassName === 'perfil-modal' ? '85vh' : '90vh',
           overflow: 'auto',
           boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
