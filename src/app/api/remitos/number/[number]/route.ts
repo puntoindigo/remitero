@@ -35,6 +35,8 @@ export async function GET(
       }, { status: 401 });
     }
 
+    console.log('[API] Buscando remito número:', remitoNumberInt, 'isPrintRequest:', isPrintRequest);
+    
     // Obtener el remito directamente por número (sin filtros de company_id para impresión)
     const { data: remito, error } = await supabaseAdmin
       .from('remitos')
@@ -78,8 +80,19 @@ export async function GET(
       .eq('number', remitoNumberInt)
       .maybeSingle();
 
+    console.log('[API] Resultado de consulta:', {
+      found: !!remito,
+      error: error?.message || error?.code,
+      remitoId: remito?.id,
+      hasClients: !!remito?.clients,
+      hasCompanies: !!remito?.companies,
+      hasEstados: !!remito?.estados_remitos,
+      itemsCount: remito?.remito_items?.length || 0
+    });
+
     if (error) {
       console.error('[API] Error obteniendo remito:', error);
+      console.error('[API] Error details:', JSON.stringify(error, null, 2));
       return NextResponse.json({ 
         error: "Error al buscar remito",
         message: error.message || "Ocurrió un error al buscar el remito."
@@ -87,6 +100,7 @@ export async function GET(
     }
 
     if (!remito) {
+      console.log('[API] Remito no encontrado con número:', remitoNumberInt);
       return NextResponse.json({ 
         error: "Remito no encontrado",
         message: `El remito #${remitoNumberInt} no existe.`
@@ -104,37 +118,48 @@ export async function GET(
     }
 
     // Construir respuesta con datos completos
-    const remitoWithStructures = {
-      ...remito,
-      clients: remito.clients || (remito.client_id ? {
-        id: remito.client_id,
-        name: '',
-        email: '',
-        phone: '',
-        address: ''
-      } : null),
-      companies: remito.companies || (remito.company_id ? {
-        id: remito.company_id,
-        name: ''
-      } : null),
-      users: remito.created_by_id ? {
-        id: remito.created_by_id,
-        name: '',
-        email: ''
-      } : null,
-      estados_remitos: remito.estados_remitos || (remito.status ? {
-        id: remito.status,
-        name: '',
-        color: '',
-        is_active: true
-      } : null),
-      remito_items: (remito.remito_items || []).map((item: any) => ({
-        ...item,
-        products: item.product_id ? { id: item.product_id, name: '' } : null
-      }))
-    };
+    try {
+      const remitoWithStructures = {
+        ...remito,
+        clients: remito.clients || (remito.client_id ? {
+          id: remito.client_id,
+          name: '',
+          email: '',
+          phone: '',
+          address: ''
+        } : null),
+        companies: remito.companies || (remito.company_id ? {
+          id: remito.company_id,
+          name: ''
+        } : null),
+        users: remito.created_by_id ? {
+          id: remito.created_by_id,
+          name: '',
+          email: ''
+        } : null,
+        estados_remitos: remito.estados_remitos || (remito.status ? {
+          id: remito.status,
+          name: '',
+          color: '',
+          is_active: true
+        } : null),
+        remito_items: (remito.remito_items || []).map((item: any) => ({
+          ...item,
+          products: item.product_id ? { id: item.product_id, name: '' } : null
+        }))
+      };
 
-    return NextResponse.json(transformRemito(remitoWithStructures));
+      const transformed = transformRemito(remitoWithStructures);
+      return NextResponse.json(transformed);
+    } catch (transformError: any) {
+      console.error('[API] Error transformando remito:', transformError);
+      console.error('[API] Stack:', transformError?.stack);
+      console.error('[API] Remito data:', JSON.stringify(remito, null, 2));
+      return NextResponse.json({ 
+        error: "Error procesando remito",
+        message: transformError?.message || "Ocurrió un error al procesar los datos del remito."
+      }, { status: 500 });
+    }
   } catch (error: any) {
     console.error('Error in remitos GET by number:', error);
     return NextResponse.json({ 
