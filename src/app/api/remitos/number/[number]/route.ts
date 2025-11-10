@@ -23,10 +23,24 @@ export async function GET(
     // Permitir acceso público para impresión (si la ruta incluye /print o tiene header X-Print-Request)
     const referer = request.headers.get('referer') || '';
     const printHeader = request.headers.get('x-print-request');
-    const isPrintRequest = referer.includes('/print') || request.url.includes('/print') || printHeader === 'true';
+    const userAgent = request.headers.get('user-agent') || '';
+    const isPrintRequest = referer.includes('/print') || 
+                          request.url.includes('/print') || 
+                          printHeader === 'true' ||
+                          userAgent.includes('print');
+    
+    console.log('[API] GET remito by number:', {
+      remitoNumber: remitoNumberInt,
+      hasSession: !!session?.user,
+      isPrintRequest,
+      referer,
+      printHeader,
+      url: request.url
+    });
     
     // Si no hay sesión pero es una petición de impresión, permitir acceso público
     if (!session?.user && isPrintRequest) {
+      console.log('[API] Permitiendo acceso público para impresión');
       // Continuar sin verificación de permisos para impresión pública
     } else if (!session?.user) {
       return NextResponse.json({ 
@@ -80,10 +94,20 @@ export async function GET(
     // Si hay sesión y no es SUPERADMIN, filtrar por company_id
     // PERO solo si NO es una petición de impresión (para permitir impresión en nueva pestaña)
     if (session?.user && session.user.role !== 'SUPERADMIN' && session.user.companyId && !isPrintRequest) {
+      console.log('[API] Filtrando por company_id:', session.user.companyId);
       query = query.eq('company_id', session.user.companyId);
+    } else if (isPrintRequest) {
+      console.log('[API] Petición de impresión - NO filtrando por company_id');
     }
     
     const { data: remito, error } = await query.single();
+    
+    console.log('[API] Query result:', {
+      found: !!remito,
+      error: error?.message || error?.code,
+      remitoId: remito?.id,
+      remitoCompanyId: remito?.company_id
+    });
 
     if (error || !remito) {
       return NextResponse.json({ 
