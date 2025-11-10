@@ -50,7 +50,36 @@ export async function GET(
       }, { status: 401 });
     }
 
-    // Obtener el remito por número con todas sus relaciones
+    // Primero verificar si el remito existe (sin JOINs para evitar problemas)
+    const { data: remitoExists, error: existsError } = await supabaseAdmin
+      .from('remitos')
+      .select('id, number, company_id')
+      .eq('number', remitoNumberInt)
+      .maybeSingle();
+    
+    console.log('[API] Verificación inicial de remito:', {
+      exists: !!remitoExists,
+      remitoId: remitoExists?.id,
+      remitoNumber: remitoExists?.number,
+      companyId: remitoExists?.company_id
+    });
+    
+    if (existsError && existsError.code !== 'PGRST116') {
+      console.error('[API] Error verificando existencia del remito:', existsError);
+      return NextResponse.json({ 
+        error: "Error al buscar remito",
+        message: existsError.message || "Ocurrió un error al buscar el remito."
+      }, { status: 500 });
+    }
+    
+    if (!remitoExists) {
+      return NextResponse.json({ 
+        error: "Remito no encontrado",
+        message: `El remito #${remitoNumberInt} no existe.`
+      }, { status: 404 });
+    }
+
+    // Ahora obtener el remito completo con todas sus relaciones
     let query = supabaseAdmin
       .from('remitos')
       .select(`
@@ -90,27 +119,28 @@ export async function GET(
           line_total
         )
       `)
-      .eq('number', remitoNumberInt);
+      .eq('id', remitoExists.id);
     
-    // Si hay sesión y no es SUPERADMIN, filtrar por company_id
-    // PERO NUNCA filtrar por company_id en peticiones de impresión (para permitir impresión en nueva pestaña)
-    if (session?.user && session.user.role !== 'SUPERADMIN' && session.user.companyId && !isPrintRequest) {
-      console.log('[API] Filtrando por company_id:', session.user.companyId);
-      query = query.eq('company_id', session.user.companyId);
-    } else {
-      console.log('[API] NO filtrando por company_id - isPrintRequest:', isPrintRequest, 'isSuperAdmin:', session?.user?.role === 'SUPERADMIN');
-    }
-    
+    // Obtener el remito completo (ya verificamos que existe, ahora por ID para evitar problemas)
     const { data: remito, error } = await query.single();
     
     console.log('[API] Query result:', {
       found: !!remito,
       error: error?.message || error?.code,
       remitoId: remito?.id,
-      remitoCompanyId: remito?.company_id
+      remitoCompanyId: remito?.company_id,
+      remitoNumber: remito?.number
     });
 
-    if (error || !remito) {
+    if (error) {
+      console.error('[API] Error obteniendo remito completo:', error);
+      return NextResponse.json({ 
+        error: "Error al obtener remito",
+        message: error.message || "Ocurrió un error al obtener los datos del remito."
+      }, { status: 500 });
+    }
+
+    if (!remito) {
       return NextResponse.json({ 
         error: "Remito no encontrado",
         message: "El remito especificado no existe."
