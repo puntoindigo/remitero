@@ -66,6 +66,8 @@ export async function getUserActivityLogs(
   offset: number = 0
 ): Promise<ActivityLog[]> {
   try {
+    console.log('🔍 [getUserActivityLogs] Fetching logs for user:', { userId, limit, offset });
+    
     const { data, error } = await supabaseAdmin
       .from('user_activity_logs')
       .select('*')
@@ -74,13 +76,31 @@ export async function getUserActivityLogs(
       .limit(limit)
       .offset(offset);
 
-    if (error || !data) {
+    if (error) {
+      console.error('❌ [getUserActivityLogs] Supabase error:', {
+        error: error.message,
+        code: error.code,
+        details: error.details,
+        hint: error.hint,
+        userId
+      });
       return [];
     }
 
+    if (!data) {
+      console.warn('⚠️ [getUserActivityLogs] No data returned for user:', userId);
+      return [];
+    }
+
+    console.log('✅ [getUserActivityLogs] Found logs:', { 
+      userId, 
+      count: data.length,
+      logs: data.map(l => ({ id: l.id, action: l.action, created_at: l.created_at }))
+    });
+
     return data as ActivityLog[];
   } catch (error) {
-    console.error('Error getting user activity logs:', error);
+    console.error('❌ [getUserActivityLogs] Exception:', error);
     return [];
   }
 }

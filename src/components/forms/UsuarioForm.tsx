@@ -496,8 +496,8 @@ export function UsuarioForm({
             autoComplete="new-password"
             className="form-input-standard"
             style={{
-              borderColor: passwordValue && confirmPasswordValue 
-                ? (passwordValue === confirmPasswordValue ? '#10b981' : '#ef4444')
+              borderColor: passwordValue && confirmPasswordValue && passwordValue !== confirmPasswordValue
+                ? '#ef4444'
                 : undefined
             }}
           />
@@ -515,11 +515,6 @@ export function UsuarioForm({
               }}
             >
               {confirmPasswordErrorMessage}
-            </p>
-          )}
-          {passwordValue && confirmPasswordValue && passwordValue === confirmPasswordValue && (
-            <p style={{ marginTop: '0.25rem', fontSize: '0.75rem', color: '#10b981' }}>
-              ✓ Las contraseñas coinciden
             </p>
           )}
         </div>

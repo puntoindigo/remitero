@@ -34,7 +34,15 @@ export async function GET(
     }
 
     const offset = page * limit;
+    console.log('📋 [Activity Logs API] Fetching logs:', { userId, page, limit, offset });
+    
     const logs = await getUserActivityLogs(userId, limit, offset);
+    
+    console.log('📋 [Activity Logs API] Returning logs:', { 
+      userId, 
+      logsCount: logs.length,
+      logs: logs.map(l => ({ id: l.id, action: l.action, created_at: l.created_at }))
+    });
 
     return NextResponse.json({ logs });
   } catch (error: any) {

@@ -26,7 +26,17 @@ export function UserActivityLogModal({
 
   useEffect(() => {
     if (isOpen && userId) {
+      // Resetear estado cuando se abre el modal
+      setLogs([]);
+      setPage(0);
+      setHasMore(true);
+      setLoading(true);
       fetchLogs(0);
+    } else if (!isOpen) {
+      // Limpiar logs cuando se cierra el modal
+      setLogs([]);
+      setPage(0);
+      setHasMore(true);
     }
   }, [isOpen, userId]);
 
@@ -34,17 +44,41 @@ export function UserActivityLogModal({
     setLoading(true);
     try {
       const response = await fetch(`/api/users/${userId}/activity-logs?page=${pageNum}&limit=${pageSize}`);
-      if (response.ok) {
-        const data = await response.json();
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        console.error('Error fetching activity logs:', {
+          status: response.status,
+          statusText: response.statusText,
+          error: errorData
+        });
+        // Si hay un error, establecer logs vacío para mostrar el mensaje de "No hay actividad"
         if (pageNum === 0) {
-          setLogs(data.logs || []);
-        } else {
-          setLogs(prev => [...prev, ...(data.logs || [])]);
+          setLogs([]);
         }
-        setHasMore((data.logs || []).length === pageSize);
+        return;
       }
+      
+      const data = await response.json();
+      console.log('Activity logs response:', { 
+        userId, 
+        pageNum, 
+        logsCount: data.logs?.length || 0,
+        logs: data.logs 
+      });
+      
+      if (pageNum === 0) {
+        setLogs(data.logs || []);
+      } else {
+        setLogs(prev => [...prev, ...(data.logs || [])]);
+      }
+      setHasMore((data.logs || []).length === pageSize);
     } catch (error) {
       console.error('Error fetching activity logs:', error);
+      // Si hay un error de red, establecer logs vacío
+      if (pageNum === 0) {
+        setLogs([]);
+      }
     } finally {
       setLoading(false);
     }
