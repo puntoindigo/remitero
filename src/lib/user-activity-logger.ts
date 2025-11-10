@@ -14,21 +14,54 @@ export async function logUserActivity(
   metadata?: ActivityLogMetadata
 ): Promise<void> {
   try {
-    const { error } = await supabaseAdmin
+    console.log('📝 [logUserActivity] Attempting to log activity:', {
+      userId,
+      userIdType: typeof userId,
+      userIdLength: userId?.length,
+      action,
+      description,
+      hasMetadata: !!metadata
+    });
+
+    const insertData = {
+      user_id: userId,
+      action,
+      description: description || null,
+      metadata: metadata || null,
+    };
+
+    console.log('📝 [logUserActivity] Insert data:', insertData);
+
+    const { data, error } = await supabaseAdmin
       .from('user_activity_logs')
-      .insert({
-        user_id: userId,
-        action,
-        description: description || null,
-        metadata: metadata || null,
-      });
+      .insert(insertData)
+      .select();
 
     if (error) {
-      console.error('Error logging user activity:', error);
+      console.error('❌ [logUserActivity] Error logging user activity:', {
+        error: error.message,
+        code: error.code,
+        details: error.details,
+        hint: error.hint,
+        userId,
+        action
+      });
       // No lanzar error para no interrumpir el flujo principal
+    } else {
+      console.log('✅ [logUserActivity] Activity logged successfully:', {
+        userId,
+        action,
+        insertedId: data?.[0]?.id,
+        insertedAt: data?.[0]?.created_at
+      });
     }
-  } catch (error) {
-    console.error('Error logging user activity:', error);
+  } catch (error: any) {
+    console.error('❌ [logUserActivity] Exception logging user activity:', {
+      error: error?.message,
+      stack: error?.stack,
+      userId,
+      action
+    });
     // No lanzar error para no interrumpir el flujo principal
   }
 }
@@ -109,6 +142,21 @@ export async function getUserActivityLogs(
       lastActivityAction: lastActivity?.action
     });
     
+    // Primero verificar si hay registros en la tabla
+    const { count: totalCount, error: countError } = await supabaseAdmin
+      .from('user_activity_logs')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', userId);
+
+    console.log('🔍 [getUserActivityLogs] Total count check:', {
+      userId,
+      totalCount,
+      countError: countError ? {
+        message: countError.message,
+        code: countError.code
+      } : null
+    });
+
     const { data, error } = await supabaseAdmin
       .from('user_activity_logs')
       .select('*')
@@ -123,7 +171,9 @@ export async function getUserActivityLogs(
         code: error.code,
         details: error.details,
         hint: error.hint,
-        userId
+        userId,
+        limit,
+        offset
       });
       return [];
     }
@@ -136,10 +186,14 @@ export async function getUserActivityLogs(
     console.log('✅ [getUserActivityLogs] Found logs:', { 
       userId, 
       count: data.length,
+      totalCount,
+      limit,
+      offset,
       logs: data.map(l => ({ 
         id: l.id, 
         user_id: l.user_id,
-        action: l.action, 
+        action: l.action,
+        description: l.description,
         created_at: l.created_at 
       }))
     });

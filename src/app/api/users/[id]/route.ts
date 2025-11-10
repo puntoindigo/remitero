@@ -316,6 +316,21 @@ export async function PUT(
       }, { status: 500 });
     }
 
+    // Registrar actividad
+    const isOwnProfile = session.user.id === userId;
+    if (isOwnProfile) {
+      // Si es su propio perfil, registrar como UPDATE_PROFILE
+      await logUserActivity(session.user.id, 'UPDATE_PROFILE', 'Actualizó su perfil', {
+        targetUserId: userId,
+        changedFields: Object.keys(updateData).filter(key => key !== 'password')
+      });
+    } else {
+      // Si es otro usuario, registrar como UPDATE_USER
+      await logUserActivity(session.user.id, 'UPDATE_USER', `Actualizó usuario ${updatedUser.name || updatedUser.email}`, {
+        targetUserId: userId
+      });
+    }
+
     // Agregar estructura mínima sin JOIN costoso
     const userWithCompany = {
       ...updatedUser,
