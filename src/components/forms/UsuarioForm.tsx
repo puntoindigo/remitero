@@ -301,7 +301,7 @@ export function UsuarioForm({
       modalClassName={isCurrentUser ? "perfil-modal" : ""}
     >
       <div className="form-row">
-        <div className="form-group">
+        <div className="form-group" style={isCurrentUser ? { flex: '1 1 50%', minWidth: '200px' } : {}}>
           <label className="form-label-large">
             Nombre *
             {errors?.name && (
@@ -318,7 +318,7 @@ export function UsuarioForm({
           />
         </div>
 
-        <div className="form-group">
+        <div className="form-group" style={isCurrentUser ? { flex: '1 1 50%', minWidth: '200px' } : {}}>
           <label className="form-label-large">
             Email *
             {errors?.email && (
@@ -367,7 +367,7 @@ export function UsuarioForm({
       </div>
 
       <div className="form-row">
-        <div className="form-group">
+        <div className="form-group" style={isCurrentUser ? { flex: '1 1 50%', minWidth: '200px' } : {}}>
           <label className="form-label-large">
             Teléfono
             {errors?.phone && (
@@ -384,7 +384,7 @@ export function UsuarioForm({
           />
         </div>
 
-        <div className="form-group">
+        <div className="form-group" style={isCurrentUser ? { flex: '1 1 50%', minWidth: '200px' } : {}}>
           <label className="form-label-large">
             Dirección
             {errors?.address && (
