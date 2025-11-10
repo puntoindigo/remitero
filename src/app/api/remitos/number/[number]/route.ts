@@ -51,17 +51,30 @@ export async function GET(
     }
 
     // Primero verificar si el remito existe (sin JOINs para evitar problemas)
-    const { data: remitoExists, error: existsError } = await supabaseAdmin
+    // NO filtrar por company_id en peticiones de impresión
+    let existsQuery = supabaseAdmin
       .from('remitos')
       .select('id, number, company_id')
-      .eq('number', remitoNumberInt)
-      .maybeSingle();
+      .eq('number', remitoNumberInt);
+    
+    // Solo filtrar por company_id si NO es petición de impresión y hay sesión
+    if (!isPrintRequest && session?.user && session.user.role !== 'SUPERADMIN' && session.user.companyId) {
+      existsQuery = existsQuery.eq('company_id', session.user.companyId);
+      console.log('[API] Verificación inicial - filtrando por company_id:', session.user.companyId);
+    } else {
+      console.log('[API] Verificación inicial - NO filtrando por company_id (isPrintRequest:', isPrintRequest, ')');
+    }
+    
+    const { data: remitoExists, error: existsError } = await existsQuery.maybeSingle();
     
     console.log('[API] Verificación inicial de remito:', {
       exists: !!remitoExists,
       remitoId: remitoExists?.id,
       remitoNumber: remitoExists?.number,
-      companyId: remitoExists?.company_id
+      companyId: remitoExists?.company_id,
+      searchedNumber: remitoNumberInt,
+      errorCode: existsError?.code,
+      errorMessage: existsError?.message
     });
     
     if (existsError && existsError.code !== 'PGRST116') {
@@ -73,9 +86,24 @@ export async function GET(
     }
     
     if (!remitoExists) {
+      // Intentar buscar sin filtro de company_id para ver si existe pero en otra empresa
+      const { data: remitoSinFiltro } = await supabaseAdmin
+        .from('remitos')
+        .select('id, number, company_id')
+        .eq('number', remitoNumberInt)
+        .maybeSingle();
+      
+      if (remitoSinFiltro) {
+        console.log('[API] Remito existe pero en otra empresa:', remitoSinFiltro.company_id);
+        return NextResponse.json({ 
+          error: "Remito no encontrado",
+          message: `El remito #${remitoNumberInt} existe pero no tienes acceso a él.`
+        }, { status: 404 });
+      }
+      
       return NextResponse.json({ 
         error: "Remito no encontrado",
-        message: `El remito #${remitoNumberInt} no existe.`
+        message: `El remito #${remitoNumberInt} no existe en la base de datos.`
       }, { status: 404 });
     }
 
