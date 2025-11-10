@@ -28,8 +28,16 @@ export async function GET(
     } else if (session.user.role === 'ADMIN') {
       // ADMIN solo puede ver usuarios de su propia empresa
       // Verificaremos esto después de obtener el usuario
+    } else if (session.user.role === 'USER') {
+      // USER solo puede ver su propio perfil
+      if (userId !== session.user.id) {
+        return NextResponse.json({ 
+          error: "No autorizado", 
+          message: "No tienes permisos para ver otros usuarios." 
+        }, { status: 403 });
+      }
     } else {
-      // USER no puede ver otros usuarios
+      // Rol desconocido
       return NextResponse.json({ 
         error: "No autorizado", 
         message: "No tienes permisos para ver usuarios." 

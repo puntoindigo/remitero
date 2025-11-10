@@ -34,11 +34,11 @@ async function fetchUsuarios(companyId?: string): Promise<Usuario[]> {
   return response.json();
 }
 
-export function useUsuariosQuery(companyId: string | undefined) {
+export function useUsuariosQuery(companyId: string | undefined, enabled: boolean = true) {
   return useQuery({
     queryKey: usuarioKeys.list(companyId),
     queryFn: () => fetchUsuarios(companyId),
-    enabled: true, // Siempre habilitado - la API maneja el filtrado por companyId
+    enabled: enabled, // Solo ejecutar si está habilitado
     staleTime: 2 * 60 * 1000,
   });
 }

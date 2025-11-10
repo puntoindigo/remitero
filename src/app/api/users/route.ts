@@ -21,8 +21,14 @@ export async function GET(request: NextRequest) {
 
     // Obtener companyId de los query parameters
     const { searchParams } = new URL(request.url);
-    const companyId = searchParams.get('companyId');
+    let companyId = searchParams.get('companyId');
     const countToday = searchParams.get('countToday') === 'true';
+    
+    // Si el usuario no es SUPERADMIN y no se pasó companyId, usar el de la sesión
+    // Los usuarios no SUPERADMIN ya están vinculados a una empresa
+    if (session.user.role !== 'SUPERADMIN' && !companyId && session.user.companyId) {
+      companyId = session.user.companyId;
+    }
 
     // Incluir JOIN con companies para obtener el nombre de la empresa
     let query = supabaseAdmin

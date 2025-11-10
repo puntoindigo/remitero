@@ -4,7 +4,7 @@ import puppeteer from 'puppeteer';
 export async function GET(req: NextRequest, ctx: { params: Promise<{ number: string }> }) {
   const { number } = await ctx.params;
   const origin = process.env.NEXT_PUBLIC_BASE_URL?.replace(/\/$/, '') || 'http://localhost:8000';
-  const url = `${origin}/remitos/${number}/print?pdf=1`;
+  const url = `${origin}/remitos/number/${number}/print?pdf=1`;
 
   let browser;
   try {

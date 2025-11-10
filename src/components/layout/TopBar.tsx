@@ -26,9 +26,30 @@ export default function TopBar() {
   const { colors } = useColorTheme();
   const topbarRef = useRef<HTMLDivElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
-  const { data: usuarios, refetch: refetchUsuarios } = useUsuariosQuery(session?.user?.companyId);
+  // Solo cargar usuarios si el usuario tiene permisos (ADMIN o SUPERADMIN)
+  // Para usuarios con rol USER, usar el endpoint individual
+  const canViewUsers = currentUser?.role === 'ADMIN' || currentUser?.role === 'SUPERADMIN';
+  const { data: usuarios, refetch: refetchUsuarios } = useUsuariosQuery(
+    canViewUsers ? session?.user?.companyId : undefined,
+    canViewUsers // Solo ejecutar si tiene permisos
+  );
   
-  const profileUser = usuarios?.find(u => u.id === session?.user?.id);
+  // Para usuarios USER, obtener su perfil individualmente
+  const [profileUser, setProfileUser] = useState<any>(null);
+  
+  useEffect(() => {
+    if (canViewUsers) {
+      // Si tiene permisos, buscar en la lista de usuarios
+      const user = usuarios?.find(u => u.id === session?.user?.id);
+      setProfileUser(user);
+    } else if (session?.user?.id) {
+      // Si es USER, obtener su perfil individualmente
+      fetch(`/api/users/${session.user.id}`)
+        .then(res => res.ok ? res.json() : null)
+        .then(data => setProfileUser(data))
+        .catch(() => setProfileUser(null));
+    }
+  }, [canViewUsers, usuarios, session?.user?.id]);
 
   // Aplicar tema al topbar con color más oscuro que el header
   useEffect(() => {
@@ -81,7 +102,16 @@ export default function TopBar() {
       }
 
       // Refrescar los datos del usuario
-      await refetchUsuarios();
+      if (canViewUsers) {
+        await refetchUsuarios();
+      } else {
+        // Si es USER, recargar su perfil individualmente
+        const res = await fetch(`/api/users/${session.user.id}`);
+        if (res.ok) {
+          const data = await res.json();
+          setProfileUser(data);
+        }
+      }
       
       // Cerrar el modal después de un breve delay
       setTimeout(() => {
