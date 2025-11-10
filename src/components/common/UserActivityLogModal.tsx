@@ -41,16 +41,60 @@ export function UserActivityLogModal({
   }, [isOpen, userId]);
 
   const fetchLogs = async (pageNum: number) => {
+    if (!userId) {
+      console.error('❌ [UserActivityLogModal] No userId provided');
+      setLoading(false);
+      return;
+    }
+    
+    // Validar formato UUID
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    const trimmedUserId = userId.trim();
+    if (!uuidRegex.test(trimmedUserId)) {
+      console.error('❌ [UserActivityLogModal] Invalid userId format:', {
+        userId,
+        trimmedUserId,
+        userIdType: typeof userId,
+        userIdLength: userId.length
+      });
+      setLoading(false);
+      if (pageNum === 0) {
+        setLogs([]);
+      }
+      return;
+    }
+    
     setLoading(true);
+    console.log('🔍 [UserActivityLogModal] Fetching logs:', { 
+      userId, 
+      trimmedUserId,
+      userIdType: typeof userId,
+      userIdLength: userId.length,
+      pageNum, 
+      pageSize 
+    });
+    
     try {
-      const response = await fetch(`/api/users/${userId}/activity-logs?page=${pageNum}&limit=${pageSize}`);
+      const url = `/api/users/${trimmedUserId}/activity-logs?page=${pageNum}&limit=${pageSize}`;
+      console.log('🔍 [UserActivityLogModal] Fetch URL:', url);
+      
+      const response = await fetch(url);
+      
+      console.log('🔍 [UserActivityLogModal] Response status:', response.status, response.statusText);
+      console.log('🔍 [UserActivityLogModal] Response headers:', {
+        contentType: response.headers.get('content-type'),
+        contentLength: response.headers.get('content-length')
+      });
       
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        console.error('Error fetching activity logs:', {
+        console.error('❌ [UserActivityLogModal] Error response:', {
           status: response.status,
           statusText: response.statusText,
-          error: errorData
+          error: errorData,
+          userId,
+          trimmedUserId,
+          url
         });
         // Si hay un error, establecer logs vacío para mostrar el mensaje de "No hay actividad"
         if (pageNum === 0) {
@@ -60,21 +104,32 @@ export function UserActivityLogModal({
       }
       
       const data = await response.json();
-      console.log('Activity logs response:', { 
+      console.log('✅ [UserActivityLogModal] Activity logs response:', { 
         userId, 
+        trimmedUserId,
         pageNum, 
+        hasLogs: !!data.logs,
         logsCount: data.logs?.length || 0,
-        logs: data.logs 
+        logsType: Array.isArray(data.logs) ? 'array' : typeof data.logs,
+        logs: data.logs?.slice(0, 3).map((l: any) => ({ 
+          id: l.id, 
+          user_id: l.user_id,
+          action: l.action, 
+          created_at: l.created_at 
+        })) || []
       });
       
+      // Asegurarse de que data.logs sea un array
+      const logsArray = Array.isArray(data.logs) ? data.logs : [];
+      
       if (pageNum === 0) {
-        setLogs(data.logs || []);
+        setLogs(logsArray);
       } else {
-        setLogs(prev => [...prev, ...(data.logs || [])]);
+        setLogs(prev => [...prev, ...logsArray]);
       }
-      setHasMore((data.logs || []).length === pageSize);
+      setHasMore(logsArray.length === pageSize);
     } catch (error) {
-      console.error('Error fetching activity logs:', error);
+      console.error('❌ [UserActivityLogModal] Exception fetching logs:', error);
       // Si hay un error de red, establecer logs vacío
       if (pageNum === 0) {
         setLogs([]);

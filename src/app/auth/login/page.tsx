@@ -120,7 +120,8 @@ function LoginPageContent() {
       const result = await signIn("credentials", {
         email: data?.email,
         password: data.password,
-        redirect: false
+        redirect: false,
+        callbackUrl: "/dashboard" // Especificar callbackUrl explícitamente como ruta relativa
       })
 
       if (result?.error) {
@@ -167,13 +168,25 @@ function LoginPageContent() {
           localStorage.removeItem("rememberMe")
         }
 
-        const session = await getSession()
+        // Obtener sesión después del login exitoso
+        let session;
+        try {
+          session = await getSession();
+        } catch (sessionError) {
+          console.error("Error obteniendo sesión:", sessionError);
+          // Si falla obtener la sesión, intentar navegar de todas formas
+          session = null;
+        }
         
         // OPTIMIZACIÓN: Prefetch la ruta de destino antes de navegar
         const destination = session?.user?.role === "SUPERADMIN" ? "/empresas" : "/dashboard";
         
         // Prefetch inmediato para que la navegación sea instantánea
-        router.prefetch(destination);
+        try {
+          router.prefetch(destination);
+        } catch (prefetchError) {
+          console.warn("Error en prefetch:", prefetchError);
+        }
         
         // También prefetch otras rutas críticas en background
         const criticalRoutes = session?.user?.role === "SUPERADMIN"
@@ -181,17 +194,51 @@ function LoginPageContent() {
           : ["/remitos", "/productos", "/clientes"];
         
         criticalRoutes.forEach(route => {
-          setTimeout(() => router.prefetch(route), 0);
+          setTimeout(() => {
+            try {
+              router.prefetch(route);
+            } catch (e) {
+              // Ignorar errores de prefetch en background
+            }
+          }, 0);
         });
         
-        // Navegar después de un pequeño delay para permitir que el prefetch se inicie
-        setTimeout(() => {
-          router.push(destination);
-        }, 50);
+        // Navegar usando router.push con manejo de errores
+        try {
+          // Usar window.location como fallback si router.push falla
+          setTimeout(() => {
+            try {
+              router.push(destination);
+            } catch (routerError) {
+              console.error("Error en router.push:", routerError);
+              // Fallback: usar window.location
+              window.location.href = destination;
+            }
+          }, 50);
+        } catch (navError) {
+          console.error("Error navegando:", navError);
+          // Fallback: usar window.location
+          window.location.href = destination;
+        }
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Login error:", error)
-      setError("Error de conexión. Verifica tu conexión a internet.")
+      // Manejar específicamente el error de URL inválida
+      if (error?.message?.includes("Failed to construct 'URL'") || error?.message?.includes("Invalid URL")) {
+        console.error("Error de URL inválida detectado, intentando redirección manual");
+        // Si hay un error de URL, intentar navegar manualmente
+        try {
+          const session = await getSession();
+          const destination = session?.user?.role === "SUPERADMIN" ? "/empresas" : "/dashboard";
+          window.location.href = destination;
+          return; // Salir temprano ya que estamos redirigiendo
+        } catch (fallbackError) {
+          console.error("Error en fallback de navegación:", fallbackError);
+          setError("Error de conexión. Verifica tu conexión a internet.");
+        }
+      } else {
+        setError("Error de conexión. Verifica tu conexión a internet.")
+      }
     } finally {
       setIsLoading(false)
     }

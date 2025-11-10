@@ -38,6 +38,8 @@ export async function logUserActivity(
  */
 export async function getLastUserActivity(userId: string): Promise<ActivityLog | null> {
   try {
+    console.log('🔍 [getLastUserActivity] Fetching last activity for user:', { userId });
+    
     const { data, error } = await supabaseAdmin
       .from('user_activity_logs')
       .select('*')
@@ -46,13 +48,37 @@ export async function getLastUserActivity(userId: string): Promise<ActivityLog |
       .limit(1)
       .single();
 
-    if (error || !data) {
+    if (error) {
+      // Si el error es porque no hay registros (PGRST116), es normal
+      if (error.code === 'PGRST116') {
+        console.log('ℹ️ [getLastUserActivity] No activity found for user:', userId);
+        return null;
+      }
+      console.error('❌ [getLastUserActivity] Supabase error:', {
+        error: error.message,
+        code: error.code,
+        details: error.details,
+        hint: error.hint,
+        userId
+      });
       return null;
     }
 
+    if (!data) {
+      console.log('ℹ️ [getLastUserActivity] No data returned for user:', userId);
+      return null;
+    }
+
+    console.log('✅ [getLastUserActivity] Found last activity:', { 
+      userId, 
+      activityId: data.id,
+      action: data.action,
+      created_at: data.created_at
+    });
+
     return data as ActivityLog;
   } catch (error) {
-    console.error('Error getting last user activity:', error);
+    console.error('❌ [getLastUserActivity] Exception:', error);
     return null;
   }
 }
@@ -66,7 +92,22 @@ export async function getUserActivityLogs(
   offset: number = 0
 ): Promise<ActivityLog[]> {
   try {
-    console.log('🔍 [getUserActivityLogs] Fetching logs for user:', { userId, limit, offset });
+    console.log('🔍 [getUserActivityLogs] Fetching logs for user:', { 
+      userId, 
+      userIdType: typeof userId,
+      userIdLength: userId?.length,
+      limit, 
+      offset 
+    });
+    
+    // Verificar también con getLastUserActivity para comparar
+    const lastActivity = await getLastUserActivity(userId);
+    console.log('🔍 [getUserActivityLogs] Last activity check:', {
+      userId,
+      hasLastActivity: !!lastActivity,
+      lastActivityId: lastActivity?.id,
+      lastActivityAction: lastActivity?.action
+    });
     
     const { data, error } = await supabaseAdmin
       .from('user_activity_logs')
@@ -95,7 +136,12 @@ export async function getUserActivityLogs(
     console.log('✅ [getUserActivityLogs] Found logs:', { 
       userId, 
       count: data.length,
-      logs: data.map(l => ({ id: l.id, action: l.action, created_at: l.created_at }))
+      logs: data.map(l => ({ 
+        id: l.id, 
+        user_id: l.user_id,
+        action: l.action, 
+        created_at: l.created_at 
+      }))
     });
 
     return data as ActivityLog[];
