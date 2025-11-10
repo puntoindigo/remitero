@@ -260,6 +260,11 @@ export async function POST(request: NextRequest) {
       // Forzar el uso de la empresa del ADMIN, ignorar cualquier companyId proporcionado
       finalCompanyId = session.user.companyId;
     }
+    
+    // Convertir cadena vacía a null para evitar error de UUID
+    if (finalCompanyId === '' || finalCompanyId === null) {
+      finalCompanyId = null;
+    }
 
     const { data: newUser, error } = await supabaseAdmin
       .from('users')

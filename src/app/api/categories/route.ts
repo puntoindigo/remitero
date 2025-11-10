@@ -148,8 +148,13 @@ export async function POST(request: NextRequest) {
 
     // Determinar companyId
     let finalCompanyId = companyId;
-    if (session.user.role !== 'SUPERADMIN' && !companyId) {
+    if (session.user.role !== 'SUPERADMIN' && (!companyId || companyId === '')) {
       finalCompanyId = session.user.companyId;
+    }
+    
+    // Convertir cadena vacía a null para evitar error de UUID
+    if (finalCompanyId === '' || finalCompanyId === null) {
+      finalCompanyId = null;
     }
 
     // Validar que tenemos un companyId válido

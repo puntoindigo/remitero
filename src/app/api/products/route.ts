@@ -168,7 +168,10 @@ export async function POST(request: NextRequest) {
     
     console.log('Creating product with:', { name, description, price, stock, categoryId, companyId });
 
-    if (!name || !companyId) {
+    // Convertir cadena vacía a null para evitar error de UUID
+    const finalCompanyId = (companyId === '' || companyId === null) ? null : companyId;
+
+    if (!name || !finalCompanyId) {
       return NextResponse.json({ 
         error: "Datos faltantes", 
         message: "El nombre del producto y companyId son requeridos." 
@@ -180,7 +183,7 @@ export async function POST(request: NextRequest) {
       .from('products')
       .select('id')
       .eq('name', name)
-      .eq('company_id', companyId)
+      .eq('company_id', finalCompanyId)
       .single();
 
     if (existingProduct) {
@@ -198,7 +201,7 @@ export async function POST(request: NextRequest) {
         price: price || 0,
         stock: stock || 'OUT_OF_STOCK',
         category_id: categoryId || null,
-        company_id: companyId
+        company_id: finalCompanyId
       }])
       .select(`
         id,

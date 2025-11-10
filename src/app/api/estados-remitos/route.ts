@@ -117,6 +117,11 @@ export async function POST(request: NextRequest) {
     // Determinar companyId
     let companyId = bodyCompanyId || session.user.companyId;
     
+    // Convertir cadena vacía a null para evitar error de UUID
+    if (companyId === '' || companyId === null) {
+      companyId = null;
+    }
+    
     console.log('🔵 [API POST] CompanyId determinado:', companyId);
     
     // Verificar que se pueda determinar la empresa
