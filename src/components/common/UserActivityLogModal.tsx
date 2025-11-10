@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { X, Clock, Activity } from "lucide-react";
+import { X, Activity } from "lucide-react";
 import { getActionDescription, type ActivityLog } from "@/lib/user-activity-types";
 
 interface UserActivityLogModalProps {
@@ -256,7 +256,7 @@ export function UserActivityLogModal({
           </button>
         </div>
 
-        <div style={{ padding: '1.5rem' }}>
+        <div style={{ padding: '0.75rem' }}>
           {loading && logs.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '2rem', color: '#6b7280' }}>
               Cargando actividad...
@@ -268,41 +268,74 @@ export function UserActivityLogModal({
               <p style={{ fontSize: '0.75rem', color: '#9ca3af', marginTop: '0.5rem' }}>
                 Las actividades se registran cuando realizas acciones como login, crear remitos, actualizar perfil, etc.
               </p>
-              <p style={{ fontSize: '0.75rem', color: '#9ca3af', marginTop: '0.25rem' }}>
-                Revisa los logs del servidor para ver si se están registrando actividades.
-              </p>
             </div>
           ) : (
             <>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              {/* Encabezado de tabla */}
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: '180px 1fr',
+                gap: '0.5rem',
+                padding: '0.5rem 0.75rem',
+                borderBottom: '2px solid #e5e7eb',
+                backgroundColor: '#f9fafb',
+                fontSize: '0.75rem',
+                fontWeight: 600,
+                color: '#6b7280',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em'
+              }}>
+                <div>Fecha y Hora</div>
+                <div>Actividad</div>
+              </div>
+              
+              {/* Cuerpo de tabla */}
+              <div style={{ maxHeight: 'calc(90vh - 200px)', overflowY: 'auto' }}>
                 {logs.map((log, index) => (
                   <div
                     key={log.id}
                     style={{
-                      display: 'flex',
-                      gap: '1rem',
-                      padding: '0.75rem',
-                      backgroundColor: index % 2 === 0 ? '#f9fafb' : 'white',
-                      borderRadius: '6px',
-                      border: '1px solid #e5e7eb'
+                      display: 'grid',
+                      gridTemplateColumns: '180px 1fr',
+                      gap: '0.5rem',
+                      padding: '0.5rem 0.75rem',
+                      backgroundColor: index % 2 === 0 ? 'white' : '#f9fafb',
+                      borderBottom: '1px solid #f3f4f6',
+                      fontSize: '0.875rem',
+                      transition: 'background-color 0.15s ease'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = '#f3f4f6';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = index % 2 === 0 ? 'white' : '#f9fafb';
                     }}
                   >
-                    <div style={{ flexShrink: 0 }}>
-                      <Clock className="h-4 w-4" style={{ color: '#6b7280', marginTop: '0.25rem' }} />
+                    <div style={{ 
+                      color: '#6b7280',
+                      fontSize: '0.8125rem',
+                      fontFamily: 'monospace',
+                      whiteSpace: 'nowrap'
+                    }}>
+                      {formatDate(log.created_at)}
                     </div>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: '0.875rem', fontWeight: 500, color: '#111827', marginBottom: '0.25rem' }}>
-                        {log.description || getActionDescription(log.action, log.metadata as any)}
-                      </div>
-                      <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>
-                        {formatDate(log.created_at)}
-                      </div>
+                    <div style={{ 
+                      color: '#111827',
+                      fontWeight: 400
+                    }}>
+                      {log.description || getActionDescription(log.action, log.metadata as any)}
                     </div>
                   </div>
                 ))}
               </div>
+              
               {hasMore && (
-                <div style={{ marginTop: '1rem', textAlign: 'center' }}>
+                <div style={{ 
+                  marginTop: '0.75rem', 
+                  paddingTop: '0.75rem',
+                  borderTop: '1px solid #e5e7eb',
+                  textAlign: 'center' 
+                }}>
                   <button
                     onClick={loadMore}
                     disabled={loading}
