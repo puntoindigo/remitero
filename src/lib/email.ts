@@ -53,21 +53,42 @@ const createTransporter = async () => {
         accessToken = accessTokenResponse.token;
       } catch (tokenError: any) {
         const errorData = tokenError.response?.data || {};
-        const isInvalidGrant = tokenError.message?.includes('invalid_grant') || 
-                              errorData.error === 'invalid_grant' ||
+        const errorMessage = tokenError.message || '';
+        const errorCode = errorData.error || '';
+        
+        // Detectar diferentes tipos de errores que requieren fallback
+        const isInvalidGrant = errorMessage.includes('invalid_grant') || 
+                              errorCode === 'invalid_grant' ||
                               tokenError.code === 400;
         
-        if (isInvalidGrant) {
-          console.warn('⚠️ [Email] Refresh token inválido/expirado. Haciendo fallback a contraseña de aplicación...');
+        const isDeletedClient = errorMessage.includes('deleted_client') ||
+                               errorCode === 'deleted_client' ||
+                               errorMessage.includes('OAuth client was deleted') ||
+                               errorMessage.includes('404');
+        
+        const isClientError = errorCode === 'invalid_client' ||
+                             errorMessage.includes('invalid_client');
+        
+        if (isInvalidGrant || isDeletedClient || isClientError) {
+          if (isDeletedClient) {
+            console.warn('⚠️ [Email] Cliente OAuth eliminado. Haciendo fallback automático a contraseña de aplicación...');
+          } else if (isInvalidGrant) {
+            console.warn('⚠️ [Email] Refresh token inválido/expirado. Haciendo fallback a contraseña de aplicación...');
+          } else {
+            console.warn('⚠️ [Email] Cliente OAuth inválido. Haciendo fallback a contraseña de aplicación...');
+          }
           oauth2Failed = true;
           // NO lanzar error, continuar con fallback
         } else {
           console.error('❌ [Email] Error al obtener access token:', {
             message: tokenError.message,
             code: tokenError.code,
+            errorCode: errorCode,
             response: tokenError.response
           });
-          throw new Error(`Error al obtener access token: ${tokenError.message}. Verifica que el refresh token sea válido.`);
+          // Para otros errores, también hacer fallback en lugar de fallar completamente
+          console.warn('⚠️ [Email] Error inesperado en OAuth2. Haciendo fallback a contraseña de aplicación...');
+          oauth2Failed = true;
         }
       }
 
@@ -98,17 +119,40 @@ const createTransporter = async () => {
       }
     } catch (error: any) {
       const errorData = error.response?.data || {};
-      const isInvalidGrant = error.message?.includes('invalid_grant') || 
-                            errorData.error === 'invalid_grant' ||
+      const errorMessage = error.message || '';
+      const errorCode = errorData.error || '';
+      
+      // Detectar diferentes tipos de errores que requieren fallback
+      const isInvalidGrant = errorMessage.includes('invalid_grant') || 
+                            errorCode === 'invalid_grant' ||
                             error.code === 400;
       
-      if (isInvalidGrant) {
-        console.warn('⚠️ [Email] OAuth2 falló con invalid_grant. Haciendo fallback a contraseña de aplicación...');
+      const isDeletedClient = errorMessage.includes('deleted_client') ||
+                             errorCode === 'deleted_client' ||
+                             errorMessage.includes('OAuth client was deleted') ||
+                             errorMessage.includes('404');
+      
+      const isClientError = errorCode === 'invalid_client' ||
+                           errorMessage.includes('invalid_client');
+      
+      if (isInvalidGrant || isDeletedClient || isClientError) {
+        if (isDeletedClient) {
+          console.warn('⚠️ [Email] Cliente OAuth eliminado. Haciendo fallback automático a contraseña de aplicación...');
+        } else if (isInvalidGrant) {
+          console.warn('⚠️ [Email] OAuth2 falló con invalid_grant. Haciendo fallback a contraseña de aplicación...');
+        } else {
+          console.warn('⚠️ [Email] Cliente OAuth inválido. Haciendo fallback a contraseña de aplicación...');
+        }
         oauth2Failed = true;
         // NO lanzar error, continuar con fallback
       } else {
-        console.error('❌ [Email] OAuth2 falló con error no recuperable:', error.message);
-        throw error; // Lanzar error si no es invalid_grant
+        // Para cualquier otro error, también hacer fallback en lugar de fallar
+        console.warn('⚠️ [Email] OAuth2 falló con error inesperado. Haciendo fallback a contraseña de aplicación...', {
+          message: errorMessage,
+          code: error.code,
+          errorCode: errorCode
+        });
+        oauth2Failed = true;
       }
     }
   } else {
