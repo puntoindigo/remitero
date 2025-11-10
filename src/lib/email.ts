@@ -383,9 +383,14 @@ export async function sendInvitationEmail({
                 <li>O usar tu email y contraseña si se te asignó una</li>
               </ul>
               
-              <div style="text-align: left;">
-                <a href="${loginUrl}" class="button" style="color: #ffffff !important;">Acceder al Sistema</a>
+              <div style="text-align: left; margin: 20px 0;">
+                <a href="${loginUrl}" style="display: inline-block; background-color: #2563eb; color: #ffffff !important; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: 600; margin: 20px 0;">Acceder al Sistema</a>
               </div>
+              
+              <p style="margin-top: 15px; font-size: 14px; color: #6b7280;">
+                O copia y pega este enlace en tu navegador:<br>
+                <a href="${loginUrl}" style="color: #2563eb; word-break: break-all; text-decoration: underline;">${loginUrl}</a>
+              </p>
               
               <p style="margin-top: 30px;">
                 Si tienes alguna pregunta o necesitas ayuda, no dudes en contactar al administrador del sistema.
