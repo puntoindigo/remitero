@@ -192,13 +192,38 @@ export async function getUserActivityLogs(
       offset
     });
 
-    const { data, error } = await supabaseAdmin
+    // Hacer la consulta directamente sin offset primero para verificar
+    console.log('🔍 [getUserActivityLogs] Executing query:', {
+      table: 'user_activity_logs',
+      filter: `user_id = '${cleanUserId}'`,
+      orderBy: 'created_at DESC',
+      limit,
+      offset
+    });
+
+    const query = supabaseAdmin
       .from('user_activity_logs')
       .select('*')
       .eq('user_id', cleanUserId)
       .order('created_at', { ascending: false })
       .limit(limit)
       .offset(offset);
+
+    console.log('🔍 [getUserActivityLogs] Query built, executing...');
+    const { data, error } = await query;
+    console.log('🔍 [getUserActivityLogs] Query executed:', {
+      hasData: !!data,
+      dataType: typeof data,
+      isArray: Array.isArray(data),
+      dataLength: Array.isArray(data) ? data.length : 'N/A',
+      hasError: !!error,
+      error: error ? {
+        message: error.message,
+        code: error.code,
+        details: error.details,
+        hint: error.hint
+      } : null
+    });
 
     if (error) {
       console.error('❌ [getUserActivityLogs] Supabase error:', {
@@ -209,13 +234,18 @@ export async function getUserActivityLogs(
         userId: cleanUserId,
         limit,
         offset,
-        fullError: error
+        fullError: JSON.stringify(error, null, 2)
       });
       return [];
     }
 
     if (!data) {
-      console.warn('⚠️ [getUserActivityLogs] No data returned for user:', cleanUserId);
+      console.warn('⚠️ [getUserActivityLogs] No data returned for user:', {
+        cleanUserId,
+        totalCount,
+        limit,
+        offset
+      });
       return [];
     }
 
