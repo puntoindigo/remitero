@@ -394,7 +394,7 @@ function UsuariosContent() {
     }] : []),
     {
       key: 'lastActivity',
-      label: 'Último estado',
+      label: 'Última actividad',
       render: (usuario: Usuario) => {
         if (usuario.lastActivity) {
           const date = new Date(usuario.lastActivity.createdAt);
