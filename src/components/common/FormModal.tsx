@@ -154,17 +154,33 @@ export function FormModal({
           position: 'relative',
           zIndex: 10001,
           backgroundColor: 'white',
-          borderRadius: '8px',
-          width: 'fit-content',
+          borderRadius: modalClassName === 'perfil-modal' ? '0.75rem' : '8px',
+          width: modalClassName === 'perfil-modal' ? '100%' : 'fit-content',
           minWidth: '300px',
-          maxWidth: '90vw',
-          maxHeight: '90vh',
+          maxWidth: modalClassName === 'perfil-modal' ? '500px' : '90vw',
+          maxHeight: modalClassName === 'perfil-modal' ? '85vh' : '90vh',
           overflow: 'auto',
           boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
         }}
       >
-        <div className="modal-header">
-          <h3>{title}</h3>
+        <div 
+          className="modal-header"
+          style={modalClassName === 'perfil-modal' ? {
+            padding: '1rem 1.25rem',
+            borderBottom: '1px solid #e5e7eb',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          } : {}}
+        >
+          <div>
+            <h3 style={modalClassName === 'perfil-modal' ? {
+              fontSize: '1.125rem',
+              fontWeight: 600,
+              color: '#1f2937',
+              margin: 0
+            } : {}}>{title}</h3>
+          </div>
           <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
             {/* Botón para anclar/desanclar modal - Solo si está habilitado */}
             {pinnedModalsEnabled && modalId && modalComponent && (
@@ -222,13 +238,30 @@ export function FormModal({
               onClick={onClose}
               className="modal-close"
               aria-label="Cerrar"
+              style={modalClassName === 'perfil-modal' ? {
+                background: 'transparent',
+                border: 'none',
+                cursor: 'pointer',
+                padding: '0.5rem',
+                borderRadius: '0.375rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#6b7280',
+              } : {}}
+              onMouseEnter={modalClassName === 'perfil-modal' ? (e) => {
+                e.currentTarget.style.backgroundColor = '#f3f4f6';
+              } : undefined}
+              onMouseLeave={modalClassName === 'perfil-modal' ? (e) => {
+                e.currentTarget.style.backgroundColor = 'transparent';
+              } : undefined}
             >
               <X className="h-5 w-5" />
             </button>
           </div>
         </div>
         
-        <div className="modal-body" style={{ padding: '1rem 0' }}>
+        <div className="modal-body" style={modalClassName === 'perfil-modal' ? { padding: '1.25rem' } : { padding: '1rem 0' }}>
           {nested ? (
             // Cuando está anidado, solo renderizar children sin envolver en form
             // El children (ClienteForm) ya tiene su propio form
@@ -239,7 +272,20 @@ export function FormModal({
             <form onSubmit={onSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               {children}
               
-              <div className="modal-footer" style={{ marginTop: '0.5rem', paddingTop: '0.5rem' }}>
+              <div 
+                className="modal-footer" 
+                style={modalClassName === 'perfil-modal' ? {
+                  display: 'flex',
+                  justifyContent: 'flex-end',
+                  gap: '0.5rem',
+                  marginTop: '1rem',
+                  paddingTop: '1rem',
+                  borderTop: '1px solid #e5e7eb'
+                } : {
+                  marginTop: '0.5rem',
+                  paddingTop: '0.5rem'
+                }}
+              >
                 <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
                   {showCancel && (
                     <button
@@ -255,7 +301,17 @@ export function FormModal({
                     type="submit"
                     className="btn-primary"
                     disabled={isSubmitting}
-                    style={{
+                    style={modalClassName === 'perfil-modal' ? {
+                      padding: '0.5rem 1rem',
+                      fontSize: '0.8125rem',
+                      fontWeight: 500,
+                      color: '#fff',
+                      background: colors.gradient,
+                      border: 'none',
+                      borderRadius: '0.375rem',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s',
+                    } : {
                       padding: '8px 16px',
                       border: 'none',
                       borderRadius: '6px',
@@ -273,8 +329,13 @@ export function FormModal({
                     }}
                     onMouseEnter={(e) => {
                       if (!isSubmitting) {
-                        e.currentTarget.style.transform = 'translateY(-1px)';
-                        e.currentTarget.style.boxShadow = `0 4px 12px ${colors.primary}50`;
+                        if (modalClassName === 'perfil-modal') {
+                          e.currentTarget.style.transform = 'translateY(-1px)';
+                          e.currentTarget.style.boxShadow = `0 4px 12px ${colors.primary}40`;
+                        } else {
+                          e.currentTarget.style.transform = 'translateY(-1px)';
+                          e.currentTarget.style.boxShadow = `0 4px 12px ${colors.primary}50`;
+                        }
                       }
                     }}
                     onMouseLeave={(e) => {

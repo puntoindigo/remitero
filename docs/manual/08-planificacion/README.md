@@ -10,6 +10,9 @@ Lista completa de tareas pendientes, mejoras futuras y bugs conocidos.
 ### [Test Navegación](./test-navegacion.md)
 Suite completa de tests que recorre el 100% de la navegación de la aplicación.
 
+### [Test Manual](./test-manual.md)
+Suite completa de tests para el manual rediseñado con diseño mobile-first y animaciones.
+
 ---
 
 ## 🎯 Prioridades

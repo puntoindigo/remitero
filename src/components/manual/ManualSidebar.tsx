@@ -82,25 +82,52 @@ const manualSections: ManualSection[] = [
       { title: 'Performance', path: '/manual/07-referencia-tecnica/performance' },
     ],
   },
+  {
+    title: 'Planificación',
+    path: '/manual/08-planificacion',
+    emoji: '📋',
+    children: [
+      { title: 'Tareas Pendientes', path: '/manual/08-planificacion/tareas-pendientes' },
+      { title: 'Test Navegación', path: '/manual/08-planificacion/test-navegacion' },
+      { title: 'Test Manual', path: '/manual/08-planificacion/test-manual' },
+    ],
+  },
 ];
 
 export function ManualSidebar() {
-  const [isOpen, setIsOpen] = useState(false);
-  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
   const pathname = usePathname();
+  const [isOpen, setIsOpen] = useState(false);
+  
+  // Inicializar expandedSections con el valor correcto desde el inicio
+  // para evitar mismatch de hidratación
+  const [expandedSections, setExpandedSections] = useState<Set<string>>(() => {
+    const initial = new Set<string>();
+    // Encontrar la sección activa y expandirla desde el inicio
+    const activeSection = manualSections.find(section => 
+      pathname.startsWith(section.path)
+    );
+    if (activeSection) {
+      initial.add(activeSection.path);
+    }
+    return initial;
+  });
 
   // Cerrar sidebar en mobile al cambiar de ruta
   useEffect(() => {
     setIsOpen(false);
   }, [pathname]);
 
-  // Expandir sección activa automáticamente
+  // Actualizar expandedSections cuando cambia el pathname
   useEffect(() => {
     const activeSection = manualSections.find(section => 
       pathname.startsWith(section.path)
     );
     if (activeSection) {
-      setExpandedSections(prev => new Set(prev).add(activeSection.path));
+      setExpandedSections(prev => {
+        const next = new Set(prev);
+        next.add(activeSection.path);
+        return next;
+      });
     }
   }, [pathname]);
 

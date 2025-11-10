@@ -273,11 +273,19 @@ export function UsuarioForm({
     }
   };
 
+  // Determinar el título según el contexto
+  const getTitle = () => {
+    if (isCurrentUser) {
+      return "Perfil de usuario";
+    }
+    return editingUser ? "Editar Usuario" : "Nuevo Usuario";
+  };
+
   return (
     <FormModal
       isOpen={isOpen}
       onClose={onClose}
-      title={editingUser ? "Editar Usuario" : "Nuevo Usuario"}
+      title={getTitle()}
       onSubmit={handleSubmit(handleFormSubmit)}
       submitText={editingUser ? "Actualizar" : "Guardar"}
       isSubmitting={isSubmitting}
@@ -290,6 +298,7 @@ export function UsuarioForm({
         companyId,
         isCurrentUser
       }}
+      modalClassName={isCurrentUser ? "perfil-modal" : ""}
     >
       <div className="form-row">
         <div className="form-group">

@@ -50,6 +50,11 @@ Si eres nuevo en el proyecto, comienza por:
 - [Navegación y Accesibilidad](./07-referencia-tecnica/navegacion-accesibilidad.md)
 - [Performance](./07-referencia-tecnica/performance.md)
 
+### 📋 Planificación
+- [Tareas Pendientes](./08-planificacion/tareas-pendientes.md)
+- [Test Navegación](./08-planificacion/test-navegacion.md)
+- [Test Manual](./08-planificacion/test-manual.md) 🧪
+
 ---
 
 **¡Bienvenido al Sistema Remitero!** 🚀
