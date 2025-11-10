@@ -21,6 +21,7 @@ export async function GET(
     }
     
     // Permitir acceso público para impresión (si la ruta incluye /print o tiene header X-Print-Request)
+    // Para peticiones de impresión, siempre permitir acceso sin verificar sesión
     const referer = request.headers.get('referer') || '';
     const printHeader = request.headers.get('x-print-request');
     const userAgent = request.headers.get('user-agent') || '';
@@ -38,10 +39,10 @@ export async function GET(
       url: request.url
     });
     
-    // Si no hay sesión pero es una petición de impresión, permitir acceso público
-    if (!session?.user && isPrintRequest) {
-      console.log('[API] Permitiendo acceso público para impresión');
-      // Continuar sin verificación de permisos para impresión pública
+    // Para peticiones de impresión, siempre permitir acceso (con o sin sesión)
+    // Esto permite que funcione en nuevas pestañas donde la sesión puede no estar disponible
+    if (isPrintRequest) {
+      console.log('[API] Petición de impresión detectada - permitiendo acceso sin restricciones');
     } else if (!session?.user) {
       return NextResponse.json({ 
         error: "No autorizado", 
@@ -92,12 +93,12 @@ export async function GET(
       .eq('number', remitoNumberInt);
     
     // Si hay sesión y no es SUPERADMIN, filtrar por company_id
-    // PERO solo si NO es una petición de impresión (para permitir impresión en nueva pestaña)
+    // PERO NUNCA filtrar por company_id en peticiones de impresión (para permitir impresión en nueva pestaña)
     if (session?.user && session.user.role !== 'SUPERADMIN' && session.user.companyId && !isPrintRequest) {
       console.log('[API] Filtrando por company_id:', session.user.companyId);
       query = query.eq('company_id', session.user.companyId);
-    } else if (isPrintRequest) {
-      console.log('[API] Petición de impresión - NO filtrando por company_id');
+    } else {
+      console.log('[API] NO filtrando por company_id - isPrintRequest:', isPrintRequest, 'isSuperAdmin:', session?.user?.role === 'SUPERADMIN');
     }
     
     const { data: remito, error } = await query.single();

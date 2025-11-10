@@ -284,12 +284,15 @@ export const authOptions: NextAuthOptions = {
       return true;
     },
     async jwt({ token, user, account, trigger }) {
-      console.log('🔑 [NextAuth jwt] Callback ejecutado', {
-        hasUser: !!user,
-        hasAccount: !!account,
-        provider: account?.provider,
-        trigger
-      });
+      // Solo loggear cuando hay cambios significativos (user, account, o trigger update)
+      if (user || account || trigger === 'update') {
+        console.log('🔑 [NextAuth jwt] Callback ejecutado', {
+          hasUser: !!user,
+          hasAccount: !!account,
+          provider: account?.provider,
+          trigger
+        });
+      }
       
       if (user) {
         console.log('🔑 [NextAuth jwt] Procesando user object:', {
