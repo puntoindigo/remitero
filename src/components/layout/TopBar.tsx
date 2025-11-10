@@ -12,6 +12,8 @@ import ColorThemeSelector from "@/components/common/ColorThemeSelector";
 import { ConfiguracionModal } from "@/components/common/ConfiguracionModal";
 import { UsuarioForm } from "@/components/forms/UsuarioForm";
 import { useUsuariosQuery } from "@/hooks/queries/useUsuariosQuery";
+import { useToast } from "@/hooks/useToast";
+import { ToastContainer } from "@/components/common/Toast";
 
 export default function TopBar() {
   const { data: session } = useSession();
@@ -26,6 +28,7 @@ export default function TopBar() {
   const { colors } = useColorTheme();
   const topbarRef = useRef<HTMLDivElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
+  const { toasts, showSuccess: showToastSuccess, removeToast } = useToast();
   // Solo cargar usuarios si el usuario tiene permisos (ADMIN o SUPERADMIN)
   // Para usuarios con rol USER, usar el endpoint individual
   const canViewUsers = currentUser?.role === 'ADMIN' || currentUser?.role === 'SUPERADMIN';
@@ -112,6 +115,9 @@ export default function TopBar() {
           setProfileUser(data);
         }
       }
+      
+      // Mostrar toast de éxito
+      showToastSuccess('Perfil actualizado correctamente');
       
       // Cerrar el modal después de un breve delay
       setTimeout(() => {
@@ -395,6 +401,8 @@ export default function TopBar() {
           companies={[]}
         />
       )}
+
+      <ToastContainer toasts={toasts} onRemove={removeToast} />
     </>
   );
 }
