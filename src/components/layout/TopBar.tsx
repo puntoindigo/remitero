@@ -10,11 +10,14 @@ import { ShortcutText } from "@/components/common/ShortcutText";
 import { useColorTheme } from "@/contexts/ColorThemeContext";
 import ColorThemeSelector from "@/components/common/ColorThemeSelector";
 import { ConfiguracionModal } from "@/components/common/ConfiguracionModal";
-import { useRouter } from "next/navigation";
+import { UsuarioForm } from "@/components/forms/UsuarioForm";
+import { useUsuariosQuery } from "@/hooks/queries/useUsuariosQuery";
 
 export default function TopBar() {
   const { data: session } = useSession();
   const [showConfigModal, setShowConfigModal] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [isSubmittingProfile, setIsSubmittingProfile] = useState(false);
   const currentUser = useCurrentUserSimple();
   const { stopImpersonation, isImpersonating } = useImpersonation();
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
@@ -23,7 +26,9 @@ export default function TopBar() {
   const { colors } = useColorTheme();
   const topbarRef = useRef<HTMLDivElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
-  const router = useRouter();
+  const { data: usuarios, refetch: refetchUsuarios } = useUsuariosQuery(session?.user?.companyId);
+  
+  const profileUser = usuarios?.find(u => u.id === session?.user?.id);
 
   // Aplicar tema al topbar con color más oscuro que el header
   useEffect(() => {
@@ -53,7 +58,41 @@ export default function TopBar() {
 
   const handleProfileClick = () => {
     setShowUserMenu(false);
-    router.push('/perfil');
+    setShowProfileModal(true);
+  };
+
+  const handleProfileSubmit = async (data: any) => {
+    if (!session?.user?.id || !profileUser) return;
+    
+    setIsSubmittingProfile(true);
+    try {
+      const response = await fetch(`/api/users/${session.user.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || 'Error al actualizar el perfil');
+      }
+
+      // Refrescar los datos del usuario
+      await refetchUsuarios();
+      
+      // Cerrar el modal después de un breve delay
+      setTimeout(() => {
+        setShowProfileModal(false);
+      }, 500);
+    } catch (error: any) {
+      console.error('Error al actualizar perfil:', error);
+      alert(error.message || 'Error al actualizar el perfil');
+    } finally {
+      setIsSubmittingProfile(false);
+    }
   };
 
   const handleSettingsClick = () => {
@@ -305,6 +344,27 @@ export default function TopBar() {
         isOpen={showConfigModal}
         onClose={() => setShowConfigModal(false)}
       />
+
+      {profileUser && (
+        <UsuarioForm
+          isOpen={showProfileModal}
+          onClose={() => setShowProfileModal(false)}
+          onSubmit={handleProfileSubmit}
+          isSubmitting={isSubmittingProfile}
+          isCurrentUser={true}
+          editingUser={{
+            id: profileUser.id,
+            name: profileUser.name,
+            email: profileUser.email,
+            role: profileUser.role,
+            phone: profileUser.phone,
+            address: profileUser.address,
+            companyId: profileUser.company?.id,
+            enableBotonera: (profileUser as any).enable_botonera ?? false
+          }}
+          companies={[]}
+        />
+      )}
     </>
   );
 }
