@@ -56,7 +56,7 @@ const userSchema = z.object({
   }
   return data.password === data.confirmPassword;
 }, {
-  message: "Las contraseñas no coinciden o son requeridas para emails no Gmail",
+  message: "Las contraseñas no coinciden.",
   path: ["confirmPassword"],
 }).refine((data) => {
   const hasAtSymbol = data.email.includes('@');
@@ -501,24 +501,33 @@ export function UsuarioForm({
                 : undefined
             }}
           />
-          {showConfirmPasswordError && (
-            <p 
-              className="error-message"
-              style={{
-                opacity: errors.confirmPassword ? 1 : 0,
-                transform: errors.confirmPassword ? 'translateY(0)' : 'translateY(-10px)',
-                maxHeight: errors.confirmPassword ? '100px' : '0',
-                marginTop: errors.confirmPassword ? '0.5rem' : '0',
-                marginBottom: errors.confirmPassword ? '0' : '0',
-                overflow: 'hidden',
-                transition: 'opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), margin 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
-              }}
-            >
-              {confirmPasswordErrorMessage}
-            </p>
-          )}
         </div>
       </div>
+      )}
+      
+      {/* Mensaje de error de contraseñas debajo de ambas (como colspan=2) */}
+      {hasAtSymbol && !isGmailEmail(emailValue) && showConfirmPasswordError && (
+        <div style={{ 
+          width: '100%',
+          marginTop: '0.5rem',
+          marginBottom: '1rem'
+        }}>
+          <p 
+            className="error-message"
+            style={{
+              color: '#ef4444',
+              fontSize: '0.875rem',
+              margin: 0,
+              opacity: errors.confirmPassword ? 1 : 0,
+              transform: errors.confirmPassword ? 'translateY(0)' : 'translateY(-10px)',
+              maxHeight: errors.confirmPassword ? '100px' : '0',
+              overflow: 'hidden',
+              transition: 'opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
+            }}
+          >
+            {confirmPasswordErrorMessage}
+          </p>
+        </div>
       )}
 
       {shouldShowCompanyField && (
