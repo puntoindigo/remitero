@@ -133,12 +133,25 @@ export const authOptions: NextAuthOptions = {
         provider: account?.provider, 
         email: user.email,
         hasAccount: !!account,
-        hasProfile: !!profile
+        hasProfile: !!profile,
+        accountType: account?.type,
+        accountProviderAccountId: account?.providerAccountId,
+        accountAccessToken: account?.access_token ? 'PRESENTE' : 'NO PRESENTE',
+        accountIdToken: account?.id_token ? 'PRESENTE' : 'NO PRESENTE'
       });
       
       // Si es login con Google, verificar o crear usuario en la BD
       if (account?.provider === "google") {
         console.log('🔐 [NextAuth signIn] Procesando login con Google');
+        console.log('🔐 [NextAuth signIn] Account details:', {
+          type: account.type,
+          provider: account.provider,
+          providerAccountId: account.providerAccountId,
+          access_token: account.access_token ? 'PRESENTE' : 'NO PRESENTE',
+          expires_at: account.expires_at,
+          token_type: account.token_type,
+          scope: account.scope
+        });
         try {
           const email = user.email;
           if (!email) {
@@ -343,16 +356,29 @@ export const authOptions: NextAuthOptions = {
       return session
     },
     async redirect({ url, baseUrl }) {
+      console.log('🔄 [NextAuth redirect] Callback iniciado', {
+        url,
+        baseUrl,
+        urlType: typeof url,
+        baseUrlType: typeof baseUrl,
+        urlIncludesCallback: url.includes('/api/auth/callback'),
+        urlEqualsBaseUrl: url === baseUrl,
+        urlStartsWithSlash: url.startsWith('/')
+      });
+      
       // Redirección simple - NextAuth manejará la construcción de la URL completa
       // Si la URL es relativa, NextAuth la combinará con baseUrl automáticamente
       if (url.includes('/api/auth/callback') || url === baseUrl || url === `${baseUrl}/`) {
+        console.log('🔄 [NextAuth redirect] Redirigiendo a /dashboard (callback o baseUrl)');
         return '/dashboard';
       }
       // Si ya es una ruta relativa, retornarla tal cual
       if (url.startsWith('/')) {
+        console.log('🔄 [NextAuth redirect] Redirigiendo a URL relativa:', url);
         return url;
       }
       // Por defecto, redirigir al dashboard
+      console.log('🔄 [NextAuth redirect] Redirigiendo a /dashboard (default)');
       return '/dashboard';
     }
   },

@@ -37,8 +37,22 @@ export async function GET(
 
     console.log('[API] Buscando remito número:', remitoNumberInt, 'isPrintRequest:', isPrintRequest);
     
-    // Obtener el remito directamente por número (sin filtros de company_id para impresión)
-    const { data: remito, error } = await supabaseAdmin
+    // Obtener company_id de query params si está disponible (para peticiones de impresión)
+    const { searchParams: urlSearchParams } = new URL(request.url);
+    const companyIdFromQuery = urlSearchParams.get('companyId');
+    
+    // Determinar qué company_id usar: primero de query params, luego de sesión
+    let effectiveCompanyId: string | null = null;
+    if (companyIdFromQuery) {
+      effectiveCompanyId = companyIdFromQuery;
+      console.log('[API] Usando company_id de query params:', effectiveCompanyId);
+    } else if (session?.user && session.user.role !== 'SUPERADMIN' && session.user.companyId) {
+      effectiveCompanyId = session.user.companyId;
+      console.log('[API] Usando company_id de sesión:', effectiveCompanyId);
+    }
+    
+    // Construir query base
+    let query = supabaseAdmin
       .from('remitos')
       .select(`
         id,
@@ -77,17 +91,23 @@ export async function GET(
           line_total
         )
       `)
-      .eq('number', remitoNumberInt)
-      .maybeSingle();
+      .eq('number', remitoNumberInt);
+    
+    // Filtrar por empresa si tenemos un company_id
+    // Esto es importante porque el número de remito es único por empresa, no globalmente
+    if (effectiveCompanyId) {
+      query = query.eq('company_id', effectiveCompanyId);
+      console.log('[API] Filtrando por company_id:', effectiveCompanyId);
+    }
+    
+    // Obtener el remito directamente por número
+    // Usamos .select() sin .maybeSingle() porque las relaciones anidadas pueden crear múltiples filas
+    const { data: remitosData, error } = await query;
 
     console.log('[API] Resultado de consulta:', {
-      found: !!remito,
+      found: !!remitosData && remitosData.length > 0,
+      count: remitosData?.length || 0,
       error: error?.message || error?.code,
-      remitoId: remito?.id,
-      hasClients: !!remito?.clients,
-      hasCompanies: !!remito?.companies,
-      hasEstados: !!remito?.estados_remitos,
-      itemsCount: remito?.remito_items?.length || 0
     });
 
     if (error) {
@@ -99,13 +119,61 @@ export async function GET(
       }, { status: 500 });
     }
 
-    if (!remito) {
+    if (!remitosData || remitosData.length === 0) {
       console.log('[API] Remito no encontrado con número:', remitoNumberInt);
       return NextResponse.json({ 
         error: "Remito no encontrado",
         message: `El remito #${remitoNumberInt} no existe.`
       }, { status: 404 });
     }
+
+    // Agrupar los resultados: tomar el primer remito único y consolidar los items
+    // Cuando hay múltiples items, Supabase devuelve una fila por cada item
+    const firstRemito = remitosData[0];
+    
+    // Consolidar items de todas las filas (si hay múltiples filas por los items)
+    const allItems: any[] = [];
+    const uniqueRemitoIds = new Set<string>();
+    
+    remitosData.forEach((row: any) => {
+      uniqueRemitoIds.add(row.id);
+      if (row.remito_items && Array.isArray(row.remito_items)) {
+        row.remito_items.forEach((item: any) => {
+          // Evitar duplicados de items
+          if (!allItems.find(i => i.id === item.id)) {
+            allItems.push(item);
+          }
+        });
+      }
+    });
+
+    // Si hay múltiples remitos con el mismo número y no hay filtro de empresa, es un problema
+    if (uniqueRemitoIds.size > 1) {
+      console.warn('[API] Advertencia: Múltiples remitos encontrados con el mismo número:', remitoNumberInt);
+      console.warn('[API] Remitos encontrados:', Array.from(uniqueRemitoIds));
+      
+      // Si es petición de impresión y no hay sesión, no podemos determinar cuál es el correcto
+      if (isPrintRequest && !session?.user) {
+        return NextResponse.json({ 
+          error: "Remito ambiguo",
+          message: `Se encontraron múltiples remitos con el número ${remitoNumberInt}. Por favor, inicia sesión para identificar el remito correcto.`
+        }, { status: 400 });
+      }
+    }
+
+    // Construir el objeto remito consolidado
+    const remito = {
+      ...firstRemito,
+      remito_items: allItems
+    };
+
+    console.log('[API] Remito consolidado:', {
+      remitoId: remito.id,
+      hasClients: !!remito.clients,
+      hasCompanies: !!remito.companies,
+      hasEstados: !!remito.estados_remitos,
+      itemsCount: remito.remito_items?.length || 0
+    });
 
     // Verificar permisos solo si NO es petición de impresión y hay sesión
     if (!isPrintRequest && session?.user) {

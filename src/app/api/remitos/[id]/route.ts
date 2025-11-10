@@ -15,8 +15,12 @@ export async function GET(
     
     // Permitir acceso público para impresión (si la ruta incluye /print)
     // O si el referer indica que viene de una página de impresión
+    // O si tiene el header X-Print-Request
     const referer = request.headers.get('referer') || '';
-    const isPrintRequest = referer.includes('/print') || request.url.includes('/print');
+    const printHeader = request.headers.get('x-print-request');
+    const isPrintRequest = referer.includes('/print') || 
+                          request.url.includes('/print') || 
+                          printHeader === 'true';
     
     // Si no hay sesión pero es una petición de impresión, permitir acceso público
     if (!session?.user && isPrintRequest) {

@@ -23,18 +23,15 @@ export default function PrintRemito() {
       setLoading(true);
       
       try {
-        const remitoNumber = params?.number;
-        if (!remitoNumber) {
-          console.error('🖨️ [PRINT] No number provided');
+        const remitoId = params?.id;
+        if (!remitoId) {
+          console.error('🖨️ [PRINT] No ID provided');
           setLoading(false);
           return;
         }
 
-        // Obtener company_id de query params si está disponible
-        const companyIdFromUrl = searchParams?.get('companyId');
-        const url = companyIdFromUrl 
-          ? `/api/remitos/number/${remitoNumber}?companyId=${companyIdFromUrl}`
-          : `/api/remitos/number/${remitoNumber}`;
+        // Usar la API por ID que es única globalmente
+        const url = `/api/remitos/${remitoId}`;
 
         const response = await fetch(url, {
           method: 'GET',
@@ -53,7 +50,7 @@ export default function PrintRemito() {
           console.error('🖨️ [PRINT] Error response:', response.status, errorData);
           // Mostrar error al usuario
           if (response.status === 404) {
-            console.error('🖨️ [PRINT] Remito no encontrado con número:', remitoNumber);
+            console.error('🖨️ [PRINT] Remito no encontrado con ID:', remitoId);
           }
         }
       } catch (error) {
@@ -63,13 +60,13 @@ export default function PrintRemito() {
       }
     };
 
-    if (params?.number) {
+    if (params?.id) {
       fetchRemito();
     } else {
-      console.error('🖨️ [PRINT] No number provided');
+      console.error('🖨️ [PRINT] No ID provided');
       setLoading(false);
     }
-  }, [params?.number, searchParams]);
+  }, [params?.id]);
 
   // Impresión automática
   useEffect(() => {

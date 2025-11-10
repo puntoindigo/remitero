@@ -293,9 +293,9 @@ function RemitosContent() {
   }, [handleDeleteRequest]);
 
   const handlePrintRemito = useCallback((remito: Remito) => {
-    if (remito?.number) {
-      // Abrir vista de impresión HTML en nueva pestaña usando número de remito
-      window.open(`/remitos/${remito.number}/print`, '_blank');
+    if (remito?.id) {
+      // Abrir vista de impresión HTML en nueva pestaña usando ID del remito (único globalmente)
+      window.open(`/remitos/${remito.id}/print`, '_blank');
     }
   }, []);
 
@@ -683,8 +683,9 @@ function RemitosContent() {
             setRemitoToPrint(null);
           }}
           onConfirm={() => {
-            if (remitoToPrint?.number) {
-              window.open(`/remitos/${remitoToPrint.number}/print`, '_blank');
+            if (remitoToPrint?.id) {
+              // Usar ID del remito (único globalmente) en lugar del número
+              window.open(`/remitos/${remitoToPrint.id}/print`, '_blank');
             }
             setShowPrintConfirm(false);
             setRemitoToPrint(null);
