@@ -738,7 +738,8 @@ function LoginPageContent() {
               Recordar mis datos
             </label>
             </div>
-            <div style={{ marginTop: '0.5rem' }}>
+            {/* Ocultado temporalmente */}
+            {/* <div style={{ marginTop: '0.5rem' }}>
               <button
                 type="button"
                 onClick={() => setShowForgotPassword(true)}
@@ -760,7 +761,7 @@ function LoginPageContent() {
               >
                 Olvidé mi contraseña
               </button>
-            </div>
+            </div> */}
           </div>
 
           {/* Error Message */}
