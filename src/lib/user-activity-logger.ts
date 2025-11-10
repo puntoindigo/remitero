@@ -14,17 +14,35 @@ export async function logUserActivity(
   metadata?: ActivityLogMetadata
 ): Promise<void> {
   try {
+    // Validar y limpiar userId
+    if (!userId || typeof userId !== 'string') {
+      console.error('❌ [logUserActivity] Invalid userId:', { userId, userIdType: typeof userId });
+      return;
+    }
+
+    const cleanUserId = userId.trim();
+    
+    // Validar formato UUID
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(cleanUserId)) {
+      console.error('❌ [logUserActivity] Invalid UUID format:', { 
+        userId: cleanUserId, 
+        userIdLength: cleanUserId.length 
+      });
+      return;
+    }
+
     console.log('📝 [logUserActivity] Attempting to log activity:', {
-      userId,
-      userIdType: typeof userId,
-      userIdLength: userId?.length,
+      userId: cleanUserId,
+      userIdType: typeof cleanUserId,
+      userIdLength: cleanUserId.length,
       action,
       description,
       hasMetadata: !!metadata
     });
 
     const insertData = {
-      user_id: userId,
+      user_id: cleanUserId,
       action,
       description: description || null,
       metadata: metadata || null,
@@ -43,16 +61,18 @@ export async function logUserActivity(
         code: error.code,
         details: error.details,
         hint: error.hint,
-        userId,
-        action
+        userId: cleanUserId,
+        action,
+        insertData
       });
       // No lanzar error para no interrumpir el flujo principal
     } else {
       console.log('✅ [logUserActivity] Activity logged successfully:', {
-        userId,
+        userId: cleanUserId,
         action,
         insertedId: data?.[0]?.id,
-        insertedAt: data?.[0]?.created_at
+        insertedAt: data?.[0]?.created_at,
+        insertedUserId: data?.[0]?.user_id
       });
     }
   } catch (error: any) {
