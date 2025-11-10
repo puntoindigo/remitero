@@ -160,14 +160,16 @@ export async function PUT(
         }, { status: 403 });
       }
       
-      if (companyId !== undefined) {
+      // Solo bloquear si companyId está definido Y es diferente del valor actual
+      // Permitir undefined, null, o cadena vacía (que significa "no cambiar")
+      if (companyId !== undefined && companyId !== null && companyId !== '' && companyId !== existingUser.company_id) {
         return NextResponse.json({ 
           error: "No autorizado", 
           message: "No puedes cambiar tu empresa." 
         }, { status: 403 });
       }
       
-      if (isActive !== undefined) {
+      if (isActive !== undefined && isActive !== existingUser.is_active) {
         return NextResponse.json({ 
           error: "No autorizado", 
           message: "No puedes cambiar tu estado de activación." 
@@ -237,9 +239,13 @@ export async function PUT(
     if (session.user.role === 'SUPERADMIN') {
       // SUPERADMIN puede cambiar companyId libremente
       // Convertir cadena vacía a null para evitar error de UUID
-      if (companyId !== undefined) {
-        updateData.company_id = companyId === '' || companyId === null ? null : companyId;
+      if (companyId !== undefined && companyId !== null && companyId !== '') {
+        updateData.company_id = companyId;
+      } else if (companyId === '' || companyId === null) {
+        // Permitir establecer a null explícitamente
+        updateData.company_id = null;
       }
+      // Si companyId es undefined, no actualizar (mantener el valor actual)
     } else if (session.user.role === 'ADMIN') {
       // ADMIN no puede cambiar el companyId, siempre debe ser su propia empresa
       // Si el usuario ya pertenece a otra empresa, no permitir el cambio
@@ -249,12 +255,15 @@ export async function PUT(
           message: "No puedes asignar usuarios a otras empresas." 
         }, { status: 403 });
       }
-      // Forzar el uso de la empresa del ADMIN
+      // Forzar el uso de la empresa del ADMIN solo si el usuario no tiene empresa
       if (!existingUser.company_id) {
         updateData.company_id = session.user.companyId;
       }
+      // Si companyId es undefined, null o '', no actualizar (mantener el valor actual)
+    } else if (session.user.role === 'USER') {
+      // USER no puede cambiar companyId - no agregar al updateData
+      // La validación ya se hizo arriba, aquí solo nos aseguramos de no actualizarlo
     }
-    // USER no puede cambiar companyId (ya validado arriba)
 
     // Hash de la contraseña si se proporciona
     if (password && password.trim() !== '') {
