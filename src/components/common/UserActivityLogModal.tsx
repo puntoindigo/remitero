@@ -108,15 +108,19 @@ export function UserActivityLogModal({
         userId, 
         trimmedUserId,
         pageNum, 
+        fullResponse: data,
         hasLogs: !!data.logs,
         logsCount: data.logs?.length || 0,
         logsType: Array.isArray(data.logs) ? 'array' : typeof data.logs,
+        isArray: Array.isArray(data.logs),
         logs: data.logs?.slice(0, 3).map((l: any) => ({ 
           id: l.id, 
           user_id: l.user_id,
           action: l.action, 
+          description: l.description,
           created_at: l.created_at 
-        })) || []
+        })) || [],
+        firstLog: data.logs?.[0] || null
       });
       
       // Asegurarse de que data.logs sea un array
@@ -260,7 +264,13 @@ export function UserActivityLogModal({
           ) : logs.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '2rem', color: '#6b7280' }}>
               <Activity className="h-12 w-12" style={{ margin: '0 auto 1rem', opacity: 0.5 }} />
-              <p>No hay actividad registrada</p>
+              <p style={{ marginBottom: '0.5rem' }}>No hay actividad registrada</p>
+              <p style={{ fontSize: '0.75rem', color: '#9ca3af', marginTop: '0.5rem' }}>
+                Las actividades se registran cuando realizas acciones como login, crear remitos, actualizar perfil, etc.
+              </p>
+              <p style={{ fontSize: '0.75rem', color: '#9ca3af', marginTop: '0.25rem' }}>
+                Revisa los logs del servidor para ver si se están registrando actividades.
+              </p>
             </div>
           ) : (
             <>

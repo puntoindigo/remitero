@@ -80,15 +80,21 @@ export async function GET(
       userId, 
       logsCount: logs.length,
       hasLogs: logs.length > 0,
+      logsArray: logs,
       logs: logs.length > 0 ? logs.slice(0, 3).map(l => ({ 
         id: l.id, 
         user_id: l.user_id,
-        action: l.action, 
+        action: l.action,
+        description: l.description,
         created_at: l.created_at 
-      })) : 'No logs'
+      })) : 'No logs',
+      responseWillBe: { logs: logs }
     });
 
-    return NextResponse.json({ logs });
+    const response = { logs };
+    console.log('📋 [Activity Logs API] Final response object:', JSON.stringify(response, null, 2));
+    
+    return NextResponse.json(response);
   } catch (error: any) {
     console.error('Error in activity logs GET:', error);
     return NextResponse.json({ 
