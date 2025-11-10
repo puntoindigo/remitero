@@ -91,12 +91,16 @@ export async function logUserActivity(
  */
 export async function getLastUserActivity(userId: string): Promise<ActivityLog | null> {
   try {
-    console.log('🔍 [getLastUserActivity] Fetching last activity for user:', { userId });
+    const cleanUserId = userId.trim();
+    console.log('🔍 [getLastUserActivity] Fetching last activity for user:', { 
+      userId: cleanUserId,
+      originalUserId: userId 
+    });
     
     const { data, error } = await supabaseAdmin
       .from('user_activity_logs')
       .select('*')
-      .eq('user_id', userId)
+      .eq('user_id', cleanUserId)
       .order('created_at', { ascending: false })
       .limit(1)
       .single();
@@ -104,7 +108,7 @@ export async function getLastUserActivity(userId: string): Promise<ActivityLog |
     if (error) {
       // Si el error es porque no hay registros (PGRST116), es normal
       if (error.code === 'PGRST116') {
-        console.log('ℹ️ [getLastUserActivity] No activity found for user:', userId);
+        console.log('ℹ️ [getLastUserActivity] No activity found for user:', cleanUserId);
         return null;
       }
       console.error('❌ [getLastUserActivity] Supabase error:', {
@@ -112,18 +116,18 @@ export async function getLastUserActivity(userId: string): Promise<ActivityLog |
         code: error.code,
         details: error.details,
         hint: error.hint,
-        userId
+        userId: cleanUserId
       });
       return null;
     }
 
     if (!data) {
-      console.log('ℹ️ [getLastUserActivity] No data returned for user:', userId);
+      console.log('ℹ️ [getLastUserActivity] No data returned for user:', cleanUserId);
       return null;
     }
 
     console.log('✅ [getLastUserActivity] Found last activity:', { 
-      userId, 
+      userId: cleanUserId, 
       activityId: data.id,
       action: data.action,
       created_at: data.created_at
@@ -153,10 +157,13 @@ export async function getUserActivityLogs(
       offset 
     });
     
+    // Limpiar userId primero
+    const cleanUserId = userId.trim();
+    
     // Verificar también con getLastUserActivity para comparar
-    const lastActivity = await getLastUserActivity(userId);
+    const lastActivity = await getLastUserActivity(cleanUserId);
     console.log('🔍 [getUserActivityLogs] Last activity check:', {
-      userId,
+      userId: cleanUserId,
       hasLastActivity: !!lastActivity,
       lastActivityId: lastActivity?.id,
       lastActivityAction: lastActivity?.action
@@ -166,10 +173,10 @@ export async function getUserActivityLogs(
     const { count: totalCount, error: countError } = await supabaseAdmin
       .from('user_activity_logs')
       .select('*', { count: 'exact', head: true })
-      .eq('user_id', userId);
+      .eq('user_id', cleanUserId);
 
     console.log('🔍 [getUserActivityLogs] Total count check:', {
-      userId,
+      userId: cleanUserId,
       totalCount,
       countError: countError ? {
         message: countError.message,
@@ -177,10 +184,18 @@ export async function getUserActivityLogs(
       } : null
     });
 
+    console.log('🔍 [getUserActivityLogs] Query params:', {
+      cleanUserId,
+      originalUserId: userId,
+      userIdsMatch: cleanUserId === userId,
+      limit,
+      offset
+    });
+
     const { data, error } = await supabaseAdmin
       .from('user_activity_logs')
       .select('*')
-      .eq('user_id', userId)
+      .eq('user_id', cleanUserId)
       .order('created_at', { ascending: false })
       .limit(limit)
       .offset(offset);
@@ -191,25 +206,46 @@ export async function getUserActivityLogs(
         code: error.code,
         details: error.details,
         hint: error.hint,
-        userId,
+        userId: cleanUserId,
         limit,
-        offset
+        offset,
+        fullError: error
       });
       return [];
     }
 
     if (!data) {
-      console.warn('⚠️ [getUserActivityLogs] No data returned for user:', userId);
+      console.warn('⚠️ [getUserActivityLogs] No data returned for user:', cleanUserId);
       return [];
     }
 
+    // Verificar si data es un array vacío
+    if (Array.isArray(data) && data.length === 0) {
+      console.warn('⚠️ [getUserActivityLogs] Empty array returned for user:', {
+        cleanUserId,
+        totalCount,
+        limit,
+        offset,
+        query: `user_id = '${cleanUserId}'`
+      });
+    }
+
     console.log('✅ [getUserActivityLogs] Found logs:', { 
-      userId, 
+      userId: cleanUserId, 
+      originalUserId: userId,
       count: data.length,
       totalCount,
       limit,
       offset,
-      logs: data.map(l => ({ 
+      isArray: Array.isArray(data),
+      dataType: typeof data,
+      firstLog: data.length > 0 ? {
+        id: data[0].id,
+        user_id: data[0].user_id,
+        action: data[0].action,
+        created_at: data[0].created_at
+      } : null,
+      logs: data.slice(0, 3).map(l => ({ 
         id: l.id, 
         user_id: l.user_id,
         action: l.action,
@@ -218,7 +254,15 @@ export async function getUserActivityLogs(
       }))
     });
 
-    return data as ActivityLog[];
+    // Asegurarse de que devolvemos un array
+    const result = Array.isArray(data) ? data : [];
+    console.log('✅ [getUserActivityLogs] Returning result:', {
+      resultLength: result.length,
+      resultType: typeof result,
+      isArray: Array.isArray(result)
+    });
+    
+    return result as ActivityLog[];
   } catch (error) {
     console.error('❌ [getUserActivityLogs] Exception:', error);
     return [];
