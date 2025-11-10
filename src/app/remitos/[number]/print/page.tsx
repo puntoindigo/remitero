@@ -34,6 +34,7 @@ export default function PrintRemito() {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
+            'X-Print-Request': 'true', // Header personalizado para identificar peticiones de impresión
           },
           credentials: 'include', // Importante para incluir cookies de sesión
         });

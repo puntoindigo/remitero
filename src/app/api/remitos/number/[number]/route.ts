@@ -20,9 +20,10 @@ export async function GET(
       }, { status: 400 });
     }
     
-    // Permitir acceso público para impresión (si la ruta incluye /print)
+    // Permitir acceso público para impresión (si la ruta incluye /print o tiene header X-Print-Request)
     const referer = request.headers.get('referer') || '';
-    const isPrintRequest = referer.includes('/print') || request.url.includes('/print');
+    const printHeader = request.headers.get('x-print-request');
+    const isPrintRequest = referer.includes('/print') || request.url.includes('/print') || printHeader === 'true';
     
     // Si no hay sesión pero es una petición de impresión, permitir acceso público
     if (!session?.user && isPrintRequest) {
@@ -77,7 +78,8 @@ export async function GET(
       .eq('number', remitoNumberInt);
     
     // Si hay sesión y no es SUPERADMIN, filtrar por company_id
-    if (session?.user && session.user.role !== 'SUPERADMIN' && session.user.companyId) {
+    // PERO solo si NO es una petición de impresión (para permitir impresión en nueva pestaña)
+    if (session?.user && session.user.role !== 'SUPERADMIN' && session.user.companyId && !isPrintRequest) {
       query = query.eq('company_id', session.user.companyId);
     }
     
@@ -90,8 +92,8 @@ export async function GET(
       }, { status: 404 });
     }
 
-    // Verificar permisos solo si hay sesión activa
-    if (session?.user) {
+    // Verificar permisos solo si hay sesión activa Y NO es una petición de impresión
+    if (session?.user && !isPrintRequest) {
       if (session.user.role !== 'SUPERADMIN' && remito.company_id !== session.user.companyId) {
         return NextResponse.json({ 
           error: "No autorizado",

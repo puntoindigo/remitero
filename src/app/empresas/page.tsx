@@ -79,6 +79,7 @@ function EmpresasContent() {
     return () => window.removeEventListener('fabClick', handleFABClick);
   }, [handleNew]);
 
+
   // CRUD Table configuration
   const {
     tableConfig,
@@ -243,8 +244,9 @@ function EmpresasContent() {
   }
 
   return (
-    <main className="main-content">
-      <section className="form-section">
+    <>
+      <main className="main-content">
+        <section className="form-section">
         <h2>Gestión de Empresas</h2>
         
         <EmpresaForm
@@ -336,7 +338,8 @@ function EmpresasContent() {
         message="¿Estás seguro de que deseas eliminar esta empresa?"
         itemName={showDeleteConfirm?.name}
       />
-    </main>
+      </main>
+    </>
   );
 }
 

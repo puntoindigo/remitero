@@ -132,6 +132,34 @@ main {
   background: #fff;
 }
 
+/* Estilos globales para eliminar fondos y bordes de contenedores principales */
+.container {
+  background: transparent !important;
+}
+
+.main-content,
+main.main-content {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+section.form-section,
+div.form-section {
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+
+/* Mantener estilos para form-section dentro de modales */
+.form-modal .form-section,
+.modal .form-section {
+  background: var(--bg-card, #f8f9fa) !important;
+  box-shadow: var(--shadow-md, 0 4px 6px -1px rgb(0 0 0 / 0.1)) !important;
+  border: 1px solid var(--border-primary, #d1d5db) !important;
+}
+
 h1 {
   font-size: 24px;
   font-weight: 500;
