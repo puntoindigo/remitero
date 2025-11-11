@@ -296,6 +296,37 @@ function RemitosContent() {
   const { toasts, showSuccess: showToastSuccess, showError: showToastError, removeToast } = useToast();
   const { updateStatus } = useDirectUpdate();
 
+  // Función de eliminación con useCallback (después de que handleDeleteRequest esté definido)
+  const handleDeleteRemito = useCallback((remito: Remito) => {
+    handleDeleteRequest(remito?.id, `Remito #${remito.number}`);
+  }, [handleDeleteRequest]);
+
+  const handlePrintRemito = useCallback((remito: Remito) => {
+    setRemitoToPrint(remito);
+    setShowPrintConfirm(true);
+  }, []);
+
+  // Configurar shortcuts de teclado (después de que handleNewRemito y showForm estén definidos)
+  useShortcuts([
+    {
+      key: 'n',
+      action: handleNewRemito,
+      description: 'Nuevo Remito'
+    }
+  ], !!companyId && !showForm);
+
+  // Listener para FAB mobile
+  useEffect(() => {
+    const handleFABClick = (event: any) => {
+      if (event.detail?.action === 'newRemito') {
+        handleNewRemito();
+      }
+    };
+
+    window.addEventListener('fabClick', handleFABClick);
+    return () => window.removeEventListener('fabClick', handleFABClick);
+  }, [handleNewRemito]);
+
   // Detectar si viene de /nuevo y abrir formulario
   useEffect(() => {
     const openForm = searchParams.get('openForm');
