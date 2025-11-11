@@ -114,11 +114,6 @@ function RemitosContent() {
       </main>
     );
   }
-  
-  // 🚀 REACT QUERY: Reemplaza state y fetch
-  // Paginación server-side
-  const [page, setPage] = React.useState(1);
-  const pageSize = 10;
   const { data: remitosPage, isLoading } = useRemitosQuery(companyId || undefined, page, pageSize);
   const remitos = (remitosPage?.items as any) || [];
   const totalRemitos = remitosPage?.total || remitos?.length || 0;
