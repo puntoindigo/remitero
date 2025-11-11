@@ -22,7 +22,7 @@ export function useSessionGuard() {
       console.log("No hay sesión, redirigiendo al login");
       router.push("/auth/login");
       return;
-    }, []
+    }
 
     // Si hay sesión pero faltan datos críticos del usuario
     if (session && (!session.user || !session.user.email)) {

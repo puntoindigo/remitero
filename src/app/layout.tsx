@@ -28,7 +28,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             __html: `
               // Capturar errores de Event antes de que React monte
               (function() {
+                if (typeof window === 'undefined') return;
+                
                 function shouldIgnoreError(error) {
+                  if (!error) return true;
+                  
                   if (error instanceof Event) {
                     const eventTarget = error.target;
                     if (eventTarget && (
@@ -48,31 +52,36 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                         msg.includes('Load failed') ||
                         msg.includes('Network request failed') ||
                         msg.includes('navegó') ||
-                        msg.includes('Unexpected identifier')) {
+                        msg.includes('Unexpected identifier') ||
+                        msg.includes('Minified React error')) {
                       return true;
                     }
                   }
-                  if (error && error.toString && error.toString().includes('[object Event]')) {
+                  if (error && typeof error.toString === 'function' && error.toString().includes('[object Event]')) {
                     return true;
                   }
                   return false;
                 }
                 
-                window.addEventListener('unhandledrejection', function(event) {
-                  if (shouldIgnoreError(event.reason)) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    event.stopImmediatePropagation();
-                  }
-                }, { capture: true, passive: false });
-                
-                window.addEventListener('error', function(event) {
-                  if (shouldIgnoreError(event.error || event)) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    event.stopImmediatePropagation();
-                  }
-                }, { capture: true, passive: false });
+                try {
+                  window.addEventListener('unhandledrejection', function(event) {
+                    if (shouldIgnoreError(event.reason)) {
+                      event.preventDefault();
+                      event.stopPropagation();
+                      event.stopImmediatePropagation();
+                    }
+                  }, { capture: true, passive: false });
+                  
+                  window.addEventListener('error', function(event) {
+                    if (shouldIgnoreError(event.error || event)) {
+                      event.preventDefault();
+                      event.stopPropagation();
+                      event.stopImmediatePropagation();
+                    }
+                  }, { capture: true, passive: false });
+                } catch (e) {
+                  // Silenciar errores al registrar listeners
+                }
               })();
             `,
           }}

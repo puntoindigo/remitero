@@ -1,7 +1,7 @@
 "use client";
 
 import React, { Component, ErrorInfo, ReactNode } from 'react';
-import { AlertTriangle, X, RefreshCw, Copy, Check } from 'lucide-react';
+import { AlertTriangle, X, RefreshCw, Copy, Check, Send } from 'lucide-react';
 
 interface Props {
   children: ReactNode;
@@ -12,6 +12,9 @@ interface State {
   error: Error | null;
   errorInfo: ErrorInfo | null;
   copied: boolean;
+  sending: boolean;
+  sent: boolean;
+  sendError: string | null;
 }
 
 class ErrorBoundary extends Component<Props, State> {
@@ -21,7 +24,10 @@ class ErrorBoundary extends Component<Props, State> {
       hasError: false,
       error: null,
       errorInfo: null,
-      copied: false
+      copied: false,
+      sending: false,
+      sent: false,
+      sendError: null
     };
   }
 
@@ -30,7 +36,10 @@ class ErrorBoundary extends Component<Props, State> {
       hasError: true,
       error,
       errorInfo: null,
-      copied: false
+      copied: false,
+      sending: false,
+      sent: false,
+      sendError: null
     };
   }
 
@@ -49,7 +58,10 @@ class ErrorBoundary extends Component<Props, State> {
       hasError: false,
       error: null,
       errorInfo: null,
-      copied: false
+      copied: false,
+      sending: false,
+      sent: false,
+      sendError: null
     });
   };
 
@@ -58,14 +70,17 @@ class ErrorBoundary extends Component<Props, State> {
       hasError: false,
       error: null,
       errorInfo: null,
-      copied: false
+      copied: false,
+      sending: false,
+      sent: false,
+      sendError: null
     });
   };
 
-  handleCopyError = async () => {
+  getErrorText = () => {
     const { error, errorInfo } = this.state;
     
-    const errorText = `
+    return `
 ERROR REPORT
 ============
 
@@ -80,6 +95,10 @@ ${errorInfo?.componentStack || 'No component stack available'}
 Timestamp: ${new Date().toISOString()}
 URL: ${typeof window !== 'undefined' ? window.location.href : 'Unknown'}
     `.trim();
+  };
+
+  handleCopyError = async () => {
+    const errorText = this.getErrorText();
 
     try {
       await navigator.clipboard.writeText(errorText);
@@ -92,16 +111,88 @@ URL: ${typeof window !== 'undefined' ? window.location.href : 'Unknown'}
     } catch (err) {
       console.error('Failed to copy error to clipboard:', err);
       // Fallback for older browsers
-      const textArea = document.createElement('textarea');
-      textArea.value = errorText;
-      document.body.appendChild(textArea);
-      textArea.select();
-      document.execCommand('copy');
-      document.body.removeChild(textArea);
-      this.setState({ copied: true });
+      if (typeof document !== 'undefined') {
+        try {
+          const textArea = document.createElement('textarea');
+          textArea.value = errorText;
+          document.body.appendChild(textArea);
+          textArea.select();
+          document.execCommand('copy');
+          document.body.removeChild(textArea);
+          this.setState({ copied: true });
+          setTimeout(() => {
+            this.setState({ copied: false });
+          }, 2000);
+        } catch (fallbackErr) {
+          console.error('Fallback copy also failed:', fallbackErr);
+        }
+      }
+    }
+  };
+
+  handleSendError = async () => {
+    const { error, errorInfo } = this.state;
+    
+    this.setState({ sending: true });
+
+    try {
+      let browserInfo = 'Unknown';
+      if (typeof window !== 'undefined' && typeof navigator !== 'undefined') {
+        try {
+          browserInfo = `${navigator.userAgent || 'Unknown'} - ${window.innerWidth || 0}x${window.innerHeight || 0}`;
+        } catch (e) {
+          browserInfo = 'Unknown (error getting info)';
+        }
+      }
+
+      const reportData = {
+        testName: 'Error de Aplicación',
+        errorType: 'Application Error',
+        errorDescription: error?.message || 'Unknown error',
+        errorSteps: `Error ocurrido en: ${typeof window !== 'undefined' ? window.location.href : 'Unknown'}`,
+        errorConsole: `
+Stack Trace:
+${error?.stack || 'No stack trace available'}
+
+Component Stack:
+${errorInfo?.componentStack || 'No component stack available'}
+        `.trim(),
+        browserInfo,
+        timestamp: new Date().toISOString()
+      };
+
+      const response = await fetch('/api/feedback/store', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(reportData)
+      });
+
+      if (response.ok) {
+        this.setState({ sent: true, sending: false });
+        
+        // Reset sent state after 3 seconds
+        setTimeout(() => {
+          this.setState({ sent: false });
+        }, 3000);
+      } else {
+        throw new Error('Error al enviar el reporte');
+      }
+    } catch (err) {
+      console.error('Failed to send error report:', err);
+      this.setState({ sending: false });
+      // Usar un mensaje visual en lugar de alert para mejor compatibilidad móvil
+      if (typeof window !== 'undefined') {
+        console.error('No se pudo enviar el error. Por favor, usa el botón "Copiar Error" para compartirlo manualmente.');
+      }
+      // Mostrar mensaje en el estado para que el usuario lo vea
+      this.setState({ 
+        sendError: 'No se pudo enviar el error. Por favor, usa el botón "Copiar Error".' 
+      });
       setTimeout(() => {
-        this.setState({ copied: false });
-      }, 2000);
+        this.setState({ sendError: null });
+      }, 5000);
     }
   };
 
@@ -157,38 +248,72 @@ URL: ${typeof window !== 'undefined' ? window.location.href : 'Unknown'}
                   </div>
                 )}
               </div>
-              
-              <div className="error-boundary-actions">
-                <button 
-                  onClick={this.handleCopyError}
-                  className="error-boundary-copy-btn"
-                >
-                  {this.state.copied ? (
-                    <>
-                      <Check className="h-4 w-4" />
-                      ¡Copiado!
-                    </>
-                  ) : (
-                    <>
-                      <Copy className="h-4 w-4" />
-                      Copiar Error
-                    </>
-                  )}
-                </button>
-                <button 
-                  onClick={this.handleRetry}
-                  className="error-boundary-retry-btn"
-                >
-                  <RefreshCw className="h-4 w-4" />
-                  Reintentar
-                </button>
-                <button 
-                  onClick={this.handleClose}
-                  className="error-boundary-close-btn"
-                >
-                  Cerrar
-                </button>
+            </div>
+            
+            {this.state.sendError && (
+              <div className="error-boundary-error-message" style={{
+                padding: '12px 24px',
+                backgroundColor: '#fef2f2',
+                borderTop: '1px solid #fecaca',
+                color: '#dc2626',
+                fontSize: '14px'
+              }}>
+                {this.state.sendError}
               </div>
+            )}
+            
+            <div className="error-boundary-actions">
+              <button 
+                onClick={this.handleSendError}
+                className="error-boundary-send-btn"
+                disabled={this.state.sending || this.state.sent}
+              >
+                {this.state.sent ? (
+                  <>
+                    <Check className="h-4 w-4" />
+                    ¡Enviado!
+                  </>
+                ) : this.state.sending ? (
+                  <>
+                    <RefreshCw className="h-4 w-4 animate-spin" />
+                    Enviando...
+                  </>
+                ) : (
+                  <>
+                    <Send className="h-4 w-4" />
+                    Enviar Error
+                  </>
+                )}
+              </button>
+              <button 
+                onClick={this.handleCopyError}
+                className="error-boundary-copy-btn"
+              >
+                {this.state.copied ? (
+                  <>
+                    <Check className="h-4 w-4" />
+                    ¡Copiado!
+                  </>
+                ) : (
+                  <>
+                    <Copy className="h-4 w-4" />
+                    Copiar Error
+                  </>
+                )}
+              </button>
+              <button 
+                onClick={this.handleRetry}
+                className="error-boundary-retry-btn"
+              >
+                <RefreshCw className="h-4 w-4" />
+                Reintentar
+              </button>
+              <button 
+                onClick={this.handleClose}
+                className="error-boundary-close-btn"
+              >
+                Cerrar
+              </button>
             </div>
           </div>
         </div>

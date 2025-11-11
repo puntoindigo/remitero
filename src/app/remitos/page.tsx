@@ -92,34 +92,51 @@ function RemitosContent() {
     return urlClient ? urlClient : 'all';
   });
   
-  // Redirigir a versión mobile si es necesario
-  useEffect(() => {
-    if (isMobile && typeof window !== 'undefined') {
-      router.replace('/remitos/mobile');
-    }
-  }, [isMobile, router]);
-  
   // Estados para modales y confirmaciones
   const [showPrintConfirm, setShowPrintConfirm] = useState(false);
   const [remitoToPrint, setRemitoToPrint] = useState<Remito | null>(null);
   
-  // No renderizar nada mientras redirige
-  if (isMobile) {
-    return null;
-  }
+  // Loading state management
+  const { loading: loadingState, startLoading, stopLoading } = useLoading();
 
-  // Prevenir errores de client-side exception
-  if (!currentUser) {
-    return (
-      <main className="main-content">
-        <div className="form-section">
-          <LoadingSpinner message="Cargando usuario..." />
-        </div>
-      </main>
-    );
-  }
+  // CRUD State Management
+  const {
+    editingItem: editingRemito,
+    showForm,
+    isSubmitting,
+    handleNew: handleNewRemito,
+    handleEdit: handleEditRemito,
+    handleCloseForm,
+    setIsSubmitting,
+    setEditingItem,
+    showDeleteConfirm,
+    handleDeleteRequest,
+    handleCancelDelete
+  } = useCRUDPage<Remito>();
 
-  // Eliminar persistencia: no guardamos el filtro (comentario actualizado)
+  // Ahora que ya conocemos showForm, cargar productos y clientes solo cuando se abre el formulario
+  const { data: products = [] } = useProductosQuery(showForm ? (companyId || undefined) : undefined);
+  const { data: clients = [], refetch: refetchClientes } = useClientesQuery(showForm ? (companyId || undefined) : undefined);
+  
+  // Cargar clientes para el filtro (siempre, no solo cuando se abre el formulario)
+  const { data: allClients = [] } = useClientesQuery(companyId || undefined);
+
+  const { modalState, showSuccess: showModalSuccess, showError: showModalError, closeModal } = useMessageModal();
+  const { toasts, showSuccess: showToastSuccess, showError: showToastError, removeToast } = useToast();
+  const { updateStatus } = useDirectUpdate();
+
+  // Función de eliminación con useCallback (después de que handleDeleteRequest esté definido)
+  const handleDeleteRemito = useCallback((remito: Remito) => {
+    handleDeleteRequest(remito?.id, `Remito #${remito.number}`);
+  }, [handleDeleteRequest]);
+
+  const handlePrintRemito = useCallback((remito: Remito) => {
+    setRemitoToPrint(remito);
+    setShowPrintConfirm(true);
+  }, []);
+
+  // Empujar cambios del filtro de cliente a la URL (solo cuando el usuario cambia el filtro manualmente)
+  const isInitialClientLoad = useRef(true);
 
   // Si viene ?status= en la URL con nombre (con _ por espacios) o id, mapearlo a id cuando tengamos los estados
   useEffect(() => {
@@ -179,9 +196,6 @@ function RemitosContent() {
     }
   }, [searchParams]); // Solo depende de searchParams, no de selectedClientFilter
   
-  // Empujar cambios del filtro de cliente a la URL (solo cuando el usuario cambia el filtro manualmente)
-  const isInitialClientLoad = useRef(true);
-  
   useEffect(() => {
     // En el primer render, no hacer nada (el efecto de lectura de URL ya estableció el estado)
     if (isInitialClientLoad.current) {
@@ -214,66 +228,12 @@ function RemitosContent() {
     router.replace(qs ? `${pathname}?${qs}` : `${pathname}`, { scroll: false });
   }, [selectedClientFilter, router, pathname]); // No incluir searchParams para evitar loops
 
-  // Filtrar remitos por estado y cliente
-  const filteredRemitos = useMemo(() => {
-    if (!remitos) return remitos;
-    
-    let filtered = remitos;
-    
-    // Filtrar por estado
-    if (selectedStatusFilter && selectedStatusFilter !== 'all') {
-      const isKnownStatus = (estadosActivos || []).some(e => e.id === selectedStatusFilter);
-      if (isKnownStatus) {
-        filtered = filtered.filter((remito: Remito) => remito.status?.id === selectedStatusFilter);
-      }
+  // Redirigir a versión mobile si es necesario
+  useEffect(() => {
+    if (isMobile && typeof window !== 'undefined') {
+      router.replace('/remitos/mobile');
     }
-    
-    // Filtrar por cliente
-    if (selectedClientFilter && selectedClientFilter !== 'all') {
-      filtered = filtered.filter((remito: Remito) => remito.client?.id === selectedClientFilter);
-    }
-    
-    return filtered;
-  }, [remitos, selectedStatusFilter, selectedClientFilter, estadosActivos]);
-  
-  // Loading state management
-  const { loading: loadingState, startLoading, stopLoading } = useLoading();
-
-  // CRUD State Management
-  const {
-    editingItem: editingRemito,
-    showForm,
-    isSubmitting,
-    handleNew: handleNewRemito,
-    handleEdit: handleEditRemito,
-    handleCloseForm,
-    setIsSubmitting,
-    setEditingItem,
-    showDeleteConfirm,
-    handleDeleteRequest,
-    handleCancelDelete
-  } = useCRUDPage<Remito>();
-
-  // Ahora que ya conocemos showForm, cargar productos y clientes solo cuando se abre el formulario
-  const { data: products = [] } = useProductosQuery(showForm ? (companyId || undefined) : undefined);
-  const { data: clients = [], refetch: refetchClientes } = useClientesQuery(showForm ? (companyId || undefined) : undefined);
-  
-  // Cargar clientes para el filtro (siempre, no solo cuando se abre el formulario)
-  const { data: allClients = [] } = useClientesQuery(companyId || undefined);
-
-  const { modalState, showSuccess: showModalSuccess, showError: showModalError, closeModal } = useMessageModal();
-  const { toasts, showSuccess: showToastSuccess, showError: showToastError, removeToast } = useToast();
-  const { updateStatus } = useDirectUpdate();
-
-  // Función de eliminación con useCallback (después de que handleDeleteRequest esté definido)
-  const handleDeleteRemito = useCallback((remito: Remito) => {
-    handleDeleteRequest(remito?.id, `Remito #${remito.number}`);
-  }, [handleDeleteRequest]);
-
-  const handlePrintRemito = useCallback((remito: Remito) => {
-    setRemitoToPrint(remito);
-    setShowPrintConfirm(true);
-  }, []);
+  }, [isMobile, router]);
 
   // Configurar shortcuts de teclado (después de que handleNewRemito y showForm estén definidos)
   // Usar useEffect para asegurar que se ejecute después de la inicialización completa
@@ -321,6 +281,44 @@ function RemitosContent() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams, companyId, showForm]); // Solo ejecutar cuando cambien searchParams o companyId
+
+  // Filtrar remitos por estado y cliente
+  const filteredRemitos = useMemo(() => {
+    if (!remitos) return remitos;
+    
+    let filtered = remitos;
+    
+    // Filtrar por estado
+    if (selectedStatusFilter && selectedStatusFilter !== 'all') {
+      const isKnownStatus = (estadosActivos || []).some(e => e.id === selectedStatusFilter);
+      if (isKnownStatus) {
+        filtered = filtered.filter((remito: Remito) => remito.status?.id === selectedStatusFilter);
+      }
+    }
+    
+    // Filtrar por cliente
+    if (selectedClientFilter && selectedClientFilter !== 'all') {
+      filtered = filtered.filter((remito: Remito) => remito.client?.id === selectedClientFilter);
+    }
+    
+    return filtered;
+  }, [remitos, selectedStatusFilter, selectedClientFilter, estadosActivos]);
+
+  // No renderizar nada mientras redirige a mobile (DESPUÉS de todos los hooks)
+  if (isMobile) {
+    return null;
+  }
+
+  // Prevenir errores de client-side exception (DESPUÉS de todos los hooks)
+  if (!currentUser) {
+    return (
+      <main className="main-content">
+        <div className="form-section">
+          <LoadingSpinner message="Cargando usuario..." />
+        </div>
+      </main>
+    );
+  }
 
   // 🚀 REACT QUERY: Ya no necesita loadData ni useEffect
   // React Query se encarga automáticamente del fetching y caching

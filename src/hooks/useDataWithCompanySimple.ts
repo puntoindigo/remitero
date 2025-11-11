@@ -10,26 +10,32 @@ import { useState, useEffect } from "react";
 export function useDataWithCompanySimple() {
   const currentUser = useCurrentUserSimple();
   
-  // Inicializar directamente desde sessionStorage para evitar delay
-  const [selectedCompanyId, setSelectedCompanyId] = useState<string>(() => {
+  // Inicializar siempre con "" para evitar problemas de hidratación
+  // Luego cargar desde sessionStorage en el cliente
+  const [selectedCompanyId, setSelectedCompanyId] = useState<string>("");
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  // Cargar desde sessionStorage solo en el cliente después del mount
+  useEffect(() => {
     if (typeof window !== 'undefined') {
-      return sessionStorage.getItem('selectedCompanyId') || "";
+      const savedCompanyId = sessionStorage.getItem('selectedCompanyId');
+      if (savedCompanyId) {
+        setSelectedCompanyId(savedCompanyId);
+      }
+      setIsInitialized(true);
     }
-    return "";
-  });
-  
-  const [isInitialized, setIsInitialized] = useState(true); // Ya inicializado si leímos sessionStorage
+  }, []);
 
   // Guardar selección de empresa en sessionStorage cuando cambie
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== 'undefined' && isInitialized) {
       if (selectedCompanyId) {
         sessionStorage.setItem('selectedCompanyId', selectedCompanyId);
       } else {
         sessionStorage.removeItem('selectedCompanyId');
       }
     }
-  }, [selectedCompanyId]);
+  }, [selectedCompanyId, isInitialized]);
 
   // Calcular los datos sin early returns
   const getData = () => {

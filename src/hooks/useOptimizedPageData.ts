@@ -18,18 +18,9 @@ export function useOptimizedPageData() {
     shouldShowCompanySelector 
   } = useDataWithCompanySimple();
   
-  // Inicializar isPageReady optimistamente: si hay empresa guardada, listo desde el inicio
-  const [isPageReady, setIsPageReady] = useState(() => {
-    // Para SUPERADMIN: si hay una empresa guardada, asumir que estamos listos
-    // Los datos se cargarán inmediatamente, las empresas cargan en background
-    if (typeof window !== 'undefined') {
-      const savedCompanyId = sessionStorage.getItem('selectedCompanyId');
-      if (savedCompanyId) {
-        return true; // Tenemos empresa guardada, cargar datos inmediatamente
-      }
-    }
-    return false; // Sin empresa guardada, esperar
-  });
+  // Inicializar siempre con false para evitar problemas de hidratación
+  // Se actualizará en useEffect después de verificar sessionStorage
+  const [isPageReady, setIsPageReady] = useState(false);
 
   useEffect(() => {
     // Solo marcar como listo cuando:
@@ -39,6 +30,7 @@ export function useOptimizedPageData() {
     // 4. Si no es SUPERADMIN → listo inmediatamente (usa su companyId)
     
     // Verificar si hay empresa guardada ANTES de verificar currentUser
+    // Solo en el cliente para evitar problemas de hidratación
     const hasSavedCompany = typeof window !== 'undefined' && 
                            !!sessionStorage.getItem('selectedCompanyId');
     

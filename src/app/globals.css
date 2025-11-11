@@ -1171,6 +1171,7 @@ button svg,
   padding: 24px;
   overflow-y: auto;
   flex: 1;
+  min-height: 0;
 }
 
 .error-boundary-message {
@@ -1242,10 +1243,16 @@ button svg,
   display: flex;
   gap: 12px;
   justify-content: flex-end;
-  padding-top: 20px;
+  padding: 20px 24px;
   border-top: 1px solid #e5e7eb;
+  background: white;
+  flex-shrink: 0;
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
 }
 
+.error-boundary-send-btn,
 .error-boundary-copy-btn,
 .error-boundary-retry-btn,
 .error-boundary-close-btn {
@@ -1259,6 +1266,21 @@ button svg,
   cursor: pointer;
   transition: all 0.2s;
   border: none;
+  white-space: nowrap;
+}
+
+.error-boundary-send-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.error-boundary-send-btn {
+  background: #8b5cf6;
+  color: white;
+}
+
+.error-boundary-send-btn:hover:not(:disabled) {
+  background: #7c3aed;
 }
 
 .error-boundary-copy-btn {
@@ -1288,6 +1310,41 @@ button svg,
   background: #4b5563;
 }
 
+/* Responsive styles para móviles */
+@media (max-width: 640px) {
+  .error-boundary-modal {
+    max-width: 100vw;
+    max-height: 100vh;
+    width: 100%;
+    border-radius: 0;
+  }
+
+  .error-boundary-actions {
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 16px;
+  }
+
+  .error-boundary-send-btn,
+  .error-boundary-copy-btn,
+  .error-boundary-retry-btn,
+  .error-boundary-close-btn {
+    flex: 1;
+    min-width: calc(50% - 4px);
+    font-size: 13px;
+    padding: 10px 12px;
+    justify-content: center;
+  }
+
+  .error-boundary-content {
+    padding: 16px;
+  }
+
+  .error-boundary-header {
+    padding: 16px;
+  }
+}
+
 /* Fix para iconos de error */
 .text-red-600 svg {
   width: 16px !important;
@@ -1302,6 +1359,16 @@ button svg,
   height: 20px !important;
   max-width: 20px !important;
   max-height: 20px !important;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Fix para iconos en el header */

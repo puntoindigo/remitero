@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { useEffect } from "react"
 import { cn } from "@/lib/utils"
 
 interface PopoverProps {
@@ -45,16 +46,18 @@ const PopoverTrigger = React.forwardRef<HTMLButtonElement, PopoverTriggerProps>(
       if (internalRef.current) {
         // Store reference for positioning
         (internalRef.current as any).__popoverTrigger = true
-      }, []
+      }
     }, [])
     
-    if (asChild) {
-      return React.cloneElement(props.children as React.ReactElement, {
+    if (asChild && React.isValidElement(props.children)) {
+      return React.cloneElement(props.children as React.ReactElement<any>, {
         onClick: () => setOpen(!open),
-        ref: (el: HTMLElement) => {
-          internalRef.current = el
-          if (typeof ref === 'function') ref(el)
-          else if (ref) ref.current = el
+        ref: (el: HTMLElement | null) => {
+          if (el) {
+            internalRef.current = el
+            if (typeof ref === 'function') ref(el as HTMLButtonElement)
+            else if (ref) (ref as React.MutableRefObject<HTMLButtonElement | null>).current = el as HTMLButtonElement
+          }
         },
       })
     }
