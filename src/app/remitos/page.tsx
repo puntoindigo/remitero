@@ -102,37 +102,6 @@ function RemitosContent() {
   // Estados para modales y confirmaciones
   const [showPrintConfirm, setShowPrintConfirm] = useState(false);
   const [remitoToPrint, setRemitoToPrint] = useState<Remito | null>(null);
-
-  // Función de eliminación con useCallback para evitar problemas de hoisting
-  const handleDeleteRemito = useCallback((remito: Remito) => {
-    handleDeleteRequest(remito?.id, `Remito #${remito.number}`);
-  }, [handleDeleteRequest]);
-
-  const handlePrintRemito = useCallback((remito: Remito) => {
-    setRemitoToPrint(remito);
-    setShowPrintConfirm(true);
-  }, []);
-
-  // Configurar shortcuts de teclado (debe estar antes de cualquier return condicional)
-  useShortcuts([
-    {
-      key: 'n',
-      action: handleNewRemito,
-      description: 'Nuevo Remito'
-    }
-  ], !!companyId && !showForm);
-
-  // Listener para FAB mobile
-  useEffect(() => {
-    const handleFABClick = (event: any) => {
-      if (event.detail?.action === 'newRemito') {
-        handleNewRemito();
-      }
-    };
-
-    window.addEventListener('fabClick', handleFABClick);
-    return () => window.removeEventListener('fabClick', handleFABClick);
-  }, [handleNewRemito]);
   
   // No renderizar nada mientras redirige
   if (isMobile) {
