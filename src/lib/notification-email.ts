@@ -96,15 +96,15 @@ export async function sendActivityNotificationEmail({
             <!-- Header compacto -->
             <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 1rem 1.5rem; text-align: center;">
               <h1 style="margin: 0; color: #ffffff; font-size: 1.125rem; font-weight: 600;">
-                🔔 Notificación de Actividad ${description}
+                ${userName} ${description}
               </h1>
             </div>
             
             <!-- Content compacto -->
             <div style="padding: 1rem 1.5rem;">
-              <div style="background-color: #f9fafb; border-left: 4px solid #667eea; padding: 0.75rem 1rem; margin-bottom: 1rem; border-radius: 4px;">
+              <div style="background-color: #f9fafb; border-left: 4px solid #667eea; padding: 0.75rem 1rem; margin-bottom: 0.75rem; border-radius: 4px;">
                 <p style="margin: 0; font-size: 0.875rem; color: #111827; line-height: 1.5;">
-                  <strong>Usuario:</strong> ${userName} (${userEmail})<br>
+                  <strong>Email:</strong> ${userEmail}<br>
                   <strong>Fecha:</strong> ${formattedDate}${metadata && Object.keys(metadata).length > 0 ? `<br><strong>Detalles:</strong> ${Object.entries(metadata).filter(([k, v]) => v && k !== 'ipAddress').map(([k, v]) => {
                       if (k === 'remitoNumber') return `Remito #${v}`;
                       if (k === 'clientId') return `Cliente ${v}`;
@@ -114,15 +114,13 @@ export async function sendActivityNotificationEmail({
                 </p>
               </div>
               
-              <div style="background-color: #fef3c7; border: 1px solid #fde68a; border-radius: 6px; padding: 0.75rem 1rem; margin-bottom: 1rem;">
-                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
-                  <a href="${disableActionUrl}" style="display: inline-block; padding: 0.375rem 0.75rem; background-color: #dc2626; color: #ffffff; text-decoration: none; border-radius: 0.375rem; font-size: 0.75rem; font-weight: 500;">
-                    Desactivar esta acción
-                  </a>
-                  <a href="${disableAllUrl}" style="display: inline-block; padding: 0.375rem 0.75rem; background-color: #991b1b; color: #ffffff; text-decoration: none; border-radius: 0.375rem; font-size: 0.75rem; font-weight: 500;">
-                    Desactivar todas
-                  </a>
-                </div>
+              <div style="text-align: center; padding: 0.5rem 0;">
+                <a href="${disableActionUrl}" style="color: #6b7280; text-decoration: underline; font-size: 0.75rem; margin-right: 1rem;">
+                  Desactivar esta acción
+                </a>
+                <a href="${disableAllUrl}" style="color: #6b7280; text-decoration: underline; font-size: 0.75rem;">
+                  Desactivar todas
+                </a>
               </div>
             </div>
             
@@ -137,9 +135,9 @@ export async function sendActivityNotificationEmail({
         </html>
       `,
       text: `
-🔔 Notificación de Actividad ${description}
+${userName} ${description}
 
-Usuario: ${userName} (${userEmail})
+Email: ${userEmail}
 Fecha: ${formattedDate}
 ${metadata && Object.keys(metadata).length > 0 ? `\nDetalles: ${Object.entries(metadata).filter(([k, v]) => v && k !== 'ipAddress').map(([k, v]) => {
   if (k === 'remitoNumber') return `Remito #${v}`;
