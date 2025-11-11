@@ -88,12 +88,13 @@ export function ConfiguracionModal({ isOpen, onClose }: ConfiguracionModalProps)
           width: '100%',
           maxWidth: session?.user?.role === 'SUPERADMIN' ? '900px' : '500px',
           maxHeight: '85vh',
-          overflow: 'auto',
+          display: 'flex',
+          flexDirection: 'column',
           boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
+        {/* Header - Fijo */}
         <div
           style={{
             padding: '1rem 1.25rem',
@@ -101,6 +102,11 @@ export function ConfiguracionModal({ isOpen, onClose }: ConfiguracionModalProps)
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
+            backgroundColor: '#fff',
+            position: 'sticky',
+            top: 0,
+            zIndex: 10,
+            flexShrink: 0,
           }}
         >
           <div>
@@ -132,8 +138,8 @@ export function ConfiguracionModal({ isOpen, onClose }: ConfiguracionModalProps)
           </button>
         </div>
 
-        {/* Content */}
-        <div style={{ padding: '1.25rem' }}>
+        {/* Content - Con scroll */}
+        <div style={{ padding: '1.25rem', overflowY: 'auto', flex: 1 }}>
           {/* Perfil */}
           <div style={{ marginBottom: '1.25rem', paddingBottom: '1rem', borderBottom: '1px solid #e5e7eb' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>

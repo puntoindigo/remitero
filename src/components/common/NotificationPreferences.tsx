@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Bell, Mail, Save, Loader2 } from "lucide-react";
+import { Bell, Mail, Loader2 } from "lucide-react";
 import { ActivityAction } from "@/lib/user-activity-types";
 import { getActionDescription } from "@/lib/user-activity-types";
 import { useToast } from "@/hooks/useToast";
@@ -41,39 +41,38 @@ export function NotificationPreferences() {
     }
   };
 
-  const handleToggleEnabled = (action: ActivityAction) => {
-    setPreferences(prev => 
-      prev.map(p => 
-        p.action === action 
-          ? { ...p, enabled: !p.enabled }
-          : p
-      )
+  const handleToggleEnabled = async (action: ActivityAction) => {
+    const updated = preferences.map(p => 
+      p.action === action 
+        ? { ...p, enabled: !p.enabled }
+        : p
     );
+    setPreferences(updated);
+    await savePreferences(updated);
   };
 
-  const handleToggleEmail = (action: ActivityAction) => {
-    setPreferences(prev => 
-      prev.map(p => 
-        p.action === action 
-          ? { ...p, send_email: !p.send_email }
-          : p
-      )
+  const handleToggleEmail = async (action: ActivityAction) => {
+    const updated = preferences.map(p => 
+      p.action === action 
+        ? { ...p, send_email: !p.send_email }
+        : p
     );
+    setPreferences(updated);
+    await savePreferences(updated);
   };
 
-  const handleActivateAll = () => {
-    setPreferences(prev => 
-      prev.map(p => ({ ...p, enabled: true, send_email: true }))
-    );
+  const handleToggleAll = async () => {
+    const allEnabled = preferences.every(p => p.enabled && p.send_email);
+    const updated = preferences.map(p => ({ 
+      ...p, 
+      enabled: !allEnabled, 
+      send_email: !allEnabled 
+    }));
+    setPreferences(updated);
+    await savePreferences(updated);
   };
 
-  const handleDeactivateAll = () => {
-    setPreferences(prev => 
-      prev.map(p => ({ ...p, enabled: false, send_email: false }))
-    );
-  };
-
-  const handleSave = async () => {
+  const savePreferences = async (prefsToSave: NotificationPreference[]) => {
     try {
       setSaving(true);
       const response = await fetch('/api/notifications/preferences', {
@@ -81,7 +80,7 @@ export function NotificationPreferences() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ preferences }),
+        body: JSON.stringify({ preferences: prefsToSave }),
       });
 
       if (!response.ok) {
@@ -89,10 +88,12 @@ export function NotificationPreferences() {
         throw new Error(error.message || 'Error al guardar preferencias');
       }
 
-      showSuccess('Preferencias de notificaciones guardadas correctamente');
+      showSuccess('Preferencias actualizadas');
     } catch (error: any) {
       console.error('Error saving preferences:', error);
       showError(error.message || 'Error al guardar las preferencias');
+      // Revertir cambios en caso de error
+      fetchPreferences();
     } finally {
       setSaving(false);
     }
@@ -120,66 +121,46 @@ export function NotificationPreferences() {
     'Otros': ['OTHER']
   };
 
+  const allEnabled = preferences.length > 0 && preferences.every(p => p.enabled && p.send_email);
+
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between mb-4">
-        <div>
-          <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-            <Bell className="h-5 w-5 text-blue-600" />
-            Notificaciones de Actividad
-          </h3>
-          <p className="text-sm text-gray-600 mt-1">
-            Configura qué actividades quieres recibir por email. Útil para dar seguimiento de pruebas y errores.
-          </p>
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Bell className="h-4 w-4 text-blue-600" />
+          <h3 className="text-base font-semibold text-gray-900">Notificaciones de Actividad</h3>
         </div>
         <div className="flex items-center gap-2">
-          <button
-            onClick={handleActivateAll}
-            className="px-3 py-1.5 text-sm font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-md hover:bg-blue-100 transition-colors"
-          >
-            Activar Todas
-          </button>
-          <button
-            onClick={handleDeactivateAll}
-            className="px-3 py-1.5 text-sm font-medium text-gray-700 bg-gray-50 border border-gray-200 rounded-md hover:bg-gray-100 transition-colors"
-          >
-            Desactivar Todas
-          </button>
-          <button
-            onClick={handleSave}
-            disabled={saving}
-            className="btn primary flex items-center gap-2"
-          >
-            {saving ? (
-              <>
-                <Loader2 className="h-4 w-4 animate-spin" />
-                Guardando...
-              </>
-            ) : (
-              <>
-                <Save className="h-4 w-4" />
-                Guardar Cambios
-              </>
-            )}
-          </button>
+          <span className="text-xs text-gray-600">{allEnabled ? 'Todas activas' : 'Algunas activas'}</span>
+          <label className="relative inline-flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              checked={allEnabled}
+              onChange={handleToggleAll}
+              disabled={saving}
+              className="sr-only peer"
+            />
+            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+          </label>
+          {saving && <Loader2 className="h-4 w-4 animate-spin text-blue-600" />}
         </div>
       </div>
 
       <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
         {/* Encabezado de tabla */}
-        <div className="grid grid-cols-12 gap-4 p-4 bg-gray-50 border-b border-gray-200 font-semibold text-sm text-gray-700">
-          <div className="col-span-5">Acción</div>
+        <div className="grid grid-cols-12 gap-2 p-2 bg-gray-50 border-b border-gray-200 font-semibold text-xs text-gray-700">
+          <div className="col-span-6">Acción</div>
           <div className="col-span-3 text-center">Activar</div>
-          <div className="col-span-4 text-center">Enviar Email</div>
+          <div className="col-span-3 text-center">Email</div>
         </div>
 
         {/* Cuerpo de tabla */}
-        <div className="divide-y divide-gray-200 max-h-[600px] overflow-y-auto">
+        <div className="divide-y divide-gray-200 max-h-[500px] overflow-y-auto">
           {Object.entries(groupedActions).map(([category, actions]) => (
             <div key={category}>
               {/* Encabezado de categoría */}
-              <div className="px-4 py-2 bg-gray-100 border-b border-gray-200">
-                <h4 className="text-sm font-semibold text-gray-800">{category}</h4>
+              <div className="px-2 py-1 bg-gray-100 border-b border-gray-200">
+                <h4 className="text-xs font-semibold text-gray-800">{category}</h4>
               </div>
               
               {/* Acciones de la categoría */}
@@ -190,13 +171,13 @@ export function NotificationPreferences() {
                 return (
                   <div
                     key={action}
-                    className="grid grid-cols-12 gap-4 p-4 hover:bg-gray-50 transition-colors"
+                    className="grid grid-cols-12 gap-2 p-2 hover:bg-gray-50 transition-colors"
                   >
-                    <div className="col-span-5 flex items-center">
-                      <span className="text-sm text-gray-900">
+                    <div className="col-span-6 flex items-center gap-1">
+                      <span className="text-xs text-gray-900">
                         {getActionDescription(action)}
                       </span>
-                      <span className="ml-2 text-xs text-gray-500 font-mono">
+                      <span className="text-xs text-gray-400 font-mono">
                         ({action})
                       </span>
                     </div>
@@ -207,24 +188,25 @@ export function NotificationPreferences() {
                           type="checkbox"
                           checked={preference.enabled}
                           onChange={() => handleToggleEnabled(action)}
+                          disabled={saving}
                           className="sr-only peer"
                         />
-                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                        <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
                       </label>
                     </div>
                     
-                    <div className="col-span-4 flex items-center justify-center">
+                    <div className="col-span-3 flex items-center justify-center">
                       <label className="relative inline-flex items-center cursor-pointer">
                         <input
                           type="checkbox"
                           checked={preference.send_email && preference.enabled}
                           onChange={() => handleToggleEmail(action)}
-                          disabled={!preference.enabled}
-                          className="sr-only peer disabled:opacity-50"
+                          disabled={!preference.enabled || saving}
+                          className="sr-only peer"
                         />
-                        <div className={`w-11 h-6 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all ${
+                        <div className={`w-9 h-5 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all ${
                           preference.enabled
-                            ? 'bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 peer-checked:bg-green-600'
+                            ? 'bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-green-300 peer-checked:bg-green-600'
                             : 'bg-gray-100 cursor-not-allowed opacity-50'
                         }`}></div>
                       </label>
@@ -237,18 +219,13 @@ export function NotificationPreferences() {
         </div>
       </div>
 
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <div className="flex items-start gap-3">
-          <Mail className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
-          <div>
-            <h4 className="text-sm font-semibold text-blue-900 mb-1">
-              Información sobre las Notificaciones
-            </h4>
-            <p className="text-sm text-blue-800">
-              Las notificaciones se enviarán al email configurado en <code className="bg-blue-100 px-1 rounded">SUPERADMIN_EMAIL</code> o <code className="bg-blue-100 px-1 rounded">EMAIL_USER</code>. 
-              Cada email incluirá información detallada sobre la actividad realizada, incluyendo el usuario, la acción, fecha y hora, y detalles adicionales.
-            </p>
-          </div>
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-2">
+        <div className="flex items-start gap-2">
+          <Mail className="h-3.5 w-3.5 text-blue-600 flex-shrink-0 mt-0.5" />
+          <p className="text-xs text-blue-800">
+            Las notificaciones se envían a <code className="bg-blue-100 px-1 rounded text-xs">SUPERADMIN_EMAIL</code> o <code className="bg-blue-100 px-1 rounded text-xs">EMAIL_USER</code>. 
+            Los cambios se guardan automáticamente. Puedes desactivar desde el email.
+          </p>
         </div>
       </div>
     </div>
