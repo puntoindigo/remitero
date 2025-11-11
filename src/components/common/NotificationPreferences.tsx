@@ -140,7 +140,7 @@ export function NotificationPreferences() {
               disabled={saving}
               className="sr-only peer"
             />
-            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+            <div className="w-11 h-6 bg-gray-400 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-500 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
           </label>
           {saving && <Loader2 className="h-4 w-4 animate-spin text-blue-600" />}
         </div>
@@ -171,7 +171,7 @@ export function NotificationPreferences() {
                 return (
                   <div
                     key={action}
-                    className="grid grid-cols-12 gap-2 p-2 hover:bg-gray-50 transition-colors"
+                    className="grid grid-cols-12 gap-2 p-2 hover:bg-gray-200 transition-colors"
                   >
                     <div className="col-span-6 flex items-center gap-1">
                       <span className="text-xs text-gray-900">
@@ -191,7 +191,7 @@ export function NotificationPreferences() {
                           disabled={saving}
                           className="sr-only peer"
                         />
-                        <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
+                        <div className="w-9 h-5 bg-gray-400 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-500 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
                       </label>
                     </div>
                     
@@ -204,10 +204,10 @@ export function NotificationPreferences() {
                           disabled={!preference.enabled || saving}
                           className="sr-only peer"
                         />
-                        <div className={`w-9 h-5 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all ${
+                        <div className={`w-9 h-5 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-500 after:border after:rounded-full after:h-4 after:w-4 after:transition-all ${
                           preference.enabled
-                            ? 'bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-green-300 peer-checked:bg-green-600'
-                            : 'bg-gray-100 cursor-not-allowed opacity-50'
+                            ? 'bg-gray-400 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-green-300 peer-checked:bg-green-600'
+                            : 'bg-gray-300 cursor-not-allowed opacity-70'
                         }`}></div>
                       </label>
                     </div>
