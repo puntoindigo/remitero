@@ -93,67 +93,43 @@ export async function sendActivityNotificationEmail({
         </head>
         <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f3f4f6;">
           <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 0;">
-            <!-- Header -->
-            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 2rem; text-align: center;">
-              <h1 style="margin: 0; color: #ffffff; font-size: 1.5rem; font-weight: 600;">
-                🔔 Notificación de Actividad
+            <!-- Header compacto -->
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 1rem 1.5rem; text-align: center;">
+              <h1 style="margin: 0; color: #ffffff; font-size: 1.125rem; font-weight: 600;">
+                🔔 Notificación de Actividad ${description}
               </h1>
             </div>
             
-            <!-- Content -->
-            <div style="padding: 2rem;">
-              <div style="background-color: #f9fafb; border-left: 4px solid #667eea; padding: 1rem; margin-bottom: 1.5rem; border-radius: 4px;">
-                <p style="margin: 0; font-size: 1rem; font-weight: 600; color: #111827;">
-                  ${description}
+            <!-- Content compacto -->
+            <div style="padding: 1rem 1.5rem;">
+              <div style="background-color: #f9fafb; border-left: 4px solid #667eea; padding: 0.75rem 1rem; margin-bottom: 1rem; border-radius: 4px;">
+                <p style="margin: 0; font-size: 0.875rem; color: #111827; line-height: 1.5;">
+                  <strong>Usuario:</strong> ${userName} (${userEmail})<br>
+                  <strong>Fecha:</strong> ${formattedDate}${metadata && Object.keys(metadata).length > 0 ? `<br><strong>Detalles:</strong> ${Object.entries(metadata).filter(([k, v]) => v && k !== 'ipAddress').map(([k, v]) => {
+                      if (k === 'remitoNumber') return `Remito #${v}`;
+                      if (k === 'clientId') return `Cliente ${v}`;
+                      if (k === 'targetUserId') return `Usuario ${v}`;
+                      return `${k}: ${v}`;
+                    }).join(', ')}` : ''}
                 </p>
               </div>
               
-              <div style="background-color: #ffffff; border: 1px solid #e5e7eb; border-radius: 6px; padding: 1.5rem; margin-bottom: 1.5rem;">
-                <h2 style="margin: 0 0 1rem 0; font-size: 1.125rem; font-weight: 600; color: #111827;">
-                  Información de la Actividad
-                </h2>
-                
-                <table style="width: 100%; border-collapse: collapse;">
-                  <tr>
-                    <td style="padding: 0.5rem 0; color: #6b7280; font-size: 0.875rem; width: 140px;"><strong>Usuario:</strong></td>
-                    <td style="padding: 0.5rem 0; color: #111827; font-size: 0.875rem;">${userName}</td>
-                  </tr>
-                  <tr>
-                    <td style="padding: 0.5rem 0; color: #6b7280; font-size: 0.875rem;"><strong>Email:</strong></td>
-                    <td style="padding: 0.5rem 0; color: #111827; font-size: 0.875rem;">${userEmail}</td>
-                  </tr>
-                  <tr>
-                    <td style="padding: 0.5rem 0; color: #6b7280; font-size: 0.875rem;"><strong>Acción:</strong></td>
-                    <td style="padding: 0.5rem 0; color: #111827; font-size: 0.875rem;">${action}</td>
-                  </tr>
-                  <tr>
-                    <td style="padding: 0.5rem 0; color: #6b7280; font-size: 0.875rem;"><strong>Fecha y Hora:</strong></td>
-                    <td style="padding: 0.5rem 0; color: #111827; font-size: 0.875rem;">${formattedDate}</td>
-                  </tr>
-                </table>
-                
-                ${additionalDetails}
-              </div>
-              
-              <div style="background-color: #fef3c7; border: 1px solid #fde68a; border-radius: 6px; padding: 1rem; margin-bottom: 1.5rem;">
-                <p style="margin: 0; color: #92400e; font-size: 0.875rem; margin-bottom: 0.75rem;">
-                  <strong>ℹ️ Nota:</strong> Esta es una notificación automática del sistema. Puedes configurar qué actividades recibir en la sección de Configuración.
-                </p>
-                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                  <a href="${disableActionUrl}" style="display: inline-block; padding: 0.5rem 1rem; background-color: #dc2626; color: #ffffff; text-decoration: none; border-radius: 0.375rem; font-size: 0.8125rem; font-weight: 500;">
+              <div style="background-color: #fef3c7; border: 1px solid #fde68a; border-radius: 6px; padding: 0.75rem 1rem; margin-bottom: 1rem;">
+                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
+                  <a href="${disableActionUrl}" style="display: inline-block; padding: 0.375rem 0.75rem; background-color: #dc2626; color: #ffffff; text-decoration: none; border-radius: 0.375rem; font-size: 0.75rem; font-weight: 500;">
                     Desactivar esta acción
                   </a>
-                  <a href="${disableAllUrl}" style="display: inline-block; padding: 0.5rem 1rem; background-color: #991b1b; color: #ffffff; text-decoration: none; border-radius: 0.375rem; font-size: 0.8125rem; font-weight: 500;">
+                  <a href="${disableAllUrl}" style="display: inline-block; padding: 0.375rem 0.75rem; background-color: #991b1b; color: #ffffff; text-decoration: none; border-radius: 0.375rem; font-size: 0.75rem; font-weight: 500;">
                     Desactivar todas
                   </a>
                 </div>
               </div>
             </div>
             
-            <!-- Footer -->
-            <div style="background-color: #f9fafb; padding: 1.5rem; text-align: center; border-top: 1px solid #e5e7eb;">
-              <p style="margin: 0; color: #6b7280; font-size: 0.75rem;">
-                © ${new Date().getFullYear()} Sistema de Remitos - Punto Indigo. Todos los derechos reservados.
+            <!-- Footer compacto -->
+            <div style="background-color: #f9fafb; padding: 0.75rem 1.5rem; text-align: center; border-top: 1px solid #e5e7eb;">
+              <p style="margin: 0; color: #6b7280; font-size: 0.6875rem;">
+                © ${new Date().getFullYear()} Sistema de Remitos - Punto Indigo
               </p>
             </div>
           </div>
@@ -161,21 +137,19 @@ export async function sendActivityNotificationEmail({
         </html>
       `,
       text: `
-Notificación de Actividad del Sistema
+🔔 Notificación de Actividad ${description}
 
-${description}
+Usuario: ${userName} (${userEmail})
+Fecha: ${formattedDate}
+${metadata && Object.keys(metadata).length > 0 ? `\nDetalles: ${Object.entries(metadata).filter(([k, v]) => v && k !== 'ipAddress').map(([k, v]) => {
+  if (k === 'remitoNumber') return `Remito #${v}`;
+  if (k === 'clientId') return `Cliente ${v}`;
+  if (k === 'targetUserId') return `Usuario ${v}`;
+  return `${k}: ${v}`;
+}).join(', ')}` : ''}
 
-Información de la Actividad:
-- Usuario: ${userName}
-- Email: ${userEmail}
-- Acción: ${action}
-- Fecha y Hora: ${formattedDate}
-${metadata && Object.keys(metadata).length > 0 ? `\nDetalles: ${JSON.stringify(metadata, null, 2)}` : ''}
-
-Esta es una notificación automática del sistema. Puedes configurar qué actividades recibir en la sección de Configuración.
-
-Para desactivar esta acción: ${disableActionUrl}
-Para desactivar todas las notificaciones: ${disableAllUrl}
+Desactivar esta acción: ${disableActionUrl}
+Desactivar todas: ${disableAllUrl}
 
 © ${new Date().getFullYear()} Sistema de Remitos - Punto Indigo.
       `
