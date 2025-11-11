@@ -8,8 +8,10 @@ import { User, Palette, Settings, Bell, Shield, Globe } from 'lucide-react';
 import { NotificationPreferences } from '@/components/common/NotificationPreferences';
 
 export default function ConfiguracionPage() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const { currentTheme, themeConfig, availableThemes, setTheme } = useTheme();
+  
+  const isSuperAdmin = session?.user?.role === 'SUPERADMIN';
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -125,7 +127,7 @@ export default function ConfiguracionPage() {
             </div>
 
             {/* Notificaciones - Solo para SUPERADMIN */}
-            {session?.user?.role === 'SUPERADMIN' && (
+            {status === 'authenticated' && isSuperAdmin && (
               <div className="bg-white rounded-lg shadow-md p-6">
                 <NotificationPreferences />
               </div>
