@@ -64,13 +64,46 @@ export async function GET(request: NextRequest) {
     const totalRemitos = remitosData?.length || 0;
     const byStatusMap: Record<string, { id: string; name: string; count: number }> = {};
     let todayRemitos = 0;
+    
+    // Calcular remitos por día (últimos 30 días)
+    const daysMap: Record<string, number> = {};
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    thirtyDaysAgo.setHours(0, 0, 0, 0);
+    
+    // Inicializar todos los días con 0
+    for (let i = 0; i < 30; i++) {
+      const date = new Date(thirtyDaysAgo);
+      date.setDate(date.getDate() + i);
+      const dateKey = date.toISOString().split('T')[0]; // YYYY-MM-DD
+      daysMap[dateKey] = 0;
+    }
+    
     for (const r of remitosData || []) {
       const id = r.status as string;
       const name = estadoMap.get(id) || 'Desconocido';
       if (!byStatusMap[id]) byStatusMap[id] = { id, name, count: 0 };
       byStatusMap[id].count += 1;
       if (r.created_at >= startIso) todayRemitos += 1;
+      
+      // Contar por día
+      const remitoDate = new Date(r.created_at);
+      if (remitoDate >= thirtyDaysAgo) {
+        const dateKey = remitoDate.toISOString().split('T')[0];
+        if (daysMap[dateKey] !== undefined) {
+          daysMap[dateKey] = (daysMap[dateKey] || 0) + 1;
+        }
+      }
     }
+    
+    // Convertir a array ordenado para el gráfico
+    const remitosByDay = Object.entries(daysMap)
+      .map(([date, count]) => ({
+        date,
+        count,
+        label: new Date(date).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit' })
+      }))
+      .sort((a, b) => a.date.localeCompare(b.date));
 
     // Función helper para construir queries con o sin filtro de company_id
     const buildQuery = (table: string, filters: any[] = []) => {
@@ -113,6 +146,7 @@ export async function GET(request: NextRequest) {
         total: totalRemitos,
         byStatus: Object.values(byStatusMap),
         today: todayRemitos,
+        byDay: remitosByDay,
       },
       productos: { 
         total: productosCountRes.count || 0, 

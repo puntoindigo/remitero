@@ -3,7 +3,8 @@
 import { useSession } from "next-auth/react"
 import { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
-import { FileText, Package, Users, Building2, Tag, ShoppingBag, Plus, Eye, Building } from "lucide-react"
+import { FileText, Package, Users, Building2, Tag, ShoppingBag, Plus, Eye, Building, BarChart3 } from "lucide-react"
+import { RemitosChart } from "@/components/common/RemitosChart"
 import Link from "next/link"
 import { useCurrentUserSimple } from "@/hooks/useCurrentUserSimple"
 import { useEmpresas } from "@/hooks/useEmpresas"
@@ -15,6 +16,7 @@ interface DashboardStats {
   remitos: {
     total: number;
     byStatus: Array<{ id: string; name: string; count: number }>;
+    byDay?: Array<{ date: string; count: number; label: string }>;
   };
   productos: {
     total: number;
@@ -55,6 +57,7 @@ export default function DashboardPage() {
     categorias: 0
   })
   const [isLoading, setIsLoading] = useState(true)
+  const [remitosViewMode, setRemitosViewMode] = useState<'status' | 'chart'>('chart')
 
   // Cargar selección de empresa desde sessionStorage al inicializar
   useEffect(() => {
@@ -114,7 +117,11 @@ export default function DashboardPage() {
         const data = await resp.json();
 
         setStats({
-          remitos: { total: data.remitos?.total || 0, byStatus: data.remitos?.byStatus || [] },
+          remitos: { 
+            total: data.remitos?.total || 0, 
+            byStatus: data.remitos?.byStatus || [],
+            byDay: data.remitos?.byDay || []
+          },
           productos: { 
             total: data.productos?.total || 0, 
             conStock: data.productos?.conStock || 0, 
@@ -356,46 +363,105 @@ export default function DashboardPage() {
           <PinnedModalsPanel />
 
         <div className="dashboard-grid">
-          {cards.map((card) => (
-            <div key={card.title} className="dashboard-card">
-              {/* Header con ícono y título */}
-              <div className="dashboard-card-header">
-                <h3 className="dashboard-card-title">
-                  <card.icon className="dashboard-card-icon" />
-                  {card.title}
-                </h3>
-              </div>
-              
-              {/* Body - Estadísticas */}
-              <div className="dashboard-card-body">
-                {card.stats.map((stat, index) => (
-                  <Link key={index} href={stat.link} className="dashboard-stat-link">
-                    <div className="dashboard-stat-content">
-                      <span className="dashboard-stat-label">{stat.label}</span>
-                      <div className="dashboard-stat-value">
-                        <span className="dashboard-stat-number">{stat.value}</span>
-                        <Eye className="h-4 w-4 text-gray-400" />
-                      </div>
+          {cards.map((card) => {
+            const isRemitosCard = card.title === "Remitos";
+            const showChart = isRemitosCard && remitosViewMode === 'chart';
+            const showStatus = isRemitosCard && remitosViewMode === 'status';
+            
+            return (
+              <div key={card.title} className="dashboard-card" style={{ position: 'relative' }}>
+                {/* Header con ícono y título */}
+                <div className="dashboard-card-header">
+                  <h3 className="dashboard-card-title">
+                    <card.icon className="dashboard-card-icon" />
+                    {card.title}
+                  </h3>
+                  {/* Botón pequeño para cambiar vista en Remitos */}
+                  {isRemitosCard && (
+                    <button
+                      onClick={() => setRemitosViewMode(remitosViewMode === 'chart' ? 'status' : 'chart')}
+                      style={{
+                        position: 'absolute',
+                        top: '0.75rem',
+                        right: '0.75rem',
+                        padding: '0.25rem 0.5rem',
+                        fontSize: '0.75rem',
+                        border: '1px solid #e5e7eb',
+                        borderRadius: '0.25rem',
+                        background: '#fff',
+                        color: '#6b7280',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.25rem',
+                        zIndex: 10
+                      }}
+                      title={remitosViewMode === 'chart' ? 'Ver por estado' : 'Ver gráfico'}
+                    >
+                      {remitosViewMode === 'chart' ? (
+                        <>
+                          <FileText className="h-3 w-3" />
+                          <span style={{ fontSize: '0.6875rem' }}>Estados</span>
+                        </>
+                      ) : (
+                        <>
+                          <BarChart3 className="h-3 w-3" />
+                          <span style={{ fontSize: '0.6875rem' }}>Gráfico</span>
+                        </>
+                      )}
+                    </button>
+                  )}
+                </div>
+                
+                {/* Body - Estadísticas o Gráfico */}
+                <div className="dashboard-card-body">
+                  {showChart && stats.remitos.byDay && stats.remitos.byDay.length > 0 ? (
+                    <div style={{ padding: '0.5rem 0' }}>
+                      <RemitosChart data={stats.remitos.byDay} />
                     </div>
-                  </Link>
-                ))}
-              </div>
+                  ) : showStatus ? (
+                    card.stats.map((stat, index) => (
+                      <Link key={index} href={stat.link} className="dashboard-stat-link">
+                        <div className="dashboard-stat-content">
+                          <span className="dashboard-stat-label">{stat.label}</span>
+                          <div className="dashboard-stat-value">
+                            <span className="dashboard-stat-number">{stat.value}</span>
+                            <Eye className="h-4 w-4 text-gray-400" />
+                          </div>
+                        </div>
+                      </Link>
+                    ))
+                  ) : (
+                    card.stats.map((stat, index) => (
+                      <Link key={index} href={stat.link} className="dashboard-stat-link">
+                        <div className="dashboard-stat-content">
+                          <span className="dashboard-stat-label">{stat.label}</span>
+                          <div className="dashboard-stat-value">
+                            <span className="dashboard-stat-number">{stat.value}</span>
+                            <Eye className="h-4 w-4 text-gray-400" />
+                          </div>
+                        </div>
+                      </Link>
+                    ))
+                  )}
+                </div>
 
-              {/* Footer - Acciones (botones siempre a la misma altura) */}
-              <div className="dashboard-card-footer">
-                <div className="dashboard-buttons-row">
-                  <Link href={card.stats[0].link} className="dashboard-view-button">
-                    <Eye className="h-4 w-4" />
-                    Ver {card.title.toLowerCase()}
-                  </Link>
-                  <Link href={getNewLink(card.title)} className="dashboard-new-button">
-                    <Plus className="h-4 w-4" />
-                    {getNewText(card.title)} {getSingularName(card.title)}
-                  </Link>
+                {/* Footer - Acciones (botones siempre a la misma altura) */}
+                <div className="dashboard-card-footer">
+                  <div className="dashboard-buttons-row">
+                    <Link href={card.stats[0].link} className="dashboard-view-button">
+                      <Eye className="h-4 w-4" />
+                      Ver {card.title.toLowerCase()}
+                    </Link>
+                    <Link href={getNewLink(card.title)} className="dashboard-new-button">
+                      <Plus className="h-4 w-4" />
+                      {getNewText(card.title)} {getSingularName(card.title)}
+                    </Link>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </main>
