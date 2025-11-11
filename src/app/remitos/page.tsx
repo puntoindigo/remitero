@@ -115,7 +115,7 @@ function RemitosContent() {
     );
   }
 
-  // Eliminar persistencia: no guardamos el filtro
+  // Eliminar persistencia: no guardamos el filtro (comentario actualizado)
 
   // Si viene ?status= en la URL con nombre (con _ por espacios) o id, mapearlo a id cuando tengamos los estados
   useEffect(() => {
