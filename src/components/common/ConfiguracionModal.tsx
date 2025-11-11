@@ -5,7 +5,8 @@ import { useSession } from 'next-auth/react';
 import { useTheme } from '@/hooks/useTheme';
 import { ThemeSelector } from '@/components/common/ThemeSelector';
 import { useColorTheme } from '@/contexts/ColorThemeContext';
-import { User, Palette, Settings, Shield, X, Pin } from 'lucide-react';
+import { User, Palette, Settings, Shield, X, Pin, Bell } from 'lucide-react';
+import { NotificationPreferences } from '@/components/common/NotificationPreferences';
 
 interface ConfiguracionModalProps {
   isOpen: boolean;
@@ -85,7 +86,7 @@ export function ConfiguracionModal({ isOpen, onClose }: ConfiguracionModalProps)
           backgroundColor: '#fff',
           borderRadius: '0.75rem',
           width: '100%',
-          maxWidth: '500px',
+          maxWidth: session?.user?.role === 'SUPERADMIN' ? '900px' : '500px',
           maxHeight: '85vh',
           overflow: 'auto',
           boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
@@ -240,6 +241,13 @@ export function ConfiguracionModal({ isOpen, onClose }: ConfiguracionModalProps)
               </button>
             </div>
           </div>
+
+          {/* Notificaciones de Actividad - Solo para SUPERADMIN */}
+          {session?.user?.role === 'SUPERADMIN' && (
+            <div style={{ marginBottom: '1.25rem', paddingBottom: '1rem', borderBottom: '1px solid #e5e7eb' }}>
+              <NotificationPreferences />
+            </div>
+          )}
 
           {/* Botonera (solo desarrollo) */}
           {process.env.NODE_ENV === 'development' && (
