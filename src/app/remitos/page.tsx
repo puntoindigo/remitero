@@ -113,7 +113,7 @@ function RemitosContent() {
     setShowPrintConfirm(true);
   }, []);
 
-  // Configurar shortcuts de teclado (debe estar antes de cualquier return)
+  // Configurar shortcuts de teclado (debe estar antes de cualquier return condicional)
   useShortcuts([
     {
       key: 'n',
