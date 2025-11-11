@@ -63,6 +63,12 @@ export function useEmpresas() {
       }
       
       if (!response.ok) {
+        // Si no es SUPERADMIN, no es un error - simplemente no tiene acceso
+        if (session?.user?.role !== 'SUPERADMIN') {
+          setEmpresas([]);
+          setIsLoading(false);
+          return;
+        }
         const errorText = await response.text().catch(() => 'Error desconocido');
         throw new Error(`Error al cargar empresas: ${response.status} - ${errorText}`);
       }

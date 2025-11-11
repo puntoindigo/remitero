@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { FileText, Calendar, User, Package, Search, Filter } from "lucide-react";
+import { FileText, Calendar, User, Package, Search, Filter, Eye, Edit } from "lucide-react";
 import { formatDate } from "@/lib/utils/formatters";
 import { MobileLayout } from "@/components/layout/MobileLayout";
 import { useCurrentUserSimple } from "@/hooks/useCurrentUserSimple";
