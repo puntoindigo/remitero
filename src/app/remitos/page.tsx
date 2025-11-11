@@ -276,14 +276,25 @@ function RemitosContent() {
   }, []);
 
   // Configurar shortcuts de teclado (después de que handleNewRemito y showForm estén definidos)
-  // Verificar que handleNewRemito esté definido antes de usarlo
-  useShortcuts([
-    {
-      key: 'n',
-      action: handleNewRemito || (() => {}),
-      description: 'Nuevo Remito'
-    }
-  ], !!companyId && !showForm && !!handleNewRemito);
+  // Usar useEffect para asegurar que se ejecute después de la inicialización completa
+  useEffect(() => {
+    if (!handleNewRemito || !companyId || showForm) return;
+    
+    // Configurar shortcut manualmente para evitar problemas de inicialización
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if (e.key === 'n' && !e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey) {
+        const target = e.target as HTMLElement;
+        if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) {
+          return;
+        }
+        e.preventDefault();
+        handleNewRemito();
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, [handleNewRemito, companyId, showForm]);
 
   // Listener para FAB mobile
   useEffect(() => {
