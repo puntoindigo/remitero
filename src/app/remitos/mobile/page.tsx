@@ -12,7 +12,6 @@ import { useRemitosQuery, type Remito } from "@/hooks/queries/useRemitosQuery";
 import { useEstadosRemitosQuery } from "@/hooks/queries/useEstadosRemitosQuery";
 import FilterableSelect from "@/components/common/FilterableSelect";
 import { LoadingSpinner } from "@/components/common/LoadingSpinner";
-import Link from "next/link";
 
 export default function MobileRemitosPage() {
   const { data: session } = useSession();
