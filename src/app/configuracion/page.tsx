@@ -5,6 +5,7 @@ import { useSession } from 'next-auth/react';
 import { useTheme } from '@/hooks/useTheme';
 import { ThemeSelector } from '@/components/common/ThemeSelector';
 import { User, Palette, Settings, Bell, Shield, Globe } from 'lucide-react';
+import { NotificationPreferences } from '@/components/common/NotificationPreferences';
 
 export default function ConfiguracionPage() {
   const { data: session } = useSession();
@@ -122,6 +123,13 @@ export default function ConfiguracionPage() {
                 </div>
               </div>
             </div>
+
+            {/* Notificaciones - Solo para SUPERADMIN */}
+            {session?.user?.role === 'SUPERADMIN' && (
+              <div className="bg-white rounded-lg shadow-md p-6">
+                <NotificationPreferences />
+              </div>
+            )}
 
             {/* Sistema */}
             <div className="bg-white rounded-lg shadow-md p-6">

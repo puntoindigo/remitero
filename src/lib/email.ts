@@ -2,7 +2,7 @@ import nodemailer from 'nodemailer';
 import { google } from 'googleapis';
 
 // Configuración del transporter de Gmail con OAuth2
-const createTransporter = async () => {
+export const createTransporter = async () => {
   const emailUser = process.env.EMAIL_USER?.trim();
   
   // Intentar primero con OAuth2

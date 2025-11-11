@@ -1,5 +1,7 @@
 import { supabaseAdmin } from "./supabase";
 import type { ActivityAction, ActivityLogMetadata, ActivityLog } from "./user-activity-types";
+import { getActionDescription } from "./user-activity-types";
+import { sendActivityNotificationEmail } from "./notification-email";
 
 // Re-exportar tipos para compatibilidad
 export type { ActivityAction, ActivityLogMetadata, ActivityLog };
@@ -74,6 +76,14 @@ export async function logUserActivity(
         insertedAt: data?.[0]?.created_at,
         insertedUserId: data?.[0]?.user_id
       });
+
+      // Verificar si debemos enviar notificación por email
+      try {
+        await checkAndSendNotification(cleanUserId, action, description || null, metadata, data?.[0]?.created_at);
+      } catch (notificationError: any) {
+        // No fallar el logging si la notificación falla
+        console.warn('⚠️ [logUserActivity] Error checking/sending notification (no crítico):', notificationError.message);
+      }
     }
   } catch (error: any) {
     console.error('❌ [logUserActivity] Exception logging user activity:', {
@@ -279,6 +289,79 @@ export async function getUserActivityLogs(
   } catch (error) {
     console.error('❌ [getUserActivityLogs] Exception:', error);
     return [];
+  }
+}
+
+/**
+ * Verifica si debe enviar notificación por email y la envía si corresponde
+ */
+async function checkAndSendNotification(
+  userId: string,
+  action: ActivityAction,
+  description: string | null,
+  metadata: ActivityLogMetadata | undefined,
+  timestamp: string
+): Promise<void> {
+  try {
+    // Verificar preferencias de notificación
+    const { data: preference, error: prefError } = await supabaseAdmin
+      .from('notification_preferences')
+      .select('enabled, send_email')
+      .eq('action', action)
+      .single();
+
+    if (prefError || !preference) {
+      // Si no hay preferencia o hay error, no enviar notificación
+      return;
+    }
+
+    // Si no está habilitado o no debe enviar email, salir
+    if (!preference.enabled || !preference.send_email) {
+      return;
+    }
+
+    // Obtener información del usuario que realizó la acción
+    const { data: user, error: userError } = await supabaseAdmin
+      .from('users')
+      .select('id, name, email')
+      .eq('id', userId)
+      .single();
+
+    if (userError || !user) {
+      console.warn('⚠️ [checkAndSendNotification] No se pudo obtener información del usuario:', userError?.message);
+      return;
+    }
+
+    // Enviar email de notificación
+    const emailSent = await sendActivityNotificationEmail({
+      action,
+      description: description || getActionDescription(action, metadata),
+      userName: user.name || 'Usuario desconocido',
+      userEmail: user.email || 'email@desconocido.com',
+      metadata,
+      timestamp: timestamp || new Date().toISOString()
+    });
+
+    if (emailSent) {
+      console.log('✅ [checkAndSendNotification] Email de notificación enviado:', {
+        action,
+        userId,
+        userEmail: user.email
+      });
+    } else {
+      console.warn('⚠️ [checkAndSendNotification] No se pudo enviar email de notificación:', {
+        action,
+        userId
+      });
+    }
+  } catch (error: any) {
+    // No lanzar error, solo loguear
+    console.error('❌ [checkAndSendNotification] Error:', {
+      error: error?.message,
+      stack: error?.stack,
+      action,
+      userId
+    });
   }
 }
 
