@@ -41,13 +41,10 @@ export function PinnedModalsPanel() {
   // Verificar si los modales anclados están habilitados
   const pinnedModalsEnabled = (session?.user as any)?.enable_pinned_modals ?? false;
   
-  // Si no está habilitado, no mostrar nada
-  if (!pinnedModalsEnabled) return null;
-  
   // Obtener companyId del usuario actual
   const companyId = currentUser?.companyId || undefined;
   
-  // Hooks para datos necesarios
+  // Hooks para datos necesarios (SIEMPRE ejecutar antes de retornos condicionales)
   const { createEmpresa, updateEmpresa } = useEmpresas();
   const { createCategoria, updateCategoria } = useCategorias();
   const { createEstadoRemito, updateEstadoRemito } = useEstadosRemitos();
@@ -61,6 +58,8 @@ export function PinnedModalsPanel() {
   const { data: clients = [] } = useClientesQuery(companyId || undefined);
   const { data: products = [] } = useProductosQuery(companyId || undefined);
 
+  // Retornos condicionales DESPUÉS de todos los hooks
+  if (!pinnedModalsEnabled) return null;
   if (!isLoaded || pinnedModals.length === 0) return null;
 
   // Handlers para cada tipo de formulario
