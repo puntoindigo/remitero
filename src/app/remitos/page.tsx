@@ -295,8 +295,6 @@ function RemitosContent() {
   const { modalState, showSuccess: showModalSuccess, showError: showModalError, closeModal } = useMessageModal();
   const { toasts, showSuccess: showToastSuccess, showError: showToastError, removeToast } = useToast();
   const { updateStatus } = useDirectUpdate();
-  const [showPrintConfirm, setShowPrintConfirm] = useState(false);
-  const [remitoToPrint, setRemitoToPrint] = useState<Remito | null>(null);
 
   // Detectar si viene de /nuevo y abrir formulario
   useEffect(() => {
@@ -312,41 +310,8 @@ function RemitosContent() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams, companyId, showForm]); // Solo ejecutar cuando cambien searchParams o companyId
 
-  // Configurar shortcuts de teclado
-  useShortcuts([
-    {
-      key: 'n',
-      action: handleNewRemito,
-      description: 'Nuevo Remito'
-    }
-  ], !!companyId && !showForm);
-
-  // Listener para FAB mobile
-  useEffect(() => {
-    const handleFABClick = (event: any) => {
-      if (event.detail?.action === 'newRemito') {
-        handleNewRemito();
-      }
-    };
-
-    window.addEventListener('fabClick', handleFABClick);
-    return () => window.removeEventListener('fabClick', handleFABClick);
-  }, [handleNewRemito]);
-
   // 🚀 REACT QUERY: Ya no necesita loadData ni useEffect
   // React Query se encarga automáticamente del fetching y caching
-
-  // Función de eliminación con useCallback para evitar problemas de hoisting
-  const handleDeleteRemito = useCallback((remito: Remito) => {
-    handleDeleteRequest(remito?.id, `Remito #${remito.number}`);
-  }, [handleDeleteRequest]);
-
-  const handlePrintRemito = useCallback((remito: Remito) => {
-    if (remito?.id) {
-      // Abrir vista de impresión HTML en nueva pestaña usando ID del remito (único globalmente)
-      window.open(`/remitos/${remito.id}/print`, '_blank');
-    }
-  }, []);
 
   // CRUD Table configuration - usar remitos filtrados
   const {
