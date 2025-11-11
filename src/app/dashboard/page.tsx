@@ -2,7 +2,6 @@
 
 import { useSession } from "next-auth/react"
 import { useState, useEffect, useRef } from "react"
-import { useRouter } from "next/navigation"
 import { FileText, Package, Users, Building2, Tag, ShoppingBag, Plus, Eye, Building, BarChart3 } from "lucide-react"
 import { RemitosChart } from "@/components/common/RemitosChart"
 import Link from "next/link"
@@ -11,6 +10,7 @@ import { useEmpresas } from "@/hooks/useEmpresas"
 import FilterableSelect from "@/components/common/FilterableSelect"
 import { useShortcuts } from "@/hooks/useShortcuts"
 import { PinnedModalsPanel } from "@/components/common/PinnedModalsPanel"
+import { useIsMobile } from "@/hooks/useIsMobile"
 
 interface DashboardStats {
   remitos: {
@@ -41,6 +41,19 @@ export default function DashboardPage() {
   const currentUser = useCurrentUserSimple()
   const { empresas } = useEmpresas()
   const router = useRouter()
+  const isMobile = useIsMobile()
+  
+  // Redirigir a versión mobile si es necesario
+  useEffect(() => {
+    if (isMobile && typeof window !== 'undefined') {
+      router.replace('/dashboard/mobile');
+    }
+  }, [isMobile, router]);
+  
+  // No renderizar nada mientras redirige
+  if (isMobile) {
+    return null;
+  }
   const [selectedCompanyId, setSelectedCompanyId] = useState<string>("")
   const [stats, setStats] = useState<DashboardStats>({
     remitos: { total: 0, byStatus: [] },

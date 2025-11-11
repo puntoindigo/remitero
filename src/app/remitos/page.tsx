@@ -39,6 +39,7 @@ import {
 } from "@/hooks/queries/useRemitosQuery";
 import { useQueryClient } from "@tanstack/react-query";
 import { useColorTheme } from "@/contexts/ColorThemeContext";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 function RemitosContent() {
   const currentUser = useCurrentUserSimple();
@@ -47,6 +48,19 @@ function RemitosContent() {
   const router = useRouter();
   const pathname = usePathname();
   const queryClient = useQueryClient();
+  const isMobile = useIsMobile();
+  
+  // Redirigir a versión mobile si es necesario
+  useEffect(() => {
+    if (isMobile && typeof window !== 'undefined') {
+      router.replace('/remitos/mobile');
+    }
+  }, [isMobile, router]);
+  
+  // No renderizar nada mientras redirige
+  if (isMobile) {
+    return null;
+  }
 
   // Prevenir errores de client-side exception
   if (!currentUser) {
