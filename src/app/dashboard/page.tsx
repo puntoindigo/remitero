@@ -201,6 +201,17 @@ export default function DashboardPage() {
     };
   }, [currentUser?.companyId, currentUser?.role, selectedCompanyId])
 
+  // Shortcut para ir al dashboard (si no está en uso globalmente)
+  // Nota: El shortcut 'D' ya existe en Header.tsx globalmente, pero lo agregamos aquí
+  // para asegurar que funcione incluso si Header no está montado
+  useShortcuts([
+    {
+      key: 'd',
+      action: () => router.push('/dashboard'),
+      description: 'Dashboard'
+    }
+  ], true);
+
   // No renderizar nada mientras redirige a mobile
   if (isMobile) {
     return null;
@@ -324,17 +335,6 @@ export default function DashboardPage() {
       ]
     })
   }
-
-  // Shortcut para ir al dashboard (si no está en uso globalmente)
-  // Nota: El shortcut 'D' ya existe en Header.tsx globalmente, pero lo agregamos aquí
-  // para asegurar que funcione incluso si Header no está montado
-  useShortcuts([
-    {
-      key: 'd',
-      action: () => router.push('/dashboard'),
-      description: 'Dashboard'
-    }
-  ], true);
 
   // OPTIMIZADO: No mostrar loading spinner - mostrar contenido inmediatamente con skeleton o datos en cache
   // Solo mostrar loading si realmente no hay datos (primera carga)
