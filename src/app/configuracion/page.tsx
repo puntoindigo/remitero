@@ -1,20 +1,38 @@
 "use client";
 
-import React from 'react';
+import React, { useEffect, Suspense } from 'react';
 import { useSession } from 'next-auth/react';
 import { useTheme } from '@/hooks/useTheme';
 import { ThemeSelector } from '@/components/common/ThemeSelector';
 import { User, Palette, Settings, Bell, Shield, Globe } from 'lucide-react';
 import { NotificationPreferences } from '@/components/common/NotificationPreferences';
+import { useSearchParams } from 'next/navigation';
+import { useToast } from '@/hooks/useToast';
 
-export default function ConfiguracionPage() {
+function ConfiguracionContent() {
   const { data: session, status } = useSession();
   const { currentTheme, themeConfig, availableThemes, setTheme } = useTheme();
+  const searchParams = useSearchParams();
+  const { showSuccess } = useToast();
   
   const isSuperAdmin = session?.user?.role === 'SUPERADMIN';
   
+  // Mostrar mensaje si se desactivó desde el email
+  useEffect(() => {
+    const disabled = searchParams.get('disabled');
+    if (disabled) {
+      if (disabled === 'all') {
+        showSuccess('Todas las notificaciones han sido desactivadas');
+      } else {
+        showSuccess(`La notificación para ${disabled} ha sido desactivada`);
+      }
+      // Limpiar el parámetro de la URL
+      window.history.replaceState({}, '', '/configuracion');
+    }
+  }, [searchParams, showSuccess]);
+  
   // Debug: verificar por qué no aparece el panel
-  React.useEffect(() => {
+  useEffect(() => {
     if (status === 'authenticated') {
       console.log('🔍 [Configuración] Session status:', {
         status,
@@ -168,5 +186,17 @@ export default function ConfiguracionPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ConfiguracionPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 py-8 flex items-center justify-center">
+        <div className="text-gray-600">Cargando configuración...</div>
+      </div>
+    }>
+      <ConfiguracionContent />
+    </Suspense>
   );
 }

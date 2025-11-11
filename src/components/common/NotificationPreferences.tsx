@@ -61,6 +61,18 @@ export function NotificationPreferences() {
     );
   };
 
+  const handleActivateAll = () => {
+    setPreferences(prev => 
+      prev.map(p => ({ ...p, enabled: true, send_email: true }))
+    );
+  };
+
+  const handleDeactivateAll = () => {
+    setPreferences(prev => 
+      prev.map(p => ({ ...p, enabled: false, send_email: false }))
+    );
+  };
+
   const handleSave = async () => {
     try {
       setSaving(true);
@@ -110,7 +122,7 @@ export function NotificationPreferences() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between mb-4">
         <div>
           <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
             <Bell className="h-5 w-5 text-blue-600" />
@@ -120,23 +132,37 @@ export function NotificationPreferences() {
             Configura qué actividades quieres recibir por email. Útil para dar seguimiento de pruebas y errores.
           </p>
         </div>
-        <button
-          onClick={handleSave}
-          disabled={saving}
-          className="btn primary flex items-center gap-2"
-        >
-          {saving ? (
-            <>
-              <Loader2 className="h-4 w-4 animate-spin" />
-              Guardando...
-            </>
-          ) : (
-            <>
-              <Save className="h-4 w-4" />
-              Guardar Cambios
-            </>
-          )}
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleActivateAll}
+            className="px-3 py-1.5 text-sm font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-md hover:bg-blue-100 transition-colors"
+          >
+            Activar Todas
+          </button>
+          <button
+            onClick={handleDeactivateAll}
+            className="px-3 py-1.5 text-sm font-medium text-gray-700 bg-gray-50 border border-gray-200 rounded-md hover:bg-gray-100 transition-colors"
+          >
+            Desactivar Todas
+          </button>
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            className="btn primary flex items-center gap-2"
+          >
+            {saving ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Guardando...
+              </>
+            ) : (
+              <>
+                <Save className="h-4 w-4" />
+                Guardar Cambios
+              </>
+            )}
+          </button>
+        </div>
       </div>
 
       <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">

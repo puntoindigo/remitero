@@ -1,6 +1,7 @@
 import { createTransporter } from './email';
 import { ActivityAction, ActivityLogMetadata } from './user-activity-types';
 import { getActionDescription } from './user-activity-types';
+import { generateDisableToken } from '../app/api/notifications/disable/route';
 
 interface SendActivityNotificationEmailParams {
   action: ActivityAction;
@@ -44,6 +45,14 @@ export async function sendActivityNotificationEmail({
       console.error('❌ [Notification Email] No se configuró SUPERADMIN_EMAIL o EMAIL_USER');
       return false;
     }
+
+    // Generar tokens para desactivar desde el email
+    const baseUrl = process.env.NEXTAUTH_URL || 'https://remitero-dev.vercel.app';
+    const disableActionToken = generateDisableToken(action);
+    const disableAllToken = generateDisableToken('ALL');
+    
+    const disableActionUrl = `${baseUrl}/api/notifications/disable?action=${action}&token=${disableActionToken}`;
+    const disableAllUrl = `${baseUrl}/api/notifications/disable?action=ALL&token=${disableAllToken}`;
 
     const date = new Date(timestamp);
     const formattedDate = date.toLocaleString('es-AR', {
@@ -127,9 +136,17 @@ export async function sendActivityNotificationEmail({
               </div>
               
               <div style="background-color: #fef3c7; border: 1px solid #fde68a; border-radius: 6px; padding: 1rem; margin-bottom: 1.5rem;">
-                <p style="margin: 0; color: #92400e; font-size: 0.875rem;">
+                <p style="margin: 0; color: #92400e; font-size: 0.875rem; margin-bottom: 0.75rem;">
                   <strong>ℹ️ Nota:</strong> Esta es una notificación automática del sistema. Puedes configurar qué actividades recibir en la sección de Configuración.
                 </p>
+                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                  <a href="${disableActionUrl}" style="display: inline-block; padding: 0.5rem 1rem; background-color: #dc2626; color: #ffffff; text-decoration: none; border-radius: 0.375rem; font-size: 0.8125rem; font-weight: 500;">
+                    Desactivar esta acción
+                  </a>
+                  <a href="${disableAllUrl}" style="display: inline-block; padding: 0.5rem 1rem; background-color: #991b1b; color: #ffffff; text-decoration: none; border-radius: 0.375rem; font-size: 0.8125rem; font-weight: 500;">
+                    Desactivar todas
+                  </a>
+                </div>
               </div>
             </div>
             
@@ -156,6 +173,9 @@ Información de la Actividad:
 ${metadata && Object.keys(metadata).length > 0 ? `\nDetalles: ${JSON.stringify(metadata, null, 2)}` : ''}
 
 Esta es una notificación automática del sistema. Puedes configurar qué actividades recibir en la sección de Configuración.
+
+Para desactivar esta acción: ${disableActionUrl}
+Para desactivar todas las notificaciones: ${disableAllUrl}
 
 © ${new Date().getFullYear()} Sistema de Remitos - Punto Indigo.
       `
