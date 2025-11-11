@@ -43,18 +43,6 @@ export default function DashboardPage() {
   const { empresas } = useEmpresas()
   const router = useRouter()
   const isMobile = useIsMobile()
-  
-  // Redirigir a versión mobile si es necesario
-  useEffect(() => {
-    if (isMobile && typeof window !== 'undefined') {
-      router.replace('/dashboard/mobile');
-    }
-  }, [isMobile, router]);
-  
-  // No renderizar nada mientras redirige
-  if (isMobile) {
-    return null;
-  }
   const [selectedCompanyId, setSelectedCompanyId] = useState<string>("")
   const [stats, setStats] = useState<DashboardStats>({
     remitos: { total: 0, byStatus: [] },
@@ -72,6 +60,18 @@ export default function DashboardPage() {
   })
   const [isLoading, setIsLoading] = useState(true)
   const [remitosViewMode, setRemitosViewMode] = useState<'status' | 'chart'>('chart')
+
+  // Track para evitar cargas duplicadas por mismo companyId
+  const lastFetchedCompanyId = useRef<string | null>(null)
+  const inFlightCompanyId = useRef<string | null>(null)
+  const debounceTimer = useRef<NodeJS.Timeout | null>(null)
+
+  // Redirigir a versión mobile si es necesario
+  useEffect(() => {
+    if (isMobile && typeof window !== 'undefined') {
+      router.replace('/dashboard/mobile');
+    }
+  }, [isMobile, router]);
 
   // Cargar selección de empresa desde sessionStorage al inicializar
   useEffect(() => {
@@ -201,10 +201,10 @@ export default function DashboardPage() {
     };
   }, [currentUser?.companyId, currentUser?.role, selectedCompanyId])
 
-  // Track para evitar cargas duplicadas por mismo companyId
-  const lastFetchedCompanyId = useRef<string | null>(null)
-  const inFlightCompanyId = useRef<string | null>(null)
-  const debounceTimer = useRef<NodeJS.Timeout | null>(null)
+  // No renderizar nada mientras redirige a mobile
+  if (isMobile) {
+    return null;
+  }
 
   // Funciones helper para generar enlaces y nombres
   const getNewLink = (title: string) => {
