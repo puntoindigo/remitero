@@ -114,35 +114,6 @@ function RemitosContent() {
       </main>
     );
   }
-  const { data: remitosPage, isLoading } = useRemitosQuery(companyId || undefined, page, pageSize);
-  const remitos = (remitosPage?.items as any) || [];
-  const totalRemitos = remitosPage?.total || remitos?.length || 0;
-  const createMutation = useCreateRemitoMutation();
-  const updateMutation = useUpdateRemitoMutation();
-  const deleteMutation = useDeleteRemitoMutation();
-  
-  // Estados con React Query (cache + dedupe)
-  const { data: estadosActivos = [] } = useEstadosRemitosQuery(companyId || undefined);
-  const { empresas } = useEmpresas();
-  
-  // Productos y clientes con React Query (evita dobles fetch en dev)
-  // Definidos más abajo cuando ya tenemos showForm
-  const [statusChanging, setStatusChanging] = useState<string | null>(null);
-  
-  // Filtro de estado: se inicializa desde la URL (si existe); caso contrario, 'all'
-  const [selectedStatusFilter, setSelectedStatusFilter] = useState<string>(() => {
-    if (typeof window === 'undefined') return 'all';
-    const urlStatus = new URLSearchParams(window.location.search).get('status');
-    // Mapeo por nombre/id se hará cuando los estados estén cargados
-    return urlStatus ? '' : 'all';
-  });
-  
-  // Filtro de cliente: se inicializa desde la URL (si existe); caso contrario, 'all'
-  const [selectedClientFilter, setSelectedClientFilter] = useState<string>(() => {
-    if (typeof window === 'undefined') return 'all';
-    const urlClient = new URLSearchParams(window.location.search).get('client');
-    return urlClient || 'all';
-  });
 
   // Eliminar persistencia: no guardamos el filtro
 
