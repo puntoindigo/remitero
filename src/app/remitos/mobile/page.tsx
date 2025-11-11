@@ -259,15 +259,13 @@ export default function MobileRemitosPage() {
               const estadoColor = getEstadoColor(remito.status || "");
               
               return (
-                <Link
+                <div
                   key={remito.id}
-                  href={`/remitos/${remito.id}`}
                   style={{
                     backgroundColor: '#ffffff',
                     borderRadius: '0.75rem',
                     padding: '1rem',
                     boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-                    textDecoration: 'none',
                     color: '#111827',
                     display: 'block',
                   }}
@@ -361,7 +359,65 @@ export default function MobileRemitosPage() {
                       </span>
                     </div>
                   )}
-                </Link>
+                  
+                  {/* Botones de acción */}
+                  <div style={{
+                    display: 'flex',
+                    gap: '0.5rem',
+                    marginTop: '0.75rem',
+                    paddingTop: '0.75rem',
+                    borderTop: '1px solid #e5e7eb'
+                  }}>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        router.push(`/remitos/${remito.id}`);
+                      }}
+                      style={{
+                        flex: 1,
+                        padding: '0.5rem',
+                        backgroundColor: '#3b82f6',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '0.375rem',
+                        fontSize: '0.875rem',
+                        fontWeight: 500,
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '0.25rem'
+                      }}
+                    >
+                      <Eye size={16} />
+                      Ver
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        router.push(`/remitos/${remito.id}?edit=true`);
+                      }}
+                      style={{
+                        flex: 1,
+                        padding: '0.5rem',
+                        backgroundColor: '#10b981',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '0.375rem',
+                        fontSize: '0.875rem',
+                        fontWeight: 500,
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '0.25rem'
+                      }}
+                    >
+                      <Edit size={16} />
+                      Editar
+                    </button>
+                  </div>
+                </div>
               );
             })}
           </div>
