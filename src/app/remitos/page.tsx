@@ -115,14 +115,6 @@ function RemitosContent() {
     );
   }
   
-  // Hook centralizado para manejo de companyId
-  const {
-    companyId,
-    selectedCompanyId,
-    setSelectedCompanyId,
-    shouldShowCompanySelector
-  } = useDataWithCompanySimple();
-  
   // 🚀 REACT QUERY: Reemplaza state y fetch
   // Paginación server-side
   const [page, setPage] = React.useState(1);
