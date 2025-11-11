@@ -276,13 +276,14 @@ function RemitosContent() {
   }, []);
 
   // Configurar shortcuts de teclado (después de que handleNewRemito y showForm estén definidos)
+  // Verificar que handleNewRemito esté definido antes de usarlo
   useShortcuts([
     {
       key: 'n',
-      action: handleNewRemito,
+      action: handleNewRemito || (() => {}),
       description: 'Nuevo Remito'
     }
-  ], !!companyId && !showForm);
+  ], !!companyId && !showForm && !!handleNewRemito);
 
   // Listener para FAB mobile
   useEffect(() => {
