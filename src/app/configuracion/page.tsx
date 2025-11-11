@@ -126,7 +126,7 @@ export default function ConfiguracionPage() {
               </div>
             </div>
 
-            {/* Notificaciones - Solo para SUPERADMIN */}
+            {/* Notificaciones de Actividad - Solo para SUPERADMIN */}
             {status === 'authenticated' && isSuperAdmin && (
               <div className="bg-white rounded-lg shadow-md p-6">
                 <NotificationPreferences />
