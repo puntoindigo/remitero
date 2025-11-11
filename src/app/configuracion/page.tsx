@@ -12,6 +12,19 @@ export default function ConfiguracionPage() {
   const { currentTheme, themeConfig, availableThemes, setTheme } = useTheme();
   
   const isSuperAdmin = session?.user?.role === 'SUPERADMIN';
+  
+  // Debug: verificar por qué no aparece el panel
+  React.useEffect(() => {
+    if (status === 'authenticated') {
+      console.log('🔍 [Configuración] Session status:', {
+        status,
+        role: session?.user?.role,
+        isSuperAdmin,
+        userId: session?.user?.id,
+        userName: session?.user?.name
+      });
+    }
+  }, [status, session, isSuperAdmin]);
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
