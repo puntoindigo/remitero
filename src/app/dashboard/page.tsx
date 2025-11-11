@@ -2,6 +2,7 @@
 
 import { useSession } from "next-auth/react"
 import { useState, useEffect, useRef } from "react"
+import { useRouter } from "next/navigation"
 import { FileText, Package, Users, Building2, Tag, ShoppingBag, Plus, Eye, Building, BarChart3 } from "lucide-react"
 import { RemitosChart } from "@/components/common/RemitosChart"
 import Link from "next/link"
