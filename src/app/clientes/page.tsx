@@ -125,137 +125,27 @@ function ClientesContent() {
     searchPlaceholder: "Buscar clientes..."
   });
 
-  // Definir columnas para el DataTable - diseño nuevo: nombre principal + acciones
+  // Definir columnas para el DataTable - desktop tradicional
   const columns: DataTableColumn<Cliente>[] = [
     {
-      key: 'main',
-      label: 'Cliente',
-      render: (cliente) => (
-        <div 
-          onClick={() => handleEdit(cliente)}
-          style={{ 
-            display: 'flex', 
-            alignItems: 'flex-start', 
-            justifyContent: 'space-between', 
-            gap: '1rem', 
-            width: '100%',
-            cursor: 'pointer',
-            padding: '0.75rem 0.5rem',
-            borderRadius: '8px',
-            transition: 'background-color 0.2s'
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = '#f9fafb';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = 'transparent';
-          }}
-        >
-          {/* Información principal - más arriba */}
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ 
-              fontSize: '15px', 
-              fontWeight: 600, 
-              color: '#111827',
-              marginBottom: '0.5rem'
-            }}>
-              {cliente.name}
-            </div>
-            <div style={{ 
-              fontSize: '12px', 
-              color: '#9ca3af',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '0.25rem'
-            }}>
-              {cliente.email && (
-                <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                  <Mail className="h-3 w-3" />
-                  {cliente.email}
-                </span>
-              )}
-              {cliente.phone && (
-                <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                  <Phone className="h-3 w-3" />
-                  {cliente.phone}
-                </span>
-              )}
-              {cliente.address && (
-                <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                  <MapPin className="h-3 w-3" />
-                  {cliente.address}
-                </span>
-              )}
-              {!cliente.email && !cliente.phone && !cliente.address && (
-                <span style={{ color: '#d1d5db' }}>Sin información adicional</span>
-              )}
-            </div>
-          </div>
-          
-          {/* Acciones al lado */}
-          <div 
-            style={{ 
-              display: 'flex', 
-              gap: '0.5rem', 
-              alignItems: 'flex-start',
-              flexShrink: 0,
-              paddingTop: '0.25rem'
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Botón Ver remitos */}
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                router.push(`/remitos?client=${cliente.id}`);
-              }}
-              style={{
-                padding: '6px',
-                background: 'transparent',
-                border: 'none',
-                cursor: 'pointer',
-                color: '#6b7280',
-                transition: 'color 0.2s',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.color = '#111827';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.color = '#6b7280';
-              }}
-              title="Ver remitos"
-            >
-              <FileText className="h-4 w-4" />
-            </button>
-            
-            {/* Botón Eliminar */}
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleDeleteCliente(cliente);
-              }}
-              style={{
-                padding: '6px',
-                marginRight: '8px',
-                background: 'transparent',
-                border: 'none',
-                cursor: 'pointer',
-                color: '#6b7280',
-                transition: 'color 0.2s',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.color = '#111827';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.color = '#6b7280';
-              }}
-              title="Eliminar"
-            >
-              <Trash2 className="h-4 w-4" />
-            </button>
-          </div>
-        </div>
-      )
+      key: 'name',
+      label: 'Nombre',
+      render: (cliente) => cliente.name
+    },
+    {
+      key: 'email',
+      label: 'Email',
+      render: (cliente) => cliente.email || '-'
+    },
+    {
+      key: 'phone',
+      label: 'Teléfono',
+      render: (cliente) => cliente.phone || '-'
+    },
+    {
+      key: 'address',
+      label: 'Dirección',
+      render: (cliente) => cliente.address || '-'
     }
   ];
 

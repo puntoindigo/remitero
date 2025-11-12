@@ -438,199 +438,47 @@ function RemitosContent() {
   // Lógica simplificada: mostrar contenido si hay companyId o si es SUPERADMIN sin impersonar
   const needsCompanySelection = !companyId && currentUser?.role === "SUPERADMIN";
 
-  // Definir columnas para el DataTable - diseño nuevo: nombre principal + acciones
+  // Definir columnas para el DataTable - desktop tradicional, mobile compacto
   const columns: DataTableColumn<Remito>[] = [
     {
-      key: 'main',
-      label: 'Remito',
+      key: 'number',
+      label: 'Número',
+      render: (remito) => `#${remito.number}`
+    },
+    {
+      key: 'client',
+      label: 'Cliente',
+      render: (remito) => remito.client?.name || 'Sin cliente'
+    },
+    {
+      key: 'status',
+      label: 'Estado',
       render: (remito) => {
         const estado = remito.status && estadosActivos.find(e => e.id === remito.status?.id);
-        const estadoColor = estado?.color || '#6b7280';
-        
+        if (!estado) return 'Sin estado';
         return (
-          <div 
-            onClick={() => handleEditRemito(remito)}
-            style={{ 
-              display: 'flex', 
-              flexDirection: isMobile ? 'column' : 'column',
-              gap: isMobile ? '0.5rem' : '0.5rem', 
-              width: '100%',
-              maxWidth: '100%',
-              boxSizing: 'border-box',
-              cursor: 'pointer',
-              padding: '0.5rem',
-              borderRadius: '8px',
-              transition: 'background-color 0.2s',
-              ...(isMobile && estado ? { borderBottom: `3px solid ${estadoColor}` } : {}),
-              ...(!isMobile && estado ? { borderLeft: `4px solid ${estadoColor}` } : {}),
-              backgroundColor: estado ? `${estadoColor}08` : 'transparent'
-            }}
-            onMouseEnter={(e) => {
-              const baseColor = estado ? `${estadoColor}15` : '#f9fafb';
-              e.currentTarget.style.backgroundColor = baseColor;
-            }}
-            onMouseLeave={(e) => {
-              const baseColor = estado ? `${estadoColor}08` : 'transparent';
-              e.currentTarget.style.backgroundColor = baseColor;
-            }}
-          >
-            {/* Desktop: Layout original con múltiples filas */}
-            {!isMobile ? (
-              <>
-                <div style={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  gap: '0.5rem',
-                  flexWrap: 'wrap',
-                  width: '100%'
-                }}>
-                  <span style={{ 
-                    fontSize: '15px', 
-                    fontWeight: 600, 
-                    color: '#111827',
-                    flex: '1 1 auto',
-                    minWidth: 0
-                  }}>
-                    #{remito.number}
-                  </span>
-                  <span style={{ 
-                    fontSize: '12px', 
-                    color: '#9ca3af',
-                    whiteSpace: 'nowrap'
-                  }}>
-                    ${remito.total.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                  </span>
-                </div>
-                
-                <div style={{ 
-                  fontSize: '13px', 
-                  color: '#6b7280',
-                  width: '100%',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'pre-wrap',
-                  wordBreak: 'break-word'
-                }}>
-                  {remito.client?.name || 'Sin cliente'}
-                </div>
-                
-                <div style={{ 
-                  fontSize: '11px', 
-                  color: '#9ca3af'
-                }}>
-                  {new Date(remito.createdAt).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' })}
-                </div>
-                
-                {/* Acciones - solo botón eliminar en desktop */}
-                <div 
-                  style={{ 
-                    display: 'flex', 
-                    justifyContent: 'flex-end',
-                    width: '100%',
-                    maxWidth: '100%',
-                    marginTop: '0.25rem',
-                    overflow: 'hidden'
-                  }}
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  {handleDeleteRemito && (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDeleteRemito(remito);
-                      }}
-                      style={{
-                        padding: '6px',
-                        background: 'transparent',
-                        border: 'none',
-                        cursor: 'pointer',
-                        color: '#6b7280',
-                        transition: 'color 0.2s',
-                        flexShrink: 0,
-                        minWidth: '32px'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.color = '#111827';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.color = '#6b7280';
-                      }}
-                      title="Eliminar"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  )}
-                </div>
-              </>
-            ) : (
-              /* Mobile: Layout compacto con sombra abajo */
-              <>
-                <div style={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  gap: '0.75rem',
-                  width: '100%'
-                }}>
-                  <span style={{ 
-                    fontSize: '18px', 
-                    fontWeight: 700, 
-                    color: '#111827',
-                    flex: '0 0 auto'
-                  }}>
-                    ${remito.total.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                  </span>
-                  <span style={{ 
-                    fontSize: '15px', 
-                    fontWeight: 600, 
-                    color: '#111827',
-                    flex: '1 1 auto',
-                    minWidth: 0
-                  }}>
-                    #{remito.number}
-                  </span>
-                  {handleDeleteRemito && (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDeleteRemito(remito);
-                      }}
-                      style={{
-                        padding: '6px',
-                        background: 'transparent',
-                        border: 'none',
-                        cursor: 'pointer',
-                        color: '#6b7280',
-                        transition: 'color 0.2s',
-                        flexShrink: 0,
-                        minWidth: '32px'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.color = '#111827';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.color = '#6b7280';
-                      }}
-                      title="Eliminar"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  )}
-                </div>
-                <div style={{ 
-                  fontSize: '13px', 
-                  color: '#6b7280',
-                  width: '100%',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap'
-                }}>
-                  {remito.client?.name || 'Sin cliente'}
-                </div>
-              </>
-            )}
-          </div>
+          <span style={{ 
+            padding: '4px 8px',
+            borderRadius: '4px',
+            backgroundColor: `${estado.color}20`,
+            color: estado.color,
+            fontSize: '12px',
+            fontWeight: 500
+          }}>
+            {estado.name}
+          </span>
         );
       }
+    },
+    {
+      key: 'total',
+      label: 'Total',
+      render: (remito) => `$${remito.total.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+    },
+    {
+      key: 'createdAt',
+      label: 'Fecha',
+      render: (remito) => new Date(remito.createdAt).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' })
     }
   ];
 
@@ -751,7 +599,8 @@ function RemitosContent() {
               columns={columns}
               showSearch={false}
               showNewButton={false}
-              showActions={false}
+              onEdit={handleEditRemito}
+              onDelete={handleDeleteRemito}
             />
                 <Pagination 
                   currentPage={page}

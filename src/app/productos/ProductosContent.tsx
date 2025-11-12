@@ -354,233 +354,61 @@ function ProductosContent() {
   // Lógica simplificada: mostrar contenido si hay companyId o si es SUPERADMIN sin impersonar
   const needsCompanySelection = !companyId && currentUser?.role === "SUPERADMIN";
 
-  // Definir columnas para el DataTable - diseño como remitos
+  // Definir columnas para el DataTable - desktop tradicional, mobile compacto
   const columns: DataTableColumn<Product>[] = [
     {
-      key: 'main',
-      label: 'Producto',
+      key: 'name',
+      label: 'Nombre',
+      render: (producto) => producto.name || 'Sin nombre'
+    },
+    {
+      key: 'description',
+      label: 'Descripción',
+      render: (producto) => producto.description || '-'
+    },
+    {
+      key: 'category',
+      label: 'Categoría',
+      render: (producto) => producto.category ? (
+        <span style={{
+          padding: '4px 8px',
+          borderRadius: '4px',
+          backgroundColor: '#f3f4f6',
+          color: '#374151',
+          fontSize: '12px',
+          fontWeight: 500
+        }}>
+          {producto.category.name}
+        </span>
+      ) : (
+        <span style={{ color: '#9ca3af' }}>Sin categoría</span>
+      )
+    },
+    {
+      key: 'price',
+      label: 'Precio',
+      render: (producto) => {
+        const price = producto.price || 0;
+        return `$${typeof price === 'number' ? price.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0,00'}`;
+      }
+    },
+    {
+      key: 'stock',
+      label: 'Stock',
       render: (producto) => {
         const isInStock = (producto.stock || 'OUT_OF_STOCK') === 'IN_STOCK';
         const stockColor = isInStock ? '#16a34a' : '#ef4444';
-        
         return (
-          <div 
-            onClick={() => handleEditProduct(producto)}
-            style={{ 
-              display: 'flex', 
-              flexDirection: 'column',
-              gap: '0.5rem', 
-              width: '100%',
-              maxWidth: '100%',
-              boxSizing: 'border-box',
-              cursor: 'pointer',
-              padding: '0.5rem',
-              borderRadius: '8px',
-              transition: 'background-color 0.2s',
-              ...(isMobile ? { borderBottom: `3px solid ${stockColor}` } : { borderLeft: `4px solid ${stockColor}` }),
-              backgroundColor: `${stockColor}08`
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = `${stockColor}15`;
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = `${stockColor}08`;
-            }}
-          >
-            {/* Desktop: Título grande, descripción al lado, precio a la derecha */}
-            {!isMobile ? (
-              <div style={{ 
-                display: 'flex', 
-                alignItems: 'flex-start', 
-                gap: '1rem',
-                width: '100%'
-              }}>
-                <div style={{ 
-                  flex: '1 1 auto',
-                  minWidth: 0,
-                  display: 'flex',
-                  gap: '1rem',
-                  alignItems: 'flex-start'
-                }}>
-                  <span style={{ 
-                    fontSize: '18px', 
-                    fontWeight: 700, 
-                    color: '#111827',
-                    flex: '0 0 auto',
-                    whiteSpace: 'nowrap'
-                  }}>
-                    {producto?.name || 'Sin nombre'}
-                  </span>
-                  {producto.description && (
-                    <span style={{ 
-                      fontSize: '13px', 
-                      color: '#6b7280',
-                      flex: '1 1 auto',
-                      minWidth: 0,
-                      whiteSpace: 'pre-wrap',
-                      wordBreak: 'break-word'
-                    }}>
-                      {producto.description}
-                    </span>
-                  )}
-                </div>
-                <span style={{ 
-                  fontSize: '18px', 
-                  fontWeight: 700, 
-                  color: '#111827',
-                  flex: '0 0 auto',
-                  whiteSpace: 'nowrap',
-                  textAlign: 'right'
-                }}>
-                  ${(producto.price || 0).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                </span>
-                {/* Botón Eliminar */}
-                {handleDeleteProduct && (
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDeleteProduct(producto);
-                    }}
-                    style={{
-                      padding: '6px',
-                      background: 'transparent',
-                      border: 'none',
-                      cursor: 'pointer',
-                      color: '#6b7280',
-                      transition: 'color 0.2s',
-                      flexShrink: 0,
-                      minWidth: '32px'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.color = '#111827';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.color = '#6b7280';
-                    }}
-                    title="Eliminar"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                )}
-              </div>
-            ) : (
-              /* Mobile: Layout vertical */
-              <>
-                <div style={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  gap: '0.75rem',
-                  width: '100%'
-                }}>
-                  <span style={{ 
-                    fontSize: '18px', 
-                    fontWeight: 700, 
-                    color: '#111827',
-                    flex: '0 0 auto'
-                  }}>
-                    ${(producto.price || 0).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                  </span>
-                  <span style={{ 
-                    fontSize: '15px', 
-                    fontWeight: 600, 
-                    color: '#111827',
-                    flex: '1 1 auto',
-                    minWidth: 0
-                  }}>
-                    {producto?.name || 'Sin nombre'}
-                  </span>
-                  {handleDeleteProduct && (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDeleteProduct(producto);
-                      }}
-                      style={{
-                        padding: '6px',
-                        background: 'transparent',
-                        border: 'none',
-                        cursor: 'pointer',
-                        color: '#6b7280',
-                        transition: 'color 0.2s',
-                        flexShrink: 0,
-                        minWidth: '32px'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.color = '#111827';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.color = '#6b7280';
-                      }}
-                      title="Eliminar"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  )}
-                </div>
-                {producto.description && (
-                  <div style={{ 
-                    fontSize: '13px', 
-                    color: '#6b7280',
-                    width: '100%',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap'
-                  }}>
-                    {producto.description}
-                  </div>
-                )}
-              </>
-            )}
-            
-            {/* Tercera fila: Categorías como tags y Stock */}
-            <div style={{ 
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              flexWrap: 'wrap',
-              width: '100%'
-            }}>
-              {/* Categorías como tags */}
-              {producto.category ? (
-                <span style={{
-                  fontSize: '11px',
-                  padding: '2px 8px',
-                  borderRadius: '12px',
-                  backgroundColor: '#f3f4f6',
-                  color: '#374151',
-                  fontWeight: 500,
-                  whiteSpace: 'nowrap'
-                }}>
-                  {producto.category.name}
-                </span>
-              ) : (
-                <span style={{
-                  fontSize: '11px',
-                  padding: '2px 8px',
-                  borderRadius: '12px',
-                  backgroundColor: '#f3f4f6',
-                  color: '#9ca3af',
-                  fontWeight: 400,
-                  whiteSpace: 'nowrap'
-                }}>
-                  Sin categoría
-                </span>
-              )}
-              
-              {/* Stock badge */}
-              <span style={{
-                fontSize: '11px',
-                padding: '2px 8px',
-                borderRadius: '12px',
-                backgroundColor: stockColor + '20',
-                color: stockColor,
-                fontWeight: 500,
-                whiteSpace: 'nowrap'
-              }}>
-                {isInStock ? 'En stock' : 'Sin stock'}
-              </span>
-            </div>
-          </div>
+          <span style={{
+            padding: '4px 8px',
+            borderRadius: '4px',
+            backgroundColor: `${stockColor}20`,
+            color: stockColor,
+            fontSize: '12px',
+            fontWeight: 500
+          }}>
+            {isInStock ? 'En stock' : 'Sin stock'}
+          </span>
         );
       }
     }
@@ -731,7 +559,8 @@ function ProductosContent() {
                   columns={columns}
                   showSearch={false}
                   showNewButton={false}
-                  showActions={false}
+                  onEdit={handleEditProduct}
+                  onDelete={handleDeleteProduct}
                 />
                 <Pagination {...paginationConfig} />
               </>
