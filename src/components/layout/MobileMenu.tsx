@@ -14,8 +14,12 @@ interface MenuItem {
   requiredRoles?: string[];
 }
 
-export function MobileMenu() {
-  const [isOpen, setIsOpen] = useState(false);
+interface MobileMenuProps {
+  onClose?: () => void;
+}
+
+export function MobileMenu({ onClose }: MobileMenuProps = { onClose: undefined }) {
+  const [isOpen, setIsOpen] = useState(true);
   const pathname = usePathname();
   const router = useRouter();
   const currentUser = useCurrentUserSimple();
@@ -23,7 +27,8 @@ export function MobileMenu() {
 
   useEffect(() => {
     setIsOpen(false);
-  }, [pathname]);
+    onClose?.();
+  }, [pathname, onClose]);
 
   const menuItems: MenuItem[] = [
     { name: 'Dashboard', path: '/dashboard', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6', emoji: '🏠' },
@@ -138,7 +143,10 @@ export function MobileMenu() {
               </p>
             </div>
             <button
-              onClick={() => setIsOpen(false)}
+              onClick={() => {
+                setIsOpen(false);
+                onClose?.();
+              }}
               style={{
                 background: 'rgba(255, 255, 255, 0.2)',
                 border: 'none',
@@ -166,7 +174,11 @@ export function MobileMenu() {
             return (
               <button
                 key={item.path}
-                onClick={() => router.push(item.path)}
+                onClick={() => {
+                  router.push(item.path);
+                  setIsOpen(false);
+                  onClose?.();
+                }}
                 style={{
                   width: '100%',
                   padding: '16px 24px',
@@ -247,34 +259,6 @@ export function MobileMenu() {
         </div>
       </div>
 
-      {/* Hamburger Button */}
-      <button
-        onClick={() => setIsOpen(true)}
-        style={{
-          position: 'fixed',
-          top: '16px',
-          right: '16px',
-          width: '48px',
-          height: '48px',
-          borderRadius: '12px',
-          border: 'none',
-          background: colors.gradient || 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-          backgroundColor: colors.primary || '#667eea',
-          boxShadow: `0 4px 12px ${colors.primary || '#667eea'}40`,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '5px',
-          cursor: 'pointer',
-          zIndex: 997,
-          transition: 'all 0.3s',
-        }}
-      >
-        <span style={{ width: '20px', height: '2px', background: 'white', borderRadius: '2px', transition: 'all 0.3s' }} />
-        <span style={{ width: '20px', height: '2px', background: 'white', borderRadius: '2px', transition: 'all 0.3s' }} />
-        <span style={{ width: '20px', height: '2px', background: 'white', borderRadius: '2px', transition: 'all 0.3s' }} />
-      </button>
     </>
   );
 }

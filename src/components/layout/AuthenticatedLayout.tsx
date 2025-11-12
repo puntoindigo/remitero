@@ -6,8 +6,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import TopBar from "./TopBar";
 import Header from "./Header";
-import { MobileMenu } from "./MobileMenu";
-import { FloatingActionButton } from "./FloatingActionButton";
+import { VercelMobileNav } from "./VercelMobileNav";
 import { LoadingSpinner } from "@/components/common/LoadingSpinner";
 import { ChangePasswordModal } from "@/components/common/ChangePasswordModal";
 import { NetworkErrorBanner } from "@/components/common/NetworkErrorBanner";
@@ -167,15 +166,9 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
         <Header />
       </div>
       
-      {/* Mobile Navigation */}
+      {/* Mobile Navigation - Estilo Vercel */}
       <div className="mobile-only">
-        <MobileMenu />
-        {fabConfig && (
-          <FloatingActionButton
-            onClick={handleFABClick}
-            label={fabConfig.label}
-          />
-        )}
+        <VercelMobileNav />
       </div>
       
       <div className="container" style={{
@@ -204,7 +197,8 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
           .container {
             padding-left: 12px !important;
             padding-right: 12px !important;
-            padding-top: 70px !important;
+            padding-top: 72px !important; /* Espacio para header mobile (56px + 16px) */
+            padding-bottom: 88px !important; /* Espacio para bottom nav mobile (72px + 16px) */
           }
         }
       `}</style>
