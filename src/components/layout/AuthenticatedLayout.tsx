@@ -179,7 +179,7 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
       </div>
       
       <div className="container" style={{
-        paddingTop: 'env(safe-area-inset-top)',
+        paddingTop: '0',
         paddingBottom: '120px', // Espacio para la navegación OSD
       }}>
         {children}

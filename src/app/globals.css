@@ -149,7 +149,7 @@ main.main-content {
   margin-top: 0 !important;
 }
 
-/* Reducir padding-top en desktop para minimizar espacio */
+/* Eliminar cualquier margin adicional en desktop */
 @media (min-width: 768px) {
   .main-content,
   main.main-content {
@@ -165,6 +165,12 @@ main.main-content {
   /* Títulos y selectores sin margin-top extra */
   .form-section > h2.page-title-desktop:first-child,
   .form-section > div:first-child {
+    margin-top: 0 !important;
+  }
+  
+  /* Container sin padding-top adicional */
+  .container {
+    padding-top: 0 !important;
     margin-top: 0 !important;
   }
 }
