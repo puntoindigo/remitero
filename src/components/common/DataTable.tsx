@@ -143,9 +143,28 @@ export function DataTable<T>({
         </div>
       )}
 
-      {/* Tabla */}
-      <div className="data-table-wrapper">
-        <table className="data-table">
+      {/* Tabla con marca de agua */}
+      <div className="data-table-wrapper" style={{ position: 'relative' }}>
+        {/* Marca de agua de fondo */}
+        <div 
+          className="data-table-watermark"
+          style={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            fontSize: '120px',
+            fontWeight: 700,
+            color: 'rgba(0, 0, 0, 0.03)',
+            pointerEvents: 'none',
+            zIndex: 0,
+            userSelect: 'none',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          Gestión
+        </div>
+        <table className="data-table" style={{ position: 'relative', zIndex: 1 }}>
           <thead>
             <tr>
               {columns.map((column) => (

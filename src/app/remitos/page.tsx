@@ -3,7 +3,7 @@
 import React, { useState, useEffect, Suspense, useCallback, useMemo, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
-import { Plus, FileText, Calendar, User, Package, Printer } from "lucide-react";
+import { Plus, FileText, Calendar, User, Package, Printer, Trash2 } from "lucide-react";
 import { formatDate } from "@/lib/utils/formatters";
 import FilterableSelect from "@/components/common/FilterableSelect";
 import { MessageModal } from "@/components/common/MessageModal";
@@ -436,66 +436,163 @@ function RemitosContent() {
   // Lógica simplificada: mostrar contenido si hay companyId o si es SUPERADMIN sin impersonar
   const needsCompanySelection = !companyId && currentUser?.role === "SUPERADMIN";
 
-  // Definir columnas para el DataTable
+  // Definir columnas para el DataTable - diseño nuevo: nombre principal + acciones
   const columns: DataTableColumn<Remito>[] = [
     {
-      key: 'number',
-      label: 'Número',
+      key: 'main',
+      label: 'Remito',
       render: (remito) => (
-        <div className="font-medium">#{remito.number}</div>
-      )
-    },
-    {
-      key: 'client',
-      label: 'Cliente',
-      render: (remito) => (
-        <div className="font-medium">{remito.client.name}</div>
-      )
-    },
-    {
-      key: 'status',
-      label: 'Estado',
-      render: (remito) => {
-        if (!estadosActivos) return <div className="text-gray-500">Sin estado</div>;
-        const value = remito.status?.id || '';
-        const options = estadosActivos.map(e => ({ id: e.id, name: e.name, color: e.color }));
-        const isChanging = statusChanging === remito?.id;
-        return (
-          <div style={{ minWidth: '180px' }}>
-            <FilterableSelect
-              options={options}
-              value={value}
-              onChange={(val) => handleStatusChange(remito?.id, val)}
-              placeholder="Estado"
-              showColors={true}
-              searchable={false}
-              className="w-full"
-            />
-            {isChanging && (
-              <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-75 rounded" style={{ height: '32px' }}>
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', width: '100%' }}>
+          {/* Información principal */}
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '0.5rem',
+              marginBottom: '0.25rem'
+            }}>
+              <span style={{ 
+                fontSize: '15px', 
+                fontWeight: 600, 
+                color: '#111827'
+              }}>
+                #{remito.number}
+              </span>
+              {remito.status && estadosActivos.find(e => e.id === remito.status?.id) && (
+                <span style={{
+                  fontSize: '11px',
+                  padding: '2px 8px',
+                  borderRadius: '12px',
+                  backgroundColor: estadosActivos.find(e => e.id === remito.status?.id)?.color + '20',
+                  color: estadosActivos.find(e => e.id === remito.status?.id)?.color,
+                  fontWeight: 500
+                }}>
+                  {estadosActivos.find(e => e.id === remito.status?.id)?.name}
+                </span>
+              )}
+            </div>
+            <div style={{ fontSize: '13px', color: '#6b7280' }}>
+              {remito.client?.name || 'Sin cliente'}
+            </div>
+            <div style={{ 
+              fontSize: '12px', 
+              color: '#9ca3af',
+              marginTop: '0.25rem',
+              display: 'flex',
+              gap: '1rem',
+              flexWrap: 'wrap'
+            }}>
+              <span>${remito.total.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+              <span>{new Date(remito.createdAt).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' })}</span>
+            </div>
+          </div>
+          
+          {/* Acciones al lado */}
+          <div style={{ 
+            display: 'flex', 
+            gap: '0.5rem', 
+            alignItems: 'center',
+            flexShrink: 0
+          }}>
+            {/* Botón Ver detalles */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleEditRemito(remito);
+              }}
+              style={{
+                padding: '6px 12px',
+                fontSize: '12px',
+                fontWeight: 500,
+                color: colors.primary || '#3b82f6',
+                background: 'transparent',
+                border: `1px solid ${colors.primary || '#3b82f6'}`,
+                borderRadius: '6px',
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = (colors.primary || '#3b82f6') + '10';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent';
+              }}
+              title="Ver detalles"
+            >
+              Ver
+            </button>
+            
+            {/* Selector de estado compacto */}
+            {estadosActivos && (
+              <div style={{ minWidth: '120px' }}>
+                <FilterableSelect
+                  options={estadosActivos.map(e => ({ id: e.id, name: e.name, color: e.color }))}
+                  value={remito.status?.id || ''}
+                  onChange={(val) => handleStatusChange(remito?.id, val)}
+                  placeholder="Estado"
+                  showColors={true}
+                  searchable={false}
+                  className="w-full"
+                />
               </div>
             )}
+            
+            {/* Botón Imprimir */}
+            {handlePrintRemito && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handlePrintRemito(remito);
+                }}
+                style={{
+                  padding: '6px',
+                  background: 'transparent',
+                  border: 'none',
+                  cursor: 'pointer',
+                  color: '#6b7280',
+                  transition: 'color 0.2s',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.color = '#111827';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.color = '#6b7280';
+                }}
+                title="Imprimir"
+              >
+                <Printer className="h-4 w-4" />
+              </button>
+            )}
+            
+            {/* Botón Eliminar */}
+            {handleDeleteRemito && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDeleteRemito(remito);
+                }}
+                style={{
+                  padding: '6px',
+                  background: 'transparent',
+                  border: 'none',
+                  cursor: 'pointer',
+                  color: '#ef4444',
+                  transition: 'color 0.2s',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.color = '#dc2626';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.color = '#ef4444';
+                }}
+                title="Eliminar"
+              >
+                <Trash2 className="h-4 w-4" />
+              </button>
+            )}
           </div>
-        );
-      }
-    },
-    {
-      key: 'total',
-      label: 'Total',
-      render: (remito) => `$${remito.total.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-    },
-    {
-      key: 'createdAt',
-      label: 'Registrado',
-      render: (remito) => new Date(remito.createdAt).toLocaleString('es-AR', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false
-      })
+        </div>
+      )
     }
   ];
 
@@ -506,9 +603,9 @@ function RemitosContent() {
       
       <main className="main-content">
         <div className="form-section">
-        {/* Selector de empresa - ancho completo */}
+        {/* Selector de empresa - pegado al top */}
         {shouldShowCompanySelector && empresas?.length > 0 && (
-          <div style={{ marginBottom: '1rem' }}>
+          <div style={{ marginBottom: '0.75rem', marginTop: 0 }}>
             <FilterableSelect
               options={empresas}
               value={selectedCompanyId}
@@ -594,6 +691,7 @@ function RemitosContent() {
               columns={columns}
               showSearch={false}
               showNewButton={false}
+              showActions={false}
             />
                 <Pagination 
                   currentPage={page}

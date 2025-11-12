@@ -125,93 +125,139 @@ function ClientesContent() {
     searchPlaceholder: "Buscar clientes..."
   });
 
-  // Definir columnas para el DataTable
+  // Definir columnas para el DataTable - diseño nuevo: nombre principal + acciones
   const columns: DataTableColumn<Cliente>[] = [
     {
-      key: 'name',
+      key: 'main',
       label: 'Cliente',
       render: (cliente) => (
-        <div className="cliente-info">
-          <div className="cliente-name">{cliente.name}</div>
-        </div>
-      )
-    },
-    {
-      key: 'email',
-      label: 'Email',
-      render: (cliente) => cliente.email ? (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <Mail className="h-4 w-4 text-gray-400" />
-          <span>{cliente.email}</span>
-        </div>
-      ) : (
-        <span className="text-gray-400">-</span>
-      )
-    },
-    {
-      key: 'phone',
-      label: 'Teléfono',
-      render: (cliente) => cliente.phone ? (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <Phone className="h-4 w-4 text-gray-400" />
-          <span>{cliente.phone}</span>
-        </div>
-      ) : (
-        <span className="text-gray-400">-</span>
-      )
-    },
-    {
-      key: 'address',
-      label: 'Dirección',
-      render: (cliente) => cliente.address ? (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <MapPin className="h-4 w-4 text-gray-400" />
-          <span>{cliente.address}</span>
-        </div>
-      ) : (
-        <span className="text-gray-400">-</span>
-      )
-    },
-    {
-      key: 'createdAt',
-      label: 'Registrado',
-      render: (cliente) => formatDate(cliente.createdAt)
-    },
-    {
-      key: 'actions',
-      label: 'Acciones',
-      render: (cliente) => (
-        <div className="action-buttons">
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              router.push(`/remitos?client=${cliente.id}`);
-            }}
-            className="action-button print-html-button"
-            title="Ver remitos de este cliente"
-          >
-            <FileText className="h-4 w-4" />
-          </button>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              handleEdit(cliente);
-            }}
-            className="action-button edit-button"
-            title="Editar"
-          >
-            <Edit className="h-4 w-4" />
-          </button>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              handleDeleteCliente(cliente);
-            }}
-            className="action-button delete-button"
-            title="Eliminar"
-          >
-            <Trash2 className="h-4 w-4" />
-          </button>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', width: '100%' }}>
+          {/* Información principal */}
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ 
+              fontSize: '15px', 
+              fontWeight: 600, 
+              color: '#111827',
+              marginBottom: '0.25rem'
+            }}>
+              {cliente.name}
+            </div>
+            <div style={{ 
+              fontSize: '12px', 
+              color: '#9ca3af',
+              display: 'flex',
+              gap: '1rem',
+              flexWrap: 'wrap'
+            }}>
+              {cliente.email && (
+                <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                  <Mail className="h-3 w-3" />
+                  {cliente.email}
+                </span>
+              )}
+              {cliente.phone && (
+                <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                  <Phone className="h-3 w-3" />
+                  {cliente.phone}
+                </span>
+              )}
+              {cliente.address && (
+                <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                  <MapPin className="h-3 w-3" />
+                  {cliente.address}
+                </span>
+              )}
+              {!cliente.email && !cliente.phone && !cliente.address && (
+                <span style={{ color: '#d1d5db' }}>Sin información adicional</span>
+              )}
+            </div>
+          </div>
+          
+          {/* Acciones al lado */}
+          <div style={{ 
+            display: 'flex', 
+            gap: '0.5rem', 
+            alignItems: 'center',
+            flexShrink: 0
+          }}>
+            {/* Botón Ver detalles */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleEdit(cliente);
+              }}
+              style={{
+                padding: '6px 12px',
+                fontSize: '12px',
+                fontWeight: 500,
+                color: colors.primary || '#3b82f6',
+                background: 'transparent',
+                border: `1px solid ${colors.primary || '#3b82f6'}`,
+                borderRadius: '6px',
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = (colors.primary || '#3b82f6') + '10';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent';
+              }}
+              title="Ver detalles"
+            >
+              Ver
+            </button>
+            
+            {/* Botón Ver remitos */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                router.push(`/remitos?client=${cliente.id}`);
+              }}
+              style={{
+                padding: '6px',
+                background: 'transparent',
+                border: 'none',
+                cursor: 'pointer',
+                color: '#6b7280',
+                transition: 'color 0.2s',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = '#111827';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = '#6b7280';
+              }}
+              title="Ver remitos"
+            >
+              <FileText className="h-4 w-4" />
+            </button>
+            
+            {/* Botón Eliminar */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDeleteCliente(cliente);
+              }}
+              style={{
+                padding: '6px',
+                background: 'transparent',
+                border: 'none',
+                cursor: 'pointer',
+                color: '#ef4444',
+                transition: 'color 0.2s',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = '#dc2626';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = '#ef4444';
+              }}
+              title="Eliminar"
+            >
+              <Trash2 className="h-4 w-4" />
+            </button>
+          </div>
         </div>
       )
     }
@@ -268,46 +314,12 @@ function ClientesContent() {
 
       {/* Barra de búsqueda y botón nuevo */}
       {canShowContent && (
-        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1rem', justifyContent: 'space-between' }}>
-          <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-            <SearchInput
-              value={crudSearchTerm}
-              onChange={setCrudSearchTerm}
-              placeholder="Buscar clientes..."
-            />
-          </div>
-          <button
-            onClick={handleNew}
-            className="btn-primary new-button"
-            data-shortcut="n"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              padding: '8px 16px',
-              background: colors.gradient,
-              color: 'white',
-              border: 'none',
-              borderRadius: '6px',
-              cursor: 'pointer',
-              fontSize: '14px',
-              fontWeight: '500',
-              minWidth: '100px',
-              justifyContent: 'center',
-              transition: 'all 0.2s',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-1px)';
-              e.currentTarget.style.boxShadow = `0 4px 12px ${colors.primary}50`;
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = 'none';
-            }}
-          >
-            <Plus className="h-4 w-4" />
-            <ShortcutText text="Nuevo Cliente" shortcutKey="n" />
-          </button>
+        <div style={{ marginBottom: '0.75rem' }}>
+          <SearchInput
+            value={crudSearchTerm}
+            onChange={setCrudSearchTerm}
+            placeholder="Buscar clientes..."
+          />
         </div>
       )}
 

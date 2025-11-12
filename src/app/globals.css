@@ -3349,6 +3349,31 @@ form svg {
 
 .data-table-wrapper {
   overflow-x: auto;
+  position: relative;
+  min-height: 400px;
+}
+
+/* Marca de agua para tablas */
+.data-table-watermark {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 120px;
+  font-weight: 700;
+  color: rgba(0, 0, 0, 0.03);
+  pointer-events: none;
+  z-index: 0;
+  user-select: 'none';
+  white-space: nowrap;
+  opacity: 0.5;
+}
+
+@media (max-width: 768px) {
+  .data-table-watermark {
+    font-size: 80px;
+    opacity: 0.4;
+  }
 }
 
 .data-table {
