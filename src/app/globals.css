@@ -3441,8 +3441,8 @@ form svg {
     border-bottom: 1px solid #f3f4f6;
   }
   
-  .data-table tr:last-child td {
-    border-bottom: none;
+  .data-table tbody tr:last-child td {
+    border-bottom: none !important;
   }
 }
 
