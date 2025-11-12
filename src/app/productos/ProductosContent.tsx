@@ -375,8 +375,7 @@ function ProductosContent() {
               padding: '0.5rem',
               borderRadius: '8px',
               transition: 'background-color 0.2s',
-              boxShadow: `0 -2px 0 0 ${stockColor}`,
-              marginBottom: '2px'
+              borderBottom: `3px solid ${stockColor}`
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.backgroundColor = '#f9fafb';
@@ -529,9 +528,9 @@ function ProductosContent() {
           {/* Selector de empresa - pegado al top (solo superusuario) */}
           {shouldShowCompanySelector && empresas?.length > 0 && (
             <div style={{ 
-              marginBottom: '0.75rem', 
+              marginBottom: '0.5rem', 
               marginTop: 0,
-              padding: '12px 16px 0 16px',
+              padding: '8px 16px 0 16px',
               width: '100%',
               maxWidth: '100%',
               boxSizing: 'border-box'
@@ -555,6 +554,7 @@ function ProductosContent() {
               fontWeight: 700, 
               color: '#111827',
               marginBottom: '0.75rem',
+              marginTop: '0',
               padding: '0 16px'
             }}>
               Productos
