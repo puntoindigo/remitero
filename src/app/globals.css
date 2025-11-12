@@ -142,7 +142,7 @@ main.main-content {
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
-  padding-top: 100px !important; /* Espacio para topbar (40px) + header (60px) */
+  padding-top: 110px !important; /* Espacio para topbar (40px) + header (60px) + espacio visual (10px) */
   padding-left: 0 !important;
   padding-right: 0 !important;
   padding-bottom: 144px !important; /* Espacio para botonera fixed (120px) + footer (24px) */
