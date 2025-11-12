@@ -461,7 +461,8 @@ function RemitosContent() {
               padding: '0.5rem',
               borderRadius: '8px',
               transition: 'background-color 0.2s',
-              boxShadow: estado ? `0 2px 0 0 ${estadoColor}` : 'none'
+              boxShadow: estado ? `0 -2px 0 0 ${estadoColor}` : 'none',
+              marginBottom: estado ? '2px' : '0'
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.backgroundColor = '#f9fafb';
@@ -470,69 +471,30 @@ function RemitosContent() {
               e.currentTarget.style.backgroundColor = 'transparent';
             }}
           >
-            {/* Primera fila: Número, Cliente, Total y Fecha */}
+            {/* Primera fila: Precio grande a la izquierda, número y trash */}
             <div style={{ 
               display: 'flex', 
-              flexDirection: 'column',
-              gap: '0.25rem',
+              alignItems: 'center', 
+              gap: '0.75rem',
               width: '100%'
             }}>
-              <div style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: '0.5rem',
-                flexWrap: 'wrap',
-                width: '100%'
+              <span style={{ 
+                fontSize: '18px', 
+                fontWeight: 700, 
+                color: '#111827',
+                flex: '0 0 auto'
               }}>
-                <span style={{ 
-                  fontSize: '15px', 
-                  fontWeight: 600, 
-                  color: '#111827',
-                  flex: '1 1 auto',
-                  minWidth: 0
-                }}>
-                  #{remito.number}
-                </span>
-                <span style={{ 
-                  fontSize: '12px', 
-                  color: '#9ca3af',
-                  whiteSpace: 'nowrap'
-                }}>
-                  ${remito.total.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                </span>
-              </div>
-              
-              <div style={{ 
-                fontSize: '13px', 
-                color: '#6b7280',
-                width: '100%',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap'
+                ${remito.total.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </span>
+              <span style={{ 
+                fontSize: '15px', 
+                fontWeight: 600, 
+                color: '#111827',
+                flex: '1 1 auto',
+                minWidth: 0
               }}>
-                {remito.client?.name || 'Sin cliente'}
-              </div>
-              
-              <div style={{ 
-                fontSize: '11px', 
-                color: '#9ca3af'
-              }}>
-                {new Date(remito.createdAt).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' })}
-              </div>
-            </div>
-            
-            {/* Acciones - solo botón eliminar */}
-            <div 
-              style={{ 
-                display: 'flex', 
-                justifyContent: 'flex-end',
-                width: '100%',
-                maxWidth: '100%',
-                marginTop: '0.25rem',
-                overflow: 'hidden'
-              }}
-              onClick={(e) => e.stopPropagation()}
-            >
+                #{remito.number}
+              </span>
               {/* Botón Eliminar */}
               {handleDeleteRemito && (
                 <button
@@ -561,6 +523,26 @@ function RemitosContent() {
                   <Trash2 className="h-4 w-4" />
                 </button>
               )}
+            </div>
+            
+            {/* Segunda fila: Cliente */}
+            <div style={{ 
+              fontSize: '13px', 
+              color: '#6b7280',
+              width: '100%',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap'
+            }}>
+              {remito.client?.name || 'Sin cliente'}
+            </div>
+            
+            {/* Tercera fila: Fecha */}
+            <div style={{ 
+              fontSize: '11px', 
+              color: '#9ca3af'
+            }}>
+              {new Date(remito.createdAt).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' })}
             </div>
           </div>
         );

@@ -375,7 +375,8 @@ function ProductosContent() {
               padding: '0.5rem',
               borderRadius: '8px',
               transition: 'background-color 0.2s',
-              boxShadow: `0 2px 0 0 ${stockColor}`
+              boxShadow: `0 -2px 0 0 ${stockColor}`,
+              marginBottom: '2px'
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.backgroundColor = '#f9fafb';
@@ -384,14 +385,21 @@ function ProductosContent() {
               e.currentTarget.style.backgroundColor = 'transparent';
             }}
           >
-            {/* Primera fila: Nombre y Precio */}
+            {/* Primera fila: Precio grande a la izquierda, nombre y trash */}
             <div style={{ 
               display: 'flex', 
               alignItems: 'center', 
-              gap: '0.5rem',
-              flexWrap: 'wrap',
+              gap: '0.75rem',
               width: '100%'
             }}>
+              <span style={{ 
+                fontSize: '18px', 
+                fontWeight: 700, 
+                color: '#111827',
+                flex: '0 0 auto'
+              }}>
+                ${(producto.price || 0).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </span>
               <span style={{ 
                 fontSize: '15px', 
                 fontWeight: 600, 
@@ -401,13 +409,34 @@ function ProductosContent() {
               }}>
                 {producto?.name || 'Sin nombre'}
               </span>
-              <span style={{ 
-                fontSize: '12px', 
-                color: '#9ca3af',
-                whiteSpace: 'nowrap'
-              }}>
-                ${(producto.price || 0).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-              </span>
+              {/* Botón Eliminar */}
+              {handleDeleteProduct && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDeleteProduct(producto);
+                  }}
+                  style={{
+                    padding: '6px',
+                    background: 'transparent',
+                    border: 'none',
+                    cursor: 'pointer',
+                    color: '#6b7280',
+                    transition: 'color 0.2s',
+                    flexShrink: 0,
+                    minWidth: '32px'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = '#111827';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = '#6b7280';
+                  }}
+                  title="Eliminar"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              )}
             </div>
             
             {/* Segunda fila: Descripción si existe */}
@@ -472,48 +501,6 @@ function ProductosContent() {
                 {isInStock ? 'En stock' : 'Sin stock'}
               </span>
             </div>
-            
-            {/* Acciones - solo botón eliminar */}
-            <div 
-              style={{ 
-                display: 'flex', 
-                justifyContent: 'flex-end',
-                width: '100%',
-                maxWidth: '100%',
-                marginTop: '0.25rem',
-                overflow: 'hidden'
-              }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              {/* Botón Eliminar */}
-              {handleDeleteProduct && (
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDeleteProduct(producto);
-                  }}
-                  style={{
-                    padding: '6px',
-                    background: 'transparent',
-                    border: 'none',
-                    cursor: 'pointer',
-                    color: '#6b7280',
-                    transition: 'color 0.2s',
-                    flexShrink: 0,
-                    minWidth: '32px'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.color = '#111827';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.color = '#6b7280';
-                  }}
-                  title="Eliminar"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </button>
-              )}
-            </div>
           </div>
         );
       }
@@ -539,7 +526,7 @@ function ProductosContent() {
         />
 
         <div className="form-section">
-          {/* Selector de empresa - pegado al top */}
+          {/* Selector de empresa - pegado al top (solo superusuario) */}
           {shouldShowCompanySelector && empresas?.length > 0 && (
             <div style={{ 
               marginBottom: '0.75rem', 
@@ -561,10 +548,23 @@ function ProductosContent() {
             </div>
           )}
 
+          {/* Título Productos */}
+          {companyId && (
+            <h2 style={{ 
+              fontSize: '24px', 
+              fontWeight: 700, 
+              color: '#111827',
+              marginBottom: '0.75rem',
+              padding: '0 16px'
+            }}>
+              Productos
+            </h2>
+          )}
+
           {/* Barra de búsqueda, filtros y botón nuevo */}
           {!!companyId && (
-            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1rem', justifyContent: 'space-between' }}>
-              <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+            <div style={{ padding: '0 16px', marginBottom: '1rem', display: 'flex', gap: '1rem', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flex: 1 }}>
                 <SearchInput
                   value={searchTerm}
                   onChange={setSearchTerm}
@@ -635,19 +635,6 @@ function ProductosContent() {
                 <ShortcutText text="Nuevo Producto" shortcutKey="n" />
               </button>
             </div>
-          )}
-
-          {/* Título Productos */}
-          {companyId && (
-            <h2 style={{ 
-              fontSize: '24px', 
-              fontWeight: 700, 
-              color: '#111827',
-              marginBottom: '0.75rem',
-              padding: '0 16px'
-            }}>
-              Productos
-            </h2>
           )}
 
           {/* Mostrar productos solo si hay empresa seleccionada */}

@@ -130,6 +130,8 @@ export function FloatingActionButton({ onClick, label, icon }: FABProps) {
         position: 'fixed',
         bottom: `${position.bottom}px`,
         right: `${position.right}px`,
+        transform: 'translateZ(0)',
+        willChange: 'transform',
         width: '56px',
         height: '56px',
         borderRadius: '50%',
