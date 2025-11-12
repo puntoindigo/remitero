@@ -76,6 +76,8 @@ export function FloatingActionButton({ onClick, label, icon }: FABProps) {
             height: 56px !important;
             bottom: 100px !important; /* Arriba de la botonera (80px + 20px) */
             right: 16px !important;
+            left: auto !important; /* Forzar esquina derecha */
+            transform: none !important; /* Sin transformación centrada */
             z-index: 1001 !important; /* Arriba de la botonera */
           }
         }

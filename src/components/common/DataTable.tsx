@@ -155,11 +155,12 @@ export function DataTable<T>({
             transform: 'translate(-50%, -50%)',
             fontSize: '120px',
             fontWeight: 700,
-            color: 'rgba(0, 0, 0, 0.03)',
+            color: 'rgba(0, 0, 0, 0.08)',
             pointerEvents: 'none',
             zIndex: 0,
             userSelect: 'none',
             whiteSpace: 'nowrap',
+            opacity: 0.6,
           }}
         >
           Gestión

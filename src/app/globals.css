@@ -3361,18 +3361,19 @@ form svg {
   transform: translate(-50%, -50%);
   font-size: 120px;
   font-weight: 700;
-  color: rgba(0, 0, 0, 0.03);
+  color: rgba(0, 0, 0, 0.08);
   pointer-events: none;
   z-index: 0;
-  user-select: 'none';
+  user-select: none;
   white-space: nowrap;
-  opacity: 0.5;
+  opacity: 0.6;
 }
 
 @media (max-width: 768px) {
   .data-table-watermark {
-    font-size: 80px;
-    opacity: 0.4;
+    font-size: 100px;
+    opacity: 0.5;
+    color: rgba(0, 0, 0, 0.06);
   }
 }
 
