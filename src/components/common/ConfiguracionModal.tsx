@@ -189,7 +189,8 @@ export function ConfiguracionModal({ isOpen, onClose }: ConfiguracionModalProps)
             </div>
           </div>
 
-          {/* Apariencia */}
+          {/* Apariencia - OCULTO: Funcionalidad discontinuada */}
+          {/* 
           <div style={{ marginBottom: '1.25rem', paddingBottom: '1rem', borderBottom: '1px solid #e5e7eb' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
               <Palette className="h-4 w-4" style={{ color: colors.primary }} />
@@ -247,6 +248,7 @@ export function ConfiguracionModal({ isOpen, onClose }: ConfiguracionModalProps)
               </button>
             </div>
           </div>
+          */}
 
           {/* Notificaciones de Actividad - Solo para SUPERADMIN */}
           {session?.user?.role === 'SUPERADMIN' && (

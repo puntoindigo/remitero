@@ -93,7 +93,8 @@ function ConfiguracionContent() {
 
           {/* Configuraciones */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Tema */}
+            {/* Tema - OCULTO: Funcionalidad discontinuada */}
+            {/* 
             <div className="bg-white rounded-lg shadow-md p-6">
               <div className="flex items-center gap-3 mb-4">
                 <Palette className="h-5 w-5 text-blue-600" />
@@ -124,6 +125,7 @@ function ConfiguracionContent() {
                 </button>
               </div>
             </div>
+            */}
 
             {/* Preferencias */}
             <div className="bg-white rounded-lg shadow-md p-6">

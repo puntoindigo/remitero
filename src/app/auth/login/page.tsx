@@ -433,26 +433,16 @@ function LoginPageContent() {
                   // OAuth providers REQUIEREN redirect: true (no pueden usar redirect: false)
                   // NextAuth manejará la redirección a Google y luego de vuelta
                   // IMPORTANTE: signIn con redirect: true NO retorna un valor porque redirige inmediatamente
-                  // Si retorna undefined, es el comportamiento normal y esperado
-                  const result = await signIn("google", {
+                  // Si retorna undefined, es el comportamiento normal y esperado - NO mostrar error
+                  await signIn("google", {
                     redirect: true,
                     callbackUrl: "/dashboard"
                   });
-                  
-                  // Si llegamos aquí después de un delay, puede que no haya redirigido
-                  // Esperar un momento para ver si hay redirección
-                  await new Promise(resolve => setTimeout(resolve, 500));
-                  
-                  // Si después de 500ms aún estamos aquí y no hubo redirección, mostrar error
-                  // Pero solo si realmente no hubo redirección (verificamos si la URL cambió)
-                  const currentUrl = window.location.href;
-                  if (!currentUrl.includes('accounts.google.com') && !currentUrl.includes('/api/auth/callback')) {
-                    console.warn('⚠️ [Login] signIn no redirigió después de 500ms');
-                    setError("No se pudo iniciar la sesión. Por favor, intenta nuevamente.");
-                    setIsLoading(false);
-                  }
-                  // Si hay redirección, no hacer nada (el componente se desmontará)
+                  // Si llegamos aquí, significa que no hubo redirección inmediata
+                  // Pero no mostrar error todavía - puede que la redirección esté en proceso
+                  // Solo mostrar error si realmente hay una excepción
                 } catch (error: any) {
+                  // Solo mostrar error si hay una excepción real
                   console.error("❌ [Login] Error en signIn:", error);
                   setError("Error al iniciar sesión con Google. Por favor, intenta nuevamente.");
                   setIsLoading(false);
