@@ -676,6 +676,18 @@ function UsuariosContent() {
             </div>
           )}
 
+          {/* Título Usuarios */}
+          <h2 className="page-title-desktop" style={{ 
+            fontSize: '24px', 
+            fontWeight: 700, 
+            color: '#111827',
+            marginBottom: '0.75rem',
+            marginTop: '0',
+            padding: '0 16px'
+          }}>
+            Usuarios
+          </h2>
+
           {/* Barra de búsqueda y botón nuevo - siempre visible */}
           <div className="search-and-action-row" style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1rem', justifyContent: 'space-between' }}>
             <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
