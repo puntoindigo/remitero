@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { signOut } from 'next-auth/react';
 import { useCurrentUserSimple } from '@/hooks/useCurrentUserSimple';
@@ -19,7 +19,6 @@ interface MobileMenuProps {
 }
 
 export function MobileMenu({ onClose }: MobileMenuProps = { onClose: undefined }) {
-  const [isOpen, setIsOpen] = useState(true);
   const pathname = usePathname();
   const router = useRouter();
   const currentUser = useCurrentUserSimple();
