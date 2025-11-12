@@ -1,5 +1,6 @@
 import NextAuth from "next-auth"
 import { authOptions } from "@/lib/auth"
+import { NextResponse } from "next/server"
 
 const handler = NextAuth(authOptions)
 
@@ -86,7 +87,22 @@ const wrappedHandler = async (req: any, context: any) => {
     console.error('❌ [NextAuth API] Error message:', error?.message);
     console.error('❌ [NextAuth API] Error code:', error?.code);
     console.error('❌ [NextAuth API] Error stack:', error?.stack);
-    throw error;
+    
+    // En lugar de lanzar el error, devolver una respuesta JSON de error
+    // Esto previene que NextAuth reciba HTML en lugar de JSON
+    return NextResponse.json(
+      { 
+        error: 'Internal Server Error',
+        message: error?.message || 'An error occurred processing the authentication request',
+        code: error?.code || 'UNKNOWN_ERROR'
+      },
+      { 
+        status: 500,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
+    );
   }
 }
 
