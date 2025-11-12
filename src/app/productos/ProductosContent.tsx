@@ -372,10 +372,10 @@ function ProductosContent() {
               maxWidth: '100%',
               boxSizing: 'border-box',
               cursor: 'pointer',
-              padding: '0.5rem 0.5rem 0.5rem 0',
+              padding: '0.5rem',
               borderRadius: '8px',
               transition: 'background-color 0.2s',
-              borderLeft: `4px solid ${stockColor}`
+              boxShadow: `0 2px 0 0 ${stockColor}`
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.backgroundColor = '#f9fafb';
@@ -479,7 +479,9 @@ function ProductosContent() {
                 display: 'flex', 
                 justifyContent: 'flex-end',
                 width: '100%',
-                marginTop: '0.25rem'
+                maxWidth: '100%',
+                marginTop: '0.25rem',
+                overflow: 'hidden'
               }}
               onClick={(e) => e.stopPropagation()}
             >
@@ -492,13 +494,13 @@ function ProductosContent() {
                   }}
                   style={{
                     padding: '6px',
-                    marginRight: '8px',
                     background: 'transparent',
                     border: 'none',
                     cursor: 'pointer',
                     color: '#6b7280',
                     transition: 'color 0.2s',
-                    flexShrink: 0
+                    flexShrink: 0,
+                    minWidth: '32px'
                   }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.color = '#111827';
