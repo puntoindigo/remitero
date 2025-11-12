@@ -1,73 +1,51 @@
 "use client";
 
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useSession } from 'next-auth/react';
+import { usePathname } from 'next/navigation';
 
 /**
  * Hook para prefetch de rutas críticas después del login
- * Pre-compila las rutas para que la navegación sea instantánea
+ * OPTIMIZADO: Solo prefetchea rutas relacionadas con la página actual y solo una vez
  */
 export function useRoutePrefetch() {
   const router = useRouter();
   const { data: session, status } = useSession();
+  const pathname = usePathname();
+  const hasPrefetched = useRef(false);
 
   useEffect(() => {
-    // Solo prefetch si hay sesión válida
-    if (status !== 'authenticated' || !session?.user) return;
+    // Solo prefetch si hay sesión válida y no hemos prefetcheado ya
+    if (status !== 'authenticated' || !session?.user || hasPrefetched.current) return;
 
-    // Rutas críticas a prefetchear según el rol
-    const criticalRoutes = {
-      SUPERADMIN: [
-        '/dashboard',
-        '/empresas',
-        '/usuarios',
-        '/remitos',
-        '/productos',
-        '/clientes',
-        '/categorias',
-        '/estados-remitos',
-      ],
-      ADMIN: [
-        '/dashboard',
-        '/remitos',
-        '/productos',
-        '/clientes',
-        '/categorias',
-        '/estados-remitos',
-      ],
-      USER: [
-        '/dashboard',
-        '/remitos',
-        '/productos',
-        '/clientes',
-      ],
-    };
-
-    const userRole = session.user.role as keyof typeof criticalRoutes;
-    const routesToPrefetch = criticalRoutes[userRole] || criticalRoutes.USER;
-
-    // Prefetch todas las rutas críticas en paralelo
-    // Usar requestIdleCallback si está disponible para no bloquear el UI
-    const prefetchRoutes = () => {
-      routesToPrefetch.forEach((route) => {
+    // Esperar 5 segundos después del login para no interferir con la navegación inicial
+    const timer = setTimeout(() => {
+      hasPrefetched.current = true;
+      
+      // Solo prefetchear rutas relacionadas con la página actual
+      const relatedRoutes: string[] = [];
+      
+      // Prefetchear solo rutas relacionadas con la página actual
+      if (pathname.startsWith('/remitos')) {
+        relatedRoutes.push('/productos', '/clientes');
+      } else if (pathname.startsWith('/productos')) {
+        relatedRoutes.push('/remitos', '/categorias');
+      } else if (pathname.startsWith('/clientes')) {
+        relatedRoutes.push('/remitos');
+      }
+      
+      // Prefetchear solo las rutas relacionadas
+      relatedRoutes.forEach((route) => {
         try {
           router.prefetch(route);
         } catch (error) {
           // Silenciar errores de prefetch
-          console.debug(`Prefetch failed for ${route}:`, error);
         }
       });
-    };
-
-    // NO prefetch inmediatamente - esperar a que la navegación inicial esté completa
-    // Prefetch solo en idle para no interferir con la navegación
-    if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
-      requestIdleCallback(prefetchRoutes, { timeout: 5000 });
-    } else {
-      // Fallback: prefetch después de un delay más largo para no interferir
-      setTimeout(prefetchRoutes, 2000);
-    }
-  }, [router, session, status]);
+    }, 5000);
+    
+    return () => clearTimeout(timer);
+  }, [router, session, status, pathname]);
 }
 

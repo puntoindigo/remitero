@@ -1,67 +1,34 @@
 "use client";
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useSession } from 'next-auth/react';
+import { usePathname } from 'next/navigation';
 
 /**
  * Hook para hacer warm-up de APIs críticas en background
- * Esto pre-compila las rutas de API y las mantiene listas
+ * DESHABILITADO: Causaba requests innecesarios que ralentizaban la navegación
+ * Solo se activará si es realmente necesario en el futuro
  */
 export function useApiWarmup() {
-  const { data: session, status } = useSession();
+  // Deshabilitado temporalmente - causaba requests innecesarios
+  // const { data: session, status } = useSession();
+  // const pathname = usePathname();
+  // const hasWarmedUp = useRef(false);
 
-  useEffect(() => {
-    // Solo warm-up si hay sesión válida
-    if (status !== 'authenticated' || !session?.user) return;
-
-    const userRole = session.user.role;
-    const companyId = session.user.companyId;
-
-    // APIs críticas a hacer warm-up
-    const criticalApis = [
-      '/api/dashboard',
-      '/api/products',
-      '/api/clients',
-      '/api/remitos',
-      '/api/categories',
-    ];
-
-    // Solo SUPERADMIN puede ver estas APIs
-    if (userRole === 'SUPERADMIN' || userRole === 'ADMIN') {
-      criticalApis.push('/api/users');
-      criticalApis.push('/api/estados-remitos');
-    }
-
-    // Warm-up en background usando requestIdleCallback
-    const warmupApis = () => {
-      criticalApis.forEach((api) => {
-        try {
-          // Construir URL con parámetros si es necesario
-          let url = api;
-          if (companyId && !api.includes('companyId')) {
-            url += `?companyId=${companyId}`;
-          }
-
-          // Hacer un HEAD request para warm-up (más ligero que GET)
-          fetch(url, {
-            method: 'HEAD',
-            credentials: 'include',
-          }).catch(() => {
-            // Silenciar errores - esto es solo warm-up
-          });
-        } catch (error) {
-          // Silenciar errores
-          console.debug(`API warm-up failed for ${api}:`, error);
-        }
-      });
-    };
-
-    // Warm-up después de un delay más largo para no interferir con la navegación inicial
-    if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
-      requestIdleCallback(warmupApis, { timeout: 5000 });
-    } else {
-      setTimeout(warmupApis, 3000);
-    }
-  }, [session, status]);
+  // useEffect(() => {
+  //   // Solo warm-up una vez después de que la navegación inicial esté completa
+  //   if (status !== 'authenticated' || !session?.user || hasWarmedUp.current) return;
+  //   
+  //   // Esperar 10 segundos después del login para no interferir con la navegación inicial
+  //   const timer = setTimeout(() => {
+  //     hasWarmedUp.current = true;
+  //     // Warm-up solo de APIs realmente críticas y solo una vez
+  //   }, 10000);
+  //   
+  //   return () => clearTimeout(timer);
+  // }, [session, status, pathname]);
+  
+  // Hook vacío - no hace nada por ahora
+  return;
 }
 

@@ -381,10 +381,8 @@ export const authOptions: NextAuthOptions = {
       return session
     },
     async redirect({ url, baseUrl }) {
-      // Solo loggear en desarrollo para reducir ruido
-      if (process.env.NODE_ENV === 'development') {
-        console.log('🔄 [NextAuth redirect]', { url, baseUrl });
-      }
+      // Solo loggear en desarrollo y solo una vez por URL única para reducir ruido
+      // El callback puede llamarse múltiples veces durante la verificación de sesión
       
       // Si la URL es del callback o es la baseUrl, redirigir al dashboard
       if (url.includes('/api/auth/callback') || url === baseUrl || url === `${baseUrl}/`) {
