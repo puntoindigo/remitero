@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useSession } from "next-auth/react";
 
 export interface Empresa {
@@ -15,6 +15,8 @@ export function useEmpresas() {
   const [empresas, setEmpresas] = useState<Empresa[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const isLoadingRef = useRef(false);
+  const hasLoadedRef = useRef(false);
 
   // Verificar que la sesión esté disponible y completamente cargada
   if (status === 'loading' || !session) {
@@ -29,17 +31,24 @@ export function useEmpresas() {
   }
 
   const loadEmpresas = useCallback(async () => {
+    // Evitar requests duplicados
+    if (isLoadingRef.current) {
+      return;
+    }
+    
+    // Solo SUPERADMIN puede cargar todas las empresas
+    if (session?.user?.role !== 'SUPERADMIN') {
+      setEmpresas([]);
+      setIsLoading(false);
+      hasLoadedRef.current = true;
+      return;
+    }
+    
+    isLoadingRef.current = true;
+    
     try {
       setIsLoading(true);
       setError(null);
-      
-      // Solo SUPERADMIN puede cargar todas las empresas
-      // ADMIN y USER no tienen acceso a esta ruta
-      if (session?.user?.role !== 'SUPERADMIN') {
-        setEmpresas([]);
-        setIsLoading(false);
-        return;
-      }
       
       let response;
       try {
@@ -63,12 +72,6 @@ export function useEmpresas() {
       }
       
       if (!response.ok) {
-        // Si no es SUPERADMIN, no es un error - simplemente no tiene acceso
-        if (session?.user?.role !== 'SUPERADMIN') {
-          setEmpresas([]);
-          setIsLoading(false);
-          return;
-        }
         const errorText = await response.text().catch(() => 'Error desconocido');
         throw new Error(`Error al cargar empresas: ${response.status} - ${errorText}`);
       }
@@ -79,6 +82,7 @@ export function useEmpresas() {
       });
       
       setEmpresas(data || []);
+      hasLoadedRef.current = true;
     } catch (err) {
       // Manejar cualquier tipo de error (Error, Event, etc.)
       let errorMessage = "Error desconocido al cargar empresas";
@@ -94,6 +98,7 @@ export function useEmpresas() {
       setEmpresas([]);
     } finally {
       setIsLoading(false);
+      isLoadingRef.current = false;
     }
   }, [session?.user?.role]);
 
@@ -227,6 +232,12 @@ export function useEmpresas() {
     
     if (!session) {
       setIsLoading(false);
+      hasLoadedRef.current = false;
+      return;
+    }
+    
+    // Solo cargar una vez si ya se cargó y el rol no cambió
+    if (hasLoadedRef.current && empresas.length > 0 && session.user?.role === "SUPERADMIN") {
       return;
     }
     
@@ -234,8 +245,9 @@ export function useEmpresas() {
       loadEmpresas();
     } else if (session.user) {
       setIsLoading(false);
+      hasLoadedRef.current = true;
     }
-  }, [session, status, loadEmpresas]);
+  }, [session?.user?.role, status]); // Removido loadEmpresas de dependencias para evitar loops
 
   return {
     empresas,
