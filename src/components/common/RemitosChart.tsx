@@ -20,7 +20,10 @@ export function RemitosChart({ data }: RemitosChartProps) {
   if (!data || data.length === 0) {
     return (
       <div style={{ 
+        width: '100%',
         height: '200px', 
+        minHeight: '200px',
+        minWidth: '100%',
         display: 'flex', 
         alignItems: 'center', 
         justifyContent: 'center',
@@ -33,7 +36,7 @@ export function RemitosChart({ data }: RemitosChartProps) {
   }
 
   return (
-    <div style={{ width: '100%', height: '200px', minHeight: '200px', position: 'relative' }}>
+    <div style={{ width: '100%', height: '200px', minHeight: '200px', minWidth: '100%', position: 'relative' }}>
       <div style={{ 
         position: 'absolute', 
         top: '0.5rem', 

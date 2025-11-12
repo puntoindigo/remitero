@@ -98,14 +98,11 @@ export async function logUserActivity(
 
 /**
  * Obtiene el último log de actividad de un usuario
+ * OPTIMIZADO: Logging reducido para mejorar performance
  */
 export async function getLastUserActivity(userId: string): Promise<ActivityLog | null> {
   try {
     const cleanUserId = userId.trim();
-    console.log('🔍 [getLastUserActivity] Fetching last activity for user:', { 
-      userId: cleanUserId,
-      originalUserId: userId 
-    });
     
     const { data, error } = await supabaseAdmin
       .from('user_activity_logs')
@@ -116,37 +113,85 @@ export async function getLastUserActivity(userId: string): Promise<ActivityLog |
       .single();
 
     if (error) {
-      // Si el error es porque no hay registros (PGRST116), es normal
+      // Si el error es porque no hay registros (PGRST116), es normal - no loggear
       if (error.code === 'PGRST116') {
-        console.log('ℹ️ [getLastUserActivity] No activity found for user:', cleanUserId);
         return null;
       }
-      console.error('❌ [getLastUserActivity] Supabase error:', {
-        error: error.message,
-        code: error.code,
-        details: error.details,
-        hint: error.hint,
-        userId: cleanUserId
-      });
+      // Solo loggear errores reales
+      if (process.env.NODE_ENV === 'development') {
+        console.error('❌ [getLastUserActivity] Supabase error:', {
+          error: error.message,
+          code: error.code,
+          userId: cleanUserId
+        });
+      }
       return null;
     }
-
-    if (!data) {
-      console.log('ℹ️ [getLastUserActivity] No data returned for user:', cleanUserId);
-      return null;
-    }
-
-    console.log('✅ [getLastUserActivity] Found last activity:', { 
-      userId: cleanUserId, 
-      activityId: data.id,
-      action: data.action,
-      created_at: data.created_at
-    });
 
     return data as ActivityLog;
   } catch (error) {
-    console.error('❌ [getLastUserActivity] Exception:', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('❌ [getLastUserActivity] Exception:', error);
+    }
     return null;
+  }
+}
+
+/**
+ * Obtiene los últimos logs de actividad para múltiples usuarios en una sola query
+ * OPTIMIZADO: Una sola query en lugar de N queries individuales
+ */
+export async function getLastUserActivitiesForUsers(userIds: string[]): Promise<Map<string, ActivityLog | null>> {
+  if (!userIds || userIds.length === 0) {
+    return new Map();
+  }
+
+  try {
+    // Obtener la última actividad de cada usuario usando una query con DISTINCT ON
+    // Esto es más eficiente que hacer N queries individuales
+    const { data, error } = await supabaseAdmin
+      .from('user_activity_logs')
+      .select('*')
+      .in('user_id', userIds.map(id => id.trim()))
+      .order('user_id', { ascending: true })
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      if (process.env.NODE_ENV === 'development') {
+        console.error('❌ [getLastUserActivitiesForUsers] Supabase error:', error);
+      }
+      // Retornar mapa vacío en caso de error
+      return new Map();
+    }
+
+    // Crear un mapa con la última actividad de cada usuario
+    const activitiesMap = new Map<string, ActivityLog | null>();
+    
+    // Inicializar todos los usuarios con null
+    userIds.forEach(id => activitiesMap.set(id.trim(), null));
+    
+    // Agrupar por user_id y tomar solo la primera (más reciente) de cada uno
+    const userActivities = new Map<string, ActivityLog>();
+    if (data && Array.isArray(data)) {
+      data.forEach((activity: ActivityLog) => {
+        const userId = activity.user_id.trim();
+        if (!userActivities.has(userId)) {
+          userActivities.set(userId, activity);
+        }
+      });
+    }
+    
+    // Actualizar el mapa final
+    userActivities.forEach((activity, userId) => {
+      activitiesMap.set(userId, activity);
+    });
+
+    return activitiesMap;
+  } catch (error) {
+    if (process.env.NODE_ENV === 'development') {
+      console.error('❌ [getLastUserActivitiesForUsers] Exception:', error);
+    }
+    return new Map();
   }
 }
 

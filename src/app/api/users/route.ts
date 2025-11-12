@@ -5,7 +5,7 @@ import { supabaseAdmin } from "@/lib/supabase";
 import { transformUsers, transformUser } from "@/lib/utils/supabase-transform";
 import bcrypt from "bcryptjs";
 import { logger } from "@/lib/logger";
-import { getLastUserActivity, getActionDescription, logUserActivity } from "@/lib/user-activity-logger";
+import { getLastUserActivity, getLastUserActivitiesForUsers, getActionDescription, logUserActivity } from "@/lib/user-activity-logger";
 import { sendInvitationEmail } from "@/lib/email";
 
 export async function GET(request: NextRequest) {
@@ -138,31 +138,29 @@ export async function GET(request: NextRequest) {
       }, { status: 500 });
     }
 
-    // Obtener último estado de actividad para cada usuario
-    const usersWithLastActivity = await Promise.all(
-      (users || []).map(async (user: any) => {
-        let lastActivity = null;
-        try {
-          const activity = await getLastUserActivity(user.id);
-          if (activity) {
-            lastActivity = {
-              action: activity.action,
-              description: activity.description || getActionDescription(activity.action, activity.metadata as any),
-              createdAt: activity.created_at
-            };
-          }
-        } catch (activityError: any) {
-          // Si falla obtener la actividad, continuar sin ella (no crítico)
-          console.warn(`⚠️ [Users] Error al obtener actividad para usuario ${user.id}:`, activityError.message);
-        }
-        
-        return {
-          ...user,
-          companies: user.companies || (user.company_id ? { id: user.company_id, name: null } : null),
-          lastActivity
+    // OPTIMIZADO: Obtener todas las actividades en una sola query en lugar de N queries
+    const userIds = (users || []).map((u: any) => u.id);
+    const activitiesMap = await getLastUserActivitiesForUsers(userIds);
+    
+    // Mapear usuarios con sus actividades
+    const usersWithLastActivity = (users || []).map((user: any) => {
+      const activity = activitiesMap.get(user.id);
+      let lastActivity = null;
+      
+      if (activity) {
+        lastActivity = {
+          action: activity.action,
+          description: activity.description || getActionDescription(activity.action, activity.metadata as any),
+          createdAt: activity.created_at
         };
-      })
-    );
+      }
+      
+      return {
+        ...user,
+        companies: user.companies || (user.company_id ? { id: user.company_id, name: null } : null),
+        lastActivity
+      };
+    });
 
     return NextResponse.json(transformUsers(usersWithLastActivity));
   } catch (error: any) {
