@@ -458,10 +458,11 @@ function RemitosContent() {
               maxWidth: '100%',
               boxSizing: 'border-box',
               cursor: 'pointer',
-              padding: '0.5rem',
+              padding: '0.5rem 0.5rem 0.5rem 0',
               borderRadius: '8px',
               transition: 'background-color 0.2s',
-              borderLeft: estado ? `4px solid ${estadoColor}` : 'none'
+              borderLeft: estado ? `4px solid ${estadoColor}` : 'none',
+              marginLeft: estado ? '0' : '0'
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.backgroundColor = '#f9fafb';
@@ -652,6 +653,19 @@ function RemitosContent() {
                 />
             </div>
           </div>
+        )}
+
+        {/* Título Remitos */}
+        {!needsCompanySelection && (
+          <h2 style={{ 
+            fontSize: '24px', 
+            fontWeight: 700, 
+            color: '#111827',
+            marginBottom: '0.75rem',
+            padding: '0 16px'
+          }}>
+            Remitos
+          </h2>
         )}
 
         {/* Contenido principal */}

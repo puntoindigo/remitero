@@ -166,7 +166,8 @@ export function DataTable<T>({
           Gestión
         </div>
         <table className="data-table" style={{ position: 'relative', zIndex: 1 }}>
-          <thead>
+          {/* Header oculto en mobile cuando showActions es false */}
+          <thead style={{ display: showActions === false ? 'none' : 'table-header-group' }}>
             <tr>
               {columns.map((column) => (
                 <th 

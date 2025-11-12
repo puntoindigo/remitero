@@ -352,69 +352,168 @@ function ProductosContent() {
   // Lógica simplificada: mostrar contenido si hay companyId o si es SUPERADMIN sin impersonar
   const needsCompanySelection = !companyId && currentUser?.role === "SUPERADMIN";
 
-  // Definir columnas para el DataTable
+  // Definir columnas para el DataTable - diseño como remitos
   const columns: DataTableColumn<Product>[] = [
     {
-      key: 'name',
+      key: 'main',
       label: 'Producto',
-      render: (producto) => (
-        <div>
-          <div className="font-medium">{producto?.name}</div>
-          {producto.description && (
-            <div className="text-sm text-gray-500">{producto.description}</div>
-          )}
-        </div>
-      )
-    },
-    {
-      key: 'category',
-      label: 'Categoría',
-      render: (producto) => (
-        producto.category ? (
-          <span className="badge">{producto.category.name}</span>
-        ) : (
-          <span className="text-gray-400">Sin categoría</span>
-        )
-      )
-    },
-    {
-      key: 'price',
-      label: 'Precio',
-      render: (producto) => {
-        const price = producto.price || 0;
-        return `$${typeof price === 'number' ? price.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0,00'}`;
-      }
-    },
-    {
-      key: 'stock',
-      label: 'Stock',
       render: (producto) => {
         const isInStock = (producto.stock || 'OUT_OF_STOCK') === 'IN_STOCK';
+        const stockColor = isInStock ? '#16a34a' : '#ef4444';
+        
         return (
-          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-            <StatusToggle
-              value={isInStock}
-              onChange={(value) => handleStockChange(producto?.id, value ? 'IN_STOCK' : 'OUT_OF_STOCK')}
-              title="Modificar stock"
-              size={20}
-            />
+          <div 
+            onClick={() => handleEditProduct(producto)}
+            style={{ 
+              display: 'flex', 
+              flexDirection: 'column',
+              gap: '0.5rem', 
+              width: '100%',
+              maxWidth: '100%',
+              boxSizing: 'border-box',
+              cursor: 'pointer',
+              padding: '0.5rem 0.5rem 0.5rem 0',
+              borderRadius: '8px',
+              transition: 'background-color 0.2s',
+              borderLeft: `4px solid ${stockColor}`
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#f9fafb';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'transparent';
+            }}
+          >
+            {/* Primera fila: Nombre y Precio */}
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '0.5rem',
+              flexWrap: 'wrap',
+              width: '100%'
+            }}>
+              <span style={{ 
+                fontSize: '15px', 
+                fontWeight: 600, 
+                color: '#111827',
+                flex: '1 1 auto',
+                minWidth: 0
+              }}>
+                {producto?.name || 'Sin nombre'}
+              </span>
+              <span style={{ 
+                fontSize: '12px', 
+                color: '#9ca3af',
+                whiteSpace: 'nowrap'
+              }}>
+                ${(producto.price || 0).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </span>
+            </div>
+            
+            {/* Segunda fila: Descripción si existe */}
+            {producto.description && (
+              <div style={{ 
+                fontSize: '13px', 
+                color: '#6b7280',
+                width: '100%',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap'
+              }}>
+                {producto.description}
+              </div>
+            )}
+            
+            {/* Tercera fila: Categorías como tags y Stock */}
+            <div style={{ 
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              flexWrap: 'wrap',
+              width: '100%'
+            }}>
+              {/* Categorías como tags */}
+              {producto.category ? (
+                <span style={{
+                  fontSize: '11px',
+                  padding: '2px 8px',
+                  borderRadius: '12px',
+                  backgroundColor: '#f3f4f6',
+                  color: '#374151',
+                  fontWeight: 500,
+                  whiteSpace: 'nowrap'
+                }}>
+                  {producto.category.name}
+                </span>
+              ) : (
+                <span style={{
+                  fontSize: '11px',
+                  padding: '2px 8px',
+                  borderRadius: '12px',
+                  backgroundColor: '#f3f4f6',
+                  color: '#9ca3af',
+                  fontWeight: 400,
+                  whiteSpace: 'nowrap'
+                }}>
+                  Sin categoría
+                </span>
+              )}
+              
+              {/* Stock badge */}
+              <span style={{
+                fontSize: '11px',
+                padding: '2px 8px',
+                borderRadius: '12px',
+                backgroundColor: stockColor + '20',
+                color: stockColor,
+                fontWeight: 500,
+                whiteSpace: 'nowrap'
+              }}>
+                {isInStock ? 'En stock' : 'Sin stock'}
+              </span>
+            </div>
+            
+            {/* Acciones - solo botón eliminar */}
+            <div 
+              style={{ 
+                display: 'flex', 
+                justifyContent: 'flex-end',
+                width: '100%',
+                marginTop: '0.25rem'
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Botón Eliminar */}
+              {handleDeleteProduct && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDeleteProduct(producto);
+                  }}
+                  style={{
+                    padding: '6px',
+                    marginRight: '8px',
+                    background: 'transparent',
+                    border: 'none',
+                    cursor: 'pointer',
+                    color: '#6b7280',
+                    transition: 'color 0.2s',
+                    flexShrink: 0
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = '#111827';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = '#6b7280';
+                  }}
+                  title="Eliminar"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              )}
+            </div>
           </div>
         );
-      }
-    },
-    {
-      key: 'createdAt',
-      label: 'Registrado',
-      render: (producto) => {
-        const date = new Date(producto.createdAt);
-        return date.toLocaleString('es-AR', {
-          year: 'numeric',
-          month: '2-digit',
-          day: '2-digit',
-          hour: '2-digit',
-          minute: '2-digit',
-          hour12: false
-        });
       }
     }
   ];
@@ -538,15 +637,12 @@ function ProductosContent() {
           ) : companyId ? (
             <>
               {/* DataTable con paginación */}
-                
                 <DataTable
                   {...tableConfig}
                   columns={columns}
                   showSearch={false}
                   showNewButton={false}
-                  onEdit={(producto) => handleEditProduct(producto)}
-                  onDelete={handleDeleteProduct}
-                  actionsColumnLabel="Acciones"
+                  showActions={false}
                 />
                 <Pagination {...paginationConfig} />
               </>
