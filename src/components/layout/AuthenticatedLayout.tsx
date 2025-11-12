@@ -60,10 +60,19 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
 
   // Validar que la sesión corresponde a un usuario válido en la BD
   // Esto previene sesiones "fantasma" cuando el schema está vacío
+  // NO validar si estamos en una ruta pública (incluida login)
   const [isValidatingSession, setIsValidatingSession] = useState(true);
   const [sessionValid, setSessionValid] = useState<boolean | null>(null);
 
   useEffect(() => {
+    // NO validar si estamos en una ruta pública (login, error, etc.)
+    // Esto evita loops infinitos cuando redirigimos a login
+    if (isPublicRoute || hasAuthError) {
+      setIsValidatingSession(false);
+      setSessionValid(null);
+      return;
+    }
+
     // Solo validar si hay sesión
     if (!session?.user?.id) {
       setIsValidatingSession(false);
@@ -83,6 +92,8 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
           console.warn('⚠️ [AuthenticatedLayout] Error verificando sesión:', response.status);
           setSessionValid(false);
           setIsValidatingSession(false);
+          // Cerrar sesión y redirigir
+          await handleInvalidSession();
           return;
         }
 
@@ -90,15 +101,10 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
         
         if (!result.valid) {
           console.warn('⚠️ [AuthenticatedLayout] Sesión inválida:', result.reason);
-          // Sesión inválida - cerrar sesión y redirigir a login
-          if (typeof window !== 'undefined') {
-            // Limpiar localStorage
-            localStorage.removeItem('impersonation');
-            // Redirigir a login con mensaje de error
-            window.location.href = '/auth/login?error=SessionInvalid';
-          }
           setSessionValid(false);
           setIsValidatingSession(false);
+          // Cerrar sesión y redirigir
+          await handleInvalidSession();
           return;
         }
 
@@ -110,14 +116,36 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
         // En caso de error, asumir que la sesión es inválida por seguridad
         setSessionValid(false);
         setIsValidatingSession(false);
-        if (typeof window !== 'undefined') {
-          window.location.href = '/auth/login?error=SessionInvalid';
+        await handleInvalidSession();
+      }
+    };
+
+    // Función helper para manejar sesión inválida
+    const handleInvalidSession = async () => {
+      if (typeof window === 'undefined') return;
+      
+      try {
+        // Limpiar localStorage primero
+        localStorage.removeItem('impersonation');
+        
+        // Intentar cerrar sesión de NextAuth (puede fallar si la sesión ya no es válida)
+        try {
+          const { signOut } = await import('next-auth/react');
+          await signOut({ redirect: false });
+        } catch (signOutError) {
+          // Ignorar errores al cerrar sesión - puede fallar si la sesión ya no es válida
+          console.warn('⚠️ [AuthenticatedLayout] Error al cerrar sesión (esperado):', signOutError);
         }
+      } catch (error) {
+        console.warn('⚠️ [AuthenticatedLayout] Error en handleInvalidSession:', error);
+      } finally {
+        // Redirigir a login con mensaje de error
+        window.location.href = '/auth/login?error=SessionInvalid';
       }
     };
 
     validateSession();
-  }, [session?.user?.id]);
+  }, [session?.user?.id, isPublicRoute, hasAuthError]);
   
   // Si es una ruta pública (incluida impresión), renderizar sin autenticación
   // Esto debe ir DESPUÉS de todos los hooks

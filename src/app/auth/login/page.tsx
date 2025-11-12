@@ -100,18 +100,32 @@ function LoginPageContent() {
         const existingSession = await getSession();
         if (existingSession) {
           console.log('🔒 [Login] Sesión existente detectada, cerrando...');
-          // Cerrar sesión sin redirigir (ya estamos en login)
-          await signOut({ redirect: false });
-          // Limpiar localStorage relacionado con sesión
+          
+          // Limpiar localStorage primero
           if (typeof window !== 'undefined') {
             localStorage.removeItem('impersonation');
-            // No limpiar rememberedEmail/password aquí, solo datos de sesión
           }
-          console.log('✅ [Login] Sesión cerrada correctamente');
+          
+          // Intentar cerrar sesión sin redirigir (ya estamos en login)
+          // Puede fallar si la sesión ya no es válida, pero eso está bien
+          try {
+            await signOut({ redirect: false });
+            console.log('✅ [Login] Sesión cerrada correctamente');
+          } catch (signOutError: any) {
+            // Si falla al cerrar sesión (puede ser porque la sesión ya no es válida),
+            // no es un problema - ya limpiamos localStorage
+            // Solo loggear si no es un error de red esperado
+            if (signOutError?.message && !signOutError.message.includes('Failed to fetch')) {
+              console.warn('⚠️ [Login] Error al cerrar sesión:', signOutError);
+            }
+          }
         }
-      } catch (error) {
-        // Si hay error al cerrar sesión, intentar limpiar localStorage de todas formas
-        console.warn('⚠️ [Login] Error al cerrar sesión existente:', error);
+      } catch (error: any) {
+        // Si hay error al obtener sesión o cerrarla, limpiar localStorage de todas formas
+        // Esto puede pasar si la sesión ya no es válida o hay problemas de red
+        if (error?.message && !error.message.includes('Failed to fetch')) {
+          console.warn('⚠️ [Login] Error al verificar/cerrar sesión existente:', error);
+        }
         if (typeof window !== 'undefined') {
           localStorage.removeItem('impersonation');
         }
