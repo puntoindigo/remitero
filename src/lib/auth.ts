@@ -381,29 +381,20 @@ export const authOptions: NextAuthOptions = {
       return session
     },
     async redirect({ url, baseUrl }) {
-      console.log('🔄 [NextAuth redirect] Callback iniciado', {
-        url,
-        baseUrl,
-        urlType: typeof url,
-        baseUrlType: typeof baseUrl,
-        urlIncludesCallback: url.includes('/api/auth/callback'),
-        urlEqualsBaseUrl: url === baseUrl,
-        urlStartsWithSlash: url.startsWith('/')
-      });
+      // Solo loggear en desarrollo para reducir ruido
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🔄 [NextAuth redirect]', { url, baseUrl });
+      }
       
-      // Redirección simple - NextAuth manejará la construcción de la URL completa
-      // Si la URL es relativa, NextAuth la combinará con baseUrl automáticamente
+      // Si la URL es del callback o es la baseUrl, redirigir al dashboard
       if (url.includes('/api/auth/callback') || url === baseUrl || url === `${baseUrl}/`) {
-        console.log('🔄 [NextAuth redirect] Redirigiendo a /dashboard (callback o baseUrl)');
         return '/dashboard';
       }
-      // Si ya es una ruta relativa, retornarla tal cual
+      // Si ya es una ruta relativa, retornarla tal cual (sin redirección innecesaria)
       if (url.startsWith('/')) {
-        console.log('🔄 [NextAuth redirect] Redirigiendo a URL relativa:', url);
         return url;
       }
       // Por defecto, redirigir al dashboard
-      console.log('🔄 [NextAuth redirect] Redirigiendo a /dashboard (default)');
       return '/dashboard';
     }
   },

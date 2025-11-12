@@ -38,8 +38,6 @@ interface DashboardCard {
   textColor: string;
   bgColor: string;
   stats: Array<{ label: string; value: number; link: string }>;
-  periodo?: 'hoy' | 'ayer' | 'esta_semana' | 'este_mes' | 'siempre';
-  onPeriodoChange?: (periodo: 'hoy' | 'ayer' | 'esta_semana' | 'este_mes' | 'siempre') => void;
 }
 
 interface TodayStats {
@@ -72,7 +70,6 @@ export default function DashboardPage() {
   })
   const [isLoading, setIsLoading] = useState(true)
   const [remitosViewMode, setRemitosViewMode] = useState<'status' | 'chart'>('chart')
-  const [productosPeriodo, setProductosPeriodo] = useState<'hoy' | 'ayer' | 'esta_semana' | 'este_mes' | 'siempre'>('siempre')
 
   // Track para evitar cargas duplicadas por mismo companyId
   const lastFetchedCompanyId = useRef<string | null>(null)
@@ -137,8 +134,8 @@ export default function DashboardPage() {
       try {
         // Si effectiveCompanyId es null (todas las empresas), no pasar el parámetro
         const url = effectiveCompanyId 
-          ? `/api/dashboard?companyId=${effectiveCompanyId}&productosPeriodo=${productosPeriodo}` 
-          : `/api/dashboard?productosPeriodo=${productosPeriodo}`;
+          ? `/api/dashboard?companyId=${effectiveCompanyId}` 
+          : `/api/dashboard`;
         const resp = await fetch(url, { signal: abortController.signal });
         if (!resp.ok) throw new Error('Error al cargar dashboard agregado');
         const data = await resp.json();
@@ -213,7 +210,7 @@ export default function DashboardPage() {
       if (debounceTimer.current) clearTimeout(debounceTimer.current as any);
       abortController.abort();
     };
-  }, [currentUser?.companyId, currentUser?.role, selectedCompanyId, productosPeriodo])
+  }, [currentUser?.companyId, currentUser?.role, selectedCompanyId])
 
   // Shortcut para ir al dashboard (si no está en uso globalmente)
   // Nota: El shortcut 'D' ya existe en Header.tsx globalmente, pero lo agregamos aquí
@@ -281,20 +278,16 @@ export default function DashboardPage() {
       ]
     },
     {
-      title: "Productos más vendidos",
+      title: "Productos",
       icon: Package,
       color: "bg-green-500",
       textColor: "text-green-600",
       bgColor: "bg-green-50",
-      stats: stats.productos.topVendidos && stats.productos.topVendidos.length > 0 
-        ? stats.productos.topVendidos.map((p, idx) => ({
-            label: `${idx + 1}. ${p.name}`,
-            value: p.totalQuantity,
-            link: `/productos`
-          }))
-        : [{ label: "No hay datos", value: 0, link: "/productos" }],
-      periodo: productosPeriodo,
-      onPeriodoChange: setProductosPeriodo
+      stats: [
+        { label: "Total", value: stats.productos.total, link: "/productos" },
+        { label: "Con stock", value: stats.productos.conStock, link: "/productos" },
+        { label: "Sin stock", value: stats.productos.sinStock, link: "/productos" }
+      ]
     },
     {
       title: "Clientes",
@@ -413,8 +406,6 @@ export default function DashboardPage() {
             const showChart = isRemitosCard && remitosViewMode === 'chart';
             const showStatus = isRemitosCard && remitosViewMode === 'status';
             
-            const isProductosCard = card.title === "Productos más vendidos";
-            
             return (
               <div key={card.title} className="dashboard-card" style={{ position: 'relative' }}>
                 {/* Header con ícono y título */}
@@ -423,32 +414,6 @@ export default function DashboardPage() {
                     <card.icon className="dashboard-card-icon" />
                     {card.title}
                   </h3>
-                  {/* Desplegable de período para Productos */}
-                  {isProductosCard && card.onPeriodoChange && (
-                    <select
-                      value={card.periodo || 'siempre'}
-                      onChange={(e) => card.onPeriodoChange?.(e.target.value as any)}
-                      style={{
-                        position: 'absolute',
-                        top: '0.75rem',
-                        right: '0.75rem',
-                        padding: '0.25rem 0.5rem',
-                        fontSize: '0.75rem',
-                        border: '1px solid #e5e7eb',
-                        borderRadius: '0.25rem',
-                        background: '#fff',
-                        color: '#6b7280',
-                        cursor: 'pointer',
-                        zIndex: 10
-                      }}
-                    >
-                      <option value="hoy">Hoy</option>
-                      <option value="ayer">Ayer</option>
-                      <option value="esta_semana">Esta semana</option>
-                      <option value="este_mes">Este mes</option>
-                      <option value="siempre">Siempre</option>
-                    </select>
-                  )}
                   {/* Botón pequeño para cambiar vista en Remitos */}
                   {isRemitosCard && (
                     <button
