@@ -29,6 +29,7 @@ import { LoadingButton } from "@/components/common/LoadingButton";
 import { useShortcuts } from "@/hooks/useShortcuts";
 import { useColorTheme } from "@/contexts/ColorThemeContext";
 import { StatusToggle } from "@/components/common/StatusToggle";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 import { 
   useProductosQuery,
@@ -48,6 +49,7 @@ function ProductosContent() {
   const { data: session } = useSession();
   const currentUser = useCurrentUserSimple();
   const { colors } = useColorTheme();
+  const isMobile = useIsMobile();
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -375,7 +377,7 @@ function ProductosContent() {
               padding: '0.5rem',
               borderRadius: '8px',
               transition: 'background-color 0.2s',
-              borderBottom: `3px solid ${stockColor}`
+              ...(isMobile ? { borderBottom: `3px solid ${stockColor}` } : { borderLeft: `4px solid ${stockColor}` })
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.backgroundColor = '#f9fafb';
