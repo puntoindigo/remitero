@@ -427,30 +427,34 @@ function LoginPageContent() {
             <button
               type="button"
               onClick={async () => {
-                console.log('🔵 [Login] Click en botón Gmail');
-                console.log('🔵 [Login] URL actual:', window.location.href);
                 setIsLoading(true);
                 setError("");
                 try {
                   // OAuth providers REQUIEREN redirect: true (no pueden usar redirect: false)
                   // NextAuth manejará la redirección a Google y luego de vuelta
                   // IMPORTANTE: signIn con redirect: true NO retorna un valor porque redirige inmediatamente
-                  // Si retorna undefined, significa que la redirección está en proceso
-                  await signIn("google", {
+                  // Si retorna undefined, es el comportamiento normal y esperado
+                  const result = await signIn("google", {
                     redirect: true,
                     callbackUrl: "/dashboard"
                   });
-                  // Si llegamos aquí, significa que NO hubo redirección (error)
-                  // Esto no debería pasar normalmente, pero lo manejamos por si acaso
-                  console.warn('⚠️ [Login] signIn no redirigió. Esto puede indicar un problema de configuración.');
-                  setError("No se pudo iniciar la sesión. Verifica que NEXTAUTH_URL esté configurado en .env.local");
-                  setIsLoading(false);
+                  
+                  // Si llegamos aquí después de un delay, puede que no haya redirigido
+                  // Esperar un momento para ver si hay redirección
+                  await new Promise(resolve => setTimeout(resolve, 500));
+                  
+                  // Si después de 500ms aún estamos aquí y no hubo redirección, mostrar error
+                  // Pero solo si realmente no hubo redirección (verificamos si la URL cambió)
+                  const currentUrl = window.location.href;
+                  if (!currentUrl.includes('accounts.google.com') && !currentUrl.includes('/api/auth/callback')) {
+                    console.warn('⚠️ [Login] signIn no redirigió después de 500ms');
+                    setError("No se pudo iniciar la sesión. Por favor, intenta nuevamente.");
+                    setIsLoading(false);
+                  }
+                  // Si hay redirección, no hacer nada (el componente se desmontará)
                 } catch (error: any) {
                   console.error("❌ [Login] Error en signIn:", error);
-                  console.error("❌ [Login] Error message:", error?.message);
-                  console.error("❌ [Login] Error stack:", error?.stack);
-                  console.error("❌ [Login] Error name:", error?.name);
-                  setError("Error al iniciar sesión con Google. Verifica que NEXTAUTH_URL esté configurado en .env.local");
+                  setError("Error al iniciar sesión con Google. Por favor, intenta nuevamente.");
                   setIsLoading(false);
                 }
               }}
