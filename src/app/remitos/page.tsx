@@ -579,13 +579,27 @@ function RemitosContent() {
           </div>
         )}
 
+        {/* Título Remitos */}
+        {!needsCompanySelection && (
+          <h2 style={{ 
+            fontSize: '24px', 
+            fontWeight: 700, 
+            color: '#111827',
+            marginBottom: '0.75rem',
+            padding: '0 16px'
+          }}>
+            Remitos
+          </h2>
+        )}
+
         {/* Barra de búsqueda y filtros - optimizado para mobile */}
         {!needsCompanySelection && (
           <div style={{ 
+            padding: '0 16px',
+            marginBottom: '1rem',
             display: 'flex', 
             flexDirection: 'column',
-            gap: '0.75rem', 
-            marginBottom: '1rem'
+            gap: '0.75rem'
           }}>
             {/* Primera fila: búsqueda */}
             <div style={{ width: '100%' }}>
@@ -636,19 +650,6 @@ function RemitosContent() {
                 />
             </div>
           </div>
-        )}
-
-        {/* Título Remitos */}
-        {!needsCompanySelection && (
-          <h2 style={{ 
-            fontSize: '24px', 
-            fontWeight: 700, 
-            color: '#111827',
-            marginBottom: '0.75rem',
-            padding: '0 16px'
-          }}>
-            Remitos
-          </h2>
         )}
 
         {/* Contenido principal */}
