@@ -4,7 +4,7 @@ import React, { useState, useEffect, Suspense, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { ProductForm } from "@/lib/validations";
-import { Plus, Package } from "lucide-react";
+import { Plus, Package, Trash2 } from "lucide-react";
 import { formatDate } from "@/lib/utils/formatters";
 import FilterableSelect from "@/components/common/FilterableSelect";
 import { MessageModal } from "@/components/common/MessageModal";
@@ -626,6 +626,19 @@ function ProductosContent() {
                 <ShortcutText text="Nuevo Producto" shortcutKey="n" />
               </button>
             </div>
+          )}
+
+          {/* Título Productos */}
+          {companyId && (
+            <h2 style={{ 
+              fontSize: '24px', 
+              fontWeight: 700, 
+              color: '#111827',
+              marginBottom: '0.75rem',
+              padding: '0 16px'
+            }}>
+              Productos
+            </h2>
           )}
 
           {/* Mostrar productos solo si hay empresa seleccionada */}
