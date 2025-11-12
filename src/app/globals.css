@@ -146,6 +146,27 @@ main.main-content {
   padding-left: 0 !important;
   padding-right: 0 !important;
   padding-bottom: 144px !important; /* Espacio para botonera fixed (120px) + footer (24px) */
+  margin-top: 0 !important;
+}
+
+/* Reducir padding-top en desktop para minimizar espacio */
+@media (min-width: 768px) {
+  .main-content,
+  main.main-content {
+    padding-top: 100px !important; /* TopBar (40px) + Header (60px) = 100px exacto */
+  }
+  
+  /* Eliminar cualquier margin adicional */
+  .form-section {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+  }
+  
+  /* Títulos y selectores sin margin-top extra */
+  .form-section > h2.page-title-desktop:first-child,
+  .form-section > div:first-child {
+    margin-top: 0 !important;
+  }
 }
 
 section.form-section,
