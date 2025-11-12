@@ -31,7 +31,11 @@ export function UserActivityLogModal({
       setPage(0);
       setHasMore(true);
       setLoading(true);
-      fetchLogs(0);
+      // Usar un pequeño delay para asegurar que el modal esté completamente montado
+      const timer = setTimeout(() => {
+        fetchLogs(0);
+      }, 100);
+      return () => clearTimeout(timer);
     } else if (!isOpen) {
       // Limpiar logs cuando se cierra el modal
       setLogs([]);
@@ -78,7 +82,16 @@ export function UserActivityLogModal({
       const url = `/api/users/${trimmedUserId}/activity-logs?page=${pageNum}&limit=${pageSize}`;
       console.log('🔍 [UserActivityLogModal] Fetch URL:', url);
       
-      const response = await fetch(url);
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+      }).catch((fetchError) => {
+        console.error('❌ [UserActivityLogModal] Fetch error:', fetchError);
+        throw new Error(`Error de red: ${fetchError.message}`);
+      });
       
       console.log('🔍 [UserActivityLogModal] Response status:', response.status, response.statusText);
       console.log('🔍 [UserActivityLogModal] Response headers:', {
@@ -87,7 +100,14 @@ export function UserActivityLogModal({
       });
       
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
+        let errorData = {};
+        try {
+          errorData = await response.json();
+        } catch (e) {
+          // Si no se puede parsear JSON, usar el texto de respuesta
+          const text = await response.text().catch(() => '');
+          errorData = { message: text || response.statusText };
+        }
         console.error('❌ [UserActivityLogModal] Error response:', {
           status: response.status,
           statusText: response.statusText,
@@ -103,7 +123,17 @@ export function UserActivityLogModal({
         return;
       }
       
-      const data = await response.json();
+      let data;
+      try {
+        data = await response.json();
+      } catch (parseError) {
+        console.error('❌ [UserActivityLogModal] JSON parse error:', parseError);
+        if (pageNum === 0) {
+          setLogs([]);
+        }
+        return;
+      }
+      
       console.log('✅ [UserActivityLogModal] Activity logs response:', { 
         userId, 
         trimmedUserId,
@@ -132,7 +162,7 @@ export function UserActivityLogModal({
         setLogs(prev => [...prev, ...logsArray]);
       }
       setHasMore(logsArray.length === pageSize);
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ [UserActivityLogModal] Exception fetching logs:', error);
       // Si hay un error de red, establecer logs vacío
       if (pageNum === 0) {
