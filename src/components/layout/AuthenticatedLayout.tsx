@@ -304,7 +304,7 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
           }
           
           .data-table td {
-            padding: 10px 8px;
+            padding: 8px 6px;
             font-size: 12px;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -316,6 +316,13 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
           .data-table td > * {
             max-width: 100% !important;
             overflow: hidden;
+            box-sizing: border-box;
+          }
+          
+          /* Asegurar que los botones no se salgan */
+          .data-table td button {
+            max-width: 100%;
+            overflow: visible;
           }
           
           /* Selectores y campos - diseño líquido */
