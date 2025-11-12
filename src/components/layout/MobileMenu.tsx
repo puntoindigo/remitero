@@ -94,7 +94,7 @@ export function MobileMenu({ onClose }: MobileMenuProps = { onClose: undefined }
         }
       `}</style>
 
-      {/* Drawer Menu - ahora el contenedor está en VercelMobileNav */}
+      {/* Drawer Menu - el contenedor y overlay están en VercelMobileNav */}
       <div
         style={{
           position: 'relative',
@@ -124,7 +124,6 @@ export function MobileMenu({ onClose }: MobileMenuProps = { onClose: undefined }
             </div>
             <button
               onClick={() => {
-                setIsOpen(false);
                 onClose?.();
               }}
               style={{
@@ -156,7 +155,6 @@ export function MobileMenu({ onClose }: MobileMenuProps = { onClose: undefined }
                 key={item.path}
                 onClick={() => {
                   router.push(item.path);
-                  setIsOpen(false);
                   onClose?.();
                 }}
                 style={{
