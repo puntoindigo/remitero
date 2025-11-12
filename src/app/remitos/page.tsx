@@ -499,9 +499,9 @@ function RemitosContent() {
         {/* Selector de empresa - pegado al top sin padding */}
         {shouldShowCompanySelector && empresas?.length > 0 && (
           <div style={{ 
-            marginBottom: '0.5rem', 
+            marginBottom: '0', 
             marginTop: 0,
-            padding: '8px 16px 0 16px',
+            padding: '0 16px',
             width: '100%',
             maxWidth: '100%',
             boxSizing: 'border-box'
@@ -525,7 +525,7 @@ function RemitosContent() {
             fontWeight: isMobile ? 700 : undefined, 
             color: isMobile ? '#111827' : undefined,
             marginBottom: isMobile ? '0.75rem' : undefined,
-            marginTop: '0',
+            marginTop: shouldShowCompanySelector ? '0.5rem' : '0',
             padding: '0 16px'
           }}>
             Remitos
@@ -540,7 +540,8 @@ function RemitosContent() {
             display: 'flex', 
             flexDirection: isMobile ? 'column' : 'row',
             gap: '0.75rem',
-            alignItems: isMobile ? 'stretch' : 'center'
+            alignItems: isMobile ? 'stretch' : 'center',
+            justifyContent: isMobile ? 'stretch' : 'space-between'
           }}>
             {/* Desktop: todos en una línea, Mobile: columna */}
             <div style={{ width: isMobile ? '100%' : '300px', flexShrink: 0 }}>
@@ -587,6 +588,40 @@ function RemitosContent() {
                 useThemeColors={true}
               />
             </div>
+            
+            {/* Botón Nuevo Remito - solo en desktop */}
+            {!isMobile && (
+              <button
+                onClick={handleNew}
+                className="btn-primary"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  padding: '8px 16px',
+                  background: colors.gradient,
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  whiteSpace: 'nowrap',
+                  flexShrink: 0
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-1px)';
+                  e.currentTarget.style.boxShadow = `0 4px 12px ${colors.primary}50`;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = 'none';
+                }}
+              >
+                <Plus className="h-4 w-4" />
+                Nuevo Remito
+              </button>
+            )}
           </div>
         )}
 

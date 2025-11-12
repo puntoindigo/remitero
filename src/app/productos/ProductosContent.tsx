@@ -436,9 +436,9 @@ function ProductosContent() {
           {/* Selector de empresa - pegado al top (solo superusuario) */}
           {shouldShowCompanySelector && empresas?.length > 0 && (
             <div style={{ 
-              marginBottom: '0.5rem', 
+              marginBottom: '0', 
               marginTop: 0,
-              padding: '8px 16px 0 16px',
+              padding: '0 16px',
               width: '100%',
               maxWidth: '100%',
               boxSizing: 'border-box'
@@ -462,7 +462,7 @@ function ProductosContent() {
               fontWeight: 700, 
               color: '#111827',
               marginBottom: '0.75rem',
-              marginTop: '0',
+              marginTop: shouldShowCompanySelector ? '0.5rem' : '0',
               padding: '0 16px'
             }}>
               Productos

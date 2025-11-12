@@ -31,6 +31,17 @@ interface DashboardStats {
   empresas: number;
 }
 
+interface DashboardCard {
+  title: string;
+  icon: any;
+  color: string;
+  textColor: string;
+  bgColor: string;
+  stats: Array<{ label: string; value: number; link: string }>;
+  periodo?: 'hoy' | 'ayer' | 'esta_semana' | 'este_mes' | 'siempre';
+  onPeriodoChange?: (periodo: 'hoy' | 'ayer' | 'esta_semana' | 'este_mes' | 'siempre') => void;
+}
+
 interface TodayStats {
   usuarios: number;
   clientes: number;
@@ -61,6 +72,7 @@ export default function DashboardPage() {
   })
   const [isLoading, setIsLoading] = useState(true)
   const [remitosViewMode, setRemitosViewMode] = useState<'status' | 'chart'>('chart')
+  const [productosPeriodo, setProductosPeriodo] = useState<'hoy' | 'ayer' | 'esta_semana' | 'este_mes' | 'siempre'>('siempre')
 
   // Track para evitar cargas duplicadas por mismo companyId
   const lastFetchedCompanyId = useRef<string | null>(null)
@@ -125,8 +137,8 @@ export default function DashboardPage() {
       try {
         // Si effectiveCompanyId es null (todas las empresas), no pasar el parámetro
         const url = effectiveCompanyId 
-          ? `/api/dashboard?companyId=${effectiveCompanyId}` 
-          : `/api/dashboard`;
+          ? `/api/dashboard?companyId=${effectiveCompanyId}&productosPeriodo=${productosPeriodo}` 
+          : `/api/dashboard?productosPeriodo=${productosPeriodo}`;
         const resp = await fetch(url, { signal: abortController.signal });
         if (!resp.ok) throw new Error('Error al cargar dashboard agregado');
         const data = await resp.json();
@@ -201,7 +213,7 @@ export default function DashboardPage() {
       if (debounceTimer.current) clearTimeout(debounceTimer.current as any);
       abortController.abort();
     };
-  }, [currentUser?.companyId, currentUser?.role, selectedCompanyId])
+  }, [currentUser?.companyId, currentUser?.role, selectedCompanyId, productosPeriodo])
 
   // Shortcut para ir al dashboard (si no está en uso globalmente)
   // Nota: El shortcut 'D' ya existe en Header.tsx globalmente, pero lo agregamos aquí
@@ -269,21 +281,20 @@ export default function DashboardPage() {
       ]
     },
     {
-      title: "Productos",
+      title: "Productos más vendidos",
       icon: Package,
       color: "bg-green-500",
       textColor: "text-green-600",
       bgColor: "bg-green-50",
-      stats: [
-        { label: "Con Stock", value: stats.productos.conStock, link: "/productos?stock=IN_STOCK" },
-        ...(stats.productos.topVendidos && stats.productos.topVendidos.length > 0 
-          ? stats.productos.topVendidos.map((p, idx) => ({
-              label: `${idx + 1}. ${p.name}`,
-              value: p.totalQuantity,
-              link: `/productos`
-            }))
-          : [])
-      ]
+      stats: stats.productos.topVendidos && stats.productos.topVendidos.length > 0 
+        ? stats.productos.topVendidos.map((p, idx) => ({
+            label: `${idx + 1}. ${p.name}`,
+            value: p.totalQuantity,
+            link: `/productos`
+          }))
+        : [{ label: "No hay datos", value: 0, link: "/productos" }],
+      periodo: productosPeriodo,
+      onPeriodoChange: setProductosPeriodo
     },
     {
       title: "Clientes",
@@ -360,11 +371,25 @@ export default function DashboardPage() {
   return (
     <main className="main-content">
       <div className="form-section">
-        <h2>Tablero de Control</h2>
+        <h2 className="page-title-desktop" style={{ 
+          fontSize: isMobile ? '24px' : undefined, 
+          fontWeight: isMobile ? 700 : undefined, 
+          color: isMobile ? '#111827' : undefined,
+          marginBottom: isMobile ? '0.75rem' : undefined,
+          marginTop: '0',
+          padding: '0 16px'
+        }}>
+          Tablero de Control
+        </h2>
         
           {/* Selector de empresa para SUPERADMIN */}
           {currentUser?.role === "SUPERADMIN" && empresas?.length > 0 && (
-            <div style={{ marginBottom: '1.5rem', width: '100%' }}>
+            <div style={{ 
+              marginBottom: '0', 
+              marginTop: 0,
+              padding: '0 16px',
+              width: '100%' 
+            }}>
               <FilterableSelect
                 options={[
                   { id: "", name: "Todas las empresas" },
@@ -388,6 +413,8 @@ export default function DashboardPage() {
             const showChart = isRemitosCard && remitosViewMode === 'chart';
             const showStatus = isRemitosCard && remitosViewMode === 'status';
             
+            const isProductosCard = card.title === "Productos más vendidos";
+            
             return (
               <div key={card.title} className="dashboard-card" style={{ position: 'relative' }}>
                 {/* Header con ícono y título */}
@@ -396,6 +423,32 @@ export default function DashboardPage() {
                     <card.icon className="dashboard-card-icon" />
                     {card.title}
                   </h3>
+                  {/* Desplegable de período para Productos */}
+                  {isProductosCard && card.onPeriodoChange && (
+                    <select
+                      value={card.periodo || 'siempre'}
+                      onChange={(e) => card.onPeriodoChange?.(e.target.value as any)}
+                      style={{
+                        position: 'absolute',
+                        top: '0.75rem',
+                        right: '0.75rem',
+                        padding: '0.25rem 0.5rem',
+                        fontSize: '0.75rem',
+                        border: '1px solid #e5e7eb',
+                        borderRadius: '0.25rem',
+                        background: '#fff',
+                        color: '#6b7280',
+                        cursor: 'pointer',
+                        zIndex: 10
+                      }}
+                    >
+                      <option value="hoy">Hoy</option>
+                      <option value="ayer">Ayer</option>
+                      <option value="esta_semana">Esta semana</option>
+                      <option value="este_mes">Este mes</option>
+                      <option value="siempre">Siempre</option>
+                    </select>
+                  )}
                   {/* Botón pequeño para cambiar vista en Remitos */}
                   {isRemitosCard && (
                     <button

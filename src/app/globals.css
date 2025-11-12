@@ -142,7 +142,7 @@ main.main-content {
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
-  padding-top: 80px !important; /* Espacio para header fixed */
+  padding-top: 60px !important; /* Espacio para header fixed (reducido para títulos pegados) */
   padding-left: 0 !important;
   padding-right: 0 !important;
   padding-bottom: 144px !important; /* Espacio para botonera fixed (120px) + footer (24px) */
@@ -183,7 +183,7 @@ h2 {
 @media (min-width: 768px) {
   h2.page-title-desktop {
     font-size: 2.5rem !important;
-    font-weight: 600 !important;
+    font-weight: 700 !important;
     color: #9ca3af !important;
     text-transform: uppercase !important;
     letter-spacing: 0.05em !important;

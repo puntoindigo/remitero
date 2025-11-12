@@ -18,6 +18,8 @@ import {
   type Cliente 
 } from "@/hooks/queries/useClientesQuery";
 import { OptimizedPageLayout } from "@/components/layout/OptimizedPageLayout";
+import { useIsMobile } from "@/hooks/useIsMobile";
+import { useColorTheme } from "@/contexts/ColorThemeContext";
 import { useOptimizedPageData } from "@/hooks/useOptimizedPageData";
 import { DataTable, type DataTableColumn } from "@/components/common/DataTable";
 import { useCRUDTable } from "@/hooks/useCRUDTable";
@@ -31,6 +33,7 @@ import { useColorTheme } from "@/contexts/ColorThemeContext";
 
 function ClientesContent() {
   const { colors } = useColorTheme();
+  const isMobile = useIsMobile();
   // 🚀 Hook optimizado que carga todo en paralelo
   const {
     companyId,
@@ -211,12 +214,53 @@ function ClientesContent() {
           }}>
             Clientes
           </h2>
-          <div style={{ padding: '0 16px' }}>
-            <SearchInput
-              value={crudSearchTerm}
-              onChange={setCrudSearchTerm}
-              placeholder="Buscar clientes..."
-            />
+          <div style={{ 
+            padding: '0 16px',
+            display: 'flex',
+            gap: '1rem',
+            alignItems: 'center',
+            justifyContent: 'space-between'
+          }}>
+            <div style={{ flex: 1 }}>
+              <SearchInput
+                value={crudSearchTerm}
+                onChange={setCrudSearchTerm}
+                placeholder="Buscar clientes..."
+              />
+            </div>
+            {/* Botón Nuevo Cliente - solo en desktop */}
+            {!isMobile && (
+              <button
+                onClick={handleNew}
+                className="btn-primary"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  padding: '8px 16px',
+                  background: colors.gradient,
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  whiteSpace: 'nowrap',
+                  flexShrink: 0
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-1px)';
+                  e.currentTarget.style.boxShadow = `0 4px 12px ${colors.primary}50`;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = 'none';
+                }}
+              >
+                <Plus className="h-4 w-4" />
+                Nuevo Cliente
+              </button>
+            )}
           </div>
         </div>
       )}

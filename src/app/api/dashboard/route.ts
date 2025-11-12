@@ -128,11 +128,42 @@ export async function GET(request: NextRequest) {
       : Promise.resolve({ count: 0 });
 
     // Obtener top 5 productos más vendidos
+    // Obtener período desde query params (por defecto 'siempre')
+    const periodoParam = searchParams.get("productosPeriodo") || 'siempre';
+    
+    // Calcular fecha de inicio según período
+    let fechaInicio: Date | null = null;
+    const now = new Date();
+    switch (periodoParam) {
+      case 'hoy':
+        fechaInicio = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        break;
+      case 'ayer':
+        fechaInicio = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+        break;
+      case 'esta_semana':
+        const dayOfWeek = now.getDay();
+        fechaInicio = new Date(now.getFullYear(), now.getMonth(), now.getDate() - dayOfWeek);
+        break;
+      case 'este_mes':
+        fechaInicio = new Date(now.getFullYear(), now.getMonth(), 1);
+        break;
+      case 'siempre':
+      default:
+        fechaInicio = null;
+        break;
+    }
+    
     let topProductosQuery = supabaseAdmin
       .from('remito_items')
       .select(`
         product_id,
         quantity,
+        remitos!inner (
+          id,
+          created_at,
+          company_id
+        ),
         products!inner (
           id,
           name,
@@ -142,6 +173,12 @@ export async function GET(request: NextRequest) {
     
     if (effectiveCompanyId) {
       topProductosQuery = topProductosQuery.eq('products.company_id', effectiveCompanyId);
+    }
+    
+    // Filtrar por fecha si hay período específico
+    if (fechaInicio) {
+      const fechaInicioIso = fechaInicio.toISOString();
+      topProductosQuery = topProductosQuery.gte('remitos.created_at', fechaInicioIso);
     }
     
     const { data: remitoItemsData } = await topProductosQuery;
