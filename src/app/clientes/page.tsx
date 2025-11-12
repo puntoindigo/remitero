@@ -228,7 +228,8 @@ function ClientesContent() {
             columns={columns}
             showSearch={false}
             showNewButton={false}
-            showActions={false}
+            onEdit={handleEdit}
+            onDelete={handleDeleteCliente}
           />
           <Pagination {...paginationConfig} />
         </>
