@@ -296,7 +296,11 @@ function EstadosRemitosContent() {
         <div className="form-section">
           {/* Selector de empresa - ancho completo */}
           {shouldShowCompanySelector && empresas?.length > 0 && (
-            <div style={{ marginBottom: '1rem' }}>
+            <div style={{ 
+              marginBottom: '0', 
+              marginTop: 0,
+              padding: '0 16px'
+            }}>
               <FilterableSelect
                 options={empresas}
                 value={selectedCompanyId}
@@ -316,7 +320,7 @@ function EstadosRemitosContent() {
               fontWeight: 700, 
               color: '#111827',
               marginBottom: '0.75rem',
-              marginTop: '0',
+              marginTop: shouldShowCompanySelector ? '0.5rem' : '0',
               padding: '0 16px'
             }}>
               Estados
