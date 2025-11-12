@@ -3435,6 +3435,17 @@ form svg {
   font-size: 14px;
 }
 
+/* Sin borde azul en mobile */
+@media (max-width: 768px) {
+  .data-table td {
+    border-bottom: 1px solid #f3f4f6;
+  }
+  
+  .data-table tr:last-child td {
+    border-bottom: none;
+  }
+}
+
 .data-table tr:hover {
   background: #f9fafb;
 }
