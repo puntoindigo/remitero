@@ -106,7 +106,7 @@ function UsuariosContent() {
   // Reusar mutaciones del hook legacy para operaciones de escritura
   const { createUsuario, updateUsuario, deleteUsuario } = useUsuarios(companyId || undefined);
   
-  const { empresas, loadEmpresas } = useEmpresas();
+  const { empresas, loadEmpresas, isLoading: empresasLoading } = useEmpresas();
   
   // Cargar empresas cuando se abre el formulario (solo para SUPERADMIN)
   useEffect(() => {

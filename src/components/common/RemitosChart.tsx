@@ -33,7 +33,7 @@ export function RemitosChart({ data }: RemitosChartProps) {
   }
 
   return (
-    <div style={{ width: '100%', height: '200px', position: 'relative' }}>
+    <div style={{ width: '100%', height: '200px', minHeight: '200px', position: 'relative' }}>
       <div style={{ 
         position: 'absolute', 
         top: '0.5rem', 
@@ -80,7 +80,7 @@ export function RemitosChart({ data }: RemitosChartProps) {
         </button>
       </div>
       
-      <ResponsiveContainer width="100%" height="100%">
+      <ResponsiveContainer width="100%" height="100%" minHeight={200} minWidth={0}>
         {chartType === 'bar' ? (
           <BarChart data={data} margin={{ top: 5, right: 5, left: -20, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />

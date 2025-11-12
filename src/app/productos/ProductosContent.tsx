@@ -72,7 +72,7 @@ function ProductosContent() {
   
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
   const [selectedStock, setSelectedStock] = useState<string>("");
-  const { empresas } = useEmpresas();
+  const { empresas, isLoading: empresasLoading } = useEmpresas();
   
   // Sincronizar estado inicial con searchParams
   useEffect(() => {
@@ -433,8 +433,8 @@ function ProductosContent() {
         />
 
         <div className="form-section">
-          {/* Selector de empresa - pegado al top (solo superusuario) */}
-          {shouldShowCompanySelector && empresas?.length > 0 && (
+          {/* Selector de empresa - pegado al top (solo superusuario) - mostrar inmediatamente incluso si está cargando */}
+          {shouldShowCompanySelector && (
             <div style={{ 
               marginBottom: '0', 
               marginTop: 0,
@@ -444,13 +444,14 @@ function ProductosContent() {
               boxSizing: 'border-box'
             }}>
               <FilterableSelect
-                options={empresas}
+                options={empresas || []}
                 value={selectedCompanyId}
                 onChange={setSelectedCompanyId}
-                placeholder="Seleccionar empresa"
+                placeholder={empresasLoading ? "Cargando empresas..." : "Seleccionar empresa"}
                 searchFields={["name"]}
                 className="w-full"
                 useThemeColors={true}
+                disabled={empresasLoading && (!empresas || empresas.length === 0)}
               />
             </div>
           )}

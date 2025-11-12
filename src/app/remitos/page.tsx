@@ -71,7 +71,7 @@ function RemitosContent() {
   
   // Estados con React Query (cache + dedupe)
   const { data: estadosActivos = [] } = useEstadosRemitosQuery(companyId || undefined);
-  const { empresas } = useEmpresas();
+  const { empresas, isLoading: empresasLoading } = useEmpresas();
   
   // Productos y clientes con React Query (evita dobles fetch en dev)
   // Definidos más abajo cuando ya tenemos showForm
@@ -504,8 +504,8 @@ function RemitosContent() {
       
       <main className="main-content">
         <div className="form-section">
-        {/* Selector de empresa - pegado al top sin padding */}
-        {shouldShowCompanySelector && empresas?.length > 0 && (
+        {/* Selector de empresa - pegado al top sin padding - mostrar inmediatamente incluso si está cargando */}
+        {shouldShowCompanySelector && (
           <div style={{ 
             marginBottom: '0', 
             marginTop: 0,
@@ -515,13 +515,14 @@ function RemitosContent() {
             boxSizing: 'border-box'
           }}>
             <FilterableSelect
-              options={empresas}
+              options={empresas || []}
               value={selectedCompanyId}
               onChange={setSelectedCompanyId}
-              placeholder="Seleccionar empresa"
+              placeholder={empresasLoading ? "Cargando empresas..." : "Seleccionar empresa"}
               searchFields={["name"]}
               className="w-full"
               useThemeColors={true}
+              disabled={empresasLoading && (!empresas || empresas.length === 0)}
             />
           </div>
         )}

@@ -98,7 +98,7 @@ function EstadosRemitosContent() {
   const { toasts, showSuccess: showToastSuccess, showError: showToastError, removeToast } = useToast();
 
   // Hook para empresas
-  const { empresas } = useEmpresas();
+  const { empresas, isLoading: empresasLoading } = useEmpresas();
 
   // Hook para manejar estados de remitos
   const queryClient = useQueryClient();
@@ -294,21 +294,22 @@ function EstadosRemitosContent() {
         />
 
         <div className="form-section">
-          {/* Selector de empresa - ancho completo */}
-          {shouldShowCompanySelector && empresas?.length > 0 && (
+          {/* Selector de empresa - ancho completo - mostrar inmediatamente incluso si está cargando */}
+          {shouldShowCompanySelector && (
             <div style={{ 
               marginBottom: '0', 
               marginTop: 0,
               padding: '0 16px'
             }}>
               <FilterableSelect
-                options={empresas}
+                options={empresas || []}
                 value={selectedCompanyId}
                 onChange={setSelectedCompanyId}
-                placeholder="Seleccionar empresa"
+                placeholder={empresasLoading ? "Cargando empresas..." : "Seleccionar empresa"}
                 searchFields={["name"]}
                 className="w-full"
                 useThemeColors={true}
+                disabled={empresasLoading && (!empresas || empresas.length === 0)}
               />
             </div>
           )}
