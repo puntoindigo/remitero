@@ -237,7 +237,7 @@ export function useEmpresas() {
     }
     
     // Solo cargar una vez si ya se cargó y el rol no cambió
-    if (hasLoadedRef.current && empresas.length > 0 && session.user?.role === "SUPERADMIN") {
+    if (hasLoadedRef.current && session.user?.role === "SUPERADMIN") {
       return;
     }
     
@@ -247,7 +247,8 @@ export function useEmpresas() {
       setIsLoading(false);
       hasLoadedRef.current = true;
     }
-  }, [session?.user?.role, status]); // Removido loadEmpresas de dependencias para evitar loops
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session?.user?.role, status]); // loadEmpresas es estable gracias a useCallback
 
   return {
     empresas,
