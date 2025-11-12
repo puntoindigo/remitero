@@ -135,39 +135,46 @@ function RemitosContent() {
     setShowPrintConfirm(true);
   }, []);
 
-  // Empujar cambios del filtro de cliente a la URL (solo cuando el usuario cambia el filtro manualmente)
+  // Refs para evitar loops infinitos entre URL y estado
+  const isUpdatingFromUrl = useRef(false);
   const isInitialClientLoad = useRef(true);
+  const isInitialStatusLoad = useRef(true);
 
   // Si viene ?status= en la URL con nombre (con _ por espacios) o id, mapearlo a id cuando tengamos los estados
   useEffect(() => {
-    if (!estadosActivos) return;
-    const urlStatus = searchParams.get('status');
-    if (!urlStatus) {
-      // Si no hay status en URL, aseguramos 'all'
-      if (selectedStatusFilter !== 'all') setSelectedStatusFilter('all');
-      return;
+    if (!estadosActivos || estadosActivos.length === 0) return;
+    
+    // Solo leer de la URL en el mount inicial o cuando cambia la URL externamente
+    if (isInitialStatusLoad.current) {
+      isInitialStatusLoad.current = false;
+      const urlStatus = searchParams.get('status');
+      if (urlStatus) {
+        const normalizedName = urlStatus.replace(/_/g, ' ').toUpperCase();
+        const match = estadosActivos.find(e => e.id === urlStatus || (e.name || '').toUpperCase() === normalizedName);
+        if (match && selectedStatusFilter !== match.id) {
+          isUpdatingFromUrl.current = true;
+          setSelectedStatusFilter(match.id);
+          setTimeout(() => { isUpdatingFromUrl.current = false; }, 0);
+        }
+      } else if (selectedStatusFilter !== 'all') {
+        isUpdatingFromUrl.current = true;
+        setSelectedStatusFilter('all');
+        setTimeout(() => { isUpdatingFromUrl.current = false; }, 0);
+      }
     }
-    // Normalizar nombre: reemplazar _ por espacio, case-insensitive
-    const normalizedName = urlStatus.replace(/_/g, ' ').toUpperCase();
-    // Buscar por id exacto o por nombre
-    const match = estadosActivos.find(e => e.id === urlStatus || (e.name || '').toUpperCase() === normalizedName);
-    if (match) {
-      if (selectedStatusFilter !== match.id) setSelectedStatusFilter(match.id);
-    }
-    // Si no hay match, dejar 'all'
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [estadosActivos]);
+  }, [estadosActivos]); // Solo cuando cambian los estados, no cuando cambia selectedStatusFilter
 
   // Empujar cambios del filtro de estado a la URL usando el NOMBRE (con guiones bajos)
+  // Solo cuando el usuario cambia el filtro manualmente, no cuando viene de la URL
   useEffect(() => {
+    if (isUpdatingFromUrl.current || isInitialStatusLoad.current) return;
+    if (!estadosActivos || estadosActivos.length === 0) return;
+    
     const currentParam = searchParams.get('status') || "";
     const params = new URLSearchParams(searchParams as any);
-    if ((selectedStatusFilter === '' || selectedStatusFilter === 'all') && currentParam) {
-      return; // evitar borrar la query si aún no elegimos nada
-    }
+    
     if (selectedStatusFilter && selectedStatusFilter !== 'all') {
-      // Encontrar el nombre del estado para serializarlo en la URL
-      const estado = (estadosActivos || []).find(e => e.id === selectedStatusFilter);
+      const estado = estadosActivos.find(e => e.id === selectedStatusFilter);
       const statusSlug = (estado?.name || '').trim().replace(/\s+/g, '_').toUpperCase();
       if (statusSlug && currentParam !== statusSlug) {
         params.set('status', statusSlug);
@@ -178,36 +185,37 @@ function RemitosContent() {
       const qs = params.toString();
       router.replace(qs ? `${pathname}?${qs}` : `${pathname}` , { scroll: false });
     }
-  }, [selectedStatusFilter, estadosActivos, router, pathname, searchParams]);
+  }, [selectedStatusFilter]); // Solo cuando cambia selectedStatusFilter manualmente
 
   // Actualizar filtro de cliente desde la URL (solo lectura, no escritura)
   useEffect(() => {
     const urlClient = searchParams.get('client');
-    if (urlClient && urlClient !== selectedClientFilter) {
-      // Solo actualizar si viene de la URL y es diferente
-      setSelectedClientFilter(urlClient);
-    } else if (!urlClient && selectedClientFilter !== 'all' && selectedClientFilter !== '') {
-      // Solo resetear si la URL no tiene client y el estado no es 'all' ni vacío
-      // Pero evitar si acabamos de llegar desde otra página
-      const isInitialMount = !searchParams.toString();
-      if (!isInitialMount) {
-        setSelectedClientFilter('all');
-      }
-    }
-  }, [searchParams]); // Solo depende de searchParams, no de selectedClientFilter
-  
-  useEffect(() => {
-    // En el primer render, no hacer nada (el efecto de lectura de URL ya estableció el estado)
     if (isInitialClientLoad.current) {
-      const urlClient = searchParams.get('client');
-      if (urlClient) {
-        isInitialClientLoad.current = false;
-        return; // No actualizar la URL si ya viene en la URL
-      }
       isInitialClientLoad.current = false;
+      if (urlClient && urlClient !== selectedClientFilter) {
+        isUpdatingFromUrl.current = true;
+        setSelectedClientFilter(urlClient);
+        setTimeout(() => { isUpdatingFromUrl.current = false; }, 0);
+      }
+      return;
     }
     
-    // Evitar actualizar si el cambio viene de la URL (para evitar loops)
+    // Solo actualizar si la URL cambió externamente
+    if (urlClient && urlClient !== selectedClientFilter) {
+      isUpdatingFromUrl.current = true;
+      setSelectedClientFilter(urlClient);
+      setTimeout(() => { isUpdatingFromUrl.current = false; }, 0);
+    } else if (!urlClient && selectedClientFilter !== 'all' && selectedClientFilter !== '') {
+      isUpdatingFromUrl.current = true;
+      setSelectedClientFilter('all');
+      setTimeout(() => { isUpdatingFromUrl.current = false; }, 0);
+    }
+  }, [searchParams]); // Solo cuando cambia searchParams (URL)
+  
+  // Empujar cambios del filtro de cliente a la URL (solo cuando el usuario cambia el filtro manualmente)
+  useEffect(() => {
+    if (isUpdatingFromUrl.current || isInitialClientLoad.current) return;
+    
     const urlClient = searchParams.get('client') || '';
     
     // Si el estado coincide con la URL, no hacer nada
@@ -226,7 +234,7 @@ function RemitosContent() {
     
     const qs = params.toString();
     router.replace(qs ? `${pathname}?${qs}` : `${pathname}`, { scroll: false });
-  }, [selectedClientFilter, router, pathname]); // No incluir searchParams para evitar loops
+  }, [selectedClientFilter]); // Solo cuando cambia selectedClientFilter manualmente
 
   // Configurar shortcuts de teclado (después de que handleNewRemito y showForm estén definidos)
   // Usar useEffect para asegurar que se ejecute después de la inicialización completa
