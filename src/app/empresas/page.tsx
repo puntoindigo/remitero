@@ -256,6 +256,18 @@ function EmpresasContent() {
         />
         
         <div className="form-section">
+          {/* Título Empresas */}
+          <h2 className="page-title-desktop" style={{ 
+            fontSize: '24px', 
+            fontWeight: 700, 
+            color: '#111827',
+            marginBottom: '0.75rem',
+            marginTop: '0',
+            padding: '0 16px'
+          }}>
+            Empresas
+          </h2>
+          
           {error && (
             <div className="error-message">
               {error}
