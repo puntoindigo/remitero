@@ -19,7 +19,6 @@ import {
 } from "@/hooks/queries/useClientesQuery";
 import { OptimizedPageLayout } from "@/components/layout/OptimizedPageLayout";
 import { useIsMobile } from "@/hooks/useIsMobile";
-import { useColorTheme } from "@/contexts/ColorThemeContext";
 import { useOptimizedPageData } from "@/hooks/useOptimizedPageData";
 import { DataTable, type DataTableColumn } from "@/components/common/DataTable";
 import { useCRUDTable } from "@/hooks/useCRUDTable";
