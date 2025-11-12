@@ -195,10 +195,33 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
           }
           
           .container {
-            padding-left: 12px !important;
-            padding-right: 12px !important;
-            padding-top: 72px !important; /* Espacio para header mobile (56px + 16px) */
-            padding-bottom: 88px !important; /* Espacio para bottom nav mobile (72px + 16px) */
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+            padding-top: 56px !important; /* Espacio para header mobile */
+            padding-bottom: 100px !important; /* Espacio para bottom nav mobile (80px + 20px para FAB) */
+          }
+          
+          /* Aprovechar todo el espacio en mobile */
+          .container > * {
+            padding-left: 16px;
+            padding-right: 16px;
+          }
+          
+          /* Tablas aprovechan todo el espacio */
+          .data-table-container,
+          .data-table-wrapper {
+            margin-left: -16px;
+            margin-right: -16px;
+            width: calc(100% + 32px);
+          }
+          
+          .data-table {
+            font-size: 13px;
+          }
+          
+          .data-table th,
+          .data-table td {
+            padding: 8px 12px;
           }
         }
       `}</style>

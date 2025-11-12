@@ -12,13 +12,13 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import { MobileMenu } from './MobileMenu';
+import { useColorTheme } from '@/contexts/ColorThemeContext';
 
 interface NavItem {
   id: string;
   label: string;
   icon: React.ComponentType<{ size?: number; className?: string }>;
   path: string;
-  newPath?: string;
   roles?: string[];
 }
 
@@ -26,7 +26,25 @@ export function VercelMobileNav() {
   const pathname = usePathname();
   const router = useRouter();
   const currentUser = useCurrentUserSimple();
+  const { colors } = useColorTheme();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  // Detectar qué página está activa para mostrar el botón + correcto
+  const getNewPath = () => {
+    if (pathname === '/remitos' || pathname.startsWith('/remitos/')) {
+      return '/remitos?openForm=true';
+    }
+    if (pathname === '/clientes' || pathname.startsWith('/clientes/')) {
+      return '/clientes?openForm=true';
+    }
+    if (pathname === '/productos' || pathname.startsWith('/productos/')) {
+      return '/productos?openForm=true';
+    }
+    if (pathname === '/categorias' || pathname.startsWith('/categorias/')) {
+      return '/categorias?openForm=true';
+    }
+    return null;
+  };
 
   const navItems: NavItem[] = [
     {
@@ -41,21 +59,18 @@ export function VercelMobileNav() {
       label: 'Remitos',
       icon: ReceiptText,
       path: '/remitos',
-      newPath: '/remitos?openForm=true',
     },
     {
       id: 'clientes',
       label: 'Clientes',
       icon: ShoppingBag,
       path: '/clientes',
-      newPath: '/clientes?openForm=true',
     },
     {
       id: 'productos',
       label: 'Productos',
       icon: Package,
       path: '/productos',
-      newPath: '/productos?openForm=true',
     },
   ];
 
@@ -66,15 +81,18 @@ export function VercelMobileNav() {
 
   const isActive = (path: string) => pathname === path || pathname.startsWith(path + '/');
 
-  const handleNewClick = (newPath?: string) => {
+  const handleNewClick = () => {
+    const newPath = getNewPath();
     if (newPath) {
       router.push(newPath);
     }
   };
 
+  const hasNewButton = !!getNewPath();
+
   return (
     <>
-      {/* Header fijo arriba - estilo Vercel */}
+      {/* Header minimalista - estilo Vercel */}
       <header
         style={{
           position: 'fixed',
@@ -102,14 +120,12 @@ export function VercelMobileNav() {
             color: '#111827',
             cursor: 'pointer',
           }}
-          onClick={() => {
-            router.push('/dashboard');
-          }}
+          onClick={() => router.push('/dashboard')}
         >
           Gestión
         </div>
 
-        {/* Menú hamburguesa a la derecha */}
+        {/* Menú hamburguesa minimalista */}
         <button
           onClick={() => setIsMenuOpen(!isMenuOpen)}
           style={{
@@ -163,118 +179,102 @@ export function VercelMobileNav() {
         </>
       )}
 
-      {/* Bottom Navigation - estilo Vercel con iconos grandes */}
+      {/* Bottom Navigation - estilo Vercel: más grande, iconos grandes */}
       <nav
         style={{
           position: 'fixed',
           bottom: 0,
           left: 0,
           right: 0,
-          height: '72px',
+          height: '80px',
           backgroundColor: '#ffffff',
           borderTop: '1px solid #e5e7eb',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-around',
-          padding: '8px 0',
+          padding: '12px 0',
           zIndex: 1000,
           boxShadow: '0 -2px 8px rgba(0, 0, 0, 0.1)',
-          paddingBottom: 'env(safe-area-inset-bottom)',
+          paddingBottom: `calc(12px + env(safe-area-inset-bottom))`,
         }}
       >
         {filteredItems.map((item) => {
           const Icon = item.icon;
           const active = isActive(item.path);
-          const hasNew = !!item.newPath;
 
           return (
-            <div
+            <button
               key={item.id}
+              onClick={() => router.push(item.path)}
               style={{
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
+                gap: '6px',
+                padding: '8px 16px',
+                border: 'none',
+                background: 'transparent',
+                cursor: 'pointer',
+                color: active ? '#111827' : '#6b7280',
+                transition: 'color 0.2s',
                 flex: 1,
-                position: 'relative',
-                gap: '4px',
+                minWidth: 0,
               }}
             >
-              {/* Botón principal de navegación */}
-              <button
-                onClick={() => router.push(item.path)}
+              <Icon size={32} strokeWidth={active ? 2.5 : 2} />
+              <span
                 style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '4px',
-                  padding: '8px 12px',
-                  border: 'none',
-                  background: 'transparent',
-                  cursor: 'pointer',
-                  color: active ? '#111827' : '#6b7280',
-                  transition: 'color 0.2s',
-                  width: '100%',
+                  fontSize: '12px',
+                  fontWeight: active ? 600 : 400,
+                  textAlign: 'center',
+                  whiteSpace: 'nowrap',
                 }}
               >
-                <Icon size={28} strokeWidth={active ? 2.5 : 2} />
-                <span
-                  style={{
-                    fontSize: '11px',
-                    fontWeight: active ? 600 : 400,
-                    textAlign: 'center',
-                  }}
-                >
-                  {item.label}
-                </span>
-              </button>
-
-              {/* Botón + flotante para crear nuevo */}
-              {hasNew && (
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleNewClick(item.newPath);
-                  }}
-                  style={{
-                    position: 'absolute',
-                    top: '-8px',
-                    right: '8px',
-                    width: '32px',
-                    height: '32px',
-                    borderRadius: '50%',
-                    backgroundColor: '#3b82f6',
-                    color: '#ffffff',
-                    border: 'none',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    cursor: 'pointer',
-                    boxShadow: '0 2px 8px rgba(59, 130, 246, 0.4)',
-                    fontSize: '18px',
-                    fontWeight: 600,
-                    padding: 0,
-                    zIndex: 10,
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'scale(1.1)';
-                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.6)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'scale(1)';
-                    e.currentTarget.style.boxShadow = '0 2px 8px rgba(59, 130, 246, 0.4)';
-                  }}
-                  title={`Nuevo ${item.label.slice(0, -1)}`}
-                >
-                  <Plus size={18} />
-                </button>
-              )}
-            </div>
+                {item.label}
+              </span>
+            </button>
           );
         })}
+
+        {/* Botón + central elevado - estilo FAB */}
+        {hasNewButton && (
+          <button
+            onClick={handleNewClick}
+            style={{
+              position: 'absolute',
+              bottom: '24px',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              width: '56px',
+              height: '56px',
+              borderRadius: '50%',
+              backgroundColor: colors.primary || '#3b82f6',
+              background: colors.gradient || `linear-gradient(135deg, ${colors.primary || '#3b82f6'} 0%, ${colors.secondary || '#2563eb'} 100%)`,
+              color: '#ffffff',
+              border: 'none',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              boxShadow: '0 4px 12px rgba(59, 130, 246, 0.4)',
+              zIndex: 1001,
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateX(-50%) scale(1.1)';
+              e.currentTarget.style.boxShadow = '0 6px 16px rgba(59, 130, 246, 0.6)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateX(-50%) scale(1)';
+              e.currentTarget.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.4)';
+            }}
+            title="Crear nuevo"
+          >
+            <Plus size={28} strokeWidth={3} />
+          </button>
+        )}
       </nav>
     </>
   );
 }
-
