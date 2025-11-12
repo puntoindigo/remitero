@@ -56,11 +56,11 @@ export function useApiWarmup() {
       });
     };
 
-    // Warm-up después de un pequeño delay para no interferir con el login
+    // Warm-up después de un delay más largo para no interferir con la navegación inicial
     if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
-      requestIdleCallback(warmupApis, { timeout: 3000 });
+      requestIdleCallback(warmupApis, { timeout: 5000 });
     } else {
-      setTimeout(warmupApis, 500);
+      setTimeout(warmupApis, 3000);
     }
   }, [session, status]);
 }

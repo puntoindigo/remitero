@@ -60,15 +60,13 @@ export function useRoutePrefetch() {
       });
     };
 
-    // Prefetch inmediatamente
-    prefetchRoutes();
-
-    // También prefetch en idle para rutas secundarias
+    // NO prefetch inmediatamente - esperar a que la navegación inicial esté completa
+    // Prefetch solo en idle para no interferir con la navegación
     if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
-      requestIdleCallback(prefetchRoutes, { timeout: 2000 });
+      requestIdleCallback(prefetchRoutes, { timeout: 5000 });
     } else {
-      // Fallback: prefetch después de un pequeño delay
-      setTimeout(prefetchRoutes, 100);
+      // Fallback: prefetch después de un delay más largo para no interferir
+      setTimeout(prefetchRoutes, 2000);
     }
   }, [router, session, status]);
 }
