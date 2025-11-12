@@ -142,7 +142,10 @@ main.main-content {
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
-  padding: 0 !important;
+  padding-top: 80px !important; /* Espacio para header fixed */
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  padding-bottom: 0 !important;
 }
 
 section.form-section,
@@ -1397,7 +1400,7 @@ form svg {
   max-height: 16px !important;
 }
 
-/* Header mejorado */
+/* Header mejorado - FIXED siempre */
 .header {
   background-color: var(--theme-primary, #0078d4);
   color: white;
@@ -1406,9 +1409,11 @@ form svg {
   justify-content: space-between;
   align-items: center;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  position: sticky;
+  position: fixed;
   top: 0;
-  z-index: 1;
+  left: 0;
+  right: 0;
+  z-index: 1000;
   width: 100%;
   min-height: 60px;
   transition: background-color 0.3s ease, background-image 0.3s ease;
