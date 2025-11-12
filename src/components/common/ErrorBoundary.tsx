@@ -15,6 +15,7 @@ interface State {
   sending: boolean;
   sent: boolean;
   sendError: string | null;
+  sendSuccess: string | null;
 }
 
 class ErrorBoundary extends Component<Props, State> {
@@ -27,7 +28,8 @@ class ErrorBoundary extends Component<Props, State> {
       copied: false,
       sending: false,
       sent: false,
-      sendError: null
+      sendError: null,
+      sendSuccess: null
     };
   }
 
@@ -39,7 +41,8 @@ class ErrorBoundary extends Component<Props, State> {
       copied: false,
       sending: false,
       sent: false,
-      sendError: null
+      sendError: null,
+      sendSuccess: null
     };
   }
 
@@ -61,7 +64,8 @@ class ErrorBoundary extends Component<Props, State> {
       copied: false,
       sending: false,
       sent: false,
-      sendError: null
+      sendError: null,
+      sendSuccess: null
     });
   };
 
@@ -73,7 +77,8 @@ class ErrorBoundary extends Component<Props, State> {
       copied: false,
       sending: false,
       sent: false,
-      sendError: null
+      sendError: null,
+      sendSuccess: null
     });
   };
 
@@ -169,15 +174,23 @@ ${errorInfo?.componentStack || 'No component stack available'}
         body: JSON.stringify(reportData)
       });
 
-      if (response.ok) {
+      const responseData = await response.json();
+      
+      if (response.ok && responseData.success) {
         this.setState({ sent: true, sending: false });
         
-        // Reset sent state after 3 seconds
+        // Mostrar mensaje de éxito más visible
+        this.setState({ 
+          sendError: null,
+          sendSuccess: '✅ Error enviado correctamente. Gracias por reportarlo.' 
+        });
+        
+        // Reset estados after 5 seconds
         setTimeout(() => {
-          this.setState({ sent: false });
-        }, 3000);
+          this.setState({ sent: false, sendSuccess: null });
+        }, 5000);
       } else {
-        throw new Error('Error al enviar el reporte');
+        throw new Error(responseData.message || 'Error al enviar el reporte');
       }
     } catch (err) {
       console.error('Failed to send error report:', err);
@@ -250,6 +263,18 @@ ${errorInfo?.componentStack || 'No component stack available'}
               </div>
             </div>
             
+            {this.state.sendSuccess && (
+              <div className="error-boundary-success-message" style={{
+                padding: '12px 24px',
+                backgroundColor: '#f0fdf4',
+                borderTop: '1px solid #86efac',
+                color: '#16a34a',
+                fontSize: '14px',
+                fontWeight: '500'
+              }}>
+                {this.state.sendSuccess}
+              </div>
+            )}
             {this.state.sendError && (
               <div className="error-boundary-error-message" style={{
                 padding: '12px 24px',
