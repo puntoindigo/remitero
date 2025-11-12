@@ -2841,6 +2841,33 @@ form svg {
   padding-right: 8px;
 }
 
+/* Optimización mobile para modal de remitos */
+@media (max-width: 768px) {
+  .modal.form-modal.remito-modal {
+    max-height: 95vh;
+    width: 100vw !important;
+    max-width: 100vw !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+  }
+  
+  .modal.form-modal.remito-modal .modal-body {
+    max-height: calc(95vh - 120px);
+    padding: 1rem !important;
+  }
+  
+  .modal.form-modal.remito-modal .form-group {
+    margin-bottom: 1rem !important;
+  }
+  
+  /* Deshabilitar autofocus en mobile */
+  .modal.form-modal.remito-modal input:focus,
+  .modal.form-modal.remito-modal textarea:focus,
+  .modal.form-modal.remito-modal select:focus {
+    outline: none;
+  }
+}
+
 .modal.form-modal.remito-modal table {
   position: relative;
   /* No crear nuevo stacking context */

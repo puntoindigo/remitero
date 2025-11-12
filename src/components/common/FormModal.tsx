@@ -69,9 +69,13 @@ export function FormModal({
     }
   }, [isOpen]);
 
-  // Auto-focus en el primer input cuando se abre el modal
+  // Auto-focus en el primer input cuando se abre el modal (solo en desktop)
   useEffect(() => {
     if (isOpen && modalRef.current && showModal) {
+      // No hacer autofocus en mobile para evitar que se abra el teclado
+      const isMobile = window.innerWidth <= 768;
+      if (isMobile) return;
+      
       // Esperar a que el DOM se renderice completamente
       setTimeout(() => {
         const firstInput = modalRef.current?.querySelector<HTMLInputElement | HTMLTextAreaElement>(

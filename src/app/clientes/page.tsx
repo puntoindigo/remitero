@@ -131,7 +131,26 @@ function ClientesContent() {
       key: 'main',
       label: 'Cliente',
       render: (cliente) => (
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', width: '100%' }}>
+        <div 
+          onClick={() => handleEdit(cliente)}
+          style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'space-between', 
+            gap: '1rem', 
+            width: '100%',
+            cursor: 'pointer',
+            padding: '0.5rem',
+            borderRadius: '8px',
+            transition: 'background-color 0.2s'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = '#f9fafb';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = 'transparent';
+          }}
+        >
           {/* Información principal */}
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ 
@@ -174,40 +193,15 @@ function ClientesContent() {
           </div>
           
           {/* Acciones al lado */}
-          <div style={{ 
-            display: 'flex', 
-            gap: '0.5rem', 
-            alignItems: 'center',
-            flexShrink: 0
-          }}>
-            {/* Botón Ver detalles */}
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleEdit(cliente);
-              }}
-              style={{
-                padding: '6px 12px',
-                fontSize: '12px',
-                fontWeight: 500,
-                color: colors.primary || '#3b82f6',
-                background: 'transparent',
-                border: `1px solid ${colors.primary || '#3b82f6'}`,
-                borderRadius: '6px',
-                cursor: 'pointer',
-                transition: 'all 0.2s',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = (colors.primary || '#3b82f6') + '10';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = 'transparent';
-              }}
-              title="Ver detalles"
-            >
-              Ver
-            </button>
-            
+          <div 
+            style={{ 
+              display: 'flex', 
+              gap: '0.5rem', 
+              alignItems: 'center',
+              flexShrink: 0
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
             {/* Botón Ver remitos */}
             <button
               onClick={(e) => {
@@ -241,17 +235,18 @@ function ClientesContent() {
               }}
               style={{
                 padding: '6px',
+                marginRight: '8px',
                 background: 'transparent',
                 border: 'none',
                 cursor: 'pointer',
-                color: '#ef4444',
+                color: '#6b7280',
                 transition: 'color 0.2s',
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.color = '#dc2626';
+                e.currentTarget.style.color = '#111827';
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.color = '#ef4444';
+                e.currentTarget.style.color = '#6b7280';
               }}
               title="Eliminar"
             >
@@ -312,14 +307,25 @@ function ClientesContent() {
         editingCliente={editingCliente}
       />
 
-      {/* Barra de búsqueda y botón nuevo */}
+      {/* Título y búsqueda */}
       {canShowContent && (
-        <div style={{ marginBottom: '0.75rem' }}>
-          <SearchInput
-            value={crudSearchTerm}
-            onChange={setCrudSearchTerm}
-            placeholder="Buscar clientes..."
-          />
+        <div style={{ marginBottom: '1rem' }}>
+          <h2 style={{ 
+            fontSize: '24px', 
+            fontWeight: 700, 
+            color: '#111827',
+            marginBottom: '0.75rem',
+            padding: '0 16px'
+          }}>
+            Clientes
+          </h2>
+          <div style={{ padding: '0 16px' }}>
+            <SearchInput
+              value={crudSearchTerm}
+              onChange={setCrudSearchTerm}
+              placeholder="Buscar clientes..."
+            />
+          </div>
         </div>
       )}
 
