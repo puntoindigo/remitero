@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { useSession } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import TopBar from "./TopBar";
@@ -130,7 +130,6 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
         
         // Intentar cerrar sesión de NextAuth (puede fallar si la sesión ya no es válida)
         try {
-          const { signOut } = await import('next-auth/react');
           await signOut({ redirect: false });
         } catch (signOutError) {
           // Ignorar errores al cerrar sesión - puede fallar si la sesión ya no es válida
