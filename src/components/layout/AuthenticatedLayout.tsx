@@ -57,6 +57,67 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
       setShowChangePassword(true);
     }
   }, [session]);
+
+  // Validar que la sesión corresponde a un usuario válido en la BD
+  // Esto previene sesiones "fantasma" cuando el schema está vacío
+  const [isValidatingSession, setIsValidatingSession] = useState(true);
+  const [sessionValid, setSessionValid] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    // Solo validar si hay sesión
+    if (!session?.user?.id) {
+      setIsValidatingSession(false);
+      setSessionValid(null);
+      return;
+    }
+
+    // Validar sesión contra la BD
+    const validateSession = async () => {
+      try {
+        const response = await fetch('/api/auth/verify-session', {
+          method: 'GET',
+          credentials: 'include'
+        });
+
+        if (!response.ok) {
+          console.warn('⚠️ [AuthenticatedLayout] Error verificando sesión:', response.status);
+          setSessionValid(false);
+          setIsValidatingSession(false);
+          return;
+        }
+
+        const result = await response.json();
+        
+        if (!result.valid) {
+          console.warn('⚠️ [AuthenticatedLayout] Sesión inválida:', result.reason);
+          // Sesión inválida - cerrar sesión y redirigir a login
+          if (typeof window !== 'undefined') {
+            // Limpiar localStorage
+            localStorage.removeItem('impersonation');
+            // Redirigir a login con mensaje de error
+            window.location.href = '/auth/login?error=SessionInvalid';
+          }
+          setSessionValid(false);
+          setIsValidatingSession(false);
+          return;
+        }
+
+        // Sesión válida
+        setSessionValid(true);
+        setIsValidatingSession(false);
+      } catch (error) {
+        console.error('❌ [AuthenticatedLayout] Error validando sesión:', error);
+        // En caso de error, asumir que la sesión es inválida por seguridad
+        setSessionValid(false);
+        setIsValidatingSession(false);
+        if (typeof window !== 'undefined') {
+          window.location.href = '/auth/login?error=SessionInvalid';
+        }
+      }
+    };
+
+    validateSession();
+  }, [session?.user?.id]);
   
   // Si es una ruta pública (incluida impresión), renderizar sin autenticación
   // Esto debe ir DESPUÉS de todos los hooks
@@ -84,6 +145,21 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
 
   // Si no hay sesión, no renderizar nada (excepto para impresión)
   if (!session && !isPrintRoute) {
+    return null;
+  }
+
+  // Validar que la sesión corresponde a un usuario válido en la BD
+  // Esto previene sesiones "fantasma" cuando el schema está vacío
+  if (session?.user?.id && isValidatingSession) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <LoadingSpinner message="Validando credenciales..." />
+      </div>
+    );
+  }
+
+  // Si la sesión no es válida, no renderizar nada (ya se redirigió a login)
+  if (session?.user?.id && sessionValid === false) {
     return null;
   }
 

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, Suspense } from "react"
-import { signIn, getSession } from "next-auth/react"
+import { signIn, getSession, signOut } from "next-auth/react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -44,6 +44,9 @@ function LoginPageContent() {
     if (errorParam === 'UserInactive' || errorParam === 'AccessDenied') {
       console.log('❌ [Login] Error detectado: Usuario desactivado');
       setError('Tu cuenta ha sido desactivada. Contacta al administrador para más información.')
+    } else if (errorParam === 'SessionInvalid') {
+      console.log('❌ [Login] Error detectado: Sesión inválida');
+      setError('Tu sesión no es válida. Por favor, inicia sesión nuevamente.')
     } else if (errorParam === 'OAuthSignin') {
       console.log('❌ [Login] Error detectado: OAuthSignin - Verificando configuración...');
       // Verificar configuración cuando hay error OAuthSignin
@@ -88,6 +91,36 @@ function LoginPageContent() {
     setIsMounted(true)
   }, [])
 
+  // Cerrar cualquier sesión existente al montar el componente
+  // Esto asegura que no haya sesiones "fantasma" que permitan pasar sin credenciales válidas
+  useEffect(() => {
+    const clearExistingSession = async () => {
+      try {
+        // Verificar si hay una sesión existente
+        const existingSession = await getSession();
+        if (existingSession) {
+          console.log('🔒 [Login] Sesión existente detectada, cerrando...');
+          // Cerrar sesión sin redirigir (ya estamos en login)
+          await signOut({ redirect: false });
+          // Limpiar localStorage relacionado con sesión
+          if (typeof window !== 'undefined') {
+            localStorage.removeItem('impersonation');
+            // No limpiar rememberedEmail/password aquí, solo datos de sesión
+          }
+          console.log('✅ [Login] Sesión cerrada correctamente');
+        }
+      } catch (error) {
+        // Si hay error al cerrar sesión, intentar limpiar localStorage de todas formas
+        console.warn('⚠️ [Login] Error al cerrar sesión existente:', error);
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('impersonation');
+        }
+      }
+    };
+
+    clearExistingSession();
+  }, [])
+
   const {
     register,
     handleSubmit,
@@ -115,6 +148,24 @@ function LoginPageContent() {
     // Establecer loading inmediatamente para prevenir múltiples clicks
     setIsLoading(true)
     setError("")
+
+    // Asegurarse de cerrar cualquier sesión existente ANTES de intentar login
+    try {
+      const existingSession = await getSession();
+      if (existingSession) {
+        console.log('🔒 [Login] Cerrando sesión existente antes de login...');
+        await signOut({ redirect: false });
+        // Limpiar localStorage relacionado con sesión
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('impersonation');
+        }
+        // Pequeño delay para asegurar que el signOut se complete
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+    } catch (signOutError) {
+      console.warn('⚠️ [Login] Error al cerrar sesión existente:', signOutError);
+      // Continuar con el login de todas formas
+    }
 
     try {
       const result = await signIn("credentials", {
@@ -429,6 +480,25 @@ function LoginPageContent() {
               onClick={async () => {
                 setIsLoading(true);
                 setError("");
+                
+                // Asegurarse de cerrar cualquier sesión existente ANTES de intentar login con Google
+                try {
+                  const existingSession = await getSession();
+                  if (existingSession) {
+                    console.log('🔒 [Login] Cerrando sesión existente antes de login con Google...');
+                    await signOut({ redirect: false });
+                    // Limpiar localStorage relacionado con sesión
+                    if (typeof window !== 'undefined') {
+                      localStorage.removeItem('impersonation');
+                    }
+                    // Pequeño delay para asegurar que el signOut se complete
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                  }
+                } catch (signOutError) {
+                  console.warn('⚠️ [Login] Error al cerrar sesión existente:', signOutError);
+                  // Continuar con el login de todas formas
+                }
+
                 try {
                   // OAuth providers REQUIEREN redirect: true (no pueden usar redirect: false)
                   // NextAuth manejará la redirección a Google y luego de vuelta
