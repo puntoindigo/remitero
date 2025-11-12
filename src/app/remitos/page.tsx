@@ -462,13 +462,16 @@ function RemitosContent() {
               borderRadius: '8px',
               transition: 'background-color 0.2s',
               ...(isMobile && estado ? { borderBottom: `3px solid ${estadoColor}` } : {}),
-              ...(!isMobile && estado ? { borderLeft: `4px solid ${estadoColor}` } : {})
+              ...(!isMobile && estado ? { borderLeft: `4px solid ${estadoColor}` } : {}),
+              backgroundColor: estado ? `${estadoColor}08` : 'transparent'
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = '#f9fafb';
+              const baseColor = estado ? `${estadoColor}15` : '#f9fafb';
+              e.currentTarget.style.backgroundColor = baseColor;
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = 'transparent';
+              const baseColor = estado ? `${estadoColor}08` : 'transparent';
+              e.currentTarget.style.backgroundColor = baseColor;
             }}
           >
             {/* Desktop: Layout original con múltiples filas */}
@@ -505,7 +508,8 @@ function RemitosContent() {
                   width: '100%',
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap'
+                  whiteSpace: 'pre-wrap',
+                  wordBreak: 'break-word'
                 }}>
                   {remito.client?.name || 'Sin cliente'}
                 </div>

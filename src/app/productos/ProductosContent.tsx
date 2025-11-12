@@ -377,81 +377,159 @@ function ProductosContent() {
               padding: '0.5rem',
               borderRadius: '8px',
               transition: 'background-color 0.2s',
-              ...(isMobile ? { borderBottom: `3px solid ${stockColor}` } : { borderLeft: `4px solid ${stockColor}` })
+              ...(isMobile ? { borderBottom: `3px solid ${stockColor}` } : { borderLeft: `4px solid ${stockColor}` }),
+              backgroundColor: `${stockColor}08`
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = '#f9fafb';
+              e.currentTarget.style.backgroundColor = `${stockColor}15`;
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = 'transparent';
+              e.currentTarget.style.backgroundColor = `${stockColor}08`;
             }}
           >
-            {/* Primera fila: Precio grande a la izquierda, nombre y trash */}
-            <div style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: '0.75rem',
-              width: '100%'
-            }}>
-              <span style={{ 
-                fontSize: '18px', 
-                fontWeight: 700, 
-                color: '#111827',
-                flex: '0 0 auto'
-              }}>
-                ${(producto.price || 0).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-              </span>
-              <span style={{ 
-                fontSize: '15px', 
-                fontWeight: 600, 
-                color: '#111827',
-                flex: '1 1 auto',
-                minWidth: 0
-              }}>
-                {producto?.name || 'Sin nombre'}
-              </span>
-              {/* Botón Eliminar */}
-              {handleDeleteProduct && (
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDeleteProduct(producto);
-                  }}
-                  style={{
-                    padding: '6px',
-                    background: 'transparent',
-                    border: 'none',
-                    cursor: 'pointer',
-                    color: '#6b7280',
-                    transition: 'color 0.2s',
-                    flexShrink: 0,
-                    minWidth: '32px'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.color = '#111827';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.color = '#6b7280';
-                  }}
-                  title="Eliminar"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </button>
-              )}
-            </div>
-            
-            {/* Segunda fila: Descripción si existe */}
-            {producto.description && (
+            {/* Desktop: Título grande, descripción al lado, precio a la derecha */}
+            {!isMobile ? (
               <div style={{ 
-                fontSize: '13px', 
-                color: '#6b7280',
-                width: '100%',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap'
+                display: 'flex', 
+                alignItems: 'flex-start', 
+                gap: '1rem',
+                width: '100%'
               }}>
-                {producto.description}
+                <div style={{ 
+                  flex: '1 1 auto',
+                  minWidth: 0,
+                  display: 'flex',
+                  gap: '1rem',
+                  alignItems: 'flex-start'
+                }}>
+                  <span style={{ 
+                    fontSize: '18px', 
+                    fontWeight: 700, 
+                    color: '#111827',
+                    flex: '0 0 auto',
+                    whiteSpace: 'nowrap'
+                  }}>
+                    {producto?.name || 'Sin nombre'}
+                  </span>
+                  {producto.description && (
+                    <span style={{ 
+                      fontSize: '13px', 
+                      color: '#6b7280',
+                      flex: '1 1 auto',
+                      minWidth: 0,
+                      whiteSpace: 'pre-wrap',
+                      wordBreak: 'break-word'
+                    }}>
+                      {producto.description}
+                    </span>
+                  )}
+                </div>
+                <span style={{ 
+                  fontSize: '18px', 
+                  fontWeight: 700, 
+                  color: '#111827',
+                  flex: '0 0 auto',
+                  whiteSpace: 'nowrap',
+                  textAlign: 'right'
+                }}>
+                  ${(producto.price || 0).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </span>
+                {/* Botón Eliminar */}
+                {handleDeleteProduct && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeleteProduct(producto);
+                    }}
+                    style={{
+                      padding: '6px',
+                      background: 'transparent',
+                      border: 'none',
+                      cursor: 'pointer',
+                      color: '#6b7280',
+                      transition: 'color 0.2s',
+                      flexShrink: 0,
+                      minWidth: '32px'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.color = '#111827';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.color = '#6b7280';
+                    }}
+                    title="Eliminar"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                )}
               </div>
+            ) : (
+              /* Mobile: Layout vertical */
+              <>
+                <div style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: '0.75rem',
+                  width: '100%'
+                }}>
+                  <span style={{ 
+                    fontSize: '18px', 
+                    fontWeight: 700, 
+                    color: '#111827',
+                    flex: '0 0 auto'
+                  }}>
+                    ${(producto.price || 0).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </span>
+                  <span style={{ 
+                    fontSize: '15px', 
+                    fontWeight: 600, 
+                    color: '#111827',
+                    flex: '1 1 auto',
+                    minWidth: 0
+                  }}>
+                    {producto?.name || 'Sin nombre'}
+                  </span>
+                  {handleDeleteProduct && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteProduct(producto);
+                      }}
+                      style={{
+                        padding: '6px',
+                        background: 'transparent',
+                        border: 'none',
+                        cursor: 'pointer',
+                        color: '#6b7280',
+                        transition: 'color 0.2s',
+                        flexShrink: 0,
+                        minWidth: '32px'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.color = '#111827';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.color = '#6b7280';
+                      }}
+                      title="Eliminar"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  )}
+                </div>
+                {producto.description && (
+                  <div style={{ 
+                    fontSize: '13px', 
+                    color: '#6b7280',
+                    width: '100%',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap'
+                  }}>
+                    {producto.description}
+                  </div>
+                )}
+              </>
             )}
             
             {/* Tercera fila: Categorías como tags y Stock */}
