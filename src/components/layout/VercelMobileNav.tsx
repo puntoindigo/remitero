@@ -237,43 +237,6 @@ export function VercelMobileNav() {
           );
         })}
 
-        {/* Botón + central elevado - estilo FAB */}
-        {hasNewButton && (
-          <button
-            onClick={handleNewClick}
-            style={{
-              position: 'absolute',
-              bottom: '24px',
-              left: '50%',
-              transform: 'translateX(-50%)',
-              width: '56px',
-              height: '56px',
-              borderRadius: '50%',
-              backgroundColor: colors.primary || '#3b82f6',
-              background: colors.gradient || `linear-gradient(135deg, ${colors.primary || '#3b82f6'} 0%, ${colors.secondary || '#2563eb'} 100%)`,
-              color: '#ffffff',
-              border: 'none',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-              boxShadow: '0 4px 12px rgba(59, 130, 246, 0.4)',
-              zIndex: 1001,
-              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateX(-50%) scale(1.1)';
-              e.currentTarget.style.boxShadow = '0 6px 16px rgba(59, 130, 246, 0.6)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateX(-50%) scale(1)';
-              e.currentTarget.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.4)';
-            }}
-            title="Crear nuevo"
-          >
-            <Plus size={28} strokeWidth={3} />
-          </button>
-        )}
       </nav>
     </>
   );

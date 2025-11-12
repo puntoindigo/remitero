@@ -658,8 +658,6 @@ function UsuariosContent() {
         />
 
         <div className="form-section">
-          <h2 className="gestion-header" style={{ fontSize: '2rem', fontWeight: 700, marginBottom: '1.5rem', color: '#111827' }}>Gestión</h2>
-          
           {/* Selector de empresa - siempre arriba, ancho completo */}
           {shouldShowCompanySelector && empresas?.length > 0 && (
             <div className="company-selector-wrapper" style={{ marginBottom: '1rem' }}>

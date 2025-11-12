@@ -39,7 +39,6 @@ import {
 } from "@/hooks/queries/useRemitosQuery";
 import { useQueryClient } from "@tanstack/react-query";
 import { useColorTheme } from "@/contexts/ColorThemeContext";
-import { useIsMobile } from "@/hooks/useIsMobile";
 
 function RemitosContent() {
   const currentUser = useCurrentUserSimple();
@@ -48,7 +47,6 @@ function RemitosContent() {
   const router = useRouter();
   const pathname = usePathname();
   const queryClient = useQueryClient();
-  const isMobile = useIsMobile();
   
   // Hook centralizado para manejo de companyId
   const {
@@ -297,17 +295,7 @@ function RemitosContent() {
     return filtered;
   }, [remitos, selectedStatusFilter, selectedClientFilter, estadosActivos]);
 
-  // Redirigir a versión mobile si es necesario (DESPUÉS de todos los hooks)
-  useEffect(() => {
-    if (isMobile && typeof window !== 'undefined') {
-      router.replace('/remitos/mobile');
-    }
-  }, [isMobile, router]);
-
-  // No renderizar nada mientras redirige a mobile
-  if (isMobile) {
-    return null;
-  }
+  // Ya no redirigimos a mobile - la nueva navegación maneja todo
 
   // Prevenir errores de client-side exception (DESPUÉS de todos los hooks)
   if (!currentUser) {
@@ -518,8 +506,6 @@ function RemitosContent() {
       
       <main className="main-content">
         <div className="form-section">
-        <h2 className="gestion-header" style={{ fontSize: '2rem', fontWeight: 700, marginBottom: '1.5rem', color: '#111827' }}>Gestión</h2>
-        
         {/* Selector de empresa - ancho completo */}
         {shouldShowCompanySelector && empresas?.length > 0 && (
           <div style={{ marginBottom: '1rem' }}>

@@ -236,7 +236,6 @@ function EmpresasContent() {
     return (
       <main className="main-content">
         <div className="form-section">
-          <h2 className="gestion-header" style={{ fontSize: '2rem', fontWeight: 700, marginBottom: '1.5rem', color: '#111827' }}>Gestión</h2>
           <LoadingSpinner message="Cargando empresas..." />
         </div>
       </main>
@@ -247,7 +246,6 @@ function EmpresasContent() {
     <>
       <main className="main-content">
         <section className="form-section">
-        <h2>Gestión de Empresas</h2>
         
         <EmpresaForm
           isOpen={showForm}

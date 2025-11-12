@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import TopBar from "./TopBar";
 import Header from "./Header";
 import { VercelMobileNav } from "./VercelMobileNav";
+import { FloatingActionButton } from "./FloatingActionButton";
 import { LoadingSpinner } from "@/components/common/LoadingSpinner";
 import { ChangePasswordModal } from "@/components/common/ChangePasswordModal";
 import { NetworkErrorBanner } from "@/components/common/NetworkErrorBanner";
@@ -169,6 +170,12 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
       {/* Mobile Navigation - Estilo Vercel */}
       <div className="mobile-only">
         <VercelMobileNav />
+        {fabConfig && (
+          <FloatingActionButton
+            onClick={handleFABClick}
+            label={fabConfig.label}
+          />
+        )}
       </div>
       
       <div className="container" style={{
