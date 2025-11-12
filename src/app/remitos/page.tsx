@@ -228,13 +228,6 @@ function RemitosContent() {
     router.replace(qs ? `${pathname}?${qs}` : `${pathname}`, { scroll: false });
   }, [selectedClientFilter, router, pathname]); // No incluir searchParams para evitar loops
 
-  // Redirigir a versión mobile si es necesario
-  useEffect(() => {
-    if (isMobile && typeof window !== 'undefined') {
-      router.replace('/remitos/mobile');
-    }
-  }, [isMobile, router]);
-
   // Configurar shortcuts de teclado (después de que handleNewRemito y showForm estén definidos)
   // Usar useEffect para asegurar que se ejecute después de la inicialización completa
   useEffect(() => {
@@ -304,7 +297,14 @@ function RemitosContent() {
     return filtered;
   }, [remitos, selectedStatusFilter, selectedClientFilter, estadosActivos]);
 
-  // No renderizar nada mientras redirige a mobile (DESPUÉS de todos los hooks)
+  // Redirigir a versión mobile si es necesario (DESPUÉS de todos los hooks)
+  useEffect(() => {
+    if (isMobile && typeof window !== 'undefined') {
+      router.replace('/remitos/mobile');
+    }
+  }, [isMobile, router]);
+
+  // No renderizar nada mientras redirige a mobile
   if (isMobile) {
     return null;
   }
@@ -518,7 +518,7 @@ function RemitosContent() {
       
       <main className="main-content">
         <div className="form-section">
-        <h2>Gestión de Remitos</h2>
+        <h2 style={{ fontSize: '2rem', fontWeight: 700, marginBottom: '1.5rem', color: '#111827' }}>Gestión</h2>
         
         {/* Selector de empresa - ancho completo */}
         {shouldShowCompanySelector && empresas?.length > 0 && (

@@ -253,7 +253,7 @@ function ClientesContent() {
 
   return (
     <OptimizedPageLayout
-      title="Gestión de Clientes"
+      title="Gestión"
       emptyStateIcon={<Users className="empty-icon" />}
       emptyStateMessage="Para ver los clientes, primero selecciona una empresa."
     >

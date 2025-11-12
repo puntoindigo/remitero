@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { signOut } from 'next-auth/react';
 import { useCurrentUserSimple } from '@/hooks/useCurrentUserSimple';
+import { useColorTheme } from '@/contexts/ColorThemeContext';
 
 interface MenuItem {
   name: string;
@@ -18,6 +19,7 @@ export function MobileMenu() {
   const pathname = usePathname();
   const router = useRouter();
   const currentUser = useCurrentUserSimple();
+  const { colors } = useColorTheme();
 
   useEffect(() => {
     setIsOpen(false);
@@ -110,7 +112,8 @@ export function MobileMenu() {
           bottom: 0,
           width: '85%',
           maxWidth: '350px',
-          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          background: colors.gradient || 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          backgroundColor: colors.primary || '#667eea',
           transform: isOpen ? 'translateX(0)' : 'translateX(100%)',
           transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
           zIndex: 999,
@@ -255,8 +258,9 @@ export function MobileMenu() {
           height: '48px',
           borderRadius: '12px',
           border: 'none',
-          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-          boxShadow: '0 4px 12px rgba(102, 126, 234, 0.4)',
+          background: colors.gradient || 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          backgroundColor: colors.primary || '#667eea',
+          boxShadow: `0 4px 12px ${colors.primary || '#667eea'}40`,
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',

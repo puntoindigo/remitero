@@ -10,7 +10,31 @@ const cleanEnv = (value: string | undefined): string | undefined => {
   return value?.trim().replace(/\n/g, '');
 };
 
-const NEXTAUTH_URL = cleanEnv(process.env.NEXTAUTH_URL);
+// Usar VERCEL_URL si está disponible (para preview branches), sino usar NEXTAUTH_URL
+const getNextAuthUrl = (): string => {
+  // Para preview branches en Vercel, usar la URL de desarrollo validada
+  // porque Google OAuth no permite wildcards
+  if (process.env.VERCEL_ENV === 'preview' || process.env.VERCEL) {
+    // Usar la URL de desarrollo que ya está validada en Google
+    const devUrl = cleanEnv(process.env.NEXTAUTH_URL);
+    if (devUrl && devUrl.includes('remitero-dev.vercel.app')) {
+      return devUrl;
+    }
+    // Si hay VERCEL_URL pero no es una URL validada, usar la de desarrollo
+    if (process.env.VERCEL_URL && !process.env.VERCEL_URL.includes('remitero-dev')) {
+      return 'https://remitero-dev.vercel.app';
+    }
+  }
+  // Si no hay VERCEL_URL, usar NEXTAUTH_URL
+  const url = cleanEnv(process.env.NEXTAUTH_URL);
+  if (url) {
+    return url;
+  }
+  // Fallback para desarrollo local
+  return 'http://localhost:8000';
+};
+
+const NEXTAUTH_URL = getNextAuthUrl();
 const GOOGLE_CLIENT_ID = cleanEnv(process.env.GOOGLE_CLIENT_ID);
 const GOOGLE_CLIENT_SECRET = cleanEnv(process.env.GOOGLE_CLIENT_SECRET);
 
@@ -21,6 +45,7 @@ console.log('🔧 [NextAuth Config] Inicializando configuración...', {
   hasGoogleClientSecret: !!GOOGLE_CLIENT_SECRET,
   nextAuthUrl: NEXTAUTH_URL,
   nextAuthUrlRaw: process.env.NEXTAUTH_URL,
+  vercelUrl: process.env.VERCEL_URL,
   googleClientIdPrefix: GOOGLE_CLIENT_ID?.substring(0, 20) + '...',
   googleClientIdLength: GOOGLE_CLIENT_ID?.length
 });

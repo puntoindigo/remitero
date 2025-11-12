@@ -236,7 +236,7 @@ function EmpresasContent() {
     return (
       <main className="main-content">
         <div className="form-section">
-          <h2>Gestión de Empresas</h2>
+          <h2 style={{ fontSize: '2rem', fontWeight: 700, marginBottom: '1.5rem', color: '#111827' }}>Gestión</h2>
           <LoadingSpinner message="Cargando empresas..." />
         </div>
       </main>
