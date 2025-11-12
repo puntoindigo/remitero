@@ -658,8 +658,8 @@ function UsuariosContent() {
         />
 
         <div className="form-section">
-          {/* Selector de empresa - siempre arriba, ancho completo */}
-          {shouldShowCompanySelector && empresas?.length > 0 && (
+          {/* Selector de empresa - siempre arriba, ancho completo - mostrar inmediatamente incluso si está cargando */}
+          {shouldShowCompanySelector && (
             <div className="company-selector-wrapper" style={{ 
               marginBottom: '0', 
               marginTop: 0,
@@ -668,14 +668,15 @@ function UsuariosContent() {
               <FilterableSelect
                 options={[
                   { id: "", name: "Todas las empresas" },
-                  ...empresas
+                  ...(empresas || [])
                 ]}
                 value={selectedCompanyId}
                 onChange={setSelectedCompanyId}
-                placeholder="Seleccionar empresa"
+                placeholder={empresasLoading ? "Cargando empresas..." : "Seleccionar empresa"}
                 searchFields={["name"]}
                 className="w-full"
                 useThemeColors={true}
+                disabled={empresasLoading && (!empresas || empresas.length === 0)}
               />
             </div>
           )}
