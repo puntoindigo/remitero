@@ -592,7 +592,7 @@ function RemitosContent() {
             {/* Botón Nuevo Remito - solo en desktop */}
             {!isMobile && (
               <button
-                onClick={handleNew}
+                onClick={handleNewRemito}
                 className="btn-primary"
                 style={{
                   display: 'flex',
