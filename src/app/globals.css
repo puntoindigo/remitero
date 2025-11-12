@@ -142,7 +142,7 @@ main.main-content {
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
-  padding-top: 110px !important; /* Espacio para topbar (40px) + header (60px) + espacio visual (10px) */
+  padding-top: 134px !important; /* Espacio para topbar (40px) + header (60px) + espacio visual (34px = ~2rem) */
   padding-left: 0 !important;
   padding-right: 0 !important;
   padding-bottom: 144px !important; /* Espacio para botonera fixed (120px) + footer (24px) */
@@ -153,7 +153,7 @@ main.main-content {
 @media (min-width: 768px) {
   .main-content,
   main.main-content {
-    padding-top: 110px !important; /* TopBar (40px) + Header (60px) + espacio visual (10px) */
+    padding-top: 134px !important; /* TopBar (40px) + Header (60px) + espacio visual (34px = ~2rem) */
   }
   
   /* Eliminar cualquier margin adicional */
