@@ -39,6 +39,7 @@ import {
 } from "@/hooks/queries/useRemitosQuery";
 import { useQueryClient } from "@tanstack/react-query";
 import { useColorTheme } from "@/contexts/ColorThemeContext";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 function RemitosContent() {
   const currentUser = useCurrentUserSimple();
@@ -47,6 +48,7 @@ function RemitosContent() {
   const router = useRouter();
   const pathname = usePathname();
   const queryClient = useQueryClient();
+  const isMobile = useIsMobile();
   
   // Hook centralizado para manejo de companyId
   const {
@@ -443,7 +445,6 @@ function RemitosContent() {
       label: 'Remito',
       render: (remito) => {
         const estado = remito.status && estadosActivos.find(e => e.id === remito.status?.id);
-        const estadoIniciales = estado?.name ? estado.name.substring(0, 2).toUpperCase() : '--';
         const estadoColor = estado?.color || '#6b7280';
         
         return (
@@ -452,14 +453,15 @@ function RemitosContent() {
             style={{ 
               display: 'flex', 
               flexDirection: 'column',
-              gap: '0.75rem', 
+              gap: '0.5rem', 
               width: '100%',
               maxWidth: '100%',
               boxSizing: 'border-box',
               cursor: 'pointer',
               padding: '0.5rem',
               borderRadius: '8px',
-              transition: 'background-color 0.2s'
+              transition: 'background-color 0.2s',
+              borderLeft: estado ? `4px solid ${estadoColor}` : 'none'
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.backgroundColor = '#f9fafb';
@@ -468,184 +470,95 @@ function RemitosContent() {
               e.currentTarget.style.backgroundColor = 'transparent';
             }}
           >
-            {/* Primera fila: Número y estado badge pequeño */}
+            {/* Primera fila: Número, Cliente, Total y Fecha */}
             <div style={{ 
               display: 'flex', 
-              alignItems: 'center', 
-              gap: '0.5rem',
-              flexWrap: 'wrap',
+              flexDirection: 'column',
+              gap: '0.25rem',
               width: '100%'
             }}>
-              <span style={{ 
-                fontSize: '15px', 
-                fontWeight: 600, 
-                color: '#111827',
-                flex: '1 1 auto',
-                minWidth: 0
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '0.5rem',
+                flexWrap: 'wrap',
+                width: '100%'
               }}>
-                #{remito.number}
-              </span>
-              {estado && (
-                <div
-                  style={{
-                    width: '24px',
-                    height: '24px',
-                    borderRadius: '50%',
-                    backgroundColor: estadoColor + '20',
-                    color: estadoColor,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '9px',
-                    fontWeight: 700,
-                    border: `2px solid ${estadoColor}`,
-                    flexShrink: 0,
-                    cursor: 'pointer',
-                    transition: 'transform 0.2s'
-                  }}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    // Mostrar tooltip o abrir selector al hacer click
-                  }}
-                  title={estado.name}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'scale(1.1)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'scale(1)';
-                  }}
-                >
-                  {estadoIniciales}
-                </div>
-              )}
-            </div>
-            
-            {/* Segunda fila: Cliente */}
-            <div style={{ 
-              fontSize: '13px', 
-              color: '#6b7280',
-              width: '100%',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap'
-            }}>
-              {remito.client?.name || 'Sin cliente'}
-            </div>
-            
-            {/* Tercera fila: Total y fecha */}
-            <div style={{ 
-              fontSize: '12px', 
-              color: '#9ca3af',
-              display: 'flex',
-              gap: '1rem',
-              flexWrap: 'wrap',
-              width: '100%'
-            }}>
-              <span style={{ whiteSpace: 'nowrap' }}>
-                ${remito.total.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-              </span>
-              <span style={{ whiteSpace: 'nowrap' }}>
+                <span style={{ 
+                  fontSize: '15px', 
+                  fontWeight: 600, 
+                  color: '#111827',
+                  flex: '1 1 auto',
+                  minWidth: 0
+                }}>
+                  #{remito.number}
+                </span>
+                <span style={{ 
+                  fontSize: '12px', 
+                  color: '#9ca3af',
+                  whiteSpace: 'nowrap'
+                }}>
+                  ${remito.total.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </span>
+              </div>
+              
+              <div style={{ 
+                fontSize: '13px', 
+                color: '#6b7280',
+                width: '100%',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap'
+              }}>
+                {remito.client?.name || 'Sin cliente'}
+              </div>
+              
+              <div style={{ 
+                fontSize: '11px', 
+                color: '#9ca3af'
+              }}>
                 {new Date(remito.createdAt).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' })}
-              </span>
+              </div>
             </div>
             
-            {/* Cuarta fila: Acciones - diseño horizontal compacto */}
+            {/* Acciones - solo botón eliminar */}
             <div 
               style={{ 
                 display: 'flex', 
-                gap: '0.5rem', 
-                alignItems: 'center',
-                flexWrap: 'wrap',
+                justifyContent: 'flex-end',
                 width: '100%',
                 marginTop: '0.25rem'
               }}
               onClick={(e) => e.stopPropagation()}
             >
-              {/* Selector de estado compacto - solo en desktop */}
-              {estadosActivos && (
-                <div className="desktop-only" style={{ 
-                  flex: '1 1 auto',
-                  minWidth: '100px',
-                  maxWidth: '100%'
-                }}>
-            <FilterableSelect
-                    options={estadosActivos.map(e => ({ id: e.id, name: e.name, color: e.color }))}
-                    value={remito.status?.id || ''}
-              onChange={(val) => handleStatusChange(remito?.id, val)}
-              placeholder="Estado"
-              showColors={true}
-              searchable={false}
-              className="w-full"
-            />
-                </div>
+              {/* Botón Eliminar */}
+              {handleDeleteRemito && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDeleteRemito(remito);
+                  }}
+                  style={{
+                    padding: '6px',
+                    marginRight: '8px',
+                    background: 'transparent',
+                    border: 'none',
+                    cursor: 'pointer',
+                    color: '#6b7280',
+                    transition: 'color 0.2s',
+                    flexShrink: 0
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = '#111827';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = '#6b7280';
+                  }}
+                  title="Eliminar"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
               )}
-              
-              {/* Botones de acción compactos */}
-              <div style={{ 
-                display: 'flex', 
-                gap: '0.25rem',
-                flexShrink: 0,
-                marginLeft: 'auto'
-              }}>
-                {/* Botón Imprimir - solo desktop */}
-                {handlePrintRemito && (
-                  <div className="desktop-only">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handlePrintRemito(remito);
-                    }}
-                    style={{
-                      padding: '6px',
-                      background: 'transparent',
-                      border: 'none',
-                      cursor: 'pointer',
-                      color: '#6b7280',
-                      transition: 'color 0.2s',
-                      flexShrink: 0
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.color = '#111827';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.color = '#6b7280';
-                    }}
-                    title="Imprimir"
-                  >
-                    <Printer className="h-4 w-4" />
-                  </button>
-                  </div>
-                )}
-                
-                {/* Botón Eliminar */}
-                {handleDeleteRemito && (
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDeleteRemito(remito);
-                    }}
-                    style={{
-                      padding: '6px',
-                      marginRight: '8px',
-                      background: 'transparent',
-                      border: 'none',
-                      cursor: 'pointer',
-                      color: '#6b7280',
-                      transition: 'color 0.2s',
-                      flexShrink: 0
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.color = '#111827';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.color = '#6b7280';
-                    }}
-                    title="Eliminar"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                )}
-              </div>
             </div>
           </div>
         );

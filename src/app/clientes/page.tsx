@@ -135,12 +135,12 @@ function ClientesContent() {
           onClick={() => handleEdit(cliente)}
           style={{ 
             display: 'flex', 
-            alignItems: 'center', 
+            alignItems: 'flex-start', 
             justifyContent: 'space-between', 
             gap: '1rem', 
             width: '100%',
             cursor: 'pointer',
-            padding: '0.5rem',
+            padding: '0.75rem 0.5rem',
             borderRadius: '8px',
             transition: 'background-color 0.2s'
           }}
@@ -151,13 +151,13 @@ function ClientesContent() {
             e.currentTarget.style.backgroundColor = 'transparent';
           }}
         >
-          {/* Información principal */}
+          {/* Información principal - más arriba */}
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ 
               fontSize: '15px', 
               fontWeight: 600, 
               color: '#111827',
-              marginBottom: '0.25rem'
+              marginBottom: '0.5rem'
             }}>
               {cliente.name}
             </div>
@@ -165,8 +165,8 @@ function ClientesContent() {
               fontSize: '12px', 
               color: '#9ca3af',
               display: 'flex',
-              gap: '1rem',
-              flexWrap: 'wrap'
+              flexDirection: 'column',
+              gap: '0.25rem'
             }}>
               {cliente.email && (
                 <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
@@ -197,8 +197,9 @@ function ClientesContent() {
             style={{ 
               display: 'flex', 
               gap: '0.5rem', 
-              alignItems: 'center',
-              flexShrink: 0
+              alignItems: 'flex-start',
+              flexShrink: 0,
+              paddingTop: '0.25rem'
             }}
             onClick={(e) => e.stopPropagation()}
           >
