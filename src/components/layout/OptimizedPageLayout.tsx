@@ -48,9 +48,16 @@ export function OptimizedPageLayout({
   return (
     <main className="main-content">
       <div className="form-section">
-        {/* Selector de empresa - pegado al top */}
+        {/* Selector de empresa - pegado al top sin padding */}
         {shouldShowCompanySelector && empresas?.length > 0 && (
-          <div style={{ marginBottom: '0.75rem', marginTop: 0 }}>
+          <div style={{ 
+            marginBottom: '0.75rem', 
+            marginTop: 0,
+            padding: '12px 16px 0 16px',
+            width: '100%',
+            maxWidth: '100%',
+            boxSizing: 'border-box'
+          }}>
             <FilterableSelect
               options={empresas}
               value={selectedCompanyId}

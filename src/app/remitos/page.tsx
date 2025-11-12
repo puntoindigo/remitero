@@ -442,57 +442,84 @@ function RemitosContent() {
       key: 'main',
       label: 'Remito',
       render: (remito) => (
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', width: '100%' }}>
-          {/* Información principal */}
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: '0.5rem',
-              marginBottom: '0.25rem'
+        <div style={{ 
+          display: 'flex', 
+          flexDirection: 'column',
+          gap: '0.75rem', 
+          width: '100%',
+          maxWidth: '100%',
+          boxSizing: 'border-box'
+        }}>
+          {/* Primera fila: Número y estado */}
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '0.5rem',
+            flexWrap: 'wrap',
+            width: '100%'
+          }}>
+            <span style={{ 
+              fontSize: '15px', 
+              fontWeight: 600, 
+              color: '#111827',
+              flex: '1 1 auto',
+              minWidth: 0
             }}>
-              <span style={{ 
-                fontSize: '15px', 
-                fontWeight: 600, 
-                color: '#111827'
+              #{remito.number}
+            </span>
+            {remito.status && estadosActivos.find(e => e.id === remito.status?.id) && (
+              <span style={{
+                fontSize: '11px',
+                padding: '2px 8px',
+                borderRadius: '12px',
+                backgroundColor: estadosActivos.find(e => e.id === remito.status?.id)?.color + '20',
+                color: estadosActivos.find(e => e.id === remito.status?.id)?.color,
+                fontWeight: 500,
+                whiteSpace: 'nowrap',
+                flexShrink: 0
               }}>
-                #{remito.number}
+                {estadosActivos.find(e => e.id === remito.status?.id)?.name}
               </span>
-              {remito.status && estadosActivos.find(e => e.id === remito.status?.id) && (
-                <span style={{
-                  fontSize: '11px',
-                  padding: '2px 8px',
-                  borderRadius: '12px',
-                  backgroundColor: estadosActivos.find(e => e.id === remito.status?.id)?.color + '20',
-                  color: estadosActivos.find(e => e.id === remito.status?.id)?.color,
-                  fontWeight: 500
-                }}>
-                  {estadosActivos.find(e => e.id === remito.status?.id)?.name}
-                </span>
-              )}
-            </div>
-            <div style={{ fontSize: '13px', color: '#6b7280' }}>
-              {remito.client?.name || 'Sin cliente'}
-            </div>
-            <div style={{ 
-              fontSize: '12px', 
-              color: '#9ca3af',
-              marginTop: '0.25rem',
-              display: 'flex',
-              gap: '1rem',
-              flexWrap: 'wrap'
-            }}>
-              <span>${remito.total.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-              <span>{new Date(remito.createdAt).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' })}</span>
-            </div>
+            )}
           </div>
           
-          {/* Acciones al lado */}
+          {/* Segunda fila: Cliente */}
+          <div style={{ 
+            fontSize: '13px', 
+            color: '#6b7280',
+            width: '100%',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap'
+          }}>
+            {remito.client?.name || 'Sin cliente'}
+          </div>
+          
+          {/* Tercera fila: Total y fecha */}
+          <div style={{ 
+            fontSize: '12px', 
+            color: '#9ca3af',
+            display: 'flex',
+            gap: '1rem',
+            flexWrap: 'wrap',
+            width: '100%'
+          }}>
+            <span style={{ whiteSpace: 'nowrap' }}>
+              ${remito.total.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </span>
+            <span style={{ whiteSpace: 'nowrap' }}>
+              {new Date(remito.createdAt).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+            </span>
+          </div>
+          
+          {/* Cuarta fila: Acciones - diseño horizontal compacto */}
           <div style={{ 
             display: 'flex', 
             gap: '0.5rem', 
             alignItems: 'center',
-            flexShrink: 0
+            flexWrap: 'wrap',
+            width: '100%',
+            marginTop: '0.25rem'
           }}>
             {/* Botón Ver detalles */}
             <button
@@ -510,6 +537,8 @@ function RemitosContent() {
                 borderRadius: '6px',
                 cursor: 'pointer',
                 transition: 'all 0.2s',
+                whiteSpace: 'nowrap',
+                flexShrink: 0
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.backgroundColor = (colors.primary || '#3b82f6') + '10';
@@ -524,7 +553,11 @@ function RemitosContent() {
             
             {/* Selector de estado compacto */}
             {estadosActivos && (
-              <div style={{ minWidth: '120px' }}>
+              <div style={{ 
+                flex: '1 1 auto',
+                minWidth: '100px',
+                maxWidth: '100%'
+              }}>
                 <FilterableSelect
                   options={estadosActivos.map(e => ({ id: e.id, name: e.name, color: e.color }))}
                   value={remito.status?.id || ''}
@@ -537,59 +570,68 @@ function RemitosContent() {
               </div>
             )}
             
-            {/* Botón Imprimir */}
-            {handlePrintRemito && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handlePrintRemito(remito);
-                }}
-                style={{
-                  padding: '6px',
-                  background: 'transparent',
-                  border: 'none',
-                  cursor: 'pointer',
-                  color: '#6b7280',
-                  transition: 'color 0.2s',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.color = '#111827';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.color = '#6b7280';
-                }}
-                title="Imprimir"
-              >
-                <Printer className="h-4 w-4" />
-              </button>
-            )}
-            
-            {/* Botón Eliminar */}
-            {handleDeleteRemito && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleDeleteRemito(remito);
-                }}
-                style={{
-                  padding: '6px',
-                  background: 'transparent',
-                  border: 'none',
-                  cursor: 'pointer',
-                  color: '#ef4444',
-                  transition: 'color 0.2s',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.color = '#dc2626';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.color = '#ef4444';
-                }}
-                title="Eliminar"
-              >
-                <Trash2 className="h-4 w-4" />
-              </button>
-            )}
+            {/* Botones de acción compactos */}
+            <div style={{ 
+              display: 'flex', 
+              gap: '0.25rem',
+              flexShrink: 0
+            }}>
+              {/* Botón Imprimir */}
+              {handlePrintRemito && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handlePrintRemito(remito);
+                  }}
+                  style={{
+                    padding: '6px',
+                    background: 'transparent',
+                    border: 'none',
+                    cursor: 'pointer',
+                    color: '#6b7280',
+                    transition: 'color 0.2s',
+                    flexShrink: 0
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = '#111827';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = '#6b7280';
+                  }}
+                  title="Imprimir"
+                >
+                  <Printer className="h-4 w-4" />
+                </button>
+              )}
+              
+              {/* Botón Eliminar */}
+              {handleDeleteRemito && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDeleteRemito(remito);
+                  }}
+                  style={{
+                    padding: '6px',
+                    background: 'transparent',
+                    border: 'none',
+                    cursor: 'pointer',
+                    color: '#ef4444',
+                    transition: 'color 0.2s',
+                    flexShrink: 0
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = '#dc2626';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = '#ef4444';
+                  }}
+                  title="Eliminar"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              )}
+            </div>
           </div>
         </div>
       )
@@ -603,9 +645,16 @@ function RemitosContent() {
       
       <main className="main-content">
         <div className="form-section">
-        {/* Selector de empresa - pegado al top */}
+        {/* Selector de empresa - pegado al top sin padding */}
         {shouldShowCompanySelector && empresas?.length > 0 && (
-          <div style={{ marginBottom: '0.75rem', marginTop: 0 }}>
+          <div style={{ 
+            marginBottom: '0.75rem', 
+            marginTop: 0,
+            padding: '12px 16px 0 16px',
+            width: '100%',
+            maxWidth: '100%',
+            boxSizing: 'border-box'
+          }}>
             <FilterableSelect
               options={empresas}
               value={selectedCompanyId}

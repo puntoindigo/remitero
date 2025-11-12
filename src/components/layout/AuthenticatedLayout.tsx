@@ -194,6 +194,18 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
         }
 
         @media (max-width: 768px) {
+          /* Prevenir overflow horizontal */
+          * {
+            max-width: 100vw;
+            box-sizing: border-box;
+          }
+          
+          html, body {
+            overflow-x: hidden;
+            width: 100%;
+            position: relative;
+          }
+          
           .desktop-only {
             display: none;
           }
@@ -201,31 +213,69 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
             display: block;
           }
           
+          /* Container líquido - sin overflow */
           .container {
+            width: 100vw !important;
+            max-width: 100vw !important;
             padding-left: 0 !important;
             padding-right: 0 !important;
             padding-top: 56px !important; /* Espacio para header mobile */
-            padding-bottom: 100px !important; /* Espacio para bottom nav mobile (80px + 20px para FAB) */
+            padding-bottom: 100px !important; /* Espacio para bottom nav mobile */
+            margin: 0 !important;
+            overflow-x: hidden !important;
           }
           
-          /* Aprovechar todo el espacio en mobile */
-          .container > * {
-            padding-left: 16px;
-            padding-right: 16px;
+          /* Main content líquido */
+          main.main-content {
+            width: 100% !important;
+            max-width: 100% !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            overflow-x: hidden !important;
           }
           
-          /* Tablas aprovechan todo el espacio - estilo innovador */
+          /* Form section - selector empresa pegado al top */
+          .form-section {
+            padding: 0 !important;
+            margin: 0 !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            overflow-x: hidden !important;
+          }
+          
+          /* Selector de empresa - pegado al top sin padding */
+          .form-section > div:first-child {
+            padding: 12px 16px 0 16px !important;
+            margin: 0 !important;
+            width: 100% !important;
+            max-width: 100% !important;
+          }
+          
+          /* Contenido con padding lateral */
+          .form-section > *:not(:first-child) {
+            padding-left: 16px !important;
+            padding-right: 16px !important;
+            width: 100% !important;
+            max-width: 100% !important;
+          }
+          
+          /* Tablas - diseño líquido sin overflow */
           .data-table-container,
           .data-table-wrapper {
-            margin-left: -16px;
-            margin-right: -16px;
-            width: calc(100% + 32px);
-            border-radius: 0;
+            width: 100vw !important;
+            max-width: 100vw !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow-x: auto !important;
+            -webkit-overflow-scrolling: touch;
           }
           
           .data-table {
+            width: 100% !important;
+            max-width: 100% !important;
             font-size: 12px;
             border-collapse: collapse;
+            table-layout: fixed; /* Layout fijo para mejor control */
           }
           
           .data-table th {
@@ -238,35 +288,66 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
             position: sticky;
             top: 56px;
             z-index: 10;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
           }
           
           .data-table td {
             padding: 10px 8px;
             font-size: 12px;
-            white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            max-width: 0;
+            word-wrap: break-word;
+            max-width: 0; /* Permite que las celdas se ajusten */
           }
           
-          /* Optimizar campos y formularios */
-          .form-section {
-            padding: 0 !important;
+          /* Evitar overflow en elementos internos */
+          .data-table td > * {
+            max-width: 100% !important;
+            overflow: hidden;
           }
           
-          /* Selectores compactos */
+          /* Selectores y campos - diseño líquido */
           .filterable-select,
-          .search-input {
+          .search-input,
+          input,
+          select,
+          textarea {
+            width: 100% !important;
+            max-width: 100% !important;
             font-size: 14px;
+            box-sizing: border-box;
+          }
+          
+          /* Grid de filtros - responsive líquido */
+          .form-section > div[style*="grid"] {
+            display: grid !important;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)) !important;
+            gap: 0.75rem !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            padding-left: 16px !important;
+            padding-right: 16px !important;
           }
           
           /* Espaciado optimizado */
           .form-section > * {
             margin-bottom: 0.75rem;
+            width: 100% !important;
+            max-width: 100% !important;
           }
           
           .form-section > *:last-child {
             margin-bottom: 0;
+          }
+          
+          /* Botones y acciones - sin overflow */
+          button,
+          .action-buttons,
+          .action-button {
+            max-width: 100% !important;
+            box-sizing: border-box;
           }
         }
       `}</style>
