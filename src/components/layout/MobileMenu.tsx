@@ -94,36 +94,16 @@ export function MobileMenu({ onClose }: MobileMenuProps = { onClose: undefined }
         }
       `}</style>
 
-      {/* Overlay */}
-      {isOpen && (
-        <div
-          onClick={() => setIsOpen(false)}
-          style={{
-            position: 'fixed',
-            inset: 0,
-            background: 'rgba(0, 0, 0, 0.5)',
-            zIndex: 998,
-            animation: 'fadeIn 0.3s ease-out',
-          }}
-        />
-      )}
-
-      {/* Drawer Menu */}
+      {/* Drawer Menu - ahora el contenedor está en VercelMobileNav */}
       <div
         style={{
-          position: 'fixed',
-          top: 0,
-          right: 0,
-          bottom: 0,
-          width: '85%',
-          maxWidth: '350px',
+          position: 'relative',
+          width: '100%',
+          height: '100%',
           background: colors.gradient || 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
           backgroundColor: colors.primary || '#667eea',
-          transform: isOpen ? 'translateX(0)' : 'translateX(100%)',
-          transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-          zIndex: 999,
           overflowY: 'auto',
-          boxShadow: isOpen ? '-10px 0 30px rgba(0, 0, 0, 0.3)' : 'none',
+          boxShadow: '-10px 0 30px rgba(0, 0, 0, 0.3)',
         }}
       >
         {/* Header */}
