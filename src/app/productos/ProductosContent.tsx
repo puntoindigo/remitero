@@ -537,9 +537,16 @@ function ProductosContent() {
         />
 
         <div className="form-section">
-          {/* Selector de empresa - ancho completo */}
+          {/* Selector de empresa - pegado al top */}
           {shouldShowCompanySelector && empresas?.length > 0 && (
-            <div style={{ marginBottom: '1rem' }}>
+            <div style={{ 
+              marginBottom: '0.75rem', 
+              marginTop: 0,
+              padding: '12px 16px 0 16px',
+              width: '100%',
+              maxWidth: '100%',
+              boxSizing: 'border-box'
+            }}>
               <FilterableSelect
                 options={empresas}
                 value={selectedCompanyId}

@@ -293,6 +293,16 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
             white-space: nowrap;
           }
           
+          /* Ocultar header cuando showActions es false */
+          .data-table thead[style*="display: none"] {
+            display: none !important;
+          }
+          
+          /* Ajustar padding de tbody cuando no hay header */
+          .data-table:has(thead[style*="display: none"]) tbody tr:first-child td {
+            padding-top: 0.5rem;
+          }
+          
           .data-table td {
             padding: 10px 8px;
             font-size: 12px;
