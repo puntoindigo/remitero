@@ -86,28 +86,59 @@ export function RemitoFormComplete({
       setValue("status", statusId || "");
       setValue("notes", editingRemito.notes || "");
       
-      // Cargar items del remito (pueden venir como 'items' o 'remitoItems')
-      const remitoItems = editingRemito.items || editingRemito.remitoItems || [];
+      // Cargar items del remito (pueden venir como 'items', 'remitoItems' o 'remito_items')
+      const remitoItems = editingRemito.items || editingRemito.remitoItems || editingRemito.remito_items || [];
       console.log('🔍 Cargando remito para editar:', {
         remitoId: editingRemito.id,
         itemsCount: remitoItems.length,
-        items: remitoItems
+        items: remitoItems,
+        hasItems: !!editingRemito.items,
+        hasRemitoItems: !!editingRemito.remitoItems,
+        hasRemito_items: !!editingRemito.remito_items
       });
       
       if (Array.isArray(remitoItems) && remitoItems.length > 0) {
         const loadedItems = remitoItems.map((item: any) => ({
-          product_id: item.product_id || item.productId || item.product?.id || '',
-          product_name: item.product_name || item.productName || item.product?.name || "",
-          product_desc: item.product_desc || item.productDesc || item.product?.description || "",
+          product_id: item.product_id || item.productId || item.product?.id || item.products?.id || '',
+          product_name: item.product_name || item.productName || item.product?.name || item.products?.name || "",
+          product_desc: item.product_desc || item.productDesc || item.product?.description || item.products?.description || "",
           quantity: Number(item.quantity) || 1,
-          unit_price: Number(item.unit_price || item.unitPrice || item.product?.price) || 0,
+          unit_price: Number(item.unit_price || item.unitPrice || item.product?.price || item.products?.price) || 0,
           line_total: Number(item.line_total || item.lineTotal || (item.quantity * (item.unit_price || item.unitPrice))) || 0
         }));
         console.log('✅ Items cargados:', loadedItems);
         setItems(loadedItems);
       } else {
-        console.warn('⚠️ No se encontraron items en el remito');
-        setItems([]);
+        console.warn('⚠️ No se encontraron items en el remito. Intentando fetch completo...');
+        // Si no hay items, intentar hacer fetch completo del remito
+        if (editingRemito.id) {
+          try {
+            const resp = await fetch(`/api/remitos/${editingRemito.id}`);
+            if (resp.ok) {
+              const fullRemito = await resp.json();
+              const fetchedItems = fullRemito.items || fullRemito.remitoItems || fullRemito.remito_items || [];
+              if (Array.isArray(fetchedItems) && fetchedItems.length > 0) {
+                const loadedItems = fetchedItems.map((item: any) => ({
+                  product_id: item.product_id || item.productId || item.product?.id || item.products?.id || '',
+                  product_name: item.product_name || item.productName || item.product?.name || item.products?.name || "",
+                  product_desc: item.product_desc || item.productDesc || item.product?.description || item.products?.description || "",
+                  quantity: Number(item.quantity) || 1,
+                  unit_price: Number(item.unit_price || item.unitPrice || item.product?.price || item.products?.price) || 0,
+                  line_total: Number(item.line_total || item.lineTotal || (item.quantity * (item.unit_price || item.unitPrice))) || 0
+                }));
+                console.log('✅ Items cargados desde fetch:', loadedItems);
+                setItems(loadedItems);
+              } else {
+                setItems([]);
+              }
+            }
+          } catch (error) {
+            console.error('Error fetching remito completo:', error);
+            setItems([]);
+          }
+        } else {
+          setItems([]);
+        }
       }
       
       setShowNotes(!!editingRemito.notes);
