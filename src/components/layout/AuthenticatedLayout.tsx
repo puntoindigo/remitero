@@ -349,6 +349,20 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
             max-width: 100% !important;
             box-sizing: border-box;
           }
+          
+          /* Deshabilitar autofocus en mobile para evitar teclado */
+          input:focus,
+          textarea:focus,
+          select:focus {
+            outline: none;
+          }
+          
+          /* Prevenir que los campos abran el teclado automáticamente */
+          input[autofocus],
+          textarea[autofocus],
+          select[autofocus] {
+            autofocus: false;
+          }
         }
       `}</style>
 
