@@ -214,21 +214,59 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
             padding-right: 16px;
           }
           
-          /* Tablas aprovechan todo el espacio */
+          /* Tablas aprovechan todo el espacio - estilo innovador */
           .data-table-container,
           .data-table-wrapper {
             margin-left: -16px;
             margin-right: -16px;
             width: calc(100% + 32px);
+            border-radius: 0;
           }
           
           .data-table {
-            font-size: 13px;
+            font-size: 12px;
+            border-collapse: collapse;
           }
           
-          .data-table th,
+          .data-table th {
+            padding: 10px 8px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            background: #f8f9fa;
+            position: sticky;
+            top: 56px;
+            z-index: 10;
+          }
+          
           .data-table td {
-            padding: 8px 12px;
+            padding: 10px 8px;
+            font-size: 12px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 0;
+          }
+          
+          /* Optimizar campos y formularios */
+          .form-section {
+            padding: 0 !important;
+          }
+          
+          /* Selectores compactos */
+          .filterable-select,
+          .search-input {
+            font-size: 14px;
+          }
+          
+          /* Espaciado optimizado */
+          .form-section > * {
+            margin-bottom: 0.75rem;
+          }
+          
+          .form-section > *:last-child {
+            margin-bottom: 0;
           }
         }
       `}</style>
