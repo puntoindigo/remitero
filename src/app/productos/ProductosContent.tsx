@@ -438,7 +438,7 @@ function ProductosContent() {
         />
 
         <div className="form-section">
-          <h2 style={{ fontSize: '2rem', fontWeight: 700, marginBottom: '1.5rem', color: '#111827' }}>Gestión</h2>
+          <h2 className="gestion-header" style={{ fontSize: '2rem', fontWeight: 700, marginBottom: '1.5rem', color: '#111827' }}>Gestión</h2>
           
           {/* Selector de empresa - ancho completo */}
           {shouldShowCompanySelector && empresas?.length > 0 && (
