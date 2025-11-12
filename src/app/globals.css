@@ -145,7 +145,7 @@ main.main-content {
   padding-top: 80px !important; /* Espacio para header fixed */
   padding-left: 0 !important;
   padding-right: 0 !important;
-  padding-bottom: 0 !important;
+  padding-bottom: 120px !important; /* Espacio para botonera fixed */
 }
 
 section.form-section,
