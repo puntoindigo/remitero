@@ -1,5 +1,8 @@
 "use client";
 
+import { useColorTheme } from '@/contexts/ColorThemeContext';
+import { Plus } from 'lucide-react';
+
 interface FABProps {
   onClick: () => void;
   label: string;
@@ -7,6 +10,7 @@ interface FABProps {
 }
 
 export function FloatingActionButton({ onClick, label, icon }: FABProps) {
+  const { colors } = useColorTheme();
   return (
     <button
       onClick={onClick}
@@ -19,11 +23,10 @@ export function FloatingActionButton({ onClick, label, icon }: FABProps) {
         height: '64px',
         borderRadius: '50%',
         border: 'none',
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        boxShadow: '0 8px 24px rgba(102, 126, 234, 0.4), 0 4px 8px rgba(0, 0, 0, 0.2)',
+        background: colors.gradient || 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        backgroundColor: colors.primary || '#667eea',
+        boxShadow: `0 8px 24px ${colors.primary || '#667eea'}40, 0 4px 8px rgba(0, 0, 0, 0.2)`,
         color: 'white',
-        fontSize: '28px',
-        fontWeight: 'bold',
         cursor: 'pointer',
         display: 'flex',
         alignItems: 'center',
@@ -32,16 +35,16 @@ export function FloatingActionButton({ onClick, label, icon }: FABProps) {
         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
       }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.transform = 'scale(1.1) rotate(90deg)';
-        e.currentTarget.style.boxShadow = '0 12px 32px rgba(102, 126, 234, 0.5), 0 6px 12px rgba(0, 0, 0, 0.3)';
+        e.currentTarget.style.transform = 'scale(1.1)';
+        e.currentTarget.style.boxShadow = `0 12px 32px ${colors.primary || '#667eea'}60, 0 6px 12px rgba(0, 0, 0, 0.3)`;
       }}
       onMouseLeave={(e) => {
-        e.currentTarget.style.transform = 'scale(1) rotate(0deg)';
-        e.currentTarget.style.boxShadow = '0 8px 24px rgba(102, 126, 234, 0.4), 0 4px 8px rgba(0, 0, 0, 0.2)';
+        e.currentTarget.style.transform = 'scale(1)';
+        e.currentTarget.style.boxShadow = `0 8px 24px ${colors.primary || '#667eea'}40, 0 4px 8px rgba(0, 0, 0, 0.2)`;
       }}
       title={label}
     >
-      {icon || '+'}
+      {icon ? <span style={{ fontSize: '28px', fontWeight: 'bold' }}>{icon}</span> : <Plus size={28} strokeWidth={3} />}
       
       {/* Label tooltip */}
       <span style={{

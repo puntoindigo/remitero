@@ -521,84 +521,62 @@ function RemitosContent() {
           </div>
         )}
 
-        {/* Barra de búsqueda, filtros y botón nuevo */}
+        {/* Barra de búsqueda y filtros - optimizado para mobile */}
         {!needsCompanySelection && (
-          <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1rem', justifyContent: 'space-between', flexWrap: 'wrap' }}>
-            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flex: 1, minWidth: '300px' }}>
+          <div style={{ 
+            display: 'flex', 
+            flexDirection: 'column',
+            gap: '0.75rem', 
+            marginBottom: '1rem'
+          }}>
+            {/* Primera fila: búsqueda */}
+            <div style={{ width: '100%' }}>
               <SearchInput
                 value={searchTerm}
                 onChange={setSearchTerm}
                 placeholder="Buscar remitos..."
               />
-              <div style={{ minWidth: '200px' }}>
-                <FilterableSelect
-                  options={[
-                    { id: 'all', name: 'Todos los estados' },
-                    ...(estadosActivos || []).map((estado) => ({
-                      id: estado.id,
-                      name: estado.name,
-                      color: estado.color
-                    }))
-                  ]}
-                  value={selectedStatusFilter}
-                  onChange={(value) => setSelectedStatusFilter(value || 'all')}
-                  placeholder="Filtrar por estado"
-                  searchFields={["name"]}
-                  showColors={true}
-                  searchable={false}
-                  useThemeColors={true}
-                />
-              </div>
-              <div style={{ minWidth: '200px' }}>
-                <FilterableSelect
-                  options={[
-                    { id: 'all', name: 'Todos los clientes' },
-                    ...(allClients || []).map((cliente) => ({
-                      id: cliente.id,
-                      name: cliente.name
-                    }))
-                  ]}
-                  value={selectedClientFilter}
-                  onChange={(value) => setSelectedClientFilter(value || 'all')}
-                  placeholder="Filtrar por cliente"
-                  searchFields={["name"]}
-                  searchable={true}
-                  useThemeColors={true}
-                />
-              </div>
             </div>
-            <button
-              onClick={handleNewRemito}
-              className="btn-primary new-button"
-              data-shortcut="n"
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                padding: '8px 16px',
-                background: colors.gradient,
-                color: 'white',
-                border: 'none',
-                borderRadius: '6px',
-                cursor: 'pointer',
-                fontSize: '14px',
-                fontWeight: '500',
-                minWidth: '100px',
-                justifyContent: 'center',
-                transition: 'all 0.2s',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-1px)';
-                e.currentTarget.style.boxShadow = `0 4px 12px ${colors.primary}50`;
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = 'none';
-              }}
-            >
-              <Plus className="h-4 w-4" />
-              <ShortcutText text="Nuevo Remito" shortcutKey="n" />
-            </button>
+            
+            {/* Segunda fila: filtros en grid compacto */}
+            <div style={{ 
+              display: 'grid', 
+              gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+              gap: '0.75rem',
+              width: '100%'
+            }}>
+              <FilterableSelect
+                options={[
+                  { id: 'all', name: 'Todos los estados' },
+                  ...(estadosActivos || []).map((estado) => ({
+                    id: estado.id,
+                    name: estado.name,
+                    color: estado.color
+                  }))
+                ]}
+                value={selectedStatusFilter}
+                onChange={(value) => setSelectedStatusFilter(value || 'all')}
+                placeholder="Estado"
+                searchFields={["name"]}
+                showColors={true}
+                searchable={false}
+                useThemeColors={true}
+              />
+              <FilterableSelect
+                options={[
+                  { id: 'all', name: 'Todos los clientes' },
+                  ...(allClients || []).map((cliente) => ({
+                    id: cliente.id,
+                    name: cliente.name
+                  }))
+                ]}
+                value={selectedClientFilter}
+                onChange={(value) => setSelectedClientFilter(value || 'all')}
+                placeholder="Cliente"
+                searchFields={["name"]}
+                useThemeColors={true}
+              />
+            </div>
           </div>
         )}
 
