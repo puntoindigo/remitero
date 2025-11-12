@@ -4,7 +4,7 @@ import React, { useState, useEffect, Suspense, useCallback, useMemo, useRef } fr
 import { useSession } from "next-auth/react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { Plus, FileText, Calendar, User, Package, Printer, Trash2 } from "lucide-react";
-import { formatDate } from "@/lib/utils/formatters";
+import { formatDate, formatDateRelative } from "@/lib/utils/formatters";
 import FilterableSelect from "@/components/common/FilterableSelect";
 import { MessageModal } from "@/components/common/MessageModal";
 import DeleteConfirmModal from "@/components/common/DeleteConfirmModal";
@@ -438,7 +438,7 @@ function RemitosContent() {
   // Lógica simplificada: mostrar contenido si hay companyId o si es SUPERADMIN sin impersonar
   const needsCompanySelection = !companyId && currentUser?.role === "SUPERADMIN";
 
-  // Definir columnas para el DataTable - desktop tradicional, mobile compacto
+  // Definir columnas para el DataTable - desktop: número, fecha, cliente, total, estado, acciones
   const columns: DataTableColumn<Remito>[] = [
     {
       key: 'number',
@@ -446,9 +446,26 @@ function RemitosContent() {
       render: (remito) => `#${remito.number}`
     },
     {
+      key: 'createdAt',
+      label: 'Fecha',
+      render: (remito) => {
+        const { display, tooltip } = formatDateRelative(remito.createdAt);
+        return (
+          <span title={tooltip} style={{ cursor: 'help' }}>
+            {display}
+          </span>
+        );
+      }
+    },
+    {
       key: 'client',
       label: 'Cliente',
       render: (remito) => remito.client?.name || 'Sin cliente'
+    },
+    {
+      key: 'total',
+      label: 'Total',
+      render: (remito) => `$${remito.total.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
     },
     {
       key: 'status',
@@ -469,16 +486,6 @@ function RemitosContent() {
           </span>
         );
       }
-    },
-    {
-      key: 'total',
-      label: 'Total',
-      render: (remito) => `$${remito.total.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-    },
-    {
-      key: 'createdAt',
-      label: 'Fecha',
-      render: (remito) => new Date(remito.createdAt).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' })
     }
   ];
 
@@ -513,11 +520,11 @@ function RemitosContent() {
 
         {/* Título Remitos */}
         {!needsCompanySelection && (
-          <h2 style={{ 
-            fontSize: '24px', 
-            fontWeight: 700, 
-            color: '#111827',
-            marginBottom: '0.75rem',
+          <h2 className="page-title-desktop" style={{ 
+            fontSize: isMobile ? '24px' : undefined, 
+            fontWeight: isMobile ? 700 : undefined, 
+            color: isMobile ? '#111827' : undefined,
+            marginBottom: isMobile ? '0.75rem' : undefined,
             marginTop: '0',
             padding: '0 16px'
           }}>
@@ -525,17 +532,18 @@ function RemitosContent() {
           </h2>
         )}
 
-        {/* Barra de búsqueda y filtros - optimizado para mobile */}
+        {/* Barra de búsqueda y filtros */}
         {!needsCompanySelection && (
           <div style={{ 
             padding: '0 16px',
             marginBottom: '1rem',
             display: 'flex', 
-            flexDirection: 'column',
-            gap: '0.75rem'
+            flexDirection: isMobile ? 'column' : 'row',
+            gap: '0.75rem',
+            alignItems: isMobile ? 'stretch' : 'center'
           }}>
-            {/* Primera fila: búsqueda */}
-            <div style={{ width: '100%' }}>
+            {/* Desktop: todos en una línea, Mobile: columna */}
+            <div style={{ width: isMobile ? '100%' : '300px', flexShrink: 0 }}>
               <SearchInput
                 value={searchTerm}
                 onChange={setSearchTerm}
@@ -543,44 +551,41 @@ function RemitosContent() {
               />
             </div>
             
-            {/* Segunda fila: filtros en grid compacto */}
-            <div style={{ 
-              display: 'grid', 
-              gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
-              gap: '0.75rem',
-              width: '100%'
-            }}>
-                <FilterableSelect
-                  options={[
-                    { id: 'all', name: 'Todos los estados' },
-                    ...(estadosActivos || []).map((estado) => ({
-                      id: estado.id,
-                      name: estado.name,
-                      color: estado.color
-                    }))
-                  ]}
-                  value={selectedStatusFilter}
-                  onChange={(value) => setSelectedStatusFilter(value || 'all')}
-                placeholder="Estado"
-                  searchFields={["name"]}
-                  showColors={true}
-                  searchable={false}
-                  useThemeColors={true}
-                />
-                <FilterableSelect
-                  options={[
-                    { id: 'all', name: 'Todos los clientes' },
-                    ...(allClients || []).map((cliente) => ({
-                      id: cliente.id,
-                      name: cliente.name
-                    }))
-                  ]}
-                  value={selectedClientFilter}
-                  onChange={(value) => setSelectedClientFilter(value || 'all')}
+            <div style={{ width: isMobile ? '100%' : '200px', flexShrink: 0 }}>
+              <FilterableSelect
+                options={[
+                  { id: 'all', name: 'Todos los clientes' },
+                  ...(allClients || []).map((cliente) => ({
+                    id: cliente.id,
+                    name: cliente.name
+                  }))
+                ]}
+                value={selectedClientFilter}
+                onChange={(value) => setSelectedClientFilter(value || 'all')}
                 placeholder="Cliente"
-                  searchFields={["name"]}
-                  useThemeColors={true}
-                />
+                searchFields={["name"]}
+                useThemeColors={true}
+              />
+            </div>
+            
+            <div style={{ width: isMobile ? '100%' : '180px', flexShrink: 0 }}>
+              <FilterableSelect
+                options={[
+                  { id: 'all', name: 'Todos los estados' },
+                  ...(estadosActivos || []).map((estado) => ({
+                    id: estado.id,
+                    name: estado.name,
+                    color: estado.color
+                  }))
+                ]}
+                value={selectedStatusFilter}
+                onChange={(value) => setSelectedStatusFilter(value || 'all')}
+                placeholder="Estado"
+                searchFields={["name"]}
+                showColors={true}
+                searchable={false}
+                useThemeColors={true}
+              />
             </div>
           </div>
         )}

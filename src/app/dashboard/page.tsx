@@ -23,6 +23,7 @@ interface DashboardStats {
     total: number;
     conStock: number;
     sinStock: number;
+    topVendidos?: Array<{ product_id: string; name: string; totalQuantity: number }>;
   };
   clientes: number;
   categorias: number;
@@ -139,7 +140,8 @@ export default function DashboardPage() {
           productos: { 
             total: data.productos?.total || 0, 
             conStock: data.productos?.conStock || 0, 
-            sinStock: data.productos?.sinStock || 0 
+            sinStock: data.productos?.sinStock || 0,
+            topVendidos: data.productos?.topVendidos || []
           },
           clientes: data.clientes?.total || 0,
           categorias: data.categorias?.total || 0,
@@ -170,7 +172,7 @@ export default function DashboardPage() {
         // Establecer valores por defecto para evitar UI rota
         setStats({
           remitos: { total: 0, byStatus: [] },
-          productos: { total: 0, conStock: 0, sinStock: 0 },
+          productos: { total: 0, conStock: 0, sinStock: 0, topVendidos: [] },
           clientes: 0,
           categorias: 0,
           usuarios: 0,
@@ -273,10 +275,14 @@ export default function DashboardPage() {
       textColor: "text-green-600",
       bgColor: "bg-green-50",
       stats: [
-        { label: "Total", value: stats.productos.total, link: "/productos" },
         { label: "Con Stock", value: stats.productos.conStock, link: "/productos?stock=IN_STOCK" },
-        { label: "Sin Stock", value: stats.productos.sinStock, link: "/productos?stock=OUT_OF_STOCK" },
-        ...(todayStats.productos > 0 ? [{ label: "Nuevos hoy", value: todayStats.productos, link: "/productos" }] : [])
+        ...(stats.productos.topVendidos && stats.productos.topVendidos.length > 0 
+          ? stats.productos.topVendidos.map((p, idx) => ({
+              label: `${idx + 1}. ${p.name}`,
+              value: p.totalQuantity,
+              link: `/productos`
+            }))
+          : [])
       ]
     },
     {
@@ -287,7 +293,7 @@ export default function DashboardPage() {
       bgColor: "bg-purple-50",
       stats: [
         { label: "Total", value: stats.clientes, link: "/clientes" },
-        ...(todayStats.clientes > 0 ? [{ label: "Nuevos hoy", value: todayStats.clientes, link: "/clientes" }] : [])
+        { label: "Nuevos hoy", value: todayStats.clientes, link: "/clientes" }
       ]
     }
   ]

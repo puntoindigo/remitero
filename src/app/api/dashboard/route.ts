@@ -127,6 +127,54 @@ export async function GET(request: NextRequest) {
       ? supabaseAdmin.from('companies').select('id', { count: 'exact', head: true })
       : Promise.resolve({ count: 0 });
 
+    // Obtener top 5 productos más vendidos
+    let topProductosQuery = supabaseAdmin
+      .from('remito_items')
+      .select(`
+        product_id,
+        quantity,
+        products!inner (
+          id,
+          name,
+          company_id
+        )
+      `);
+    
+    if (effectiveCompanyId) {
+      topProductosQuery = topProductosQuery.eq('products.company_id', effectiveCompanyId);
+    }
+    
+    const { data: remitoItemsData } = await topProductosQuery;
+    
+    // Agrupar por product_id y sumar cantidades
+    const productosVendidosMap = new Map<string, { product_id: string; name: string; totalQuantity: number }>();
+    
+    if (remitoItemsData) {
+      for (const item of remitoItemsData) {
+        if (item.product_id && item.products) {
+          const productId = item.product_id;
+          const productName = (item.products as any).name || 'Sin nombre';
+          const quantity = Number(item.quantity) || 0;
+          
+          if (productosVendidosMap.has(productId)) {
+            const existing = productosVendidosMap.get(productId)!;
+            existing.totalQuantity += quantity;
+          } else {
+            productosVendidosMap.set(productId, {
+              product_id: productId,
+              name: productName,
+              totalQuantity: quantity
+            });
+          }
+        }
+      }
+    }
+    
+    // Ordenar y tomar top 5
+    const topProductos = Array.from(productosVendidosMap.values())
+      .sort((a, b) => b.totalQuantity - a.totalQuantity)
+      .slice(0, 5);
+
     const [clientesCountRes, productosCountRes, productosConStockRes, productosSinStockRes, categoriasCountRes, usuariosCountRes, usuariosTodayRes, clientesTodayRes, productosTodayRes, categoriasTodayRes, empresasCountRes] = await Promise.all([
       buildQuery('clients'),
       buildQuery('products'),
@@ -152,7 +200,8 @@ export async function GET(request: NextRequest) {
         total: productosCountRes.count || 0, 
         conStock: productosConStockRes.count || 0,
         sinStock: productosSinStockRes.count || 0,
-        today: productosTodayRes.count || 0 
+        today: productosTodayRes.count || 0,
+        topVendidos: topProductos
       },
       clientes: { total: clientesCountRes.count || 0, today: clientesTodayRes.count || 0 },
       categorias: { total: categoriasCountRes.count || 0, today: categoriasTodayRes.count || 0 },

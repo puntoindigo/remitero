@@ -274,9 +274,23 @@ function CategoriasContent() {
             </div>
           )}
 
+          {/* Título Categorías */}
+          {!needsCompanySelection && (
+            <h2 className="page-title-desktop" style={{ 
+              fontSize: '24px', 
+              fontWeight: 700, 
+              color: '#111827',
+              marginBottom: '0.75rem',
+              marginTop: '0',
+              padding: '0 16px'
+            }}>
+              Categorías
+            </h2>
+          )}
+
           {/* Barra de búsqueda y botón nuevo */}
           {!needsCompanySelection && (
-            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1rem', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1rem', justifyContent: 'space-between', padding: '0 16px' }}>
               <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
                 <SearchInput
                   value={searchTerm}

@@ -145,7 +145,7 @@ main.main-content {
   padding-top: 80px !important; /* Espacio para header fixed */
   padding-left: 0 !important;
   padding-right: 0 !important;
-  padding-bottom: 120px !important; /* Espacio para botonera fixed */
+  padding-bottom: 144px !important; /* Espacio para botonera fixed (120px) + footer (24px) */
 }
 
 section.form-section,
@@ -177,6 +177,21 @@ h2 {
   margin-bottom: 16px;
   border-bottom: 2px solid #0078d4;
   padding-bottom: 8px;
+}
+
+/* Títulos desktop - estilo nuevo: mayúsculas, grande, claro, pegado arriba */
+@media (min-width: 768px) {
+  h2.page-title-desktop {
+    font-size: 2.5rem !important;
+    font-weight: 600 !important;
+    color: #9ca3af !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+    margin-top: 0 !important;
+    margin-bottom: 0.5rem !important;
+    padding: 0 16px !important;
+    line-height: 1.2 !important;
+  }
 }
 
 /* Sobrescribir estilos de h2 para encabezado "Gestión" */

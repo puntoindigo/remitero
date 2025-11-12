@@ -392,6 +392,46 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
 
       {/* Navegación OSD tipo monitor */}
       <OSDBottomNavigation />
+      
+      {/* Footer con copyright */}
+      <footer style={{
+        position: 'fixed',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        height: '24px',
+        backgroundColor: '#f9fafb',
+        borderTop: '1px solid #e5e7eb',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        fontSize: '10px',
+        color: '#6b7280',
+        zIndex: 100,
+        padding: '0 16px'
+      }}>
+        <p style={{ margin: 0 }}>
+          © 2025 Desarrollado por{' '}
+          <a 
+            href="https://www.linkedin.com/company/punto-indigo/" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            style={{
+              color: '#6b7280',
+              textDecoration: 'none',
+              fontWeight: 500,
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.textDecoration = 'underline';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.textDecoration = 'none';
+            }}
+          >
+            Punto Indigo
+          </a>
+        </p>
+      </footer>
     </>
   );
 }

@@ -457,7 +457,7 @@ function ProductosContent() {
 
           {/* Título Productos */}
           {companyId && (
-            <h2 style={{ 
+            <h2 className="page-title-desktop" style={{ 
               fontSize: '24px', 
               fontWeight: 700, 
               color: '#111827',
