@@ -142,7 +142,7 @@ main.main-content {
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
-  padding-top: 60px !important; /* Espacio para header fixed (reducido para títulos pegados) */
+  padding-top: 100px !important; /* Espacio para topbar (40px) + header (60px) */
   padding-left: 0 !important;
   padding-right: 0 !important;
   padding-bottom: 144px !important; /* Espacio para botonera fixed (120px) + footer (24px) */
@@ -1425,7 +1425,7 @@ form svg {
   max-height: 16px !important;
 }
 
-/* Header mejorado - FIXED siempre */
+/* Header mejorado - FIXED siempre, debajo de TopBar */
 .header {
   background-color: var(--theme-primary, #0078d4);
   color: white;
@@ -1435,7 +1435,7 @@ form svg {
   align-items: center;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   position: fixed;
-  top: 0;
+  top: 40px; /* Debajo de TopBar */
   left: 0;
   right: 0;
   z-index: 1000;
@@ -3887,8 +3887,11 @@ form svg {
   background: var(--theme-topbar-color, #0066b3);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  position: relative;
-  z-index: 100;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1001;
   transition: background-color 0.3s ease;
 }
 
