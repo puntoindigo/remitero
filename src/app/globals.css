@@ -179,6 +179,17 @@ h2 {
   padding-bottom: 8px;
 }
 
+/* Sobrescribir estilos de h2 en form-section para encabezado "Gestión" */
+.form-section h2[style*="fontSize: '2rem'"],
+.form-section h2[style*="font-size: 2rem"] {
+  border-bottom: none !important;
+  padding-bottom: 0 !important;
+  font-size: 2rem !important;
+  font-weight: 700 !important;
+  color: #111827 !important;
+  margin-bottom: 1.5rem !important;
+}
+
 
 h3 {
   font-size: 14px;
