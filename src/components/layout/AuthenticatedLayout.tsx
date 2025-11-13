@@ -234,19 +234,17 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
         throw new Error(result.message || 'Error al cambiar la contraseña');
       }
 
-      // Actualizar el flag has_temporary_password en la BD
-      const updateFlagResponse = await fetch(`/api/users/${session.user.id}/clear-temporary-password`, {
-        method: 'POST',
-      });
-
-      if (!updateFlagResponse.ok) {
-        console.error('Error al actualizar flag de contraseña temporal');
-      }
-
+      // El endpoint PUT /api/users/[id] ya limpia has_temporary_password automáticamente
       // La actividad se registra automáticamente en el endpoint PUT /api/users/[id]
 
       setShowChangePassword(false);
-      // Recargar la sesión para actualizar el token
+      
+      // Forzar actualización de la sesión de NextAuth antes de recargar
+      // Esto asegura que hasTemporaryPassword se actualice en el token
+      const { update } = await import('next-auth/react');
+      await update();
+      
+      // Recargar la página para aplicar los cambios
       window.location.reload();
     } catch (error: any) {
       alert(error.message || 'Error al cambiar la contraseña');

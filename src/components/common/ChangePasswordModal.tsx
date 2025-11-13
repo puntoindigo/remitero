@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { X, CheckCircle, XCircle } from "lucide-react";
+import { X, CheckCircle, XCircle, Eye, EyeOff } from "lucide-react";
 import { useColorTheme } from "@/contexts/ColorThemeContext";
 
 interface ChangePasswordModalProps {
@@ -23,6 +23,8 @@ export function ChangePasswordModal({
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { colors } = useColorTheme();
 
   // Estado del semáforo: 'red' | 'green' | null
@@ -143,16 +145,39 @@ export function ChangePasswordModal({
                   </span>
                 )}
               </label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Mínimo 6 caracteres"
-                className="form-input-standard"
-                disabled={isSubmitting}
-                required
-                minLength={6}
-              />
+              <div style={{ position: 'relative' }}>
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Mínimo 6 caracteres"
+                  className="form-input-standard"
+                  disabled={isSubmitting}
+                  required
+                  minLength={6}
+                  style={{ paddingRight: '40px' }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  style={{
+                    position: 'absolute',
+                    right: '10px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    padding: '4px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    color: '#6b7280'
+                  }}
+                  disabled={isSubmitting}
+                >
+                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                </button>
+              </div>
             </div>
 
             <div className="form-group" style={{ marginBottom: '1rem' }}>
@@ -172,21 +197,44 @@ export function ChangePasswordModal({
                   </span>
                 )}
               </label>
-              <input
-                type="password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="Repite la contraseña"
-                className="form-input-standard"
-                disabled={isSubmitting}
-                required
-                minLength={6}
-                style={{
-                  borderColor: trafficLightState === 'green' ? '#10b981' : 
-                                trafficLightState === 'red' ? '#ef4444' : undefined,
-                  borderWidth: trafficLightState ? '2px' : '1px'
-                }}
-              />
+              <div style={{ position: 'relative' }}>
+                <input
+                  type={showConfirmPassword ? "text" : "password"}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="Repite la contraseña"
+                  className="form-input-standard"
+                  disabled={isSubmitting}
+                  required
+                  minLength={6}
+                  style={{
+                    paddingRight: '40px',
+                    borderColor: trafficLightState === 'green' ? '#10b981' : 
+                                  trafficLightState === 'red' ? '#ef4444' : undefined,
+                    borderWidth: trafficLightState ? '2px' : '1px'
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  style={{
+                    position: 'absolute',
+                    right: '10px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    padding: '4px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    color: '#6b7280'
+                  }}
+                  disabled={isSubmitting}
+                >
+                  {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                </button>
+              </div>
               {trafficLightState === 'green' && (
                 <p style={{ marginTop: '0.25rem', fontSize: '0.75rem', color: '#10b981', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
                   <CheckCircle className="h-3 w-3" />
