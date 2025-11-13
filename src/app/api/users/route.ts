@@ -265,8 +265,7 @@ export async function POST(request: NextRequest) {
       }, { status: 409 });
     }
 
-    // Detectar si es Gmail
-    const isGmail = finalEmail.toLowerCase().endsWith('@gmail.com') || finalEmail.toLowerCase().endsWith('@googlemail.com');
+    // isGmail ya está declarado arriba (línea 232), reutilizamos esa variable
     
     // Hash de la contraseña solo si se proporcionó (no requerida para Gmail)
     let hashedPassword: string | null = null;
