@@ -3479,12 +3479,30 @@ form svg {
 
 /* Sin borde azul en mobile */
 @media (max-width: 768px) {
+  /* Ocultar thead en mobile para evitar que tape la primera fila */
+  .data-table thead {
+    display: none !important;
+  }
+  
+  /* Ajustar padding de td en mobile */
   .data-table td {
     border-bottom: 1px solid #f3f4f6;
+    padding: 8px 6px;
   }
   
   .data-table tbody tr:last-child td {
     border-bottom: none !important;
+  }
+  
+  /* Espacio arriba de la tabla para evitar que el título tape */
+  .data-table-wrapper {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+  }
+  
+  /* Ocultar botón de imprimir en mobile */
+  .action-button.print-button {
+    display: none !important;
   }
 }
 

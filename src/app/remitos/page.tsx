@@ -447,7 +447,36 @@ function RemitosContent() {
   const needsCompanySelection = !companyId && currentUser?.role === "SUPERADMIN";
 
   // Definir columnas para el DataTable - desktop: número, fecha, cliente, total, estado, acciones
-  const columns: DataTableColumn<Remito>[] = [
+  const columns: DataTableColumn<Remito>[] = isMobile ? [
+    // Mobile: unificar número y fecha en una celda
+    {
+      key: 'number-date',
+      label: 'Remito',
+      render: (remito) => {
+        const { display, tooltip } = formatDateRelative(remito.createdAt);
+        return (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            <div style={{ fontWeight: 600, fontSize: '14px', color: '#111827' }}>
+              #{remito.number}
+            </div>
+            <div style={{ fontSize: '12px', color: '#6b7280' }} title={tooltip}>
+              {display}
+            </div>
+          </div>
+        );
+      }
+    },
+    {
+      key: 'client',
+      label: 'Cliente',
+      render: (remito) => remito.client?.name || 'Sin cliente'
+    },
+    {
+      key: 'total',
+      label: 'Total',
+      render: (remito) => `$${remito.total.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+    }
+  ] : [
     {
       key: 'number',
       label: 'Número',

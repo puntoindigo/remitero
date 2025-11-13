@@ -30,6 +30,7 @@ const manualSections: ManualSection[] = [
       { title: 'Localhost', path: '/manual/02-configuracion/localhost' },
       { title: 'Variables de Entorno', path: '/manual/02-configuracion/variables-entorno' },
       { title: 'Entornos', path: '/manual/02-configuracion/entornos' },
+      { title: 'Configurar Variables Vercel', path: '/manual/02-configuracion/configurar-variables-vercel' },
     ],
   },
   {

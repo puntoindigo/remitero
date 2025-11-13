@@ -354,8 +354,60 @@ function ProductosContent() {
   // Lógica simplificada: mostrar contenido si hay companyId o si es SUPERADMIN sin impersonar
   const needsCompanySelection = !companyId && currentUser?.role === "SUPERADMIN";
 
-  // Definir columnas para el DataTable - desktop tradicional, mobile compacto
-  const columns: DataTableColumn<Product>[] = [
+  // Definir columnas para el DataTable - desktop tradicional, mobile sin descripción
+  const columns: DataTableColumn<Product>[] = isMobile ? [
+    {
+      key: 'name',
+      label: 'Nombre',
+      render: (producto) => producto.name || 'Sin nombre'
+    },
+    {
+      key: 'category',
+      label: 'Categoría',
+      render: (producto) => producto.category ? (
+        <span style={{
+          padding: '4px 8px',
+          borderRadius: '4px',
+          backgroundColor: '#f3f4f6',
+          color: '#374151',
+          fontSize: '12px',
+          fontWeight: 500
+        }}>
+          {producto.category.name}
+        </span>
+      ) : (
+        <span style={{ color: '#9ca3af' }}>Sin categoría</span>
+      )
+    },
+    {
+      key: 'price',
+      label: 'Precio',
+      render: (producto) => {
+        const price = producto.price || 0;
+        return `$${typeof price === 'number' ? price.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0,00'}`;
+      }
+    },
+    {
+      key: 'stock',
+      label: 'Stock',
+      render: (producto) => {
+        const isInStock = (producto.stock || 'OUT_OF_STOCK') === 'IN_STOCK';
+        const stockColor = isInStock ? '#16a34a' : '#ef4444';
+        return (
+          <span style={{
+            padding: '4px 8px',
+            borderRadius: '4px',
+            backgroundColor: `${stockColor}20`,
+            color: stockColor,
+            fontSize: '12px',
+            fontWeight: 500
+          }}>
+            {isInStock ? 'En stock' : 'Sin stock'}
+          </span>
+        );
+      }
+    }
+  ] : [
     {
       key: 'name',
       label: 'Nombre',

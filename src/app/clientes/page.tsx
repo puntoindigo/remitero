@@ -127,8 +127,19 @@ function ClientesContent() {
     searchPlaceholder: "Buscar clientes..."
   });
 
-  // Definir columnas para el DataTable - desktop tradicional
-  const columns: DataTableColumn<Cliente>[] = [
+  // Definir columnas para el DataTable - desktop tradicional, mobile sin teléfono y dirección
+  const columns: DataTableColumn<Cliente>[] = isMobile ? [
+    {
+      key: 'name',
+      label: 'Nombre',
+      render: (cliente) => cliente.name
+    },
+    {
+      key: 'email',
+      label: 'Email',
+      render: (cliente) => cliente.email || '-'
+    }
+  ] : [
     {
       key: 'name',
       label: 'Nombre',

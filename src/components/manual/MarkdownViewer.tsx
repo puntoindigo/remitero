@@ -5,6 +5,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
+import { TaskCheckbox } from './TaskCheckbox';
 
 interface MarkdownViewerProps {
   content: string;
@@ -32,17 +33,19 @@ export function MarkdownViewer({ content }: MarkdownViewerProps) {
     }
   }, [pathname]);
   
-  // Convertir enlaces del markdown a componentes Link de Next.js
-  const processedContent = content.replace(
-    /\[([^\]]+)\]\((\/[^)]+)\)/g,
-    (match, text, href) => {
-      // Si es un enlace interno, usar Link de Next.js
-      if (href.startsWith('/manual/') || href.startsWith('/docs/')) {
-        return `[${text}](${href})`;
+  // Convertir TaskCheckbox y enlaces del markdown
+  const processedContent = content
+    // Procesar enlaces primero
+    .replace(
+      /\[([^\]]+)\]\((\/[^)]+)\)/g,
+      (match, text, href) => {
+        // Si es un enlace interno, usar Link de Next.js
+        if (href.startsWith('/manual/') || href.startsWith('/docs/')) {
+          return `[${text}](${href})`;
+        }
+        return match;
       }
-      return match;
-    }
-  );
+    );
 
   return (
     <div 
@@ -99,7 +102,21 @@ export function MarkdownViewer({ content }: MarkdownViewerProps) {
               {children}
             </h3>
           ),
-          code: ({ node, inline, className, children, ...props }) => {
+          code: ({ node, inline, className, children, ...props }: any) => {
+            // Detectar si es un TaskCheckbox (bloque de código con lenguaje task-checkbox)
+            if (!inline && className && className.includes('language-task-checkbox')) {
+              try {
+                const content = Array.isArray(children) ? children.join('') : String(children);
+                const jsonMatch = content.trim();
+                if (jsonMatch) {
+                  const { taskId, label, defaultResolved } = JSON.parse(jsonMatch);
+                  return <TaskCheckbox key={taskId} taskId={taskId} label={label} defaultResolved={defaultResolved || false} />;
+                }
+              } catch (e) {
+                console.error('Error parsing TaskCheckbox:', e);
+              }
+            }
+            
             if (inline) {
               return (
                 <code 
