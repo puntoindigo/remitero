@@ -347,15 +347,34 @@ export async function sendInvitationEmail({
               display: inline-block;
               background-color: #2563eb;
               color: #ffffff !important;
-              padding: 12px 24px;
+              padding: 14px 28px;
               text-decoration: none;
-              border-radius: 6px;
+              border-radius: 8px;
               font-weight: 600;
-              margin: 20px 0;
+              font-size: 16px;
+              margin: 30px 0;
+              box-shadow: 0 4px 6px rgba(37, 99, 235, 0.3);
+              transition: all 0.2s;
+              text-align: center;
             }
             .button:hover {
               background-color: #1d4ed8;
               color: #ffffff !important;
+              box-shadow: 0 6px 8px rgba(37, 99, 235, 0.4);
+            }
+            /* Fallback para clientes de email que no soportan :hover */
+            .button-link {
+              display: inline-block;
+              background-color: #2563eb;
+              color: #ffffff !important;
+              padding: 14px 28px;
+              text-decoration: none;
+              border-radius: 8px;
+              font-weight: 600;
+              font-size: 16px;
+              margin: 30px 0;
+              box-shadow: 0 4px 6px rgba(37, 99, 235, 0.3);
+              text-align: center;
             }
             .footer {
               margin-top: 30px;
@@ -386,7 +405,14 @@ export async function sendInvitationEmail({
               </div>
               
               <div style="text-align: center; margin: 30px 0;">
-                <a href="${loginUrl}" style="display: inline-block; background-color: #2563eb; color: #ffffff !important; text-decoration: none; padding: 14px 28px; border-radius: 8px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 6px rgba(37, 99, 235, 0.3); transition: all 0.2s;">Acceder al Sistema</a>
+                <!-- Botón principal - compatible con todos los clientes de email -->
+                <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin: 0 auto;">
+                  <tr>
+                    <td style="background-color: #2563eb; border-radius: 8px; padding: 0;">
+                      <a href="${loginUrl}" style="display: inline-block; background-color: #2563eb; color: #ffffff !important; text-decoration: none; padding: 14px 28px; border-radius: 8px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 6px rgba(37, 99, 235, 0.3);">Acceder al Sistema</a>
+                    </td>
+                  </tr>
+                </table>
               </div>
               
               <p style="margin-top: 20px; font-size: 13px; color: #6b7280; text-align: center;">
