@@ -7,7 +7,8 @@ export default async function middleware(req: NextRequest) {
   // Rutas completamente públicas - NO pasan por autenticación
   if (pathname.startsWith("/auth") || 
       pathname === "/" || 
-      pathname.startsWith("/manual")) {
+      pathname.startsWith("/manual") ||
+      pathname.startsWith("/api/debug")) {
     return NextResponse.next()
   }
 

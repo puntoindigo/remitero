@@ -31,6 +31,7 @@ const manualSections: ManualSection[] = [
       { title: 'Variables de Entorno', path: '/manual/02-configuracion/variables-entorno' },
       { title: 'Entornos', path: '/manual/02-configuracion/entornos' },
       { title: 'Configurar Variables Vercel', path: '/manual/02-configuracion/configurar-variables-vercel' },
+      { title: 'Auto-Deploy a Producción', path: '/manual/02-configuracion/configurar-auto-deploy-produccion' },
     ],
   },
   {
