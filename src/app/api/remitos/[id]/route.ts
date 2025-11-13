@@ -373,7 +373,7 @@ export async function PUT(
     }
 
     // Obtener datos relacionados
-    let client = null;
+    let clientInfo = null;
     if (remitoData.client_id) {
       try {
         const { data: clientData } = await supabaseAdmin
@@ -381,7 +381,7 @@ export async function PUT(
           .select('id, name, email, phone, address')
           .eq('id', remitoData.client_id)
           .single();
-        if (clientData) client = clientData;
+        if (clientData) clientInfo = clientData;
       } catch (clientError) {
         console.warn('⚠️ [Remitos] Error obteniendo cliente (no crítico):', clientError);
       }
@@ -456,7 +456,7 @@ export async function PUT(
 
     const completeRemito = {
       ...remitoData,
-      clients: client,
+      clients: clientInfo,
       users: user,
       estados_remitos: estado,
       remito_items: remitoItems
