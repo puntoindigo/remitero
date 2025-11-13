@@ -56,6 +56,7 @@ export async function sendActivityNotificationEmail({
 
     const date = new Date(timestamp);
     const formattedDate = date.toLocaleString('es-AR', {
+      timeZone: 'America/Argentina/Buenos_Aires',
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',

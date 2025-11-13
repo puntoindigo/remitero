@@ -234,6 +234,8 @@ interface SendInvitationEmailParams {
   userEmail: string;
   role: string;
   loginUrl: string;
+  isGmail: boolean;
+  tempPassword: string | null;
 }
 
 /**
@@ -244,7 +246,9 @@ export async function sendInvitationEmail({
   userName,
   userEmail,
   role,
-  loginUrl
+  loginUrl,
+  isGmail,
+  tempPassword
 }: SendInvitationEmailParams): Promise<boolean> {
   console.log('📧 [Email] Iniciando envío de email de invitación:', {
     to,
@@ -375,13 +379,8 @@ export async function sendInvitationEmail({
                 <p><strong>Tu información de acceso:</strong></p>
                 <p><strong>Email:</strong> ${userEmail}</p>
                 <p><strong>Rol:</strong> ${roleName}</p>
+                ${!isGmail && tempPassword ? `<p><strong>Contraseña temporal:</strong> ${tempPassword}</p><p style="font-size: 0.875rem; color: #ef4444; margin-top: 0.5rem;"><strong>⚠️ IMPORTANTE:</strong> Esta es una contraseña temporal. Deberás cambiarla al primer acceso.</p>` : ''}
               </div>
-              
-              <p>Para acceder al sistema, puedes:</p>
-              <ul>
-                <li>Iniciar sesión con tu cuenta de Gmail (si tu email es @gmail.com)</li>
-                <li>O usar tu email y contraseña si se te asignó una</li>
-              </ul>
               
               <div style="text-align: left; margin: 20px 0;">
                 <a href="${loginUrl}" style="display: inline-block; background-color: #2563eb; color: #ffffff !important; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: 600; margin: 20px 0;">Acceder al Sistema</a>
@@ -415,10 +414,7 @@ Has sido invitado a formar parte del Sistema de Remitos.
 Tu información de acceso:
 - Email: ${userEmail}
 - Rol: ${roleName}
-
-Para acceder al sistema, puedes:
-- Iniciar sesión con tu cuenta de Gmail (si tu email es @gmail.com)
-- O usar tu email y contraseña si se te asignó una
+${!isGmail && tempPassword ? `- Contraseña temporal: ${tempPassword}\n\n⚠️ IMPORTANTE: Esta es una contraseña temporal. Deberás cambiarla al primer acceso.` : ''}
 
 Accede aquí: ${loginUrl}
 

@@ -23,6 +23,8 @@ export type ActivityAction =
   | 'DEACTIVATE_USER'
   | 'RESEND_INVITATION'
   | 'UPDATE_PROFILE'
+  | 'PASSWORD_CHANGED'
+  | 'PASSWORD_RECOVERY_REQUESTED'
   | 'VIEW_REPORT'
   | 'EXPORT_DATA'
   | 'OTHER';
@@ -109,6 +111,12 @@ export function getActionDescription(action: ActivityAction, metadata?: Activity
       return 'Reenvió invitación';
     case 'UPDATE_PROFILE':
       return 'Actualizó su perfil';
+    case 'PASSWORD_CHANGED':
+      return metadata?.wasTemporary 
+        ? 'Cambió su contraseña temporal'
+        : 'Cambió su contraseña';
+    case 'PASSWORD_RECOVERY_REQUESTED':
+      return 'Solicitó recuperación de contraseña';
     case 'VIEW_REPORT':
       return 'Vió un reporte';
     case 'EXPORT_DATA':

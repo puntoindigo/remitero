@@ -813,30 +813,42 @@ function LoginPageContent() {
               Recordar mis datos
             </label>
             </div>
-            {/* Ocultado temporalmente */}
-            {/* <div style={{ marginTop: '0.5rem' }}>
-              <button
-                type="button"
-                onClick={() => setShowForgotPassword(true)}
-                style={{
-                  background: 'transparent',
-                  border: 'none',
-                  color: displayColors.primary,
-                  fontSize: '0.875rem',
-                  cursor: 'pointer',
-                  textDecoration: 'underline',
-                  padding: 0,
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.opacity = '0.8';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.opacity = '1';
-                }}
-              >
-                Olvidé mi contraseña
-              </button>
-            </div> */}
+            {/* Mostrar "Olvidé mi contraseña" solo para no-Gmail */}
+            {(() => {
+              const emailValue = watch("email");
+              const isGmail = emailValue && (
+                emailValue.toLowerCase().endsWith('@gmail.com') || 
+                emailValue.toLowerCase().endsWith('@googlemail.com')
+              );
+              
+              if (isGmail) return null;
+              
+              return (
+                <div style={{ marginTop: '0.5rem' }}>
+                  <button
+                    type="button"
+                    onClick={() => setShowForgotPassword(true)}
+                    style={{
+                      background: 'transparent',
+                      border: 'none',
+                      color: displayColors.primary,
+                      fontSize: '0.875rem',
+                      cursor: 'pointer',
+                      textDecoration: 'underline',
+                      padding: 0,
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.opacity = '0.8';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.opacity = '1';
+                    }}
+                  >
+                    Olvidé mi contraseña
+                  </button>
+                </div>
+              );
+            })()}
           </div>
 
           {/* Error Message */}

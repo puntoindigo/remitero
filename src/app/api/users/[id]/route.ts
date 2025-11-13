@@ -119,7 +119,7 @@ export async function PUT(
     // Verificar que el usuario existe y obtener su company_id y rol
     const { data: existingUser, error: fetchError } = await supabaseAdmin
       .from('users')
-      .select('id, email, company_id, role')
+      .select('id, email, company_id, role, has_temporary_password')
       .eq('id', userId)
       .single();
 
@@ -266,6 +266,7 @@ export async function PUT(
     }
 
     // Hash de la contraseña si se proporciona
+    let passwordChanged = false;
     if (password && password.trim() !== '') {
       if (password?.length < 6) {
         return NextResponse.json({ 
@@ -274,6 +275,9 @@ export async function PUT(
         }, { status: 400 });
       }
       updateData.password = await bcrypt.hash(password, 10);
+      passwordChanged = true;
+      // Si se cambia la contraseña, también limpiar el flag de temporal
+      updateData.has_temporary_password = false;
     }
 
     // Verificar que hay algo que actualizar
@@ -318,11 +322,16 @@ export async function PUT(
 
     // Registrar actividad
     const isOwnProfile = session.user.id === userId;
-    if (isOwnProfile) {
+    if (isOwnProfile && passwordChanged) {
+      // Si es su propio perfil y cambió la contraseña, registrar como cambio de contraseña
+      await logUserActivity(session.user.id, 'PASSWORD_CHANGED', 'Cambió su contraseña', {
+        wasTemporary: existingUser.has_temporary_password || false
+      });
+    } else if (isOwnProfile) {
       // Si es su propio perfil, registrar como UPDATE_PROFILE
       await logUserActivity(session.user.id, 'UPDATE_PROFILE', 'Actualizó su perfil', {
         targetUserId: userId,
-        changedFields: Object.keys(updateData).filter(key => key !== 'password')
+        changedFields: Object.keys(updateData).filter(key => key !== 'password' && key !== 'has_temporary_password')
       });
     } else {
       // Si es otro usuario, registrar como UPDATE_USER

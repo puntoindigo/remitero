@@ -265,10 +265,30 @@ export async function POST(request: NextRequest) {
       }, { status: 409 });
     }
 
+    // Detectar si es Gmail
+    const isGmail = finalEmail.toLowerCase().endsWith('@gmail.com') || finalEmail.toLowerCase().endsWith('@googlemail.com');
+    
     // Hash de la contraseña solo si se proporcionó (no requerida para Gmail)
     let hashedPassword: string | null = null;
-    if (password && password.length > 0) {
-      hashedPassword = await bcrypt.hash(password, 10);
+    let tempPassword: string | null = null;
+    let hasTemporaryPassword = false;
+    
+    if (isGmail) {
+      // Gmail no necesita contraseña
+      hashedPassword = null;
+      hasTemporaryPassword = false;
+    } else {
+      // Para no-Gmail, generar contraseña temporal si no se proporcionó
+      if (password && password.length > 0) {
+        hashedPassword = await bcrypt.hash(password, 10);
+        hasTemporaryPassword = false; // Si se proporciona contraseña, no es temporal
+      } else {
+        // Generar contraseña temporal aleatoria (8 caracteres alfanuméricos)
+        const crypto = await import('crypto');
+        tempPassword = crypto.randomBytes(4).toString('hex');
+        hashedPassword = await bcrypt.hash(tempPassword, 10);
+        hasTemporaryPassword = true;
+      }
     }
 
     // Determinar companyId
@@ -298,7 +318,8 @@ export async function POST(request: NextRequest) {
         password: hashedPassword, // null para Gmail sin contraseña
         role,
         company_id: finalCompanyId,
-        is_active: true // Por defecto, todos los usuarios nuevos están activos
+        is_active: true, // Por defecto, todos los usuarios nuevos están activos
+        has_temporary_password: hasTemporaryPassword // Marcar contraseña temporal
       }])
       .select(`
         id,
@@ -401,7 +422,9 @@ export async function POST(request: NextRequest) {
         userName: finalName,
         userEmail: finalEmail,
         role: newUser.role,
-        loginUrl
+        loginUrl,
+        isGmail,
+        tempPassword: tempPassword || null
       });
       
       if (emailSent) {

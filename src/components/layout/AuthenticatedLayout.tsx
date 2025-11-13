@@ -243,6 +243,8 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
         console.error('Error al actualizar flag de contraseña temporal');
       }
 
+      // La actividad se registra automáticamente en el endpoint PUT /api/users/[id]
+
       setShowChangePassword(false);
       // Recargar la sesión para actualizar el token
       window.location.reload();
@@ -492,6 +494,7 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
         onClose={() => {}} // No permitir cerrar sin cambiar la contraseña
         onSubmit={handleChangePassword}
         isSubmitting={isChangingPassword}
+        isMandatory={true}
       />
 
       {/* Navegación OSD tipo monitor */}

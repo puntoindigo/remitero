@@ -10,13 +10,15 @@ interface ChangePasswordModalProps {
   onClose: () => void;
   onSubmit: (newPassword: string) => Promise<void>;
   isSubmitting?: boolean;
+  isMandatory?: boolean;
 }
 
 export function ChangePasswordModal({
   isOpen,
   onClose,
   onSubmit,
-  isSubmitting = false
+  isSubmitting = false,
+  isMandatory = false
 }: ChangePasswordModalProps) {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -126,7 +128,9 @@ export function ChangePasswordModal({
 
         <div className="modal-body">
           <p style={{ marginBottom: '1.5rem', color: '#6b7280', fontSize: '0.875rem' }}>
-            Por favor, ingresa tu nueva contraseña. Debes cambiarla para continuar.
+            {isMandatory 
+              ? 'Debe cambiar su contraseña temporal. Por favor, ingresa una nueva contraseña para continuar.'
+              : 'Por favor, ingresa tu nueva contraseña. Debes cambiarla para continuar.'}
           </p>
 
           <form onSubmit={handleSubmit}>
@@ -202,8 +206,8 @@ export function ChangePasswordModal({
                 type="button"
                 onClick={onClose}
                 className="btn-secondary"
-                disabled={isSubmitting || true} // No permitir cerrar sin cambiar la contraseña
-                style={{ opacity: 0.5, cursor: 'not-allowed' }}
+                disabled={isSubmitting || isMandatory} // No permitir cerrar sin cambiar la contraseña si es obligatorio
+                style={{ opacity: isMandatory ? 0.5 : 1, cursor: isMandatory ? 'not-allowed' : 'pointer' }}
               >
                 Cancelar
               </button>

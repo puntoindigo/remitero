@@ -348,6 +348,12 @@ async function checkAndSendNotification(
   timestamp: string
 ): Promise<void> {
   try {
+    // Solo enviar notificaciones por email en producción
+    if (process.env.VERCEL_ENV !== 'production' && process.env.NODE_ENV !== 'production') {
+      console.log('ℹ️ [checkAndSendNotification] Entorno no es producción, no se enviará email de notificación');
+      return;
+    }
+
     // Verificar preferencias de notificación
     const { data: preference, error: prefError } = await supabaseAdmin
       .from('notification_preferences')

@@ -3,7 +3,8 @@ export function formatDateTime(date: Date | string): string {
   if (isNaN(d.getTime())) {
     return "Fecha inválida";
   }
-  return d.toLocaleDateString("es-ES", {
+  return d.toLocaleString("es-AR", {
+    timeZone: "America/Argentina/Buenos_Aires",
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
@@ -17,7 +18,8 @@ export function formatDate(date: Date | string): string {
   if (isNaN(d.getTime())) {
     return "Fecha inválida";
   }
-  return d.toLocaleDateString("es-ES", {
+  return d.toLocaleDateString("es-AR", {
+    timeZone: "America/Argentina/Buenos_Aires",
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
@@ -30,18 +32,23 @@ export function formatDateRelative(date: Date | string): { display: string; tool
     return { display: "Fecha inválida", tooltip: "Fecha inválida" };
   }
   
+  // Convertir a GMT-3 (Argentina)
+  const argentinaDate = new Date(d.toLocaleString("en-US", { timeZone: "America/Argentina/Buenos_Aires" }));
   const now = new Date();
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const nowArgentina = new Date(now.toLocaleString("en-US", { timeZone: "America/Argentina/Buenos_Aires" }));
+  
+  const today = new Date(nowArgentina.getFullYear(), nowArgentina.getMonth(), nowArgentina.getDate());
   const yesterday = new Date(today);
   yesterday.setDate(yesterday.getDate() - 1);
-  const dateOnly = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const dateOnly = new Date(argentinaDate.getFullYear(), argentinaDate.getMonth(), argentinaDate.getDate());
   
-  const hours = d.getHours().toString().padStart(2, '0');
-  const minutes = d.getMinutes().toString().padStart(2, '0');
+  const hours = argentinaDate.getHours().toString().padStart(2, '0');
+  const minutes = argentinaDate.getMinutes().toString().padStart(2, '0');
   const timeStr = `${hours}:${minutes}`;
   
-  // Fecha completa para tooltip
-  const fullDate = d.toLocaleDateString("es-AR", {
+  // Fecha completa para tooltip en GMT-3
+  const fullDate = argentinaDate.toLocaleString("es-AR", {
+    timeZone: "America/Argentina/Buenos_Aires",
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
@@ -58,7 +65,8 @@ export function formatDateRelative(date: Date | string): { display: string; tool
     if (daysDiff <= 7) {
       return { display: `Hace ${daysDiff} días ${timeStr}`, tooltip: fullDate };
     } else {
-      const dateStr = d.toLocaleDateString("es-AR", {
+      const dateStr = argentinaDate.toLocaleDateString("es-AR", {
+        timeZone: "America/Argentina/Buenos_Aires",
         day: "2-digit",
         month: "2-digit",
       });
