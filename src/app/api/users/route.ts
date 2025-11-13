@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
       companyId = session.user.companyId;
     }
 
-    // Incluir JOIN con companies para obtener el nombre de la empresa
+    // Obtener usuarios sin JOIN (evita problemas con foreign keys en schema dev)
     let query = supabaseAdmin
       .from('users')
       .select(`
@@ -43,11 +43,7 @@ export async function GET(request: NextRequest) {
         company_id,
         created_at,
         updated_at,
-        is_active,
-        companies (
-          id,
-          name
-        )
+        is_active
       `)
       .order('created_at', { ascending: false });
 
@@ -142,7 +138,28 @@ export async function GET(request: NextRequest) {
     const userIds = (users || []).map((u: any) => u.id);
     const activitiesMap = await getLastUserActivitiesForUsers(userIds);
     
-    // Mapear usuarios con sus actividades
+    // Obtener nombres de empresas para usuarios que tienen company_id
+    const companyIds = [...new Set((users || []).filter((u: any) => u.company_id).map((u: any) => u.company_id))];
+    const companiesMap = new Map<string, { id: string; name: string }>();
+    
+    if (companyIds.length > 0) {
+      try {
+        const { data: companies, error: companiesError } = await supabaseAdmin
+          .from('companies')
+          .select('id, name')
+          .in('id', companyIds);
+        
+        if (!companiesError && companies) {
+          companies.forEach((company: any) => {
+            companiesMap.set(company.id, { id: company.id, name: company.name });
+          });
+        }
+      } catch (companiesError) {
+        console.warn('⚠️ [Users] Error obteniendo empresas (no crítico):', companiesError);
+      }
+    }
+    
+    // Mapear usuarios con sus actividades y empresas
     const usersWithLastActivity = (users || []).map((user: any) => {
       const activity = activitiesMap.get(user.id);
       let lastActivity = null;
@@ -155,9 +172,12 @@ export async function GET(request: NextRequest) {
         };
       }
       
+      // Obtener empresa del map
+      const company = user.company_id ? companiesMap.get(user.company_id) : null;
+      
       return {
         ...user,
-        companies: user.companies || (user.company_id ? { id: user.company_id, name: null } : null),
+        companies: company || (user.company_id ? { id: user.company_id, name: null } : null),
         lastActivity
       };
     });
@@ -289,13 +309,26 @@ export async function POST(request: NextRequest) {
         phone,
         company_id,
         created_at,
-        is_active,
-        companies (
-          id,
-          name
-        )
+        is_active
       `)
       .single();
+    
+    // Obtener empresa si el usuario tiene company_id
+    if (newUser && newUser.company_id) {
+      try {
+        const { data: company } = await supabaseAdmin
+          .from('companies')
+          .select('id, name')
+          .eq('id', newUser.company_id)
+          .single();
+        
+        if (company) {
+          (newUser as any).companies = { id: company.id, name: company.name };
+        }
+      } catch (companyError) {
+        console.warn('⚠️ [Users] Error obteniendo empresa para nuevo usuario (no crítico):', companyError);
+      }
+    }
 
     if (error) {
       console.error('❌ [Users] Error creating user:', {
