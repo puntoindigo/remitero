@@ -7,21 +7,6 @@ const handler = NextAuth(authOptions)
 // Agregar logging para debugging
 const wrappedHandler = async (req: any, context: any) => {
   try {
-    // Log detallado del request
-    const url = req?.url || '';
-    const pathname = url.includes('/callback') ? '/api/auth/callback/google' : 
-                     url.includes('/signin') ? '/api/auth/signin/google' :
-                     url.includes('/session') ? '/api/auth/session' : url;
-    
-    if (pathname.includes('/callback')) {
-      console.log('🔄 [NextAuth Callback] Iniciando callback de Google OAuth', {
-        url: url,
-        pathname: pathname,
-        hasCode: url.includes('code='),
-        hasError: url.includes('error='),
-        schema: process.env.DATABASE_SCHEMA || 'default'
-      });
-    }
     // Manejar diferentes formatos de URL que puede recibir NextAuth
     let url: string = '';
     let pathname: string = '';
@@ -74,13 +59,27 @@ const wrappedHandler = async (req: any, context: any) => {
       searchParams = '';
     }
     
+    // Log detallado del request
+    const isCallback = pathname.includes('/callback');
+    const isSignin = pathname.includes('/signin');
+    
+    if (isCallback) {
+      console.log('🔄 [NextAuth Callback] Iniciando callback de Google OAuth', {
+        url: url,
+        pathname: pathname,
+        hasCode: url.includes('code='),
+        hasError: url.includes('error='),
+        schema: process.env.DATABASE_SCHEMA || 'default'
+      });
+    }
+    
     console.log('🌐 [NextAuth API] Request recibido', {
       method: req.method,
       url: url.toString(),
       pathname,
       searchParams,
-      isCallback: pathname.includes('/callback'),
-      isSignin: pathname.includes('/signin'),
+      isCallback,
+      isSignin,
       provider: searchParams.includes('provider=') ? new URLSearchParams(searchParams).get('provider') : null,
       error: searchParams.includes('error=') ? new URLSearchParams(searchParams).get('error') : null,
       code: searchParams.includes('code=') ? 'PRESENTE' : 'NO PRESENTE',
