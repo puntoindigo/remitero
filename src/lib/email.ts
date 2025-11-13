@@ -403,11 +403,27 @@ export async function sendInvitationEmail({
                 <p><strong>Tu información de acceso:</strong></p>
                 <p><strong>Email:</strong> ${userEmail}</p>
                 <p><strong>Rol:</strong> ${roleName}</p>
-                ${!isGmail && tempPassword ? `
+                ${(() => {
+                  // Debug: verificar condiciones
+                  const shouldShow = !isGmail && tempPassword && tempPassword.trim().length > 0;
+                  console.log('🔍 [Email] Evaluando mostrar contraseña temporal:', {
+                    isGmail,
+                    hasTempPassword: !!tempPassword,
+                    tempPasswordLength: tempPassword?.length,
+                    tempPasswordValue: tempPassword ? `${tempPassword.substring(0, 2)}***` : null,
+                    shouldShow,
+                    condition: `!isGmail=${!isGmail} && tempPassword=${!!tempPassword} && length>0=${tempPassword?.trim().length > 0}`
+                  });
+                  
+                  if (shouldShow) {
+                    return `
                 <p style="margin-top: 15px;"><strong>Contraseña temporal:</strong></p>
                 <p style="background-color: #fef3c7; padding: 8px 12px; border-radius: 4px; font-family: 'Courier New', monospace; font-weight: bold; font-size: 16px; color: #92400e; letter-spacing: 2px; text-align: center; border: 2px solid #f59e0b;">${tempPassword}</p>
                 <p style="font-size: 0.875rem; color: #ef4444; margin-top: 10px; font-weight: bold;">⚠️ IMPORTANTE: Esta es una contraseña temporal. Deberás cambiarla al primer acceso.</p>
-                ` : ''}
+                `;
+                  }
+                  return '';
+                })()}
               </div>
               
               <div style="text-align: center; margin: 30px 0;">

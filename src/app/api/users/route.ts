@@ -293,8 +293,11 @@ export async function POST(request: NextRequest) {
         hasTemporaryPassword = true;
         console.log('🔑 [Users] Contraseña temporal generada para usuario no-Gmail:', {
           email: finalEmail,
+          isGmail: false,
           hasTempPassword: !!tempPassword,
-          tempPasswordLength: tempPassword?.length
+          tempPasswordLength: tempPassword?.length,
+          tempPasswordValue: tempPassword ? `${tempPassword.substring(0, 2)}***` : null,
+          tempPasswordFull: tempPassword // Log completo para debug (solo en servidor)
         });
       }
     }
@@ -428,8 +431,14 @@ export async function POST(request: NextRequest) {
       console.log('📧 [Users] Parámetros del email:', {
         isGmail,
         hasTempPassword: !!tempPassword,
-        tempPassword: tempPassword ? '***' : null
+        tempPasswordLength: tempPassword?.length || 0,
+        tempPasswordValue: tempPassword ? `${tempPassword.substring(0, 2)}***` : null,
+        tempPasswordFull: tempPassword, // Log completo para debug (solo en servidor)
+        willShowInEmail: !isGmail && !!tempPassword && tempPassword.trim().length > 0
       });
+      
+      // Asegurar que tempPassword no sea string vacío
+      const finalTempPassword = (tempPassword && tempPassword.trim().length > 0) ? tempPassword.trim() : null;
       
       const emailSent = await sendInvitationEmail({
         to: finalEmail,
@@ -438,7 +447,7 @@ export async function POST(request: NextRequest) {
         role: newUser.role,
         loginUrl,
         isGmail,
-        tempPassword: tempPassword || null
+        tempPassword: finalTempPassword
       });
       
       if (emailSent) {
