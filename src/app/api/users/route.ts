@@ -213,6 +213,9 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
     const { email, password, role, companyId } = body;
+    
+    // Normalizar password: tratar string vacío como null/undefined
+    const normalizedPassword = (password && password.trim().length > 0) ? password.trim() : null;
 
     // Validaciones básicas
     if (!email || !role) {
@@ -231,11 +234,12 @@ export async function POST(request: NextRequest) {
     // Detectar si es Gmail
     const isGmail = finalEmail.toLowerCase().endsWith('@gmail.com') || finalEmail.toLowerCase().endsWith('@googlemail.com');
     
-    // Si no es Gmail, requerir contraseña
-    if (!isGmail && (!password || password.length < 6)) {
+    // Si no es Gmail, requerir contraseña (solo si se proporciona explícitamente)
+    // Si no se proporciona, se generará una temporal automáticamente
+    if (!isGmail && normalizedPassword && normalizedPassword.length < 6) {
       return NextResponse.json({ 
         error: "Contraseña inválida", 
-        message: "La contraseña es requerida y debe tener al menos 6 caracteres para emails no Gmail." 
+        message: "La contraseña debe tener al menos 6 caracteres." 
       }, { status: 400 });
     }
     
@@ -278,8 +282,8 @@ export async function POST(request: NextRequest) {
       hasTemporaryPassword = false;
     } else {
       // Para no-Gmail, generar contraseña temporal si no se proporcionó
-      if (password && password.length > 0) {
-        hashedPassword = await bcrypt.hash(password, 10);
+      if (normalizedPassword && normalizedPassword.length > 0) {
+        hashedPassword = await bcrypt.hash(normalizedPassword, 10);
         hasTemporaryPassword = false; // Si se proporciona contraseña, no es temporal
       } else {
         // Generar contraseña temporal aleatoria (8 caracteres alfanuméricos)
