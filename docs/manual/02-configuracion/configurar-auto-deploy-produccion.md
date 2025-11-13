@@ -7,58 +7,32 @@ Los pushes a `main` no están generando deploys automáticos a producción, aunq
 ## ✅ Checklist de Tareas
 
 ```task-checkbox
-{"taskId":"auto-deploy-1","label":"Ir a Vercel Dashboard → Settings → Git"}
+{"taskId":"auto-deploy-1","label":"Verificar que el repositorio está conectado en Settings → Git"}
 ```
 
 ```task-checkbox
-{"taskId":"auto-deploy-2","label":"Verificar que Production Branch = main"}
+{"taskId":"auto-deploy-2","label":"Verificar que los webhooks de Vercel están activos en GitHub"}
 ```
 
 ```task-checkbox
-{"taskId":"auto-deploy-3","label":"Verificar que Auto-deploy está habilitado para main"}
+{"taskId":"auto-deploy-3","label":"Verificar que el branch main existe y tiene commits recientes"}
 ```
 
 ```task-checkbox
-{"taskId":"auto-deploy-4","label":"Verificar que el repositorio está conectado correctamente"}
-```
-
-```task-checkbox
-{"taskId":"auto-deploy-5","label":"Verificar webhooks de Vercel en GitHub (Settings → Webhooks)"}
-```
-
-```task-checkbox
-{"taskId":"auto-deploy-6","label":"Hacer push de prueba a main y verificar que se crea un deployment"}
+{"taskId":"auto-deploy-4","label":"Hacer un push de prueba a main y verificar que se crea un deployment"}
 ```
 
 ---
 
-## 📍 Paso 1: Verificar Production Branch
+## 📍 Paso 1: Verificar Conexión del Repositorio
 
 1. Ve a [Vercel Dashboard](https://vercel.com/dashboard)
 2. Selecciona tu proyecto (`v0-remitero`)
 3. Ve a **Settings** → **Git**
-4. En la sección **"Production Branch"**, verifica que esté configurado como `main`
-5. Si no está configurado o está en otro branch, cámbialo a `main`
-6. Guarda los cambios
-
----
-
-## 📍 Paso 2: Verificar Auto-Deploy
-
-1. En la misma página (Settings → Git)
-2. Busca la sección **"Production Branch"** o **"Branch Protection"**
-3. Verifica que:
-   - ✅ **Production Branch** = `main`
-   - ✅ **Auto-deploy** está habilitado para `main`
-   - ❌ **Branch Protection** NO está bloqueando los deploys (a menos que quieras aprobaciones manuales)
-
----
-
-## 📍 Paso 3: Verificar Conexión del Repositorio
-
-1. En la misma página (Settings → Git)
-2. Verifica que el repositorio esté conectado correctamente
-3. Si no está conectado o parece roto:
+4. Verifica que el repositorio esté conectado:
+   - Deberías ver: `puntoindigo/remitero`
+   - Estado: **"Connected"** con fecha
+5. Si no está conectado o parece roto:
    - Haz clic en **"Disconnect"** (si está conectado)
    - Espera unos segundos
    - Haz clic en **"Connect Git Repository"**
@@ -68,7 +42,9 @@ Los pushes a `main` no están generando deploys automáticos a producción, aunq
 
 ---
 
-## 📍 Paso 4: Verificar Webhooks en GitHub
+## 📍 Paso 2: Verificar Webhooks en GitHub
+
+Los webhooks son los que notifican a Vercel cuando hay un push a `main`.
 
 1. Ve a tu repositorio en GitHub: `github.com/puntoindigo/remitero`
 2. Ve a **Settings** → **Webhooks**
@@ -85,7 +61,39 @@ Si no hay webhooks o están inactivos:
 
 ---
 
-## 📍 Paso 5: Probar con Commit Vacío
+## 📍 Paso 3: Verificar Branch Protection en GitHub
+
+Si tienes **Branch Protection** activado en GitHub para `main`, puede estar bloqueando los webhooks:
+
+1. Ve a GitHub → Tu Repositorio → **Settings** → **Branches**
+2. Busca reglas de protección para `main`
+3. Verifica que **"Restrict pushes that create files"** NO esté bloqueando webhooks
+4. O agrega una excepción para webhooks de Vercel
+
+---
+
+## 📍 Paso 4: Cómo Funciona el Auto-Deploy en Vercel
+
+En Vercel, el **branch de producción se detecta automáticamente**:
+
+- Si tu repositorio tiene un branch llamado `main` o `master`, Vercel lo usa como producción
+- Los pushes a `main` deberían generar deployments de **Production** automáticamente
+- Los pushes a otros branches (como `develop`) generan deployments de **Preview**
+
+**No hay una opción explícita de "Production Branch" en Settings → Git** porque Vercel lo detecta automáticamente.
+
+---
+
+## 📍 Paso 5: Verificar que Main es el Branch de Producción
+
+1. Ve a Vercel Dashboard → **Deployments**
+2. Busca deployments del branch `main`
+3. Verifica que tengan el badge **"Production"** (no "Preview")
+4. Si los deployments de `main` aparecen como "Preview", hay un problema de configuración
+
+---
+
+## 📍 Paso 6: Probar con Commit Vacío
 
 Si todo parece correcto pero no despliega, prueba forzar un deploy:
 
@@ -132,39 +140,47 @@ Después de aplicar las soluciones:
 
 ## ⚠️ Problemas Comunes
 
-### Problema: Branch Protection en GitHub
+### Problema: Los deployments de `main` aparecen como "Preview"
 
-Si tienes **Branch Protection** activado en GitHub para `main`, puede estar bloqueando los webhooks:
+**Causa**: Vercel no está detectando `main` como branch de producción.
 
-1. Ve a GitHub → Tu Repositorio → **Settings** → **Branches**
-2. Busca reglas de protección para `main`
-3. Verifica que **"Restrict pushes that create files"** NO esté bloqueando webhooks
-4. O agrega una excepción para webhooks de Vercel
+**Solución**:
+1. Verifica que el branch se llama exactamente `main` (no `master` ni otro nombre)
+2. Verifica que hay commits recientes en `main`
+3. Intenta desconectar y volver a conectar el repositorio en Vercel
 
-### Problema: Webhooks Rotos
+### Problema: No se crean deployments automáticamente
 
-Si los webhooks están rotos:
-1. Ve a Vercel Dashboard → Settings → Git
-2. Haz clic en **"Disconnect"**
-3. Espera unos segundos
-4. Haz clic en **"Connect Git Repository"**
-5. Selecciona tu repositorio nuevamente
-6. Esto recreará los webhooks
+**Causa**: Los webhooks no están funcionando o están bloqueados.
+
+**Solución**:
+1. Verifica los webhooks en GitHub (Settings → Webhooks)
+2. Si no hay webhooks, reconecta el repositorio en Vercel
+3. Verifica que Branch Protection no esté bloqueando webhooks
+
+### Problema: Deployments se crean pero fallan
+
+**Causa**: Problema con el build o variables de entorno.
+
+**Solución**:
+1. Ve a Vercel Dashboard → Deployments → Selecciona el deployment fallido
+2. Haz clic en **"Build Logs"** para ver el error
+3. Verifica las variables de entorno en Settings → Environment Variables
 
 ---
 
 ## 📝 Configuración Recomendada
 
-Para que funcione correctamente, la configuración debería ser:
+Para que funcione correctamente:
 
-### En Vercel Dashboard:
-- **Production Branch**: `main`
-- **Auto-deploy**: ✅ Habilitado para `main`
-- **Preview Branches**: `develop` y otros (automático)
+### En Vercel:
+- ✅ Repositorio conectado en Settings → Git
+- ✅ Webhooks activos (se crean automáticamente al conectar)
+- ✅ Branch `main` existe y tiene commits
 
 ### En GitHub:
-- **Webhooks de Vercel**: ✅ Activos
-- **Branch Protection**: No debe bloquear webhooks (o tener excepción)
+- ✅ Webhooks de Vercel activos (Settings → Webhooks)
+- ✅ Branch Protection no bloquea webhooks (o tiene excepción)
 
 ### En `vercel.json`:
 ```json
@@ -180,5 +196,14 @@ Para que funcione correctamente, la configuración debería ser:
 
 ---
 
-**Última actualización**: Noviembre 2024
+## 🎯 Resumen
 
+**Vercel detecta automáticamente `main` como branch de producción**. No hay una opción explícita en Settings → Git para configurarlo. Si los pushes a `main` no generan deployments automáticos, el problema suele ser:
+
+1. **Webhooks rotos o inactivos** → Reconectar repositorio
+2. **Branch Protection bloqueando webhooks** → Agregar excepción
+3. **Branch no se llama `main`** → Verificar nombre del branch
+
+---
+
+**Última actualización**: Noviembre 2024
