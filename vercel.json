@@ -2,11 +2,12 @@
   "git": {
     "deploymentEnabled": {
       "main": true,
-      "develop": false
+      "develop": true
     }
   },
   "github": {
-    "autoAlias": false
+    "autoAlias": false,
+    "autoDeployOnPush": true
   },
   "env": {
     "NODE_ENV": "production"
