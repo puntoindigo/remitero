@@ -350,32 +350,23 @@ async function checkAndSendNotification(
 ): Promise<void> {
   try {
     // Solo enviar notificaciones por email en producción
-    // Verificar explícitamente si estamos en producción de Vercel
-    const isVercelProduction = process.env.VERCEL_ENV === 'production';
+    // Usar la función isProduction() de env.ts para detección consistente
+    const { isProduction } = await import('./env');
     
-    // Detectar producción por URL si VERCEL_ENV no está configurado
-    const vercelUrl = process.env.VERCEL_URL || '';
-    const isProductionUrl = vercelUrl.includes('v0-remitero.vercel.app') || 
-                           vercelUrl.includes('remitero.vercel.app');
+    // Verificar explícitamente si estamos en producción
+    const isProd = isProduction();
     
-    // Detectar desarrollo por URL
-    const isDevelopmentUrl = vercelUrl.includes('remitero-dev.vercel.app') ||
-                            vercelUrl.includes('remitero-git-') ||
-                            vercelUrl.includes('-puntoindigo.vercel.app');
+    // Detectar desarrollo explícitamente
+    const { isDevelopment } = await import('./env');
+    const isDev = isDevelopment();
     
-    const isProduction = isVercelProduction || isProductionUrl;
-    const isDevelopment = isDevelopmentUrl;
-    
-    // Solo enviar emails si estamos EXPLÍCITAMENTE en producción
-    // Si es desarrollo o no podemos determinar que es producción, NO enviar
-    if (!isProduction || isDevelopment) {
+    // NO enviar emails si NO es producción O si es desarrollo
+    if (!isProd || isDev) {
       console.log('ℹ️ [checkAndSendNotification] Entorno no es producción, no se enviará email de notificación', {
         vercelEnv: process.env.VERCEL_ENV || 'not-set',
-        vercelUrl: vercelUrl || 'not-set',
-        isVercelProduction,
-        isProductionUrl,
-        isDevelopmentUrl: isDevelopment,
-        isProduction,
+        vercelUrl: process.env.VERCEL_URL || 'not-set',
+        isProduction: isProd,
+        isDevelopment: isDev,
         willSendEmail: false
       });
       return;

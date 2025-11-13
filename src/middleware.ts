@@ -12,6 +12,17 @@ export default async function middleware(req: NextRequest) {
     return NextResponse.next()
   }
 
+  // Rutas de API que requieren autenticación pero no están en el matcher
+  // Estas rutas se manejan aquí para evitar 404s
+  if (pathname.startsWith("/api/email/diagnose")) {
+    const token = await getToken({ req });
+    if (!token) {
+      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+    }
+    // Verificar que sea SUPERADMIN se hace en el endpoint mismo
+    return NextResponse.next();
+  }
+
   // Rutas de impresión - permitir acceso sin sesión (públicas para impresión)
   if (pathname.match(/\/remitos\/[^\/]+\/print/)) {
     console.log('🖨️ [MIDDLEWARE] Print route detected - allowing public access:', pathname);
