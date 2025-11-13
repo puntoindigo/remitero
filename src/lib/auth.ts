@@ -83,18 +83,48 @@ export const authOptions: NextAuthOptions = {
             return null
           }
 
+          console.log('🔐 [Credentials authorize] Buscando usuario:', {
+            email: credentials.email,
+            schema: process.env.DATABASE_SCHEMA || 'default'
+          });
+
           const { data: user, error } = await supabaseAdmin
             .from('users')
             .select('*, has_temporary_password')
             .eq('email', credentials.email)
             .single()
 
-          if (error || !user) {
+          if (error) {
+            console.error('❌ [Credentials authorize] Error buscando usuario:', {
+              error: error.message,
+              code: error.code,
+              details: error.details,
+              hint: error.hint,
+              schema: process.env.DATABASE_SCHEMA || 'default'
+            });
             return null
           }
 
+          if (!user) {
+            console.warn('⚠️ [Credentials authorize] Usuario no encontrado:', credentials.email);
+            return null
+          }
+
+          console.log('✅ [Credentials authorize] Usuario encontrado:', {
+            id: user.id,
+            email: user.email,
+            is_active: user.is_active,
+            is_active_type: typeof user.is_active,
+            role: user.role
+          });
+
           // Verificar si el usuario está activo
           if (user.is_active === false) {
+            console.error('❌ [Credentials authorize] Usuario desactivado:', {
+              id: user.id,
+              email: user.email,
+              is_active: user.is_active
+            });
             // Usuario desactivado, retornar null para que NextAuth muestre error
             // NextAuth manejará esto como credenciales inválidas
             return null
@@ -186,22 +216,45 @@ export const authOptions: NextAuthOptions = {
           console.log('🔐 [NextAuth signIn] Email encontrado:', email);
 
           // Buscar si el usuario ya existe
-          console.log('🔐 [NextAuth signIn] Buscando usuario en BD...');
+          console.log('🔐 [NextAuth signIn] Buscando usuario en BD...', {
+            email: email,
+            schema: process.env.DATABASE_SCHEMA || 'default'
+          });
           const { data: existingUser, error: findError } = await supabaseAdmin
             .from('users')
             .select('*')
             .eq('email', email)
             .single();
 
-          if (findError && findError.code !== 'PGRST116') {
-            console.error('❌ [NextAuth signIn] Error buscando usuario:', findError);
+          if (findError) {
+            if (findError.code === 'PGRST116') {
+              console.log('ℹ️ [NextAuth signIn] Usuario no existe (PGRST116), se creará uno nuevo');
+            } else {
+              console.error('❌ [NextAuth signIn] Error buscando usuario:', {
+                error: findError.message,
+                code: findError.code,
+                details: findError.details,
+                hint: findError.hint,
+                schema: process.env.DATABASE_SCHEMA || 'default'
+              });
+            }
           }
 
           if (existingUser) {
-            console.log('✅ [NextAuth signIn] Usuario existente encontrado:', existingUser.id);
+            console.log('✅ [NextAuth signIn] Usuario existente encontrado:', {
+              id: existingUser.id,
+              email: existingUser.email,
+              is_active: existingUser.is_active,
+              is_active_type: typeof existingUser.is_active,
+              role: existingUser.role
+            });
             // Verificar si el usuario está activo
             if (existingUser.is_active === false) {
-              console.error('❌ [NextAuth signIn] Usuario desactivado, denegando acceso');
+              console.error('❌ [NextAuth signIn] Usuario desactivado, denegando acceso', {
+                id: existingUser.id,
+                email: existingUser.email,
+                is_active: existingUser.is_active
+              });
               // Usuario desactivado, no permitir login
               // Retornar false para que NextAuth deniegue el acceso
               return false;
