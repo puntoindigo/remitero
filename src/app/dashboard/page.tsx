@@ -414,6 +414,33 @@ export default function DashboardPage() {
                     <card.icon className="dashboard-card-icon" />
                     {card.title}
                   </h3>
+                  {/* Mostrar total de remitos siempre visible en el header cuando está en modo gráfico */}
+                  {isRemitosCard && showChart && (
+                    <div style={{
+                      position: 'absolute',
+                      top: '0.75rem',
+                      right: '3.5rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.5rem',
+                      zIndex: 10
+                    }}>
+                      <span style={{
+                        fontSize: '1.25rem',
+                        fontWeight: 700,
+                        color: '#3b82f6'
+                      }}>
+                        {stats.remitos.total}
+                      </span>
+                      <span style={{
+                        fontSize: '0.875rem',
+                        color: '#6b7280',
+                        fontWeight: 500
+                      }}>
+                        Total
+                      </span>
+                    </div>
+                  )}
                   {/* Botón pequeño para cambiar vista en Remitos */}
                   {isRemitosCard && (
                     <button
