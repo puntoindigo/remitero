@@ -428,6 +428,16 @@ export async function POST(request: NextRequest) {
         : 'https://remitero-dev.vercel.app';
       
       console.log('📧 [Users] Intentando enviar email de invitación a:', finalEmail);
+      console.log('📧 [Users] Estado de tempPassword ANTES de procesar:', {
+        tempPasswordType: typeof tempPassword,
+        tempPasswordValue: tempPassword,
+        tempPasswordIsNull: tempPassword === null,
+        tempPasswordIsUndefined: tempPassword === undefined,
+        tempPasswordLength: tempPassword?.length || 0,
+        isGmail,
+        hasTemporaryPassword
+      });
+      
       console.log('📧 [Users] Parámetros del email:', {
         isGmail,
         hasTempPassword: !!tempPassword,
@@ -438,7 +448,14 @@ export async function POST(request: NextRequest) {
       });
       
       // Asegurar que tempPassword no sea string vacío
-      const finalTempPassword = (tempPassword && tempPassword.trim().length > 0) ? tempPassword.trim() : null;
+      const finalTempPassword = (tempPassword && typeof tempPassword === 'string' && tempPassword.trim().length > 0) ? tempPassword.trim() : null;
+      
+      console.log('📧 [Users] Estado de finalTempPassword DESPUÉS de procesar:', {
+        finalTempPasswordType: typeof finalTempPassword,
+        finalTempPasswordValue: finalTempPassword,
+        finalTempPasswordIsNull: finalTempPassword === null,
+        finalTempPasswordLength: finalTempPassword?.length || 0
+      });
       
       const emailSent = await sendInvitationEmail({
         to: finalEmail,
