@@ -339,6 +339,16 @@ export async function sendInvitationEmail({
       });
     }
 
+    // Verificar que tempPasswordHtml se haya generado correctamente ANTES de crear mailOptions
+    console.log('🔍 [Email] Estado ANTES de crear mailOptions:', {
+      tempPasswordHtmlLength: tempPasswordHtml.length,
+      tempPasswordHtmlIsEmpty: tempPasswordHtml.length === 0,
+      tempPasswordHtmlPreview: tempPasswordHtml.substring(0, 100),
+      shouldShowTempPassword,
+      hasValidTempPassword,
+      isGmail
+    });
+
     const mailOptions = {
       from: `"Sistema de Remitos" <${process.env.EMAIL_USER}>`,
       to: to,
@@ -517,9 +527,15 @@ Este es un email automático, por favor no respondas a este mensaje.
       tempPasswordHtmlLength: tempPasswordHtml.length,
       tempPasswordInHtml: tempPassword ? mailOptions.html?.includes(tempPassword.trim()) : false,
       tempPasswordInText: tempPassword ? mailOptions.text?.includes(tempPassword.trim()) : false,
+      htmlIndexOfPassword: mailOptions.html?.indexOf('Contraseña temporal') ?? -1,
+      htmlIndexOfPasswordValue: mailOptions.html?.indexOf(tempPassword?.trim() || '') ?? -1,
       htmlPreview: mailOptions.html?.indexOf('Contraseña temporal') >= 0 
         ? mailOptions.html.substring(mailOptions.html.indexOf('Contraseña temporal') - 50, mailOptions.html.indexOf('Contraseña temporal') + 200) 
-        : 'NO ENCONTRADO - tempPasswordHtml está vacío o no se insertó'
+        : 'NO ENCONTRADO - tempPasswordHtml está vacío o no se insertó',
+      htmlAroundInfoBox: mailOptions.html?.substring(
+        mailOptions.html.indexOf('Tu información de acceso') - 20,
+        mailOptions.html.indexOf('Tu información de acceso') + 500
+      ) || 'NO ENCONTRADO'
     });
     
     const info = await transporter.sendMail(mailOptions);
