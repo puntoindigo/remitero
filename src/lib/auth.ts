@@ -312,45 +312,16 @@ export const authOptions: NextAuthOptions = {
               companyId: (user as any).companyId
             });
           } else {
-            // Usuario no existe, crear uno nuevo con rol USER por defecto
-            console.log('🔐 [NextAuth signIn] Usuario no existe, creando nuevo usuario...');
-            // Nota: En producción, podrías querer redirigir a un formulario de registro
-            // o asignar automáticamente a una empresa por defecto
-            const { data: newUser, error: createError } = await supabaseAdmin
-              .from('users')
-              .insert([{
-                email: email,
-                name: user.name || email.split('@')[0],
-                password: null, // Sin contraseña para usuarios de Google (null en lugar de string vacío)
-                role: 'USER', // Rol por defecto
-                company_id: null, // Se asignará después
-                is_active: true, // Activo por defecto
-              }])
-              .select()
-              .single();
-
-            if (createError || !newUser) {
-              console.error('❌ [NextAuth signIn] Error creando usuario:', createError);
-              console.error('❌ [NextAuth signIn] Detalles del error:', {
-                code: createError?.code,
-                message: createError?.message,
-                details: createError?.details,
-                hint: createError?.hint
-              });
-              return false;
-            }
-            console.log('✅ [NextAuth signIn] Nuevo usuario creado:', newUser.id);
-
-            user.id = newUser.id;
-            (user as any).role = newUser.role;
-            (user as any).companyId = newUser.company_id;
-            (user as any).hasTemporaryPassword = false;
-            (user as any).enable_botonera = newUser.enable_botonera ?? false;
-            (user as any).enable_pinned_modals = newUser.enable_pinned_modals ?? false;
-            console.log('🔐 [NextAuth signIn] Datos asignados al nuevo user:', {
-              id: user.id,
-              role: (user as any).role
+            // Usuario no existe en la base de datos - DENEGAR ACCESO
+            // NO crear usuarios automáticamente por seguridad
+            // Los usuarios deben ser creados explícitamente por un administrador
+            console.error('❌ [NextAuth signIn] Usuario no existe en la base de datos, denegando acceso', {
+              email: email,
+              schema: process.env.DATABASE_SCHEMA || 'default',
+              reason: 'Usuario no registrado en el sistema. Debe ser creado por un administrador.'
             });
+            // Retornar false para denegar el acceso
+            return false;
           }
 
           // Obtener nombre de la empresa si el usuario tiene company_id
