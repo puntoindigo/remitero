@@ -139,6 +139,7 @@ function LoginPageContent() {
     register,
     handleSubmit,
     setValue,
+    watch,
     formState: { errors }
   } = useForm<LoginForm>({
     resolver: zodResolver(loginSchema)
