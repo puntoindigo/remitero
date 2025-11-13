@@ -64,10 +64,10 @@ export async function POST(
       role: user.role
     });
 
-    // Construir la URL de login
+    // URL base sin /auth/login - el usuario puede navegar desde ahí
     const loginUrl = process.env.NEXTAUTH_URL 
-      ? `${process.env.NEXTAUTH_URL.trim()}/auth/login`
-      : 'https://remitero-dev.vercel.app/auth/login';
+      ? process.env.NEXTAUTH_URL.trim().replace(/\/$/, '')
+      : 'https://remitero-dev.vercel.app';
 
     // Detectar si es Gmail
     const isGmail = user.email.toLowerCase().endsWith('@gmail.com') || user.email.toLowerCase().endsWith('@googlemail.com');

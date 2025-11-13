@@ -258,7 +258,9 @@ export async function sendInvitationEmail({
     loginUrl,
     isGmail,
     hasTempPassword: !!tempPassword,
-    willShowPassword: !isGmail && !!tempPassword
+    tempPasswordValue: tempPassword ? `${tempPassword.substring(0, 2)}***` : null,
+    willShowPassword: !isGmail && !!tempPassword,
+    conditionCheck: `!isGmail=${!isGmail}, tempPassword=${!!tempPassword}, result=${!isGmail && !!tempPassword}`
   });
 
   try {
@@ -401,7 +403,11 @@ export async function sendInvitationEmail({
                 <p><strong>Tu información de acceso:</strong></p>
                 <p><strong>Email:</strong> ${userEmail}</p>
                 <p><strong>Rol:</strong> ${roleName}</p>
-                ${!isGmail && tempPassword ? `<p><strong>Contraseña temporal:</strong> <span style="background-color: #fef3c7; padding: 4px 8px; border-radius: 4px; font-family: monospace; font-weight: bold; color: #92400e;">${tempPassword}</span></p><p style="font-size: 0.875rem; color: #ef4444; margin-top: 0.5rem;"><strong>⚠️ IMPORTANTE:</strong> Esta es una contraseña temporal. Deberás cambiarla al primer acceso.</p>` : ''}
+                ${!isGmail && tempPassword ? `
+                <p style="margin-top: 15px;"><strong>Contraseña temporal:</strong></p>
+                <p style="background-color: #fef3c7; padding: 8px 12px; border-radius: 4px; font-family: 'Courier New', monospace; font-weight: bold; font-size: 16px; color: #92400e; letter-spacing: 2px; text-align: center; border: 2px solid #f59e0b;">${tempPassword}</p>
+                <p style="font-size: 0.875rem; color: #ef4444; margin-top: 10px; font-weight: bold;">⚠️ IMPORTANTE: Esta es una contraseña temporal. Deberás cambiarla al primer acceso.</p>
+                ` : ''}
               </div>
               
               <div style="text-align: center; margin: 30px 0;">

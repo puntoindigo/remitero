@@ -419,9 +419,10 @@ export async function POST(request: NextRequest) {
 
     // Enviar email de invitación al nuevo usuario
     try {
+      // URL base sin /auth/login - el usuario puede navegar desde ahí
       const loginUrl = process.env.NEXTAUTH_URL 
-        ? `${process.env.NEXTAUTH_URL.replace(/\/$/, '')}/auth/login`
-        : 'https://remitero-dev.vercel.app/auth/login';
+        ? process.env.NEXTAUTH_URL.replace(/\/$/, '')
+        : 'https://remitero-dev.vercel.app';
       
       console.log('📧 [Users] Intentando enviar email de invitación a:', finalEmail);
       console.log('📧 [Users] Parámetros del email:', {
