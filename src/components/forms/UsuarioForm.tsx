@@ -9,6 +9,7 @@ import { FormModal } from "@/components/common/FormModal";
 import { PasswordGeneratorModal } from "@/components/common/PasswordGeneratorModal";
 import { useColorTheme } from "@/contexts/ColorThemeContext";
 import { Key } from "lucide-react";
+import { useIsDevelopment } from "@/hooks/useIsDevelopment";
 
 // Función para detectar si es email de Google
 const isGmailEmail = (email: string): boolean => {
@@ -112,6 +113,7 @@ export function UsuarioForm({
   const { colors } = useColorTheme();
   const { data: session } = useSession();
   const [showPasswordGenerator, setShowPasswordGenerator] = React.useState(false);
+  const isDevelopment = useIsDevelopment();
   
   const {
     register,
@@ -551,7 +553,7 @@ export function UsuarioForm({
       )}
 
       {/* Toggle para habilitar botonera (solo en desarrollo y para el usuario actual) */}
-      {isCurrentUser && process.env.NODE_ENV === 'development' && (
+      {isCurrentUser && isDevelopment && (
         <div className="form-row">
           <div className="form-group" style={{ flex: 1 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>

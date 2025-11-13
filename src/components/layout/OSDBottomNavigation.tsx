@@ -50,7 +50,9 @@ export function OSDBottomNavigation() {
     (session?.user as any)?.enable_botonera ?? false
   );
   const [lastEventValue, setLastEventValue] = useState<boolean | null>(null);
-  const isDevelopment = process.env.NODE_ENV === 'development';
+  const isDevelopment = typeof window !== 'undefined' 
+    ? (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname.includes('remitero-dev'))
+    : (process.env.VERCEL_ENV !== 'production' || (process.env.VERCEL_URL || '').includes('remitero-dev'));
   
   // Escuchar eventos de actualización de botonera PRIMERO (prioridad)
   useEffect(() => {

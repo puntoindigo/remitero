@@ -7,6 +7,7 @@ import { ThemeSelector } from '@/components/common/ThemeSelector';
 import { useColorTheme } from '@/contexts/ColorThemeContext';
 import { User, Palette, Settings, Shield, X, Pin, Bell } from 'lucide-react';
 import { NotificationPreferences } from '@/components/common/NotificationPreferences';
+import { useIsDevelopment } from '@/hooks/useIsDevelopment';
 
 interface ConfiguracionModalProps {
   isOpen: boolean;
@@ -18,6 +19,7 @@ export function ConfiguracionModal({ isOpen, onClose }: ConfiguracionModalProps)
   const { currentTheme, themeConfig, setTheme } = useTheme();
   const { colors } = useColorTheme();
   const [enableBotonera, setEnableBotonera] = useState(false);
+  const isDevelopment = useIsDevelopment();
   const [enablePinnedModals, setEnablePinnedModals] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -258,7 +260,7 @@ export function ConfiguracionModal({ isOpen, onClose }: ConfiguracionModalProps)
           )}
 
           {/* Botonera (solo desarrollo) */}
-          {process.env.NODE_ENV === 'development' && (
+          {isDevelopment && (
             <div style={{ marginBottom: '1rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
                 <Settings className="h-4 w-4" style={{ color: colors.primary }} />

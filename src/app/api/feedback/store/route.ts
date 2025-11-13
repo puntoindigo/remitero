@@ -28,7 +28,8 @@ export async function POST(request: NextRequest) {
     console.error('🐛 ERROR REPORT:', JSON.stringify(reportWithId, null, 2));
     
     // Intentar guardar en archivo JSON solo si estamos en desarrollo
-    if (process.env.NODE_ENV === 'development') {
+    const isDev = !process.env.VERCEL_URL || process.env.VERCEL_ENV !== 'production';
+    if (isDev) {
       try {
         await saveReport(reportWithId);
       } catch (fileError) {

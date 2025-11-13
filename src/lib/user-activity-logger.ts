@@ -2,6 +2,7 @@ import { supabaseAdmin } from "./supabase";
 import type { ActivityAction, ActivityLogMetadata, ActivityLog } from "./user-activity-types";
 import { getActionDescription } from "./user-activity-types";
 import { sendActivityNotificationEmail } from "./notification-email";
+import { isDevelopment } from "./env";
 
 // Re-exportar tipos para compatibilidad
 export type { ActivityAction, ActivityLogMetadata, ActivityLog };
@@ -117,8 +118,8 @@ export async function getLastUserActivity(userId: string): Promise<ActivityLog |
       if (error.code === 'PGRST116') {
         return null;
       }
-      // Solo loggear errores reales
-      if (process.env.NODE_ENV === 'development') {
+      // Solo loggear errores reales en desarrollo
+      if (isDevelopment()) {
         console.error('❌ [getLastUserActivity] Supabase error:', {
           error: error.message,
           code: error.code,
@@ -130,7 +131,7 @@ export async function getLastUserActivity(userId: string): Promise<ActivityLog |
 
     return data as ActivityLog;
   } catch (error) {
-    if (process.env.NODE_ENV === 'development') {
+    if (isDevelopment()) {
       console.error('❌ [getLastUserActivity] Exception:', error);
     }
     return null;
@@ -157,7 +158,7 @@ export async function getLastUserActivitiesForUsers(userIds: string[]): Promise<
       .order('created_at', { ascending: false });
 
     if (error) {
-      if (process.env.NODE_ENV === 'development') {
+      if (isDevelopment()) {
         console.error('❌ [getLastUserActivitiesForUsers] Supabase error:', error);
       }
       // Retornar mapa vacío en caso de error
@@ -188,7 +189,7 @@ export async function getLastUserActivitiesForUsers(userIds: string[]): Promise<
 
     return activitiesMap;
   } catch (error) {
-    if (process.env.NODE_ENV === 'development') {
+    if (isDevelopment()) {
       console.error('❌ [getLastUserActivitiesForUsers] Exception:', error);
     }
     return new Map();

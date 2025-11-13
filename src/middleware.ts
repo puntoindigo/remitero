@@ -34,7 +34,8 @@ export default async function middleware(req: NextRequest) {
       const loginUrl = new URL("/auth/login", req.url);
       
       // En desarrollo, verificar y corregir el puerto si es necesario
-      if (process.env.NODE_ENV === "development" && process.env.NEXTAUTH_URL) {
+      const isDev = !process.env.VERCEL_URL || process.env.VERCEL_ENV !== 'production';
+      if (isDev && process.env.NEXTAUTH_URL) {
         try {
           const nextAuthUrlObj = new URL(process.env.NEXTAUTH_URL);
           const reqUrlObj = new URL(req.url);

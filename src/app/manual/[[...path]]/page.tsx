@@ -70,7 +70,7 @@ export default async function ManualPathPage({ params }: ManualPathPageProps) {
           <p className="text-gray-600 dark:text-gray-400 mb-4">
             {error instanceof Error ? error.message : 'Error desconocido'}
           </p>
-          {process.env.NODE_ENV === 'development' && (
+          {(!process.env.VERCEL_URL || process.env.VERCEL_ENV !== 'production') && (
             <pre className="mt-4 text-left text-xs sm:text-sm bg-gray-100 dark:bg-gray-800 p-4 rounded overflow-auto">
               {error instanceof Error ? error.stack : String(error)}
             </pre>
