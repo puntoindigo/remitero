@@ -64,10 +64,10 @@ export async function POST(
       role: user.role
     });
 
-    // URL base sin /auth/login - el usuario puede navegar desde ahí
+    // URL directa a login para usuarios no-Google
     const loginUrl = process.env.NEXTAUTH_URL 
-      ? process.env.NEXTAUTH_URL.trim().replace(/\/$/, '')
-      : 'https://remitero-dev.vercel.app';
+      ? `${process.env.NEXTAUTH_URL.trim().replace(/\/$/, '')}/auth/login`
+      : 'https://remitero-dev.vercel.app/auth/login';
 
     // Detectar si es Gmail
     const isGmail = user.email.toLowerCase().endsWith('@gmail.com') || user.email.toLowerCase().endsWith('@googlemail.com');
