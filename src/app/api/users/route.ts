@@ -280,18 +280,31 @@ export async function POST(request: NextRequest) {
       // Gmail no necesita contraseña
       hashedPassword = null;
       hasTemporaryPassword = false;
+      tempPassword = null; // Gmail no tiene contraseña temporal
     } else {
-      // Para no-Gmail, generar contraseña temporal si no se proporcionó
+      // Para no-Gmail, SIEMPRE usar contraseña temporal
+      // Si se proporciona contraseña, usarla pero marcarla como temporal
+      // Si NO se proporciona, generar una automáticamente
       if (normalizedPassword && normalizedPassword.length > 0) {
+        // Usuario proporcionó contraseña - usarla pero marcarla como temporal
+        tempPassword = normalizedPassword; // Guardar la contraseña para incluirla en el email
         hashedPassword = await bcrypt.hash(normalizedPassword, 10);
-        hasTemporaryPassword = false; // Si se proporciona contraseña, no es temporal
+        hasTemporaryPassword = true; // SIEMPRE temporal para no-Gmail
+        console.log('🔑 [Users] Contraseña proporcionada por usuario (será temporal):', {
+          email: finalEmail,
+          isGmail: false,
+          hasTempPassword: !!tempPassword,
+          tempPasswordLength: tempPassword?.length,
+          tempPasswordValue: tempPassword ? `${tempPassword.substring(0, 2)}***` : null,
+          tempPasswordFull: tempPassword // Log completo para debug (solo en servidor)
+        });
       } else {
         // Generar contraseña temporal aleatoria (8 caracteres alfanuméricos)
         const crypto = await import('crypto');
         tempPassword = crypto.randomBytes(4).toString('hex');
         hashedPassword = await bcrypt.hash(tempPassword, 10);
         hasTemporaryPassword = true;
-        console.log('🔑 [Users] Contraseña temporal generada para usuario no-Gmail:', {
+        console.log('🔑 [Users] Contraseña temporal generada automáticamente para usuario no-Gmail:', {
           email: finalEmail,
           isGmail: false,
           hasTempPassword: !!tempPassword,
