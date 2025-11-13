@@ -814,7 +814,8 @@ function LoginPageContent() {
             </label>
             </div>
             {/* Mostrar "Olvidé mi contraseña" solo para no-Gmail */}
-            {(() => {
+            {loginMethod === "email" && (() => {
+              // Solo mostrar si estamos en el método de email
               const emailValue = watch("email");
               const isGmail = emailValue && (
                 emailValue.toLowerCase().endsWith('@gmail.com') || 

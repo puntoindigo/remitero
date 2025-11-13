@@ -385,13 +385,13 @@ export async function sendInvitationEmail({
                 ${!isGmail && tempPassword ? `<p><strong>Contraseña temporal:</strong> <span style="background-color: #fef3c7; padding: 4px 8px; border-radius: 4px; font-family: monospace; font-weight: bold; color: #92400e;">${tempPassword}</span></p><p style="font-size: 0.875rem; color: #ef4444; margin-top: 0.5rem;"><strong>⚠️ IMPORTANTE:</strong> Esta es una contraseña temporal. Deberás cambiarla al primer acceso.</p>` : ''}
               </div>
               
-              <div style="text-align: left; margin: 20px 0;">
-                <a href="${loginUrl}" style="display: inline-block; background-color: #2563eb; color: #ffffff !important; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: 600; margin: 20px 0;">Acceder al Sistema</a>
+              <div style="text-align: center; margin: 30px 0;">
+                <a href="${loginUrl}" style="display: inline-block; background-color: #2563eb; color: #ffffff !important; text-decoration: none; padding: 14px 28px; border-radius: 8px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 6px rgba(37, 99, 235, 0.3); transition: all 0.2s;">Acceder al Sistema</a>
               </div>
               
-              <p style="margin-top: 15px; font-size: 14px; color: #6b7280;">
-                O copia y pega este enlace en tu navegador:<br>
-                <a href="${loginUrl}" style="color: #2563eb; word-break: break-all; text-decoration: underline;">${loginUrl}</a>
+              <p style="margin-top: 20px; font-size: 13px; color: #6b7280; text-align: center;">
+                Si el botón no funciona, copia y pega este enlace en tu navegador:<br>
+                <a href="${loginUrl}" style="color: #2563eb; word-break: break-all; text-decoration: underline; font-size: 12px;">${loginUrl}</a>
               </p>
               
               <p style="margin-top: 30px;">
@@ -419,7 +419,10 @@ Tu información de acceso:
 - Rol: ${roleName}
 ${!isGmail && tempPassword ? `- Contraseña temporal: ${tempPassword}\n\n⚠️ IMPORTANTE: Esta es una contraseña temporal. Deberás cambiarla al primer acceso.` : ''}
 
-Accede aquí: ${loginUrl}
+Accede al sistema aquí:
+${loginUrl}
+
+Si el enlace no funciona, copia y pega la URL completa en tu navegador.
 
 Si tienes alguna pregunta o necesitas ayuda, no dudes en contactar al administrador del sistema.
 
