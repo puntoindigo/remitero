@@ -246,20 +246,40 @@ export const authOptions: NextAuthOptions = {
               email: existingUser.email,
               is_active: existingUser.is_active,
               is_active_type: typeof existingUser.is_active,
-              role: existingUser.role
+              is_active_null: existingUser.is_active === null,
+              is_active_undefined: existingUser.is_active === undefined,
+              is_active_false: existingUser.is_active === false,
+              is_active_true: existingUser.is_active === true,
+              role: existingUser.role,
+              schema: process.env.DATABASE_SCHEMA || 'default'
             });
             // Verificar si el usuario está activo
+            // IMPORTANTE: is_active puede ser null, undefined, false, o true
+            // Solo rechazar si es explícitamente false
             if (existingUser.is_active === false) {
               console.error('❌ [NextAuth signIn] Usuario desactivado, denegando acceso', {
                 id: existingUser.id,
                 email: existingUser.email,
-                is_active: existingUser.is_active
+                is_active: existingUser.is_active,
+                is_active_type: typeof existingUser.is_active,
+                schema: process.env.DATABASE_SCHEMA || 'default'
               });
               // Usuario desactivado, no permitir login
               // Retornar false para que NextAuth deniegue el acceso
               return false;
             }
-            console.log('✅ [NextAuth signIn] Usuario está activo');
+            
+            // Si is_active es null o undefined, tratarlo como activo (comportamiento por defecto)
+            if (existingUser.is_active === null || existingUser.is_active === undefined) {
+              console.warn('⚠️ [NextAuth signIn] is_active es null/undefined, tratando como activo', {
+                id: existingUser.id,
+                email: existingUser.email,
+                is_active: existingUser.is_active,
+                schema: process.env.DATABASE_SCHEMA || 'default'
+              });
+            }
+            
+            console.log('✅ [NextAuth signIn] Usuario está activo (o null/undefined = activo por defecto)');
 
             // Usuario existe y está activo, actualizar información si es necesario
             console.log('🔐 [NextAuth signIn] Actualizando información del usuario...');
@@ -359,15 +379,15 @@ export const authOptions: NextAuthOptions = {
           console.log('✅ [NextAuth signIn] Login con Google exitoso, retornando true');
           return true;
         } catch (error: any) {
-          console.error('❌ [NextAuth signIn] Error en callback de Google:', error);
-          // Log más detallado para debugging
-          if (error?.message) {
-            console.error('❌ [NextAuth signIn] Error message:', error.message);
-          }
-          if (error?.stack) {
-            console.error('❌ [NextAuth signIn] Error stack:', error.stack);
-          }
-          console.error('❌ [NextAuth signIn] Retornando false - acceso denegado');
+          console.error('❌ [NextAuth signIn] Error en callback de Google:', {
+            error: error,
+            message: error?.message,
+            stack: error?.stack,
+            code: error?.code,
+            details: error?.details,
+            schema: process.env.DATABASE_SCHEMA || 'default'
+          });
+          console.error('❌ [NextAuth signIn] Retornando false - acceso denegado por excepción');
           return false;
         }
       }
