@@ -21,20 +21,44 @@ function getDatabaseSchema(): string {
   // Verificar explícitamente si estamos en producción de Vercel
   const isVercelProduction = process.env.VERCEL_ENV === 'production';
   
-  // Si hay DATABASE_SCHEMA explícito, usarlo (pero solo si NO es producción)
-  // Esto permite override en preview/development, pero nunca en producción
-  if (!isVercelProduction && process.env.DATABASE_SCHEMA) {
+  // Detectar producción por URL si VERCEL_ENV no está configurado
+  // URLs de producción conocidas
+  const vercelUrl = process.env.VERCEL_URL || '';
+  const isProductionUrl = vercelUrl.includes('v0-remitero.vercel.app') || 
+                          vercelUrl.includes('remitero.vercel.app') ||
+                          (process.env.NEXT_PUBLIC_VERCEL_URL && 
+                           (process.env.NEXT_PUBLIC_VERCEL_URL.includes('v0-remitero') || 
+                            process.env.NEXT_PUBLIC_VERCEL_URL.includes('remitero.vercel.app')));
+  
+  // Detectar desarrollo por URL
+  const isDevelopmentUrl = vercelUrl.includes('remitero-dev.vercel.app') ||
+                           vercelUrl.includes('remitero-git-') ||
+                           vercelUrl.includes('-puntoindigo.vercel.app');
+  
+  // Si hay DATABASE_SCHEMA explícito, usarlo (pero validar según entorno)
+  if (process.env.DATABASE_SCHEMA) {
     const explicitSchema = process.env.DATABASE_SCHEMA.trim().toLowerCase();
-    // Validar que no sea 'public' en desarrollo (seguridad)
-    if (explicitSchema === 'public') {
+    
+    // Si es producción (por VERCEL_ENV o URL), forzar 'public' y ignorar DATABASE_SCHEMA
+    if (isVercelProduction || isProductionUrl) {
+      if (explicitSchema !== 'public') {
+        console.warn('⚠️ [Supabase] DATABASE_SCHEMA configurado como', explicitSchema, 'pero estamos en producción. Usando "public".');
+      }
+      return 'public';
+    }
+    
+    // Si es desarrollo y alguien configuró 'public', rechazarlo por seguridad
+    if (explicitSchema === 'public' && (isDevelopmentUrl || !isVercelProduction)) {
       console.error('❌ [Supabase] ERROR: DATABASE_SCHEMA=public en entorno no-producción. Usando "dev" por seguridad.');
       return 'dev';
     }
+    
+    // Usar el schema explícito si no es producción
     return explicitSchema;
   }
   
-  // En producción de Vercel, usar SIEMPRE 'public'
-  if (isVercelProduction) {
+  // En producción de Vercel (por VERCEL_ENV o URL), usar SIEMPRE 'public'
+  if (isVercelProduction || isProductionUrl) {
     return 'public';
   }
   
@@ -45,12 +69,19 @@ function getDatabaseSchema(): string {
 const databaseSchema = getDatabaseSchema();
 
 // Log del schema usado (SIEMPRE, para debugging en todos los entornos)
+const vercelUrl = process.env.VERCEL_URL || 'not-set';
+const isProductionUrl = vercelUrl.includes('v0-remitero') || vercelUrl.includes('remitero.vercel.app');
+const isDevelopmentUrl = vercelUrl.includes('remitero-dev');
+
 console.log('🗄️ [Supabase] Schema detectado:', databaseSchema, {
   vercelEnv: process.env.VERCEL_ENV || 'not-set',
   databaseSchemaEnv: process.env.DATABASE_SCHEMA || 'not-set',
-  vercelUrl: process.env.VERCEL_URL || 'not-set',
-  isProduction: process.env.VERCEL_ENV === 'production',
+  vercelUrl: vercelUrl,
+  isProductionByEnv: process.env.VERCEL_ENV === 'production',
+  isProductionByUrl: isProductionUrl,
+  isDevelopmentByUrl: isDevelopmentUrl,
   nodeEnv: process.env.NODE_ENV || 'not-set',
+  finalSchema: databaseSchema,
 });
 
 // Advertencia crítica si estamos usando 'public' en desarrollo
