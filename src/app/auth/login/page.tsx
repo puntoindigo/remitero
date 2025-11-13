@@ -9,6 +9,7 @@ import { z } from "zod"
 import { useColorTheme, ColorTheme, THEME_CONFIGS } from "@/contexts/ColorThemeContext"
 import ColorThemeSelector from "@/components/common/ColorThemeSelector"
 import { ForgotPasswordModal } from "@/components/common/ForgotPasswordModal"
+import { useIsDevelopment } from "@/hooks/useIsDevelopment"
 
 const loginSchema = z.object({
   email: z.string().email("Email inválido"),
@@ -29,6 +30,19 @@ function LoginPageContent() {
   const { theme, colors, setTheme } = useColorTheme()
   const router = useRouter()
   const searchParams = useSearchParams()
+  const isDev = useIsDevelopment()
+  
+  // Log del entorno al cargar la página
+  useEffect(() => {
+    const hostname = window.location.hostname
+    const environment = isDev ? 'DEVELOPMENT' : 'PRODUCTION'
+    console.log('🌍 [Login] Entorno detectado:', {
+      environment,
+      hostname,
+      isDevelopment: isDev,
+      url: window.location.href
+    })
+  }, [isDev])
 
   // Verificar si hay errores en la URL
   useEffect(() => {
