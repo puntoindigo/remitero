@@ -257,10 +257,14 @@ export async function sendInvitationEmail({
     role,
     loginUrl,
     isGmail,
+    isGmailType: typeof isGmail,
     hasTempPassword: !!tempPassword,
+    tempPasswordType: typeof tempPassword,
     tempPasswordValue: tempPassword ? `${tempPassword.substring(0, 2)}***` : null,
+    tempPasswordFull: tempPassword, // Log completo para debug
+    tempPasswordLength: tempPassword?.length || 0,
     willShowPassword: !isGmail && !!tempPassword,
-    conditionCheck: `!isGmail=${!isGmail}, tempPassword=${!!tempPassword}, result=${!isGmail && !!tempPassword}`
+    conditionCheck: `!isGmail=${!isGmail}, tempPassword=${!!tempPassword}, tempPassword.trim().length=${tempPassword?.trim().length || 0}, result=${!isGmail && !!tempPassword && tempPassword.trim().length > 0}`
   });
 
   try {
@@ -486,8 +490,13 @@ Este es un email automático, por favor no respondas a este mensaje.
       hasText: !!mailOptions.text,
       isGmail,
       hasTempPassword: !!tempPassword,
+      tempPasswordValue: tempPassword ? `${tempPassword.substring(0, 2)}***` : null,
+      tempPasswordFull: tempPassword, // Log completo para debug
+      shouldShowTempPassword,
+      tempPasswordHtmlLength: tempPasswordHtml.length,
       tempPasswordInHtml: mailOptions.html?.includes(tempPassword || ''),
-      tempPasswordInText: mailOptions.text?.includes(tempPassword || '')
+      tempPasswordInText: mailOptions.text?.includes(tempPassword || ''),
+      htmlPreview: mailOptions.html?.substring(mailOptions.html.indexOf('Contraseña temporal') - 50, mailOptions.html.indexOf('Contraseña temporal') + 200) || 'NO ENCONTRADO'
     });
     
     const info = await transporter.sendMail(mailOptions);
