@@ -7,6 +7,21 @@ const handler = NextAuth(authOptions)
 // Agregar logging para debugging
 const wrappedHandler = async (req: any, context: any) => {
   try {
+    // Log detallado del request
+    const url = req?.url || '';
+    const pathname = url.includes('/callback') ? '/api/auth/callback/google' : 
+                     url.includes('/signin') ? '/api/auth/signin/google' :
+                     url.includes('/session') ? '/api/auth/session' : url;
+    
+    if (pathname.includes('/callback')) {
+      console.log('🔄 [NextAuth Callback] Iniciando callback de Google OAuth', {
+        url: url,
+        pathname: pathname,
+        hasCode: url.includes('code='),
+        hasError: url.includes('error='),
+        schema: process.env.DATABASE_SCHEMA || 'default'
+      });
+    }
     // Manejar diferentes formatos de URL que puede recibir NextAuth
     let url: string = '';
     let pathname: string = '';

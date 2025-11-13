@@ -184,7 +184,7 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async signIn({ user, account, profile }) {
-      console.log('🔐 [NextAuth signIn] Iniciado', { 
+      console.log('🔐 [NextAuth signIn] CALLBACK EJECUTADO', { 
         provider: account?.provider, 
         email: user.email,
         hasAccount: !!account,
@@ -192,7 +192,9 @@ export const authOptions: NextAuthOptions = {
         accountType: account?.type,
         accountProviderAccountId: account?.providerAccountId,
         accountAccessToken: account?.access_token ? 'PRESENTE' : 'NO PRESENTE',
-        accountIdToken: account?.id_token ? 'PRESENTE' : 'NO PRESENTE'
+        accountIdToken: account?.id_token ? 'PRESENTE' : 'NO PRESENTE',
+        schema: process.env.DATABASE_SCHEMA || 'default',
+        timestamp: new Date().toISOString()
       });
       
       // Si es login con Google, verificar o crear usuario en la BD
