@@ -350,31 +350,19 @@ async function checkAndSendNotification(
 ): Promise<void> {
   try {
     // Solo enviar notificaciones por email en producción
-    // Usar la función isProduction() de env.ts para detección consistente
-    const { isProduction, isDevelopment } = await import('./env');
+    // Usar SOLO VERCEL_ENV para determinar el entorno
+    // VERCEL_ENV === 'production' → producción (enviar emails)
+    // Cualquier otro caso → desarrollo (NO enviar emails)
+    const vercelEnv = process.env.VERCEL_ENV;
+    const isProduction = vercelEnv === 'production';
     
-    // Verificar explícitamente si estamos en desarrollo PRIMERO (más estricto)
-    const isDev = isDevelopment();
-    
-    // Verificar explícitamente si estamos en producción
-    const isProd = isProduction();
-    
-    // Obtener URLs para logging
-    const vercelUrl = process.env.VERCEL_URL || 'not-set';
-    const nextAuthUrl = process.env.NEXTAUTH_URL || 'not-set';
-    const vercelEnv = process.env.VERCEL_ENV || 'not-set';
-    
-    // NO enviar emails si es desarrollo O si NO es producción
-    // Priorizar detección de desarrollo sobre producción
-    if (isDev || !isProd) {
+    // NO enviar emails si NO es producción explícita
+    if (!isProduction) {
       console.log('ℹ️ [checkAndSendNotification] Entorno no es producción, no se enviará email de notificación', {
-        vercelEnv,
-        vercelUrl,
-        nextAuthUrl,
-        isProduction: isProd,
-        isDevelopment: isDev,
+        vercelEnv: vercelEnv || 'not-set',
+        isProduction: false,
         willSendEmail: false,
-        reason: isDev ? 'Es desarrollo' : 'No es producción'
+        reason: 'VERCEL_ENV no es "production"'
       });
       return;
     }

@@ -19,10 +19,6 @@ export function isDevelopment(): boolean {
     if (hostname === 'localhost' || hostname === '127.0.0.1') {
       return true;
     }
-    // Cliente: verificar si es remitero-dev
-    if (hostname.includes('remitero-dev.vercel.app')) {
-      return true;
-    }
   } else {
     // Servidor: verificar variables de entorno
     // Localhost en servidor
@@ -31,40 +27,18 @@ export function isDevelopment(): boolean {
     }
   }
 
-  // En Vercel, verificar VERCEL_ENV primero (más confiable)
+  // En Vercel, usar SOLO VERCEL_ENV para determinar el entorno
+  // VERCEL_ENV === 'production' → producción
+  // VERCEL_ENV no existe, es 'preview', 'development', o cualquier otro valor → desarrollo
   const vercelEnv = process.env.VERCEL_ENV;
-  if (vercelEnv === 'preview' || vercelEnv === 'development') {
-    return true;
-  }
+  
+  // Solo es producción si VERCEL_ENV está explícitamente configurado como 'production'
   if (vercelEnv === 'production') {
     return false;
   }
-
-  // Si VERCEL_ENV no está configurado, verificar por URL (VERCEL_URL y NEXTAUTH_URL)
-  const vercelUrl = process.env.VERCEL_URL || '';
-  const nextAuthUrl = process.env.NEXTAUTH_URL || '';
   
-  // Verificar si alguna URL indica desarrollo
-  const isDevelopmentUrl = vercelUrl.includes('remitero-dev.vercel.app') ||
-                          vercelUrl.includes('remitero-git-') ||
-                          vercelUrl.includes('-puntoindigo.vercel.app') ||
-                          nextAuthUrl.includes('remitero-dev.vercel.app');
-  
-  if (isDevelopmentUrl) {
-    return true;
-  }
-
-  // Verificar explícitamente si es producción por URL
-  const isProductionUrl = vercelUrl.includes('v0-remitero.vercel.app') ||
-                         vercelUrl.includes('remitero.vercel.app') ||
-                         nextAuthUrl.includes('v0-remitero.vercel.app');
-  
-  if (isProductionUrl) {
-    return false;
-  }
-
-  // Si no podemos determinar, asumir producción (más seguro)
-  return false;
+  // Cualquier otro caso (no existe, preview, development, etc.) es desarrollo
+  return true;
 }
 
 /**
