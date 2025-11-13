@@ -462,7 +462,11 @@ Este es un email automático, por favor no respondas a este mensaje.
       to: mailOptions.to,
       subject: mailOptions.subject,
       hasHtml: !!mailOptions.html,
-      hasText: !!mailOptions.text
+      hasText: !!mailOptions.text,
+      isGmail,
+      hasTempPassword: !!tempPassword,
+      tempPasswordInHtml: mailOptions.html?.includes(tempPassword || ''),
+      tempPasswordInText: mailOptions.text?.includes(tempPassword || '')
     });
     
     const info = await transporter.sendMail(mailOptions);
