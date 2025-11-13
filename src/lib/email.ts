@@ -255,7 +255,10 @@ export async function sendInvitationEmail({
     userName,
     userEmail,
     role,
-    loginUrl
+    loginUrl,
+    isGmail,
+    hasTempPassword: !!tempPassword,
+    willShowPassword: !isGmail && !!tempPassword
   });
 
   try {
@@ -379,7 +382,7 @@ export async function sendInvitationEmail({
                 <p><strong>Tu información de acceso:</strong></p>
                 <p><strong>Email:</strong> ${userEmail}</p>
                 <p><strong>Rol:</strong> ${roleName}</p>
-                ${!isGmail && tempPassword ? `<p><strong>Contraseña temporal:</strong> ${tempPassword}</p><p style="font-size: 0.875rem; color: #ef4444; margin-top: 0.5rem;"><strong>⚠️ IMPORTANTE:</strong> Esta es una contraseña temporal. Deberás cambiarla al primer acceso.</p>` : ''}
+                ${!isGmail && tempPassword ? `<p><strong>Contraseña temporal:</strong> <span style="background-color: #fef3c7; padding: 4px 8px; border-radius: 4px; font-family: monospace; font-weight: bold; color: #92400e;">${tempPassword}</span></p><p style="font-size: 0.875rem; color: #ef4444; margin-top: 0.5rem;"><strong>⚠️ IMPORTANTE:</strong> Esta es una contraseña temporal. Deberás cambiarla al primer acceso.</p>` : ''}
               </div>
               
               <div style="text-align: left; margin: 20px 0;">

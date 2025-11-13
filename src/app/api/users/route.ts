@@ -287,6 +287,11 @@ export async function POST(request: NextRequest) {
         tempPassword = crypto.randomBytes(4).toString('hex');
         hashedPassword = await bcrypt.hash(tempPassword, 10);
         hasTemporaryPassword = true;
+        console.log('🔑 [Users] Contraseña temporal generada para usuario no-Gmail:', {
+          email: finalEmail,
+          hasTempPassword: !!tempPassword,
+          tempPasswordLength: tempPassword?.length
+        });
       }
     }
 
@@ -415,6 +420,11 @@ export async function POST(request: NextRequest) {
         : 'https://remitero-dev.vercel.app/auth/login';
       
       console.log('📧 [Users] Intentando enviar email de invitación a:', finalEmail);
+      console.log('📧 [Users] Parámetros del email:', {
+        isGmail,
+        hasTempPassword: !!tempPassword,
+        tempPassword: tempPassword ? '***' : null
+      });
       
       const emailSent = await sendInvitationEmail({
         to: finalEmail,
