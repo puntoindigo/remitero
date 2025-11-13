@@ -34,15 +34,33 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No puedes impersonar tu propia cuenta' }, { status: 400 });
     }
 
-    // Obtener datos del usuario objetivo
+    // Obtener datos del usuario objetivo sin JOIN automático
     const { data: targetUser, error: userError } = await supabase
       .from('users')
-      .select('id, name, email, role, company_id, companies(name)')
+      .select('id, name, email, role, company_id')
       .eq('id', targetUserId)
       .single();
 
     if (userError || !targetUser) {
       return NextResponse.json({ error: 'Usuario no encontrado' }, { status: 404 });
+    }
+
+    // Obtener empresa si el usuario tiene company_id
+    let companyName = null;
+    if (targetUser.company_id) {
+      try {
+        const { data: company } = await supabase
+          .from('companies')
+          .select('name')
+          .eq('id', targetUser.company_id)
+          .single();
+        
+        if (company) {
+          companyName = company.name;
+        }
+      } catch (companyError) {
+        console.warn('⚠️ [Impersonate] Error obteniendo empresa (no crítico):', companyError);
+      }
     }
 
     // Crear sesión de impersonation
@@ -53,7 +71,7 @@ export async function POST(request: NextRequest) {
         email: targetUser.email,
         role: targetUser.role,
         companyId: targetUser.company_id,
-        companyName: targetUser.companies?.name || null,
+        companyName: companyName,
         // Guardar datos del admin original
         originalAdmin: {
           id: session.user.id,

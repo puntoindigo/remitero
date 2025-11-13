@@ -51,7 +51,7 @@ export async function GET(
       console.log('[API] Usando company_id de sesión:', effectiveCompanyId);
     }
     
-    // Construir query base
+    // Construir query base sin JOINs automáticos (evita problemas con foreign keys en schema dev)
     let query = supabaseAdmin
       .from('remitos')
       .select(`
@@ -64,32 +64,7 @@ export async function GET(
         updated_at,
         company_id,
         client_id,
-        created_by_id,
-        clients (
-          id,
-          name,
-          email,
-          phone,
-          address
-        ),
-        companies (
-          id,
-          name
-        ),
-        estados_remitos (
-          id,
-          name,
-          color
-        ),
-        remito_items (
-          id,
-          product_id,
-          quantity,
-          product_name,
-          product_desc,
-          unit_price,
-          line_total
-        )
+        created_by_id
       `)
       .eq('number', remitoNumberInt);
     
@@ -167,14 +142,6 @@ export async function GET(
       remito_items: allItems
     };
 
-    console.log('[API] Remito consolidado:', {
-      remitoId: remito.id,
-      hasClients: !!remito.clients,
-      hasCompanies: !!remito.companies,
-      hasEstados: !!remito.estados_remitos,
-      itemsCount: remito.remito_items?.length || 0
-    });
-
     // Verificar permisos solo si NO es petición de impresión y hay sesión
     if (!isPrintRequest && session?.user) {
       if (session.user.role !== 'SUPERADMIN' && remito.company_id !== session.user.companyId) {
@@ -185,27 +152,105 @@ export async function GET(
       }
     }
 
+    // Obtener datos relacionados en queries separadas
+    let client = null;
+    if (remito.client_id) {
+      try {
+        const { data: clientData } = await supabaseAdmin
+          .from('clients')
+          .select('id, name, email, phone, address')
+          .eq('id', remito.client_id)
+          .single();
+        if (clientData) client = clientData;
+      } catch (clientError) {
+        console.warn('⚠️ [Remitos] Error obteniendo cliente (no crítico):', clientError);
+      }
+    }
+
+    let company = null;
+    if (remito.company_id) {
+      try {
+        const { data: companyData } = await supabaseAdmin
+          .from('companies')
+          .select('id, name')
+          .eq('id', remito.company_id)
+          .single();
+        if (companyData) company = companyData;
+      } catch (companyError) {
+        console.warn('⚠️ [Remitos] Error obteniendo empresa (no crítico):', companyError);
+      }
+    }
+
+    let estado = null;
+    if (remito.status) {
+      try {
+        const { data: estadoData } = await supabaseAdmin
+          .from('estados_remitos')
+          .select('id, name, color')
+          .eq('id', remito.status)
+          .single();
+        if (estadoData) estado = estadoData;
+      } catch (estadoError) {
+        console.warn('⚠️ [Remitos] Error obteniendo estado (no crítico):', estadoError);
+      }
+    }
+
+    let user = null;
+    if (remito.created_by_id) {
+      try {
+        const { data: userData } = await supabaseAdmin
+          .from('users')
+          .select('id, name, email')
+          .eq('id', remito.created_by_id)
+          .single();
+        if (userData) user = userData;
+      } catch (userError) {
+        console.warn('⚠️ [Remitos] Error obteniendo usuario (no crítico):', userError);
+      }
+    }
+
+    // Obtener productos para items si hay product_id
+    const productIds = [...new Set((remito.remito_items || []).filter((i: any) => i.product_id).map((i: any) => i.product_id))];
+    const productsMap = new Map<string, { id: string; name: string }>();
+    
+    if (productIds.length > 0) {
+      try {
+        const { data: products } = await supabaseAdmin
+          .from('products')
+          .select('id, name')
+          .in('id', productIds);
+        
+        if (products) {
+          products.forEach((product: any) => {
+            productsMap.set(product.id, { id: product.id, name: product.name });
+          });
+        }
+      } catch (productsError) {
+        console.warn('⚠️ [Remitos] Error obteniendo productos (no crítico):', productsError);
+      }
+    }
+
     // Construir respuesta con datos completos
     try {
       const remitoWithStructures = {
         ...remito,
-        clients: remito.clients || (remito.client_id ? {
+        clients: client || (remito.client_id ? {
           id: remito.client_id,
           name: '',
           email: '',
           phone: '',
           address: ''
         } : null),
-        companies: remito.companies || (remito.company_id ? {
+        companies: company || (remito.company_id ? {
           id: remito.company_id,
           name: ''
         } : null),
-        users: remito.created_by_id ? {
+        users: user || (remito.created_by_id ? {
           id: remito.created_by_id,
           name: '',
           email: ''
-        } : null,
-        estados_remitos: remito.estados_remitos || (remito.status ? {
+        } : null),
+        estados_remitos: estado || (remito.status ? {
           id: remito.status,
           name: '',
           color: '',
@@ -213,7 +258,7 @@ export async function GET(
         } : null),
         remito_items: (remito.remito_items || []).map((item: any) => ({
           ...item,
-          products: item.product_id ? { id: item.product_id, name: '' } : null
+          products: item.product_id ? productsMap.get(item.product_id) || { id: item.product_id, name: '' } : null
         }))
       };
 

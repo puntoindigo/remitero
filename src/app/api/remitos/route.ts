@@ -25,8 +25,7 @@ export async function GET(request: NextRequest) {
     const offset = offsetParam ? Math.max(0, parseInt(offsetParam)) : null;
     
 
-    // Optimización: JOINs mínimos necesarios para el listado
-    // Incluimos solo datos esenciales de clients y estados para evitar lentitud
+    // Optimización: Sin JOINs automáticos (evita problemas con foreign keys en schema dev)
     let query = supabaseAdmin
       .from('remitos')
       .select(`
@@ -39,20 +38,7 @@ export async function GET(request: NextRequest) {
         updated_at,
         company_id,
         client_id,
-        created_by_id,
-        clients (
-          id,
-          name,
-          email
-        ),
-        estados_remitos (
-          id,
-          name,
-          color
-        ),
-        remito_items (
-          line_total
-        )
+        created_by_id
       `, { count: 'exact' })
       .order('created_at', { ascending: false });
 
@@ -91,25 +77,80 @@ export async function GET(request: NextRequest) {
       }, { status: 500 });
     }
 
-    console.log('Raw remitos from database:', remitos?.length || 0, 'remitos');
-    if (remitos && remitos?.length > 0) {
-      console.log('First remito structure:', {
-        id: remitos[0].id,
-        hasClient: !!remitos[0].clients,
-        hasEstado: !!remitos[0].estados_remitos
-      });
+    // Obtener datos relacionados en queries separadas
+    const clientIds = [...new Set((remitos || []).filter((r: any) => r.client_id).map((r: any) => r.client_id))];
+    const estadoIds = [...new Set((remitos || []).filter((r: any) => r.status).map((r: any) => r.status))];
+    const remitoIds = (remitos || []).map((r: any) => r.id);
+    
+    // Obtener clientes
+    const clientsMap = new Map<string, { id: string; name: string; email: string }>();
+    if (clientIds.length > 0) {
+      try {
+        const { data: clients } = await supabaseAdmin
+          .from('clients')
+          .select('id, name, email')
+          .in('id', clientIds);
+        
+        if (clients) {
+          clients.forEach((client: any) => {
+            clientsMap.set(client.id, { id: client.id, name: client.name, email: client.email });
+          });
+        }
+      } catch (clientsError) {
+        console.warn('⚠️ [Remitos] Error obteniendo clientes (no crítico):', clientsError);
+      }
+    }
+    
+    // Obtener estados
+    const estadosMap = new Map<string, { id: string; name: string; color: string }>();
+    if (estadoIds.length > 0) {
+      try {
+        const { data: estados } = await supabaseAdmin
+          .from('estados_remitos')
+          .select('id, name, color')
+          .in('id', estadoIds);
+        
+        if (estados) {
+          estados.forEach((estado: any) => {
+            estadosMap.set(estado.id, { id: estado.id, name: estado.name, color: estado.color });
+          });
+        }
+      } catch (estadosError) {
+        console.warn('⚠️ [Remitos] Error obteniendo estados (no crítico):', estadosError);
+      }
+    }
+    
+    // Obtener totales de items (solo line_total para calcular total del remito)
+    const totalsMap = new Map<string, number>();
+    if (remitoIds.length > 0) {
+      try {
+        const { data: items } = await supabaseAdmin
+          .from('remito_items')
+          .select('remito_id, line_total')
+          .in('remito_id', remitoIds);
+        
+        if (items) {
+          items.forEach((item: any) => {
+            const currentTotal = totalsMap.get(item.remito_id) || 0;
+            totalsMap.set(item.remito_id, currentTotal + (parseFloat(item.line_total) || 0));
+          });
+        }
+      } catch (itemsError) {
+        console.warn('⚠️ [Remitos] Error obteniendo items (no crítico):', itemsError);
+      }
     }
 
-    // Los datos de clients y estados_remitos ya vienen del JOIN
-    // Solo necesitamos asegurar que la estructura sea consistente
+    // Mapear remitos con datos relacionados
     const remitosWithStructures = (remitos || []).map((remito: any) => ({
       ...remito,
-      // clients y estados_remitos ya vienen del JOIN, no necesitamos crearlos manualmente
+      clients: remito.client_id ? clientsMap.get(remito.client_id) || { id: remito.client_id, name: '', email: '' } : null,
+      estados_remitos: remito.status ? estadosMap.get(remito.status) || { id: remito.status, name: '', color: '' } : null,
       users: remito.created_by_id ? {
         id: remito.created_by_id,
         name: '',
         email: ''
-      } : null
+      } : null,
+      remito_items: totalsMap.has(remito.id) ? [{ line_total: totalsMap.get(remito.id) }] : []
     }));
 
     let transformedRemitos = transformRemitos(remitosWithStructures);
@@ -305,8 +346,8 @@ export async function POST(request: NextRequest) {
       clientId: clientId
     });
 
-    // Obtener el remito completo con relaciones
-    const { data: completeRemito, error: fetchError } = await supabaseAdmin
+    // Obtener el remito completo con relaciones (queries separadas)
+    const { data: remitoData, error: fetchError } = await supabaseAdmin
       .from('remitos')
       .select(`
         id,
@@ -318,42 +359,108 @@ export async function POST(request: NextRequest) {
         updated_at,
         company_id,
         client_id,
-        created_by_id,
-        clients (
-          id,
-          name,
-          email,
-          phone,
-          address
-        ),
-        users (
-          id,
-          name,
-          email
-        ),
-        remito_items (
-          id,
-          quantity,
-          product_name,
-          product_desc,
-          unit_price,
-          line_total,
-          products (
-            id,
-            name
-          )
-        )
+        created_by_id
       `)
       .eq('id', newRemito?.id)
       .single();
 
-    if (fetchError) {
-      console.error('Error fetching complete remito:', fetchError);
+    if (fetchError || !remitoData) {
+      console.error('Error fetching remito:', fetchError);
       return NextResponse.json({ 
         error: "Error interno del servidor",
         message: "Remito creado pero no se pudo obtener la información completa."
       }, { status: 500 });
     }
+
+    // Obtener datos relacionados
+    let client = null;
+    if (remitoData.client_id) {
+      try {
+        const { data: clientData } = await supabaseAdmin
+          .from('clients')
+          .select('id, name, email, phone, address')
+          .eq('id', remitoData.client_id)
+          .single();
+        if (clientData) client = clientData;
+      } catch (clientError) {
+        console.warn('⚠️ [Remitos] Error obteniendo cliente (no crítico):', clientError);
+      }
+    }
+
+    let estado = null;
+    if (remitoData.status) {
+      try {
+        const { data: estadoData } = await supabaseAdmin
+          .from('estados_remitos')
+          .select('id, name, color')
+          .eq('id', remitoData.status)
+          .single();
+        if (estadoData) estado = estadoData;
+      } catch (estadoError) {
+        console.warn('⚠️ [Remitos] Error obteniendo estado (no crítico):', estadoError);
+      }
+    }
+
+    let user = null;
+    if (remitoData.created_by_id) {
+      try {
+        const { data: userData } = await supabaseAdmin
+          .from('users')
+          .select('id, name, email')
+          .eq('id', remitoData.created_by_id)
+          .single();
+        if (userData) user = userData;
+      } catch (userError) {
+        console.warn('⚠️ [Remitos] Error obteniendo usuario (no crítico):', userError);
+      }
+    }
+
+    // Obtener items del remito
+    let remitoItems: any[] = [];
+    try {
+      const { data: itemsData } = await supabaseAdmin
+        .from('remito_items')
+        .select('id, quantity, product_name, product_desc, unit_price, line_total, product_id')
+        .eq('remito_id', remitoData.id);
+      
+      if (itemsData) {
+        // Obtener productos si hay product_id
+        const productIds = [...new Set(itemsData.filter((i: any) => i.product_id).map((i: any) => i.product_id))];
+        const productsMap = new Map<string, { id: string; name: string }>();
+        
+        if (productIds.length > 0) {
+          try {
+            const { data: products } = await supabaseAdmin
+              .from('products')
+              .select('id, name')
+              .in('id', productIds);
+            
+            if (products) {
+              products.forEach((product: any) => {
+                productsMap.set(product.id, { id: product.id, name: product.name });
+              });
+            }
+          } catch (productsError) {
+            console.warn('⚠️ [Remitos] Error obteniendo productos (no crítico):', productsError);
+          }
+        }
+        
+        remitoItems = itemsData.map((item: any) => ({
+          ...item,
+          products: item.product_id ? productsMap.get(item.product_id) || { id: item.product_id, name: '' } : null
+        }));
+      }
+    } catch (itemsError) {
+      console.warn('⚠️ [Remitos] Error obteniendo items (no crítico):', itemsError);
+    }
+
+    const completeRemito = {
+      ...remitoData,
+      clients: client,
+      users: user,
+      estados_remitos: estado,
+      remito_items: remitoItems
+    };
 
     return NextResponse.json(transformRemito(completeRemito), { status: 201 });
   } catch (error: any) {

@@ -194,11 +194,7 @@ export async function POST(request: NextRequest) {
         name,
         created_at,
         updated_at,
-        company_id,
-        companies (
-          id,
-          name
-        )
+        company_id
       `)
       .single();
 
@@ -208,6 +204,23 @@ export async function POST(request: NextRequest) {
         error: "Error interno del servidor",
         message: "No se pudo crear la categoría."
       }, { status: 500 });
+    }
+
+    // Obtener empresa si el usuario tiene company_id
+    if (newCategory && newCategory.company_id) {
+      try {
+        const { data: company } = await supabaseAdmin
+          .from('companies')
+          .select('id, name')
+          .eq('id', newCategory.company_id)
+          .single();
+        
+        if (company) {
+          (newCategory as any).companies = { id: company.id, name: company.name };
+        }
+      } catch (companyError) {
+        console.warn('⚠️ [Categories] Error obteniendo empresa (no crítico):', companyError);
+      }
     }
 
     return NextResponse.json(transformCategory(newCategory), { status: 201 });
