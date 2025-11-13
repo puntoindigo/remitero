@@ -300,23 +300,44 @@ export async function sendInvitationEmail({
     const roleName = roleNames[role] || role;
 
     // Calcular si debemos mostrar la contraseña temporal
-    const shouldShowTempPassword = !isGmail && tempPassword && tempPassword.trim().length > 0;
+    const hasValidTempPassword = tempPassword && typeof tempPassword === 'string' && tempPassword.trim().length > 0;
+    const shouldShowTempPassword = !isGmail && hasValidTempPassword;
     
     console.log('🔍 [Email] Evaluando mostrar contraseña temporal:', {
       isGmail,
+      isGmailValue: isGmail,
       hasTempPassword: !!tempPassword,
+      tempPasswordType: typeof tempPassword,
+      tempPasswordValue: tempPassword,
       tempPasswordLength: tempPassword?.length,
-      tempPasswordValue: tempPassword ? `${tempPassword.substring(0, 2)}***` : null,
+      tempPasswordTrimmed: tempPassword?.trim(),
+      tempPasswordTrimmedLength: tempPassword?.trim().length || 0,
+      hasValidTempPassword,
       shouldShow: shouldShowTempPassword,
-      condition: `!isGmail=${!isGmail} && tempPassword=${!!tempPassword} && length>0=${tempPassword?.trim().length > 0}`
+      condition: `!isGmail=${!isGmail} && hasValidTempPassword=${hasValidTempPassword}, result=${shouldShowTempPassword}`
     });
     
     // Generar HTML de contraseña temporal si corresponde
-    const tempPasswordHtml = shouldShowTempPassword ? `
+    let tempPasswordHtml = '';
+    if (shouldShowTempPassword && tempPassword) {
+      const cleanTempPassword = tempPassword.trim();
+      tempPasswordHtml = `
                 <p style="margin-top: 15px;"><strong>Contraseña temporal:</strong></p>
-                <p style="background-color: #fef3c7; padding: 8px 12px; border-radius: 4px; font-family: 'Courier New', monospace; font-weight: bold; font-size: 16px; color: #92400e; letter-spacing: 2px; text-align: center; border: 2px solid #f59e0b;">${tempPassword}</p>
+                <p style="background-color: #fef3c7; padding: 8px 12px; border-radius: 4px; font-family: 'Courier New', monospace; font-weight: bold; font-size: 16px; color: #92400e; letter-spacing: 2px; text-align: center; border: 2px solid #f59e0b;">${cleanTempPassword}</p>
                 <p style="font-size: 0.875rem; color: #ef4444; margin-top: 10px; font-weight: bold;">⚠️ IMPORTANTE: Esta es una contraseña temporal. Deberás cambiarla al primer acceso.</p>
-                ` : '';
+                `;
+      console.log('✅ [Email] HTML de contraseña temporal generado:', {
+        tempPasswordHtmlLength: tempPasswordHtml.length,
+        containsPassword: tempPasswordHtml.includes(cleanTempPassword),
+        passwordInHtml: cleanTempPassword
+      });
+    } else {
+      console.warn('⚠️ [Email] NO se generará HTML de contraseña temporal:', {
+        reason: !isGmail ? 'tempPassword inválido' : 'es Gmail',
+        isGmail,
+        hasValidTempPassword
+      });
+    }
 
     const mailOptions = {
       from: `"Sistema de Remitos" <${process.env.EMAIL_USER}>`,
@@ -494,9 +515,11 @@ Este es un email automático, por favor no respondas a este mensaje.
       tempPasswordFull: tempPassword, // Log completo para debug
       shouldShowTempPassword,
       tempPasswordHtmlLength: tempPasswordHtml.length,
-      tempPasswordInHtml: mailOptions.html?.includes(tempPassword || ''),
-      tempPasswordInText: mailOptions.text?.includes(tempPassword || ''),
-      htmlPreview: mailOptions.html?.substring(mailOptions.html.indexOf('Contraseña temporal') - 50, mailOptions.html.indexOf('Contraseña temporal') + 200) || 'NO ENCONTRADO'
+      tempPasswordInHtml: tempPassword ? mailOptions.html?.includes(tempPassword.trim()) : false,
+      tempPasswordInText: tempPassword ? mailOptions.text?.includes(tempPassword.trim()) : false,
+      htmlPreview: mailOptions.html?.indexOf('Contraseña temporal') >= 0 
+        ? mailOptions.html.substring(mailOptions.html.indexOf('Contraseña temporal') - 50, mailOptions.html.indexOf('Contraseña temporal') + 200) 
+        : 'NO ENCONTRADO - tempPasswordHtml está vacío o no se insertó'
     });
     
     const info = await transporter.sendMail(mailOptions);
