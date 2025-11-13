@@ -323,7 +323,7 @@ export async function sendInvitationEmail({
       const cleanTempPassword = tempPassword.trim();
       tempPasswordHtml = `
                 <p style="margin-top: 15px;"><strong>Contraseña temporal:</strong></p>
-                <p style="background-color: #fef3c7; padding: 8px 12px; border-radius: 4px; font-family: 'Courier New', monospace; font-weight: bold; font-size: 16px; color: #92400e; letter-spacing: 2px; text-align: center; border: 2px solid #f59e0b;">${cleanTempPassword}</p>
+                <p style="background-color: #fef3c7; padding: 8px 12px; border-radius: 4px; font-family: 'Courier New', monospace; font-weight: bold; font-size: 16px; color: #92400e; letter-spacing: 2px; text-align: center; border: 2px solid #f59e0b; display: inline-block; max-width: 300px; margin: 0 auto;">${cleanTempPassword}</p>
                 <p style="font-size: 0.875rem; color: #ef4444; margin-top: 10px; font-weight: bold;">⚠️ IMPORTANTE: Esta es una contraseña temporal. Deberás cambiarla al primer acceso.</p>
                 `;
       console.log('✅ [Email] HTML de contraseña temporal generado:', {

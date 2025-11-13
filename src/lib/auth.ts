@@ -224,7 +224,7 @@ export const authOptions: NextAuthOptions = {
           });
           const { data: existingUser, error: findError } = await supabaseAdmin
             .from('users')
-            .select('*')
+            .select('*, has_temporary_password')
             .eq('email', email)
             .single();
 
@@ -311,7 +311,7 @@ export const authOptions: NextAuthOptions = {
             user.id = existingUser.id;
             (user as any).role = existingUser.role;
             (user as any).companyId = existingUser.company_id;
-            (user as any).hasTemporaryPassword = false;
+            (user as any).hasTemporaryPassword = existingUser.has_temporary_password || false;
             (user as any).enable_botonera = existingUser.enable_botonera ?? false;
             (user as any).enable_pinned_modals = existingUser.enable_pinned_modals ?? false;
             console.log('🔐 [NextAuth signIn] Datos asignados al user object:', {
@@ -429,6 +429,7 @@ export const authOptions: NextAuthOptions = {
         session.user.companyId = token.companyId as string
         session.user.companyName = token.companyName as string
         ;(session.user as any).impersonatingUserId = token.impersonatingUserId as string
+        ;(session.user as any).hasTemporaryPassword = token.hasTemporaryPassword ?? false
         ;(session.user as any).enable_botonera = token.enable_botonera ?? false
         ;(session.user as any).enable_pinned_modals = token.enable_pinned_modals ?? false
       }
