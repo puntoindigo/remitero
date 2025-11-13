@@ -230,7 +230,13 @@ export const authOptions: NextAuthOptions = {
 
           if (findError) {
             if (findError.code === 'PGRST116') {
-              console.log('ℹ️ [NextAuth signIn] Usuario no existe (PGRST116), se creará uno nuevo');
+              // Usuario no existe - DENEGAR ACCESO
+              console.error('❌ [NextAuth signIn] Usuario no existe (PGRST116), denegando acceso', {
+                email: email,
+                schema: process.env.DATABASE_SCHEMA || 'default',
+                reason: 'Usuario no registrado en el sistema. Debe ser creado por un administrador.'
+              });
+              return false;
             } else {
               console.error('❌ [NextAuth signIn] Error buscando usuario:', {
                 error: findError.message,
@@ -239,6 +245,8 @@ export const authOptions: NextAuthOptions = {
                 hint: findError.hint,
                 schema: process.env.DATABASE_SCHEMA || 'default'
               });
+              // Si hay un error al buscar, también denegar acceso por seguridad
+              return false;
             }
           }
 
