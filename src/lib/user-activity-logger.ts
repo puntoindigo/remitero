@@ -349,8 +349,34 @@ async function checkAndSendNotification(
 ): Promise<void> {
   try {
     // Solo enviar notificaciones por email en producción
-    if (process.env.VERCEL_ENV !== 'production' && process.env.NODE_ENV !== 'production') {
-      console.log('ℹ️ [checkAndSendNotification] Entorno no es producción, no se enviará email de notificación');
+    // Verificar explícitamente si estamos en producción de Vercel
+    const isVercelProduction = process.env.VERCEL_ENV === 'production';
+    
+    // Detectar producción por URL si VERCEL_ENV no está configurado
+    const vercelUrl = process.env.VERCEL_URL || '';
+    const isProductionUrl = vercelUrl.includes('v0-remitero.vercel.app') || 
+                           vercelUrl.includes('remitero.vercel.app');
+    
+    // Detectar desarrollo por URL
+    const isDevelopmentUrl = vercelUrl.includes('remitero-dev.vercel.app') ||
+                            vercelUrl.includes('remitero-git-') ||
+                            vercelUrl.includes('-puntoindigo.vercel.app');
+    
+    const isProduction = isVercelProduction || isProductionUrl;
+    const isDevelopment = isDevelopmentUrl;
+    
+    // Solo enviar emails si estamos EXPLÍCITAMENTE en producción
+    // Si es desarrollo o no podemos determinar que es producción, NO enviar
+    if (!isProduction || isDevelopment) {
+      console.log('ℹ️ [checkAndSendNotification] Entorno no es producción, no se enviará email de notificación', {
+        vercelEnv: process.env.VERCEL_ENV || 'not-set',
+        vercelUrl: vercelUrl || 'not-set',
+        isVercelProduction,
+        isProductionUrl,
+        isDevelopmentUrl: isDevelopment,
+        isProduction,
+        willSendEmail: false
+      });
       return;
     }
 
