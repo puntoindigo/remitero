@@ -416,7 +416,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Obtener items del remito
-    let remitoItems: any[] = [];
+    let remitoItemsData: any[] = [];
     try {
       const { data: itemsData } = await supabaseAdmin
         .from('remito_items')
@@ -445,7 +445,7 @@ export async function POST(request: NextRequest) {
           }
         }
         
-        remitoItems = itemsData.map((item: any) => ({
+        remitoItemsData = itemsData.map((item: any) => ({
           ...item,
           products: item.product_id ? productsMap.get(item.product_id) || { id: item.product_id, name: '' } : null
         }));
@@ -459,7 +459,7 @@ export async function POST(request: NextRequest) {
       clients: clientInfo,
       users: user,
       estados_remitos: estado,
-      remito_items: remitoItems
+      remito_items: remitoItemsData
     };
 
     return NextResponse.json(transformRemito(completeRemito), { status: 201 });
