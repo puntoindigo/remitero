@@ -561,6 +561,11 @@
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
 }
 
+.web-plan-card .web-btn-whatsapp {
+  opacity: 1;
+  visibility: visible;
+}
+
 .web-plan-popular {
   border-color: #2563eb;
   box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
@@ -588,8 +593,33 @@
 }
 
 .web-plan-price {
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
   margin-bottom: 2rem;
+}
+
+.web-plan-price-annual {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.25rem;
+}
+
+.web-plan-price-monthly {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.25rem;
+  opacity: 0.7;
+}
+
+.web-plan-billing {
+  font-size: 0.75rem;
+  color: #64748b;
+  margin-left: 0.5rem;
+  font-weight: 400;
 }
 
 .web-plan-amount {
@@ -597,6 +627,13 @@
   font-weight: 800;
   color: #1e40af;
   letter-spacing: -0.02em;
+}
+
+.web-plan-amount-monthly {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #64748b;
+  text-decoration: line-through;
 }
 
 .web-plan-period {
