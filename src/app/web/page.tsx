@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { signIn } from "next-auth/react";
 import { FileText, Package, Users, Building2, BarChart3, CheckCircle, ArrowRight, Phone, Mail, Send, TrendingUp, Shield, Zap, Globe, Fingerprint, MessageCircle, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 
@@ -17,7 +18,7 @@ export default function WebPage() {
   const [showLoginDropdown, setShowLoginDropdown] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState(1); // Plan Profesional por defecto
   const [featuresVisible, setFeaturesVisible] = useState(false);
-  const [loginFlipped, setLoginFlipped] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
   // Auto-play del carrusel
   useEffect(() => {
@@ -133,6 +134,7 @@ export default function WebPage() {
       priceAnnual: "$25.000",
       priceMonthly: "$30.000",
       period: "mes",
+      priceLayout: "proposal1", // Propuesta 1: Precio grande, /mes pequeño abajo
       features: [
         "Hasta 3 usuarios",
         "Gestión de remitos ilimitada",
@@ -148,6 +150,7 @@ export default function WebPage() {
       priceAnnual: "$55.000",
       priceMonthly: "$65.000",
       period: "mes",
+      priceLayout: "proposal2", // Propuesta 2: Precio y /mes en línea, billing abajo
       features: [
         "Usuarios ilimitados",
         "Multi-empresa",
@@ -165,6 +168,7 @@ export default function WebPage() {
       priceMonthly: "$140.000",
       period: "mes",
       desde: true,
+      priceLayout: "proposal3", // Propuesta 3: DESDE arriba, precio grande, /mes inline
       features: [
         "Todo lo del plan Profesional",
         "Integración con balanzas",
@@ -193,23 +197,7 @@ export default function WebPage() {
               <div className="web-login-dropdown-container">
                 <button 
                   className="web-btn-secondary web-login-trigger"
-                  onClick={() => {
-                    setShowLoginDropdown(!showLoginDropdown);
-                    if (!showLoginDropdown) {
-                      setLoginFlipped(false);
-                    }
-                  }}
-                  onBlur={(e) => {
-                    // Solo cerrar si el foco no va a otro elemento del dropdown
-                    if (!e.currentTarget.contains(e.relatedTarget as Node)) {
-                      setTimeout(() => {
-                        if (!document.activeElement?.closest('.web-login-dropdown')) {
-                          setShowLoginDropdown(false);
-                          setLoginFlipped(false);
-                        }
-                      }, 200);
-                    }
-                  }}
+                  onClick={() => setShowLoginDropdown(!showLoginDropdown)}
                 >
                   Iniciar Sesión
                   <ChevronRight className="web-icon-inline" style={{ transform: 'rotate(90deg)', transition: 'transform 0.2s' }} />
@@ -217,52 +205,40 @@ export default function WebPage() {
                 {showLoginDropdown && (
                   <div 
                     className="web-login-dropdown"
-                    onMouseDown={(e) => e.preventDefault()}
+                    onMouseEnter={() => setShowLoginDropdown(true)}
+                    onMouseLeave={() => setShowLoginDropdown(false)}
                   >
-                    <div className={`web-login-flip-container ${loginFlipped ? 'flipped' : ''}`}>
-                      <div className="web-login-flip-front">
-                        <Link href="/auth/login" className="web-login-option">
-                          <div className="web-login-option-content">
-                            <strong>Iniciar con Google</strong>
-                            <span>Acceso rápido con tu cuenta de Gmail</span>
-                          </div>
-                        </Link>
-                        <button 
-                          className="web-login-option web-login-flip-trigger"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            setLoginFlipped(true);
-                          }}
-                        >
-                          <div className="web-login-option-content">
-                            <strong>Iniciar con Email</strong>
-                            <span>Usa tu email y contraseña</span>
-                          </div>
-                        </button>
+                    <button
+                      className="web-login-option web-login-option-google"
+                      onClick={async () => {
+                        setIsGoogleLoading(true);
+                        try {
+                          await signIn("google", {
+                            redirect: true,
+                            callbackUrl: "/dashboard"
+                          });
+                        } catch (error) {
+                          console.error("Error al iniciar sesión con Google:", error);
+                          setIsGoogleLoading(false);
+                        }
+                      }}
+                      disabled={isGoogleLoading}
+                    >
+                      <div className="web-login-option-content">
+                        <strong>Iniciar con Google</strong>
+                        <span>Acceso rápido con tu cuenta de Gmail</span>
                       </div>
-                      <div className="web-login-flip-back">
-                        <button 
-                          className="web-login-option web-login-flip-trigger"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            setLoginFlipped(false);
-                          }}
-                        >
-                          <div className="web-login-option-content">
-                            <strong>← Volver</strong>
-                            <span>O inicia con Google</span>
-                          </div>
-                        </button>
-                        <Link href="/auth/login" className="web-login-option">
-                          <div className="web-login-option-content">
-                            <strong>Iniciar con Email</strong>
-                            <span>Usa tu email y contraseña</span>
-                          </div>
-                        </Link>
+                    </button>
+                    <Link 
+                      href="/auth/login" 
+                      className="web-login-option"
+                      onClick={() => setShowLoginDropdown(false)}
+                    >
+                      <div className="web-login-option-content">
+                        <strong>Iniciar con Email</strong>
+                        <span>Usa tu email y contraseña</span>
                       </div>
-                    </div>
+                    </Link>
                   </div>
                 )}
               </div>
@@ -656,19 +632,72 @@ export default function WebPage() {
                 >
                   {isSelected && <div className="web-plan-badge">Más Popular</div>}
                   <h3 className="web-plan-name">{plan.name}</h3>
-                  <div className="web-plan-price">
-                    <div className="web-plan-price-annual">
-                      {plan.desde && <span className="web-plan-desde">Desde</span>}
-                      <span className="web-plan-amount">{plan.priceAnnual}</span>
-                      {plan.period && <span className="web-plan-period">/{plan.period}</span>}
-                      <span className="web-plan-billing">Pago anual</span>
-                    </div>
-                    <div className="web-plan-price-monthly">
-                      {plan.desde && <span className="web-plan-desde">Desde</span>}
-                      <span className="web-plan-amount-monthly">{plan.priceMonthly}</span>
-                      {plan.period && <span className="web-plan-period">/{plan.period}</span>}
-                      <span className="web-plan-billing">Pago mensual</span>
-                    </div>
+                  <div className={`web-plan-price web-plan-price-${plan.priceLayout}`}>
+                    {/* PROPUESTA 1: Precio grande, /mes pequeño abajo */}
+                    {plan.priceLayout === "proposal1" && (
+                      <>
+                        <div className="web-plan-price-annual">
+                          <div className="web-plan-price-main">
+                            <span className="web-plan-amount">{plan.priceAnnual}</span>
+                          </div>
+                          <div className="web-plan-price-secondary">
+                            <span className="web-plan-period">/{plan.period}</span>
+                            <span className="web-plan-billing">Pago anual</span>
+                          </div>
+                        </div>
+                        <div className="web-plan-price-monthly">
+                          <div className="web-plan-price-main">
+                            <span className="web-plan-amount-monthly">{plan.priceMonthly}</span>
+                          </div>
+                          <div className="web-plan-price-secondary">
+                            <span className="web-plan-period">/{plan.period}</span>
+                            <span className="web-plan-billing">Pago mensual</span>
+                          </div>
+                        </div>
+                      </>
+                    )}
+                    
+                    {/* PROPUESTA 2: Precio y /mes en línea, billing abajo */}
+                    {plan.priceLayout === "proposal2" && (
+                      <>
+                        <div className="web-plan-price-annual">
+                          <div className="web-plan-price-main">
+                            <span className="web-plan-amount">{plan.priceAnnual}</span>
+                            <span className="web-plan-period">/{plan.period}</span>
+                          </div>
+                          <span className="web-plan-billing">Pago anual</span>
+                        </div>
+                        <div className="web-plan-price-monthly">
+                          <div className="web-plan-price-main">
+                            <span className="web-plan-amount-monthly">{plan.priceMonthly}</span>
+                            <span className="web-plan-period">/{plan.period}</span>
+                          </div>
+                          <span className="web-plan-billing">Pago mensual</span>
+                        </div>
+                      </>
+                    )}
+                    
+                    {/* PROPUESTA 3: DESDE arriba, precio grande, /mes inline */}
+                    {plan.priceLayout === "proposal3" && (
+                      <>
+                        <div className="web-plan-price-annual">
+                          {plan.desde && <span className="web-plan-desde">Desde</span>}
+                          <div className="web-plan-price-main">
+                            <span className="web-plan-amount">{plan.priceAnnual}</span>
+                            <span className="web-plan-period">/{plan.period}</span>
+                          </div>
+                          <span className="web-plan-billing">Pago anual</span>
+                        </div>
+                        <div className="web-plan-price-monthly">
+                          {plan.desde && <span className="web-plan-desde">Desde</span>}
+                          <div className="web-plan-price-main">
+                            <span className="web-plan-amount-monthly">{plan.priceMonthly}</span>
+                            <span className="web-plan-period">/{plan.period}</span>
+                          </div>
+                          <span className="web-plan-billing">Pago mensual</span>
+                        </div>
+                      </>
+                    )}
                   </div>
                   <ul className="web-plan-features">
                     {plan.features.map((feature, fIndex) => (

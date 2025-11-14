@@ -4,44 +4,27 @@ import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { UsuarioForm } from "@/components/forms/UsuarioForm";
-import { useUsuariosQuery } from "@/hooks/queries/useUsuariosQuery";
 import { MessageModal } from "@/components/common/MessageModal";
-import { useCurrentUserSimple } from "@/hooks/useCurrentUserSimple";
 
 export default function PerfilPage() {
   const { data: session } = useSession();
   const router = useRouter();
-  const currentUserSimple = useCurrentUserSimple();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error' | 'warning' | 'info', text: string } | null>(null);
   const [showForm, setShowForm] = useState(true);
   
-  // Solo cargar usuarios si el usuario tiene permisos (ADMIN o SUPERADMIN)
-  // IMPORTANTE: Esperar a que currentUserSimple esté cargado y tenga role antes de decidir si habilitar la query
-  const hasRole = currentUserSimple?.role !== undefined && currentUserSimple?.role !== null;
-  const canViewUsers = hasRole && (currentUserSimple?.role === 'ADMIN' || currentUserSimple?.role === 'SUPERADMIN');
-  const shouldEnableQuery = currentUserSimple !== null && hasRole && canViewUsers; // Solo habilitar si currentUserSimple está cargado, tiene role Y tiene permisos
-  const { data: usuarios, refetch } = useUsuariosQuery(
-    shouldEnableQuery ? session?.user?.companyId : undefined,
-    shouldEnableQuery // Solo ejecutar si currentUserSimple está cargado, tiene role y tiene permisos
-  );
-
-  // Para usuarios USER, obtener su perfil individualmente
+  // Obtener perfil del usuario actual usando la nueva API /api/profile
   const [currentUser, setCurrentUser] = useState<any>(null);
   
   useEffect(() => {
-    if (canViewUsers && usuarios) {
-      // Si tiene permisos, buscar en la lista de usuarios
-      const user = usuarios.find(u => u.id === session?.user?.id);
-      setCurrentUser(user);
-    } else if (session?.user?.id && !canViewUsers) {
-      // Si es USER, obtener su perfil individualmente
-      fetch(`/api/users/${session.user.id}`)
+    if (session?.user?.id) {
+      // Usar la nueva API /api/profile que no requiere permisos especiales
+      fetch('/api/profile')
         .then(res => res.ok ? res.json() : null)
         .then(data => setCurrentUser(data))
         .catch(() => setCurrentUser(null));
     }
-  }, [canViewUsers, usuarios, session?.user?.id]);
+  }, [session?.user?.id]);
 
   useEffect(() => {
     if (!session) {
@@ -60,7 +43,7 @@ export default function PerfilPage() {
   const handleSubmit = async (data: any) => {
     setIsSubmitting(true);
     try {
-      const response = await fetch(`/api/users/${currentUser.id}`, {
+      const response = await fetch('/api/profile', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -79,16 +62,11 @@ export default function PerfilPage() {
         text: 'Perfil actualizado correctamente'
       });
 
-      // Refrescar la sesión y los datos del usuario
-      if (canViewUsers) {
-        await refetch();
-      } else {
-        // Si es USER, recargar el perfil individualmente
-        const userResponse = await fetch(`/api/users/${currentUser.id}`);
-        if (userResponse.ok) {
-          const userData = await userResponse.json();
-          setCurrentUser(userData);
-        }
+      // Recargar el perfil usando la nueva API
+      const userResponse = await fetch('/api/profile');
+      if (userResponse.ok) {
+        const userData = await userResponse.json();
+        setCurrentUser(userData);
       }
       
       // Actualizar la sesión de NextAuth

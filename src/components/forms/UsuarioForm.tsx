@@ -8,7 +8,7 @@ import { useSession } from "next-auth/react";
 import { FormModal } from "@/components/common/FormModal";
 import { PasswordGeneratorModal } from "@/components/common/PasswordGeneratorModal";
 import { useColorTheme } from "@/contexts/ColorThemeContext";
-import { Key } from "lucide-react";
+import { Key, Eye, EyeOff } from "lucide-react";
 import { useIsDevelopment } from "@/hooks/useIsDevelopment";
 
 // Función para detectar si es email de Google
@@ -113,6 +113,8 @@ export function UsuarioForm({
   const { colors } = useColorTheme();
   const { data: session } = useSession();
   const [showPasswordGenerator, setShowPasswordGenerator] = React.useState(false);
+  const [showPassword, setShowPassword] = React.useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);
   const isDevelopment = useIsDevelopment();
   
   const {
@@ -414,17 +416,58 @@ export function UsuarioForm({
           <div style={{ position: 'relative', width: '100%' }}>
             <input
               {...register("password")}
-              type="password"
+              type={showPassword ? "text" : "password"}
               placeholder={editingUser ? "Dejar vacío para mantener la actual" : "Contraseña"}
               autoComplete={editingUser ? "new-password" : "new-password"}
               className="form-input-standard"
               style={{ 
-                paddingRight: '48px', 
+                paddingRight: '88px', 
                 width: '100%',
                 boxSizing: 'border-box'
               }}
             />
-            <button
+            <div style={{ position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)', display: 'flex', gap: '4px', alignItems: 'center' }}>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setShowPassword(!showPassword);
+                }}
+                title={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                style={{
+                  padding: '4px',
+                  width: '32px',
+                  height: '32px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  zIndex: 10,
+                  cursor: 'pointer',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '4px',
+                  background: '#ffffff',
+                  color: '#6b7280',
+                  transition: 'all 0.2s',
+                  margin: 0,
+                  boxSizing: 'border-box'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = '#f3f4f6';
+                  e.currentTarget.style.color = '#1f2937';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = '#ffffff';
+                  e.currentTarget.style.color = '#6b7280';
+                }}
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                }}
+              >
+                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+              <button
                 type="button"
                 onClick={(e) => {
                   e.preventDefault();
@@ -433,10 +476,6 @@ export function UsuarioForm({
                 }}
                 title="Generar contraseña automática"
                 style={{
-                  position: 'absolute',
-                  right: '8px',
-                  top: '50%',
-                  transform: 'translateY(-50%)',
                   padding: '4px',
                   width: '32px',
                   height: '32px',
@@ -468,6 +507,7 @@ export function UsuarioForm({
               >
                 <Key className="h-4 w-4" />
               </button>
+            </div>
           </div>
           {showPasswordError && (
             <p 
@@ -491,18 +531,67 @@ export function UsuarioForm({
           <label className="form-label-large">
             Confirmar Contraseña {!editingUser && "*"}
           </label>
-          <input
-            {...register("confirmPassword")}
-            type="password"
-            placeholder={editingUser ? "Dejar vacío si no cambias la contraseña" : "Confirmar contraseña"}
-            autoComplete="new-password"
-            className="form-input-standard"
-            style={{
-              borderColor: passwordValue && confirmPasswordValue && passwordValue !== confirmPasswordValue
-                ? '#ef4444'
-                : undefined
-            }}
-          />
+          <div style={{ position: 'relative', width: '100%' }}>
+            <input
+              {...register("confirmPassword")}
+              type={showConfirmPassword ? "text" : "password"}
+              placeholder={editingUser ? "Dejar vacío si no cambias la contraseña" : "Confirmar contraseña"}
+              autoComplete="new-password"
+              className="form-input-standard"
+              style={{
+                paddingRight: '40px',
+                width: '100%',
+                boxSizing: 'border-box',
+                borderColor: passwordValue && confirmPasswordValue && passwordValue !== confirmPasswordValue
+                  ? '#ef4444'
+                  : undefined
+              }}
+            />
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setShowConfirmPassword(!showConfirmPassword);
+              }}
+              title={showConfirmPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+              style={{
+                position: 'absolute',
+                right: '8px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                padding: '4px',
+                width: '32px',
+                height: '32px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                zIndex: 10,
+                cursor: 'pointer',
+                border: '1px solid #d1d5db',
+                borderRadius: '4px',
+                background: '#ffffff',
+                color: '#6b7280',
+                transition: 'all 0.2s',
+                margin: 0,
+                boxSizing: 'border-box'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#f3f4f6';
+                e.currentTarget.style.color = '#1f2937';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = '#ffffff';
+                e.currentTarget.style.color = '#6b7280';
+              }}
+              onMouseDown={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+              }}
+            >
+              {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            </button>
+          </div>
         </div>
       </div>
       )}

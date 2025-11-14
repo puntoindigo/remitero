@@ -224,13 +224,14 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
 
     setIsChangingPassword(true);
     try {
-      const response = await fetch(`/api/users/${session.user.id}`, {
+      const response = await fetch('/api/profile', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           password: newPassword,
+          confirmPassword: newPassword,
         }),
       });
 
@@ -240,8 +241,8 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
         throw new Error(errorMessage);
       }
 
-      // El endpoint PUT /api/users/[id] ya limpia has_temporary_password automáticamente
-      // La actividad se registra automáticamente en el endpoint PUT /api/users/[id]
+      // El endpoint PUT /api/profile ya limpia has_temporary_password automáticamente
+      // La actividad se registra automáticamente en el endpoint PUT /api/profile
 
       // Cerrar el modal inmediatamente
       setShowChangePassword(false);

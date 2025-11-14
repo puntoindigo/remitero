@@ -216,6 +216,24 @@
   color: #0f172a;
   transition: background 0.2s;
   border-bottom: 1px solid #f1f5f9;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: inherit;
+}
+
+.web-login-option-google {
+  font-weight: 600;
+}
+
+.web-login-option-google:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .web-login-option:last-child {
@@ -796,17 +814,134 @@
   min-height: 120px;
 }
 
+/* PROPUESTA 1: Precio grande, /mes pequeño abajo */
+.web-plan-price-proposal1 .web-plan-price-annual,
+.web-plan-price-proposal1 .web-plan-price-monthly {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.web-plan-price-proposal1 .web-plan-price-main {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+}
+
+.web-plan-price-proposal1 .web-plan-amount {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.web-plan-price-proposal1 .web-plan-price-secondary {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: #9ca3af;
+}
+
+.web-plan-price-proposal1 .web-plan-period {
+  font-size: 0.875rem;
+}
+
+.web-plan-price-proposal1 .web-plan-billing {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* PROPUESTA 2: Precio y /mes en línea, billing abajo */
+.web-plan-price-proposal2 .web-plan-price-annual,
+.web-plan-price-proposal2 .web-plan-price-monthly {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.web-plan-price-proposal2 .web-plan-price-main {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.25rem;
+}
+
+.web-plan-price-proposal2 .web-plan-amount {
+  font-size: 1.875rem;
+  line-height: 1;
+}
+
+.web-plan-price-proposal2 .web-plan-period {
+  font-size: 1.125rem;
+  color: #9ca3af;
+}
+
+.web-plan-price-proposal2 .web-plan-billing {
+  font-size: 0.8125rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #d4a574;
+}
+
+/* PROPUESTA 3: DESDE arriba, precio grande, /mes inline */
+.web-plan-price-proposal3 .web-plan-price-annual,
+.web-plan-price-proposal3 .web-plan-price-monthly {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  position: relative;
+}
+
+.web-plan-price-proposal3 .web-plan-desde {
+  font-size: 0.65rem;
+  color: #9ca3af;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  line-height: 1;
+  margin-bottom: -0.25rem;
+}
+
+.web-plan-price-proposal3 .web-plan-price-main {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.25rem;
+}
+
+.web-plan-price-proposal3 .web-plan-amount {
+  font-size: 1.75rem;
+  line-height: 1;
+}
+
+.web-plan-price-proposal3 .web-plan-period {
+  font-size: 1rem;
+  color: #9ca3af;
+}
+
+.web-plan-price-proposal3 .web-plan-billing {
+  font-size: 0.8125rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #d4a574;
+  margin-top: 0.25rem;
+}
+
 /* Asegurar que todos los precios estén alineados */
 .web-plan-card .web-plan-price-annual {
-  align-items: flex-start;
+  align-items: center;
   position: relative;
 }
 
 /* Para los planes sin "DESDE", agregar espacio arriba para alinear */
-.web-plan-card:not(:has(.web-plan-desde)) .web-plan-price-annual::before {
+.web-plan-price-proposal1 .web-plan-price-annual::before,
+.web-plan-price-proposal2 .web-plan-price-annual::before {
   content: '';
-  display: inline-block;
-  height: 0.85rem;
+  display: block;
+  height: 0.65rem;
   width: 0;
 }
 
@@ -1164,55 +1299,6 @@
   flex-shrink: 0;
 }
 
-/* Login Flip Animation */
-.web-login-flip-container {
-  position: relative;
-  width: 100%;
-  min-height: 160px;
-  perspective: 1000px;
-  transform-style: preserve-3d;
-}
-
-.web-login-flip-front,
-.web-login-flip-back {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  backface-visibility: hidden;
-  transition: transform 0.6s;
-  transform-style: preserve-3d;
-}
-
-.web-login-flip-back {
-  transform: rotateY(180deg);
-}
-
-.web-login-flip-container.flipped {
-  min-height: 160px;
-}
-
-.web-login-flip-container.flipped .web-login-flip-front {
-  transform: rotateY(180deg);
-}
-
-.web-login-flip-container.flipped .web-login-flip-back {
-  transform: rotateY(0deg);
-}
-
-.web-login-flip-trigger {
-  width: 100%;
-  text-align: left;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-  margin: 0;
-  font-family: inherit;
-  font-size: inherit;
-  color: inherit;
-}
 
 /* Responsive */
 @media (max-width: 768px) {

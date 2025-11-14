@@ -212,7 +212,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { email, password, role, companyId } = body;
+    const { name, email, password, role, companyId } = body;
     
     // Normalizar password: tratar string vacío como null/undefined
     const normalizedPassword = (password && password.trim().length > 0) ? password.trim() : null;
@@ -243,16 +243,21 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
     
-    // Extraer nombre automáticamente desde el email
-    const localPart = finalEmail.split('@')[0];
+    // Usar el nombre proporcionado, o generar desde el email si no se proporciona
     let finalName: string;
-    const parts = localPart.split(/[._]/);
-    if (parts.length >= 2) {
-      finalName = parts.map((part: string) => 
-        part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()
-      ).join(' ');
+    if (name && name.trim() !== '') {
+      finalName = name.trim();
     } else {
-      finalName = localPart.charAt(0).toUpperCase() + localPart.slice(1).toLowerCase();
+      // Extraer nombre automáticamente desde el email solo si no se proporciona
+      const localPart = finalEmail.split('@')[0];
+      const parts = localPart.split(/[._]/);
+      if (parts.length >= 2) {
+        finalName = parts.map((part: string) => 
+          part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()
+        ).join(' ');
+      } else {
+        finalName = localPart.charAt(0).toUpperCase() + localPart.slice(1).toLowerCase();
+      }
     }
 
     // Verificar que el email no exista
