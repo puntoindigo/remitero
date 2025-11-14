@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { FileText, Package, Users, Building2, BarChart3, CheckCircle, ArrowRight, Phone, Mail, Send, TrendingUp, Shield, Zap, Globe } from "lucide-react";
+import { FileText, Package, Users, Building2, BarChart3, CheckCircle, ArrowRight, Phone, Mail, Send, TrendingUp, Shield, Zap, Globe, Fingerprint, MessageCircle } from "lucide-react";
 import Link from "next/link";
 
 export default function WebPage() {
@@ -57,6 +57,11 @@ export default function WebPage() {
       icon: Shield,
       title: "Seguridad Total",
       description: "Autenticación segura con Google OAuth y control de acceso por roles."
+    },
+    {
+      icon: Fingerprint,
+      title: "Control de Horarios con Huella Digital",
+      description: "Integración con lectores de huella digital para control de asistencia, turnos e identidad de personal."
     }
   ];
 
@@ -256,7 +261,7 @@ export default function WebPage() {
         <div className="web-container">
           <h2 className="web-section-title">Nuestros Planes</h2>
           <p className="web-section-subtitle">
-            <strong>10% de descuento</strong> adhiriendo al débito automático
+            Elige el plan que mejor se adapte a tu negocio
           </p>
           <div className="web-plans-grid">
             {plans.map((plan, index) => (
@@ -281,9 +286,18 @@ export default function WebPage() {
               </div>
             ))}
           </div>
-          <p className="web-plans-note">
-            <strong>Solicite un asesor sin cargo</strong> para realizar una consulta.
-          </p>
+          <div className="web-plans-note">
+            <div className="web-whatsapp-cta">
+              <MessageCircle className="web-whatsapp-icon" />
+              <div>
+                <strong>Solicite un asesor sin cargo</strong> para realizar una consulta.
+                <br />
+                <a href="https://wa.me/549XXXXXXXXX" target="_blank" rel="noopener noreferrer" className="web-whatsapp-link">
+                  Contactar por WhatsApp
+                </a>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
