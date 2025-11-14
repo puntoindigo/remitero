@@ -23,6 +23,25 @@ interface RemitosChartProps {
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     const total = payload.reduce((sum: number, entry: any) => sum + (entry.value || 0), 0);
+    // Filtrar solo los que tienen valor > 0 y ordenar
+    const validEntries = payload
+      .filter((entry: any) => entry.value > 0)
+      .sort((a: any, b: any) => {
+        // Ordenar: pendientes primero, entregados último
+        const nameA = (a.name || '').toLowerCase();
+        const nameB = (b.name || '').toLowerCase();
+        const isPendienteA = nameA.includes('pendiente') || nameA.includes('en espera') || nameA.includes('sin entregar');
+        const isPendienteB = nameB.includes('pendiente') || nameB.includes('en espera') || nameB.includes('sin entregar');
+        const isEntregadoA = nameA.includes('entregado') || nameA.includes('completado') || nameA.includes('finalizado');
+        const isEntregadoB = nameB.includes('entregado') || nameB.includes('completado') || nameB.includes('finalizado');
+        
+        if (isPendienteA && !isPendienteB) return -1;
+        if (!isPendienteA && isPendienteB) return 1;
+        if (isEntregadoA && !isEntregadoB) return 1;
+        if (!isEntregadoA && isEntregadoB) return -1;
+        return 0;
+      });
+    
     return (
       <div style={{
         backgroundColor: '#fff',
@@ -35,19 +54,18 @@ const CustomTooltip = ({ active, payload, label }: any) => {
         <p style={{ margin: 0, fontWeight: 600, color: '#111827', marginBottom: '0.5rem' }}>
           {label}
         </p>
-        {payload.map((entry: any, index: number) => {
-          if (entry.value === 0) return null;
+        {validEntries.map((entry: any, index: number) => {
           return (
             <p key={index} style={{ margin: '0.25rem 0', color: '#6b7280' }}>
               <span style={{ 
                 display: 'inline-block', 
                 width: '12px', 
                 height: '12px', 
-                backgroundColor: entry.color, 
+                backgroundColor: entry.fill || entry.color, 
                 marginRight: '0.5rem',
                 borderRadius: '2px'
               }}></span>
-              {entry.name}: <strong style={{ color: entry.color }}>{entry.value}</strong>
+              {entry.name || entry.dataKey}: <strong style={{ color: entry.fill || entry.color }}>{entry.value}</strong>
             </p>
           );
         })}
@@ -117,6 +135,7 @@ export function RemitosChart({ data, estados, total }: RemitosChartProps) {
                 dataKey={estado.id} 
                 stackId="remitos"
                 fill={estado.color || '#3b82f6'}
+                name={estado.name}
                 radius={estado === sortedEstados[sortedEstados.length - 1] ? [4, 4, 0, 0] : [0, 0, 0, 0]} // Solo el último tiene bordes redondeados arriba
               />
             ))}
