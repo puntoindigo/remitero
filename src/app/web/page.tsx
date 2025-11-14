@@ -122,6 +122,8 @@ export default function WebPage() {
       period: "mes",
       features: [
         "Usuarios ilimitados",
+        "Multi-empresa",
+        "Múltiples sucursales",
         "Roles y permisos avanzados",
         "Reportes personalizados",
         "Soporte prioritario",
@@ -136,13 +138,11 @@ export default function WebPage() {
       period: "mes",
       features: [
         "Todo lo del plan Profesional",
-        "Multi-empresa",
         "Integración con balanzas",
         "Soporte 24/7",
         "Capacitación personalizada",
         "Desarrollo de features a medida",
-        "API personalizada",
-        "Múltiples sucursales"
+        "API personalizada"
       ],
       popular: false
     }
@@ -154,10 +154,10 @@ export default function WebPage() {
       <header className="web-header">
         <div className="web-container">
           <div className="web-header-content">
-            <div className="web-logo">
+            <a href="#" className="web-logo" onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
               <FileText className="web-logo-icon" />
               <span className="web-logo-text">Remitero</span>
-            </div>
+            </a>
             <nav className="web-nav">
               <a href="#caracteristicas">Características</a>
               <a href="#planes">Planes</a>
@@ -212,6 +212,7 @@ export default function WebPage() {
                     target="_blank" 
                     rel="noopener noreferrer" 
                     className="web-btn-primary web-btn-whatsapp-large"
+                    style={{ gap: '0.75rem' }}
                   >
                     <MessageCircle className="web-icon-inline" />
                     Solicitar
@@ -238,6 +239,7 @@ export default function WebPage() {
                     target="_blank" 
                     rel="noopener noreferrer" 
                     className="web-btn-primary web-btn-whatsapp-large"
+                    style={{ gap: '0.75rem' }}
                   >
                     <MessageCircle className="web-icon-inline" />
                     Solicitar
@@ -264,6 +266,7 @@ export default function WebPage() {
                     target="_blank" 
                     rel="noopener noreferrer" 
                     className="web-btn-primary web-btn-whatsapp-large"
+                    style={{ gap: '0.75rem' }}
                   >
                     <MessageCircle className="web-icon-inline" />
                     Solicitar
@@ -290,6 +293,7 @@ export default function WebPage() {
                     target="_blank" 
                     rel="noopener noreferrer" 
                     className="web-btn-primary web-btn-whatsapp-large"
+                    style={{ gap: '0.75rem' }}
                   >
                     <MessageCircle className="web-icon-inline" />
                     Solicitar
@@ -316,6 +320,7 @@ export default function WebPage() {
                     target="_blank" 
                     rel="noopener noreferrer" 
                     className="web-btn-primary web-btn-whatsapp-large"
+                    style={{ gap: '0.75rem' }}
                   >
                     <MessageCircle className="web-icon-inline" />
                     Solicitar
@@ -347,6 +352,7 @@ export default function WebPage() {
                     target="_blank" 
                     rel="noopener noreferrer" 
                     className="web-btn-primary web-btn-whatsapp-large"
+                    style={{ gap: '0.75rem' }}
                   >
                     <MessageCircle className="web-icon-inline" />
                     Solicitar
@@ -373,6 +379,7 @@ export default function WebPage() {
                     target="_blank" 
                     rel="noopener noreferrer" 
                     className="web-btn-primary web-btn-whatsapp-large"
+                    style={{ gap: '0.75rem' }}
                   >
                     <MessageCircle className="web-icon-inline" />
                     Solicitar
@@ -399,6 +406,7 @@ export default function WebPage() {
                     target="_blank" 
                     rel="noopener noreferrer" 
                     className="web-btn-primary web-btn-whatsapp-large"
+                    style={{ gap: '0.75rem' }}
                   >
                     <MessageCircle className="web-icon-inline" />
                     Solicitar
@@ -429,6 +437,7 @@ export default function WebPage() {
                     target="_blank" 
                     rel="noopener noreferrer" 
                     className="web-btn-primary web-btn-whatsapp-large"
+                    style={{ gap: '0.75rem' }}
                   >
                     <MessageCircle className="web-icon-inline" />
                     Solicitar
@@ -460,6 +469,7 @@ export default function WebPage() {
                     target="_blank" 
                     rel="noopener noreferrer" 
                     className="web-btn-primary web-btn-whatsapp-large"
+                    style={{ gap: '0.75rem' }}
                   >
                     <MessageCircle className="web-icon-inline" />
                     Solicitar

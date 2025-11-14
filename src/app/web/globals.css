@@ -61,6 +61,8 @@
   text-transform: uppercase;
   letter-spacing: 2px;
   transition: all 0.3s ease;
+  text-decoration: none;
+  cursor: pointer;
 }
 
 .web-logo:hover {
@@ -489,7 +491,7 @@
   font-size: 3rem;
   font-weight: 700;
   text-align: center;
-  margin-bottom: 1rem;
+  margin: 0 auto 1rem;
   color: #d4a574;
   letter-spacing: 2px;
   line-height: 1.2;
@@ -497,6 +499,7 @@
   text-transform: uppercase;
   position: relative;
   padding-bottom: 1rem;
+  width: 100%;
 }
 
 .web-section-title::after {
@@ -608,7 +611,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: -30px auto 1rem;
+  margin: -40px auto 1rem;
   color: #d4a574;
   position: relative;
   z-index: 2;
@@ -677,6 +680,9 @@
   position: relative;
   transition: all 0.3s ease;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  min-height: 600px;
 }
 
 .web-plan-card:hover {
@@ -687,6 +693,9 @@
 .web-plan-card .web-btn-whatsapp {
   opacity: 1;
   visibility: visible;
+  margin-top: auto;
+  width: 100%;
+  justify-content: center;
 }
 
 .web-plan-popular {
@@ -745,15 +754,17 @@
 }
 
 .web-plan-billing {
-  font-size: 0.75rem;
-  color: #64748b;
+  font-size: 0.875rem;
+  color: #d4a574;
   margin-left: 0.5rem;
-  font-weight: 400;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .web-plan-amount {
-  font-size: 3rem;
-  font-weight: 800;
+  font-size: 2rem;
+  font-weight: 700;
   color: #d4a574;
   letter-spacing: -0.02em;
   font-family: 'Georgia', serif;
@@ -774,14 +785,15 @@
 .web-plan-features {
   list-style: none;
   padding: 0;
-  margin: 0 0 2rem 0;
+  margin: 0 0 auto 0;
+  flex: 1;
 }
 
 .web-plan-feature {
   display: flex;
   align-items: start;
   gap: 0.75rem;
-  padding: 0.75rem 0;
+  padding: 0.5rem 0;
   color: #b8b8b8;
 }
 
