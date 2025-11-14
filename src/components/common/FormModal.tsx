@@ -265,7 +265,12 @@ export function FormModal({
           </div>
         </div>
         
-        <div className="modal-body" style={modalClassName === 'perfil-modal' ? { padding: '1.25rem' } : { padding: '1rem 0' }}>
+        <div className="modal-body" style={modalClassName === 'remito-modal' ? { 
+          padding: '1rem',
+          paddingBottom: '0.5rem',
+          maxHeight: 'calc(100vh - 200px)',
+          overflowY: 'auto'
+        } : modalClassName === 'perfil-modal' ? { padding: '1.25rem' } : { padding: '1rem 0' }}>
           {nested ? (
             // Cuando está anidado, solo renderizar children sin envolver en form
             // El children (ClienteForm) ya tiene su propio form
@@ -278,7 +283,19 @@ export function FormModal({
               
               <div 
                 className="modal-footer" 
-                style={modalClassName === 'perfil-modal' ? {
+                style={modalClassName === 'remito-modal' ? {
+                  position: 'sticky',
+                  bottom: 0,
+                  backgroundColor: '#fff',
+                  borderTop: '1px solid #e5e7eb',
+                  padding: '0.75rem 1rem',
+                  marginTop: '0.5rem',
+                  marginLeft: '-1rem',
+                  marginRight: '-1rem',
+                  marginBottom: '-1rem',
+                  zIndex: 10,
+                  boxShadow: '0 -2px 8px rgba(0, 0, 0, 0.1)'
+                } : modalClassName === 'perfil-modal' ? {
                   display: 'flex',
                   justifyContent: 'flex-end',
                   gap: '0.5rem',

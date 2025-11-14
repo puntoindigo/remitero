@@ -347,7 +347,7 @@ export function RemitoFormComplete({
       )}
       
       {/* Cliente */}
-      <div className="form-group" style={{ marginBottom: '1.5rem' }}>
+      <div className="form-group" style={{ marginBottom: '0.5rem' }}>
         <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
           <div style={{ flex: 1 }}>
             <FilterableSelect
@@ -536,31 +536,22 @@ export function RemitoFormComplete({
         </table>
       </div>
 
-      {/* Total */}
+      {/* Total y Observaciones en la misma línea */}
       <div style={{ 
         display: 'flex', 
-        justifyContent: 'flex-end', 
-        marginTop: '0.5rem',
-        marginBottom: '0.5rem',
-        padding: '0.5rem 0'
+        justifyContent: 'space-between', 
+        alignItems: 'center',
+        marginTop: '0.25rem',
+        marginBottom: '0.25rem',
+        padding: '0.25rem 0'
       }}>
-        <div style={{ fontSize: '18px', fontWeight: 500 }}>
-          Total: {total.toLocaleString('es-AR', { 
-            style: 'currency', 
-            currency: 'ARS' 
-          })}
-        </div>
-      </div>
-
-      {/* Notas (opcional) */}
-      <div className="form-group" style={{ marginTop: '0.5rem' }}>
         <button
           type="button"
           onClick={() => setShowNotes(!showNotes)}
           className="small"
           style={{ 
             fontSize: '12px', 
-            padding: '0.5rem 0', 
+            padding: '0.25rem 0', 
             color: '#3b82f6',
             backgroundColor: 'transparent',
             border: 'none',
@@ -571,36 +562,49 @@ export function RemitoFormComplete({
         >
           {showNotes ? '− Ocultar observaciones' : '+ Agregar observaciones'}
         </button>
-        {showNotes && (
+        <div style={{ fontSize: '18px', fontWeight: 500 }}>
+          Total: {total.toLocaleString('es-AR', { 
+            style: 'currency', 
+            currency: 'ARS' 
+          })}
+        </div>
+      </div>
+
+      {/* Notas (opcional) */}
+      {showNotes && (
+        <div className="form-group" style={{ marginTop: '0.25rem', marginBottom: '0.25rem' }}>
           <textarea
             {...register("notes")}
             placeholder="Observaciones del remito..."
             rows={3}
-            style={{ marginTop: '0.5rem' }}
           />
-        )}
-      </div>
+        </div>
+      )}
 
-      {/* Estado - al final del formulario */}
-      <div className="form-group" style={{ marginTop: '1.5rem', marginBottom: '1.5rem' }}>
-        <label htmlFor="status" style={{ marginBottom: '0.5rem', display: 'block', fontWeight: 500 }}>
-          Estado *
-        </label>
-        <FilterableSelect
-          options={estados.map(estado => ({ 
-            id: estado?.id, 
-            name: estado?.name,
-            color: estado.color 
-          }))}
-          value={watch("status") || ""}
-          onChange={(value) => setValue("status", value)}
-          placeholder="Seleccionar estado"
-          searchFields={["name"]}
-          showColors={true}
-          searchable={false}
-        />
+      {/* Estado - al final del formulario, en una línea */}
+      <div className="form-group" style={{ marginTop: '0.75rem', marginBottom: '0.75rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <label htmlFor="status" style={{ marginBottom: 0, display: 'block', fontWeight: 500, whiteSpace: 'nowrap' }}>
+            Estado *
+          </label>
+          <div style={{ flex: 1 }}>
+            <FilterableSelect
+              options={estados.map(estado => ({ 
+                id: estado?.id, 
+                name: estado?.name,
+                color: estado.color 
+              }))}
+              value={watch("status") || ""}
+              onChange={(value) => setValue("status", value)}
+              placeholder="Seleccionar estado"
+              searchFields={["name"]}
+              showColors={true}
+              searchable={false}
+            />
+          </div>
+        </div>
         {errors.status && (
-          <p className="error-message">{errors.status.message}</p>
+          <p className="error-message" style={{ marginTop: '0.25rem' }}>{errors.status.message}</p>
         )}
       </div>
 
