@@ -53,10 +53,14 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
   
   // Detectar si el usuario tiene contraseña temporal (DEBE estar antes de cualquier return)
   useEffect(() => {
-    if (session?.user && (session.user as any).hasTemporaryPassword) {
+    // Solo mostrar el modal si hay sesión, tiene contraseña temporal, y no estamos cambiando la contraseña
+    if (session?.user && (session.user as any).hasTemporaryPassword && !isChangingPassword) {
       setShowChangePassword(true);
+    } else if (!(session?.user && (session.user as any).hasTemporaryPassword)) {
+      // Si no tiene contraseña temporal, cerrar el modal
+      setShowChangePassword(false);
     }
-  }, [session]);
+  }, [session, isChangingPassword]);
 
   // Validar que la sesión corresponde a un usuario válido en la BD
   // Esto previene sesiones "fantasma" cuando el schema está vacío
@@ -237,15 +241,19 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
       // El endpoint PUT /api/users/[id] ya limpia has_temporary_password automáticamente
       // La actividad se registra automáticamente en el endpoint PUT /api/users/[id]
 
-      setShowChangePassword(false);
-      
       // Forzar actualización de la sesión de NextAuth antes de recargar
       // Esto asegura que hasTemporaryPassword se actualice en el token
       const { update } = await import('next-auth/react');
       await update();
       
-      // Recargar la página para aplicar los cambios
+      // Cerrar el modal después de actualizar la sesión
+      setShowChangePassword(false);
+      
+      // Esperar un momento para que la sesión se actualice antes de recargar
+      setTimeout(() => {
+        // Recargar la página para aplicar los cambios
       window.location.reload();
+      }, 500);
     } catch (error: any) {
       alert(error.message || 'Error al cambiar la contraseña');
       throw error;

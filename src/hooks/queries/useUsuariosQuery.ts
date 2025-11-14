@@ -30,7 +30,11 @@ export const usuarioKeys = {
 async function fetchUsuarios(companyId?: string): Promise<Usuario[]> {
   const url = companyId ? `/api/users?companyId=${companyId}` : '/api/users';
   const response = await fetch(url);
-  if (!response.ok) throw new Error('Error al cargar usuarios');
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    const errorMessage = errorData.message || errorData.error || 'Error al cargar usuarios';
+    throw new Error(errorMessage);
+  }
   return response.json();
 }
 
