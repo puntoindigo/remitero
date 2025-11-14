@@ -566,8 +566,16 @@ export default function WebPage() {
                 {plan.popular && <div className="web-plan-badge">Más Popular</div>}
                 <h3 className="web-plan-name">{plan.name}</h3>
                 <div className="web-plan-price">
-                  <span className="web-plan-amount">{plan.price}</span>
-                  {plan.period && <span className="web-plan-period">/{plan.period}</span>}
+                  <div className="web-plan-price-annual">
+                    <span className="web-plan-amount">{plan.priceAnnual}</span>
+                    {plan.period && <span className="web-plan-period">/{plan.period}</span>}
+                    <span className="web-plan-billing">Pago anual</span>
+                  </div>
+                  <div className="web-plan-price-monthly">
+                    <span className="web-plan-amount-monthly">{plan.priceMonthly}</span>
+                    {plan.period && <span className="web-plan-period">/{plan.period}</span>}
+                    <span className="web-plan-billing">Pago mensual</span>
+                  </div>
                 </div>
                 <ul className="web-plan-features">
                   {plan.features.map((feature, fIndex) => (
