@@ -215,6 +215,16 @@ export function ProductoForm({
     setPriceDisplay("");
   };
 
+  // Manejar ENTER en los campos para activar el submit
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      // Si es textarea, Shift+Enter crea nueva línea, Enter solo activa submit
+      // Si es input, Enter activa submit
+      e.preventDefault();
+      handleSubmit(handleFormSubmit)();
+    }
+  };
+
   return (
     <FormModal
       isOpen={isOpen}
@@ -315,6 +325,7 @@ export function ProductoForm({
             type="text"
             placeholder="Nombre *"
             className="form-input-standard"
+            onKeyDown={handleKeyDown}
           />
           {errors?.name && (
             <p className="error-message">{errors?.name.message}</p>
@@ -329,6 +340,7 @@ export function ProductoForm({
               value={priceDisplay}
               onChange={handlePriceChange}
               onBlur={handlePriceBlur}
+              onKeyDown={handleKeyDown}
               placeholder="Precio *"
               className="form-input-standard"
               inputMode="decimal"
@@ -346,6 +358,7 @@ export function ProductoForm({
           placeholder="Descripción (opcional)"
           rows={3}
           className="form-textarea-standard"
+          onKeyDown={handleKeyDown}
         />
         {errors.description && (
           <p className="error-message">{errors.description.message}</p>
