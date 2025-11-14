@@ -260,8 +260,8 @@ function CategoriasContent() {
         />
 
         <div className="form-section">
-          {/* Título Categorías */}
-          {!needsCompanySelection && (
+          {/* Título Categorías - siempre visible para SUPERADMIN */}
+          {currentUser?.role === "SUPERADMIN" && (
             <div style={{ 
               display: 'flex', 
               justifyContent: 'space-between', 
@@ -284,6 +284,18 @@ function CategoriasContent() {
                 setSelectedCompanyId={setSelectedCompanyId}
               />
             </div>
+          )}
+          {currentUser?.role !== "SUPERADMIN" && (
+            <h2 className="page-title-desktop" style={{ 
+              fontSize: '24px', 
+              fontWeight: 700, 
+              color: '#111827',
+              marginBottom: '0.75rem',
+              marginTop: '0',
+              padding: '0 16px'
+            }}>
+              Categorías
+            </h2>
           )}
 
           {/* Barra de búsqueda y botón nuevo */}

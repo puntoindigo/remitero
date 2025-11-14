@@ -526,8 +526,8 @@ function RemitosContent() {
       
       <main className="main-content">
         <div className="form-section">
-        {/* Título Remitos */}
-        {!needsCompanySelection && (
+        {/* Título Remitos - siempre visible para SUPERADMIN */}
+        {currentUser?.role === "SUPERADMIN" && (
           <div style={{ 
             display: 'flex', 
             justifyContent: 'space-between', 
@@ -550,6 +550,18 @@ function RemitosContent() {
               setSelectedCompanyId={setSelectedCompanyId}
             />
           </div>
+        )}
+        {currentUser?.role !== "SUPERADMIN" && (
+          <h2 className="page-title-desktop" style={{ 
+            fontSize: isMobile ? '24px' : undefined, 
+            fontWeight: isMobile ? 700 : undefined, 
+            color: isMobile ? '#111827' : undefined,
+            marginBottom: '0.75rem',
+            marginTop: '0',
+            padding: '0 16px'
+          }}>
+            Remitos
+          </h2>
         )}
 
         {/* Barra de búsqueda y filtros */}

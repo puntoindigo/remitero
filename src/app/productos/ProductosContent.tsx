@@ -522,8 +522,8 @@ function ProductosContent() {
         />
 
         <div className="form-section">
-          {/* Título Productos */}
-          {companyId && (
+          {/* Título Productos - siempre visible para SUPERADMIN */}
+          {currentUser?.role === "SUPERADMIN" && (
             <div style={{ 
               display: 'flex', 
               justifyContent: 'space-between', 
@@ -546,6 +546,18 @@ function ProductosContent() {
                 setSelectedCompanyId={setSelectedCompanyId}
               />
             </div>
+          )}
+          {currentUser?.role !== "SUPERADMIN" && companyId && (
+            <h2 className="page-title-desktop" style={{ 
+              fontSize: '24px', 
+              fontWeight: 700, 
+              color: '#111827',
+              marginBottom: '0.75rem',
+              marginTop: '0',
+              padding: '0 16px'
+            }}>
+              Productos
+            </h2>
           )}
 
           {/* Barra de búsqueda, filtros y botón nuevo */}

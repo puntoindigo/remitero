@@ -331,8 +331,8 @@ function EstadosRemitosContent() {
         />
 
         <div className="form-section">
-          {/* Título Estados */}
-          {!needsCompanySelection && (
+          {/* Título Estados - siempre visible para SUPERADMIN */}
+          {currentUser?.role === "SUPERADMIN" && (
             <div style={{ 
               display: 'flex', 
               justifyContent: 'space-between', 
@@ -355,6 +355,18 @@ function EstadosRemitosContent() {
                 setSelectedCompanyId={setSelectedCompanyId}
               />
             </div>
+          )}
+          {currentUser?.role !== "SUPERADMIN" && (
+            <h2 className="page-title-desktop" style={{ 
+              fontSize: '24px', 
+              fontWeight: 700, 
+              color: '#111827',
+              marginBottom: '0.75rem',
+              marginTop: '0',
+              padding: '0 16px'
+            }}>
+              Estados
+            </h2>
           )}
 
           {/* Barra de búsqueda y botón nuevo */}
