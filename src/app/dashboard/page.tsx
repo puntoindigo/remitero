@@ -17,7 +17,8 @@ interface DashboardStats {
   remitos: {
     total: number;
     byStatus: Array<{ id: string; name: string; count: number; color: string }>;
-    byDay?: Array<{ date: string; count: number; label: string }>;
+    byDay?: Array<any>;
+    estados?: Array<{ id: string; name: string; color: string }>;
   };
   productos: {
     total: number;
@@ -409,15 +410,12 @@ export default function DashboardPage() {
                 
                 {/* Body - Gráfico con estados integrados */}
                 <div className="dashboard-card-body">
-                  {isRemitosCard && stats.remitos.byStatus && stats.remitos.byStatus.length > 0 ? (
+                  {isRemitosCard && stats.remitos.byDay && stats.remitos.byDay.length > 0 && stats.remitos.estados ? (
                     <div style={{ padding: '0.5rem 0' }}>
                       <RemitosChart 
-                        data={stats.remitos.byStatus.map(s => ({
-                          name: s.name,
-                          count: s.count,
-                          color: s.color || '#3b82f6',
-                          id: s.id
-                        }))} 
+                        data={stats.remitos.byDay}
+                        estados={stats.remitos.estados}
+                        total={stats.remitos.total}
                       />
                     </div>
                   ) : isRemitosCard ? (
@@ -448,19 +446,9 @@ export default function DashboardPage() {
                   )}
                 </div>
 
-                {/* Footer - Acciones con contador de total para Remitos */}
+                {/* Footer - Acciones */}
                 <div className="dashboard-card-footer">
                   <div className="dashboard-buttons-row" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                    {isRemitosCard && (
-                      <span className="dashboard-stat-number" style={{ 
-                        fontSize: '1rem',
-                        fontWeight: 600,
-                        color: '#111827',
-                        marginRight: 'auto'
-                      }}>
-                        {stats.remitos.total}
-                      </span>
-                    )}
                     <Link href={card.stats[0].link} className="dashboard-view-button">
                       <Eye className="h-4 w-4" />
                       Ver {card.title.toLowerCase()}

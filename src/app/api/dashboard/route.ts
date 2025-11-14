@@ -65,18 +65,22 @@ export async function GET(request: NextRequest) {
     const byStatusMap: Record<string, { id: string; name: string; count: number; color: string }> = {};
     let todayRemitos = 0;
     
-    // Calcular remitos por día (últimos 30 días)
-    const daysMap: Record<string, number> = {};
+    // Calcular remitos por día y por estado (últimos 30 días)
+    const daysMap: Record<string, Record<string, number>> = {};
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
     thirtyDaysAgo.setHours(0, 0, 0, 0);
     
-    // Inicializar todos los días con 0
+    // Inicializar todos los días con 0 para cada estado
     for (let i = 0; i < 30; i++) {
       const date = new Date(thirtyDaysAgo);
       date.setDate(date.getDate() + i);
       const dateKey = date.toISOString().split('T')[0]; // YYYY-MM-DD
-      daysMap[dateKey] = 0;
+      daysMap[dateKey] = {};
+      // Inicializar cada estado con 0
+      for (const estadoId of estadoMap.keys()) {
+        daysMap[dateKey][estadoId] = 0;
+      }
     }
     
     for (const r of remitosData || []) {
@@ -88,23 +92,49 @@ export async function GET(request: NextRequest) {
       byStatusMap[id].count += 1;
       if (r.created_at >= startIso) todayRemitos += 1;
       
-      // Contar por día
+      // Contar por día y por estado
       const remitoDate = new Date(r.created_at);
       if (remitoDate >= thirtyDaysAgo) {
         const dateKey = remitoDate.toISOString().split('T')[0];
-        if (daysMap[dateKey] !== undefined) {
-          daysMap[dateKey] = (daysMap[dateKey] || 0) + 1;
+        if (daysMap[dateKey]) {
+          daysMap[dateKey][id] = (daysMap[dateKey][id] || 0) + 1;
         }
       }
     }
     
-    // Convertir a array ordenado para el gráfico
+    // Función para determinar orden de apilado: pendientes abajo (rojo), entregados arriba (verde)
+    const getStatusOrder = (statusName: string): number => {
+      const nameLower = statusName.toLowerCase();
+      if (nameLower.includes('pendiente') || nameLower.includes('en espera') || nameLower.includes('sin entregar')) {
+        return 1; // Abajo (primero en el stack)
+      }
+      if (nameLower.includes('entregado') || nameLower.includes('completado') || nameLower.includes('finalizado')) {
+        return 100; // Arriba (último en el stack)
+      }
+      return 50; // Medio
+    };
+    
+    // Convertir a array ordenado para el gráfico con desglose por estado
     const remitosByDay = Object.entries(daysMap)
-      .map(([date, count]) => ({
-        date,
-        count,
-        label: new Date(date).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit' })
-      }))
+      .map(([date, statusCounts]) => {
+        const dayData: any = {
+          date,
+          label: new Date(date).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit' })
+        };
+        
+        // Agregar cada estado como una propiedad separada
+        for (const [estadoId, count] of Object.entries(statusCounts)) {
+          const estado = estadoMap.get(estadoId);
+          if (estado) {
+            dayData[estadoId] = count;
+            dayData[`${estadoId}_name`] = estado.name;
+            dayData[`${estadoId}_color`] = estado.color || '#3b82f6';
+            dayData[`${estadoId}_order`] = getStatusOrder(estado.name);
+          }
+        }
+        
+        return dayData;
+      })
       .sort((a, b) => a.date.localeCompare(b.date));
 
     // Función helper para construir queries con o sin filtro de company_id
@@ -257,5 +287,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Error interno' }, { status: 500 });
   }
 }
+
+
 
 
