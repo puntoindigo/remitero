@@ -10,6 +10,7 @@ export function formatDateTime(date: Date | string): string {
     day: "2-digit",
     hour: "2-digit",
     minute: "2-digit",
+    hour12: false, // Formato 24hs
   });
 }
 

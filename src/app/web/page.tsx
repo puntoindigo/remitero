@@ -15,6 +15,9 @@ export default function WebPage() {
   const [formStatus, setFormStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
   const [currentSlide, setCurrentSlide] = useState(0);
   const [showLoginDropdown, setShowLoginDropdown] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState(1); // Plan Profesional por defecto
+  const [featuresVisible, setFeaturesVisible] = useState(false);
+  const [loginFlipped, setLoginFlipped] = useState(false);
 
   // Auto-play del carrusel
   useEffect(() => {
@@ -23,6 +26,31 @@ export default function WebPage() {
     }, 5000); // Cambia cada 5 segundos
 
     return () => clearInterval(interval);
+  }, []);
+
+  // Intersection Observer para animar features cuando se vuelven visibles
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setFeaturesVisible(true);
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    const featuresSection = document.getElementById('caracteristicas');
+    if (featuresSection) {
+      observer.observe(featuresSection);
+    }
+
+    return () => {
+      if (featuresSection) {
+        observer.unobserve(featuresSection);
+      }
+    };
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -73,9 +101,9 @@ export default function WebPage() {
       description: "Genera reportes personalizados de ventas, compras y análisis de tendencias."
     },
     {
-      icon: Zap,
-      title: "Integración con Balanzas",
-      description: "Conecta tu sistema con balanzas para control de peso en tiempo real."
+      icon: FileText,
+      title: "Generador de Catálogos",
+      description: "Crea catálogos digitales de tus productos listos para impresión y compartir online."
     },
     {
       icon: Globe,
@@ -88,14 +116,14 @@ export default function WebPage() {
       description: "Integración con lectores de huella digital para control de asistencia, turnos e identidad de personal."
     },
     {
-      icon: FileText,
-      title: "Generador de Catálogos Online",
-      description: "Crea catálogos digitales de tus productos listos para impresión y compartir online."
-    },
-    {
       icon: Package,
       title: "Integración con Lectores de Barra",
       description: "Conecta lectores de código de barras para agilizar la gestión de productos y stock."
+    },
+    {
+      icon: Zap,
+      title: "Integración con Balanzas",
+      description: "Conecta tu sistema con balanzas para control de peso en tiempo real."
     }
   ];
 
@@ -133,9 +161,10 @@ export default function WebPage() {
     },
     {
       name: "Enterprise",
-      priceAnnual: "Desde $120.000",
-      priceMonthly: "Desde $140.000",
+      priceAnnual: "$120.000",
+      priceMonthly: "$140.000",
       period: "mes",
+      desde: true,
       features: [
         "Todo lo del plan Profesional",
         "Integración con balanzas",
@@ -166,24 +195,57 @@ export default function WebPage() {
                 onMouseEnter={() => setShowLoginDropdown(true)}
                 onMouseLeave={() => setShowLoginDropdown(false)}
               >
-                <button className="web-btn-secondary web-login-trigger">
+                <button 
+                  className="web-btn-secondary web-login-trigger"
+                  onClick={() => setShowLoginDropdown(!showLoginDropdown)}
+                >
                   Iniciar Sesión
                   <ChevronRight className="web-icon-inline" style={{ transform: 'rotate(90deg)', transition: 'transform 0.2s' }} />
                 </button>
                 {showLoginDropdown && (
                   <div className="web-login-dropdown">
-                    <Link href="/auth/login" className="web-login-option">
-                      <div className="web-login-option-content">
-                        <strong>Iniciar con Google</strong>
-                        <span>Acceso rápido con tu cuenta de Gmail</span>
+                    <div className={`web-login-flip-container ${loginFlipped ? 'flipped' : ''}`}>
+                      <div className="web-login-flip-front">
+                        <Link href="/auth/login" className="web-login-option">
+                          <div className="web-login-option-content">
+                            <strong>Iniciar con Google</strong>
+                            <span>Acceso rápido con tu cuenta de Gmail</span>
+                          </div>
+                        </Link>
+                        <button 
+                          className="web-login-option web-login-flip-trigger"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setLoginFlipped(true);
+                          }}
+                        >
+                          <div className="web-login-option-content">
+                            <strong>Iniciar con Email</strong>
+                            <span>Usa tu email y contraseña</span>
+                          </div>
+                        </button>
                       </div>
-                    </Link>
-                    <Link href="/auth/login" className="web-login-option">
-                      <div className="web-login-option-content">
-                        <strong>Iniciar con Email</strong>
-                        <span>Usa tu email y contraseña</span>
+                      <div className="web-login-flip-back">
+                        <button 
+                          className="web-login-option web-login-flip-trigger"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setLoginFlipped(false);
+                          }}
+                        >
+                          <div className="web-login-option-content">
+                            <strong>← Volver</strong>
+                            <span>O inicia con Google</span>
+                          </div>
+                        </button>
+                        <Link href="/auth/login" className="web-login-option">
+                          <div className="web-login-option-content">
+                            <strong>Iniciar con Email</strong>
+                            <span>Usa tu email y contraseña</span>
+                          </div>
+                        </Link>
                       </div>
-                    </Link>
+                    </div>
                   </div>
                 )}
               </div>
@@ -212,7 +274,7 @@ export default function WebPage() {
                     target="_blank" 
                     rel="noopener noreferrer" 
                     className="web-btn-primary web-btn-whatsapp-large"
-                    style={{ gap: '0.75rem' }}
+                    style={{ gap: '1rem' }}
                   >
                     <MessageCircle className="web-icon-inline" />
                     Solicitar
@@ -239,7 +301,7 @@ export default function WebPage() {
                     target="_blank" 
                     rel="noopener noreferrer" 
                     className="web-btn-primary web-btn-whatsapp-large"
-                    style={{ gap: '0.75rem' }}
+                    style={{ gap: '1rem' }}
                   >
                     <MessageCircle className="web-icon-inline" />
                     Solicitar
@@ -266,7 +328,7 @@ export default function WebPage() {
                     target="_blank" 
                     rel="noopener noreferrer" 
                     className="web-btn-primary web-btn-whatsapp-large"
-                    style={{ gap: '0.75rem' }}
+                    style={{ gap: '1rem' }}
                   >
                     <MessageCircle className="web-icon-inline" />
                     Solicitar
@@ -293,7 +355,7 @@ export default function WebPage() {
                     target="_blank" 
                     rel="noopener noreferrer" 
                     className="web-btn-primary web-btn-whatsapp-large"
-                    style={{ gap: '0.75rem' }}
+                    style={{ gap: '1rem' }}
                   >
                     <MessageCircle className="web-icon-inline" />
                     Solicitar
@@ -320,7 +382,7 @@ export default function WebPage() {
                     target="_blank" 
                     rel="noopener noreferrer" 
                     className="web-btn-primary web-btn-whatsapp-large"
-                    style={{ gap: '0.75rem' }}
+                    style={{ gap: '1rem' }}
                   >
                     <MessageCircle className="web-icon-inline" />
                     Solicitar
@@ -352,7 +414,7 @@ export default function WebPage() {
                     target="_blank" 
                     rel="noopener noreferrer" 
                     className="web-btn-primary web-btn-whatsapp-large"
-                    style={{ gap: '0.75rem' }}
+                    style={{ gap: '1rem' }}
                   >
                     <MessageCircle className="web-icon-inline" />
                     Solicitar
@@ -379,7 +441,7 @@ export default function WebPage() {
                     target="_blank" 
                     rel="noopener noreferrer" 
                     className="web-btn-primary web-btn-whatsapp-large"
-                    style={{ gap: '0.75rem' }}
+                    style={{ gap: '1rem' }}
                   >
                     <MessageCircle className="web-icon-inline" />
                     Solicitar
@@ -406,7 +468,7 @@ export default function WebPage() {
                     target="_blank" 
                     rel="noopener noreferrer" 
                     className="web-btn-primary web-btn-whatsapp-large"
-                    style={{ gap: '0.75rem' }}
+                    style={{ gap: '1rem' }}
                   >
                     <MessageCircle className="web-icon-inline" />
                     Solicitar
@@ -437,7 +499,7 @@ export default function WebPage() {
                     target="_blank" 
                     rel="noopener noreferrer" 
                     className="web-btn-primary web-btn-whatsapp-large"
-                    style={{ gap: '0.75rem' }}
+                    style={{ gap: '1rem' }}
                   >
                     <MessageCircle className="web-icon-inline" />
                     Solicitar
@@ -469,7 +531,7 @@ export default function WebPage() {
                     target="_blank" 
                     rel="noopener noreferrer" 
                     className="web-btn-primary web-btn-whatsapp-large"
-                    style={{ gap: '0.75rem' }}
+                    style={{ gap: '1rem' }}
                   >
                     <MessageCircle className="web-icon-inline" />
                     Solicitar
@@ -515,7 +577,11 @@ export default function WebPage() {
           <h2 className="web-section-title">Características Principales</h2>
           <div className="web-features-grid">
             {features.map((feature, index) => (
-              <div key={index} className="web-feature-card">
+              <div 
+                key={index} 
+                className={`web-feature-card ${featuresVisible ? 'web-feature-card-visible' : ''}`}
+                style={{ animationDelay: `${index * 0.1}s` }}
+              >
                 <div className="web-feature-icon">
                   <feature.icon className="web-icon" />
                 </div>
@@ -571,41 +637,70 @@ export default function WebPage() {
             Elige el plan que mejor se adapte a tu negocio
           </p>
           <div className="web-plans-grid">
-            {plans.map((plan, index) => (
-              <div key={index} className={`web-plan-card ${plan.popular ? "web-plan-popular" : ""}`}>
-                {plan.popular && <div className="web-plan-badge">Más Popular</div>}
-                <h3 className="web-plan-name">{plan.name}</h3>
-                <div className="web-plan-price">
-                  <div className="web-plan-price-annual">
-                    <span className="web-plan-amount">{plan.priceAnnual}</span>
-                    {plan.period && <span className="web-plan-period">/{plan.period}</span>}
-                    <span className="web-plan-billing">Pago anual</span>
-                  </div>
-                  <div className="web-plan-price-monthly">
-                    <span className="web-plan-amount-monthly">{plan.priceMonthly}</span>
-                    {plan.period && <span className="web-plan-period">/{plan.period}</span>}
-                    <span className="web-plan-billing">Pago mensual</span>
-                  </div>
-                </div>
-                <ul className="web-plan-features">
-                  {plan.features.map((feature, fIndex) => (
-                    <li key={fIndex} className="web-plan-feature">
-                      <CheckCircle className="web-icon-small" />
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
-                <a 
-                  href="https://wa.me/5491166882626" 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  className={`web-btn web-btn-whatsapp ${plan.popular ? "web-btn-primary" : "web-btn-outline"}`}
+            {plans.map((plan, index) => {
+              const isSelected = selectedPlan === index;
+              return (
+                <div 
+                  key={index} 
+                  className={`web-plan-card ${isSelected ? "web-plan-selected" : ""}`}
+                  onMouseEnter={() => setSelectedPlan(index)}
+                  onClick={() => setSelectedPlan(index)}
+                  style={{ cursor: 'pointer' }}
                 >
-                  <MessageCircle className="web-icon-inline" />
-                  Solicitar
-                </a>
-              </div>
-            ))}
+                  {isSelected && <div className="web-plan-badge">Más Popular</div>}
+                  <h3 className="web-plan-name">{plan.name}</h3>
+                  <div className="web-plan-price">
+                    {plan.desde && <span className="web-plan-desde">Desde</span>}
+                    <div className="web-plan-price-annual">
+                      <span className="web-plan-amount">{plan.priceAnnual}</span>
+                      {plan.period && <span className="web-plan-period">/{plan.period}</span>}
+                      <span className="web-plan-billing">Pago anual</span>
+                    </div>
+                    <div className="web-plan-price-monthly">
+                      <span className="web-plan-amount-monthly">{plan.priceMonthly}</span>
+                      {plan.period && <span className="web-plan-period">/{plan.period}</span>}
+                      <span className="web-plan-billing">Pago mensual</span>
+                    </div>
+                  </div>
+                  <ul className="web-plan-features">
+                    {plan.features.map((feature, fIndex) => (
+                      <li key={fIndex} className="web-plan-feature">
+                        <CheckCircle className="web-icon-small" />
+                        {feature}
+                      </li>
+                    ))}
+                  </ul>
+                  <a 
+                    href="https://wa.me/5491166882626" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className={`web-btn web-btn-whatsapp ${isSelected ? "web-btn-primary" : "web-btn-outline"}`}
+                  >
+                    <MessageCircle className="web-icon-inline" />
+                    Solicitar
+                  </a>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* Asesor Section */}
+      <section className="web-section web-section-asesor">
+        <div className="web-container">
+          <div className="web-asesor-content">
+            <h2 className="web-asesor-title">¿Necesitas ayuda para elegir el plan ideal?</h2>
+            <p className="web-asesor-subtitle">Habla con nuestro equipo y te ayudamos a encontrar la solución perfecta para tu negocio</p>
+            <a 
+              href="https://wa.me/5491166882626" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="web-btn-asesor"
+            >
+              <MessageCircle className="web-asesor-icon" />
+              <span>Solicitar Asesor</span>
+            </a>
           </div>
         </div>
       </section>

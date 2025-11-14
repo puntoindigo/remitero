@@ -322,8 +322,7 @@ export async function sendInvitationEmail({
     if (shouldShowTempPassword && tempPassword) {
       const cleanTempPassword = tempPassword.trim();
       tempPasswordHtml = `
-                <p style="margin-top: 15px;"><strong>Contraseña temporal:</strong></p>
-                <p style="background-color: #fef3c7; padding: 8px 12px; border-radius: 4px; font-family: 'Courier New', monospace; font-weight: bold; font-size: 16px; color: #92400e; letter-spacing: 2px; text-align: center; border: 2px solid #f59e0b; display: inline-block; max-width: 300px; margin: 0 auto;">${cleanTempPassword}</p>
+                <p style="margin-top: 15px;"><strong>Contraseña temporal:</strong> <span style="background-color: #fef3c7; padding: 8px 12px; border-radius: 4px; font-family: 'Courier New', monospace; font-weight: bold; font-size: 16px; color: #92400e; letter-spacing: 2px; border: 2px solid #f59e0b; display: inline-block; margin-left: 8px;">${cleanTempPassword}</span></p>
                 <p style="font-size: 0.875rem; color: #ef4444; margin-top: 10px; font-weight: bold;">⚠️ IMPORTANTE: Esta es una contraseña temporal. Deberás cambiarla al primer acceso.</p>
                 `;
       console.log('✅ [Email] HTML de contraseña temporal generado:', {
@@ -461,19 +460,12 @@ export async function sendInvitationEmail({
               </div>
               
               <div style="text-align: center; margin: 30px 0;">
-                <!-- Botón principal - compatible con todos los clientes de email -->
-                <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin: 0 auto;">
-                  <tr>
-                    <td style="background-color: #2563eb; border-radius: 8px; padding: 0;">
-                      <a href="${loginUrl}" style="display: inline-block; background-color: #2563eb; color: #ffffff !important; text-decoration: none; padding: 14px 28px; border-radius: 8px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 6px rgba(37, 99, 235, 0.3);">Acceder al Sistema</a>
-                    </td>
-                  </tr>
-                </table>
+                <a href="${loginUrl}" style="color: #2563eb; text-decoration: underline; font-size: 16px; font-weight: 600;">Acceder al Sistema</a>
               </div>
               
               <p style="margin-top: 20px; font-size: 13px; color: #6b7280; text-align: center;">
-                Si el botón no funciona, copia y pega este enlace en tu navegador:<br>
-                <a href="${loginUrl}" style="color: #2563eb; word-break: break-all; text-decoration: underline; font-size: 12px;">${loginUrl}</a>
+                Si el enlace no funciona, copia y pega esta URL en tu navegador:<br>
+                <span style="color: #2563eb; word-break: break-all; font-size: 12px; font-family: monospace;">${loginUrl}</span>
               </p>
               
               <p style="margin-top: 30px;">

@@ -599,7 +599,7 @@ function RemitosContent() {
               />
             </div>
             
-            <div style={{ width: isMobile ? '100%' : '180px', flexShrink: 0 }}>
+            <div style={{ width: isMobile ? '100%' : '220px', flexShrink: 0 }}>
               <FilterableSelect
                 options={[
                   { id: 'all', name: 'Todos los estados' },

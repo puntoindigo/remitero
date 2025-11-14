@@ -2933,7 +2933,7 @@ form svg {
 }
 
 .modal.form-modal.remito-modal table .vercel-select-dropdown {
-  z-index: 10001 !important;
+  z-index: 10002 !important;
   position: absolute !important;
   min-width: 100%;
 }

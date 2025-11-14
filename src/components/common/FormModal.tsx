@@ -295,7 +295,7 @@ export function FormModal({
                   marginLeft: '-1rem',
                   marginRight: '-1rem',
                   marginBottom: '-1rem',
-                  zIndex: 10,
+                  zIndex: 10001,
                   boxShadow: '0 -2px 8px rgba(0, 0, 0, 0.1)',
                   display: 'flex',
                   justifyContent: 'space-between',

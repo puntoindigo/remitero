@@ -541,11 +541,38 @@
 /* Features Grid */
 .web-features-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 2rem;
   margin-top: 3rem;
 }
 
+/* Centrar las últimas 2 cards cuando hay 5 en total (3 arriba, 2 abajo centradas) */
+.web-features-grid:has(.web-feature-card:nth-child(5)) .web-feature-card:nth-child(4) {
+  grid-column: 2;
+}
+
+.web-features-grid:has(.web-feature-card:nth-child(5)) .web-feature-card:nth-child(5) {
+  grid-column: 2;
+}
+
+@media (max-width: 1024px) {
+  .web-features-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .web-features-grid:has(.web-feature-card:nth-child(5)) .web-feature-card:nth-child(4),
+  .web-features-grid:has(.web-feature-card:nth-child(5)) .web-feature-card:nth-child(5) {
+    grid-column: span 1;
+  }
+}
+
+@media (max-width: 768px) {
+  .web-features-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Animación de aparición para las cards */
 .web-feature-card {
   background: rgba(30, 30, 30, 0.8);
   padding: 0;
@@ -558,6 +585,14 @@
   min-height: 320px;
   display: flex;
   flex-direction: column;
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+.web-feature-card-visible {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.6s ease, transform 0.6s ease;
 }
 
 .web-feature-card::before {
@@ -624,7 +659,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: -40px auto 1rem;
+  margin: 40px auto 1rem;
   color: #d4a574;
   position: relative;
   z-index: 2;
@@ -717,6 +752,13 @@
   background: rgba(35, 35, 35, 0.95);
 }
 
+.web-plan-selected {
+  border-color: #d4a574;
+  box-shadow: 0 6px 20px rgba(212, 165, 116, 0.4);
+  background: rgba(35, 35, 35, 0.95);
+  transform: translateY(-4px);
+}
+
 .web-plan-badge {
   position: absolute;
   top: -12px;
@@ -749,6 +791,16 @@
   align-items: center;
   gap: 0.75rem;
   margin-bottom: 2rem;
+  position: relative;
+}
+
+.web-plan-desde {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .web-plan-price-annual {
@@ -756,6 +808,7 @@
   align-items: baseline;
   justify-content: center;
   gap: 0.25rem;
+  flex-wrap: wrap;
 }
 
 .web-plan-price-monthly {
@@ -763,6 +816,7 @@
   align-items: baseline;
   justify-content: center;
   gap: 0.25rem;
+  flex-wrap: wrap;
   opacity: 0.7;
 }
 
@@ -776,12 +830,13 @@
 }
 
 .web-plan-amount {
-  font-size: 2rem;
+  font-size: 1.75rem;
   font-weight: 700;
   color: #d4a574;
   letter-spacing: -0.02em;
   font-family: 'Georgia', serif;
 }
+
 
 .web-plan-amount-monthly {
   font-size: 1.5rem;
@@ -1025,6 +1080,102 @@
 .web-footer-copyright {
   color: #6b7280;
   font-size: 0.875rem;
+}
+
+/* Asesor Section */
+.web-section-asesor {
+  background: linear-gradient(135deg, rgba(139, 90, 60, 0.1) 0%, rgba(107, 68, 35, 0.15) 100%);
+  border-top: 1px solid rgba(212, 165, 116, 0.2);
+  border-bottom: 1px solid rgba(212, 165, 116, 0.2);
+}
+
+.web-asesor-content {
+  text-align: center;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem 0;
+}
+
+.web-asesor-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #d4a574;
+  margin-bottom: 1rem;
+  font-family: 'Georgia', serif;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.web-asesor-subtitle {
+  font-size: 1.25rem;
+  color: #b8b8b8;
+  margin-bottom: 2.5rem;
+  line-height: 1.7;
+}
+
+.web-btn-asesor {
+  display: inline-flex;
+  align-items: center;
+  gap: 1rem;
+  background: linear-gradient(135deg, #25d366 0%, #20ba5a 100%);
+  color: #ffffff;
+  padding: 1.5rem 3rem;
+  border-radius: 0.75rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  text-decoration: none;
+  box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4);
+  transition: all 0.3s ease;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.web-btn-asesor:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(37, 211, 102, 0.6);
+  background: linear-gradient(135deg, #2ee576 0%, #25d366 100%);
+}
+
+.web-asesor-icon {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+}
+
+/* Login Flip Animation */
+.web-login-flip-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  perspective: 1000px;
+}
+
+.web-login-flip-front,
+.web-login-flip-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  transition: transform 0.6s;
+}
+
+.web-login-flip-back {
+  transform: rotateY(180deg);
+}
+
+.web-login-flip-container.flipped .web-login-flip-front {
+  transform: rotateY(180deg);
+}
+
+.web-login-flip-container.flipped .web-login-flip-back {
+  transform: rotateY(0deg);
+}
+
+.web-login-flip-trigger {
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  cursor: pointer;
 }
 
 /* Responsive */
