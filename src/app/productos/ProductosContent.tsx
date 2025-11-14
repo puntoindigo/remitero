@@ -522,29 +522,6 @@ function ProductosContent() {
         />
 
         <div className="form-section">
-          {/* Selector de empresa - pegado al top (solo superusuario) - mostrar inmediatamente incluso si está cargando */}
-          {shouldShowCompanySelector && (
-            <div style={{ 
-              marginBottom: '0', 
-              marginTop: 0,
-              padding: '0 16px',
-              width: '100%',
-              maxWidth: '100%',
-              boxSizing: 'border-box'
-            }}>
-              <FilterableSelect
-                options={empresas || []}
-                value={selectedCompanyId}
-                onChange={setSelectedCompanyId}
-                placeholder={empresasLoading ? "Cargando empresas..." : "Seleccionar empresa"}
-                searchFields={["name"]}
-                className="w-full"
-                useThemeColors={true}
-                disabled={empresasLoading && (!empresas || empresas.length === 0)}
-              />
-            </div>
-          )}
-
           {/* Título Productos */}
           {companyId && (
             <div style={{ 

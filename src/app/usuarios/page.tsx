@@ -659,29 +659,6 @@ function UsuariosContent() {
         />
 
         <div className="form-section">
-          {/* Selector de empresa - siempre arriba, ancho completo - mostrar inmediatamente incluso si está cargando */}
-          {shouldShowCompanySelector && (
-            <div className="company-selector-wrapper" style={{ 
-              marginBottom: '0', 
-              marginTop: 0,
-              padding: '0 16px'
-            }}>
-              <FilterableSelect
-                options={[
-                  { id: "", name: "Todas las empresas" },
-                  ...(empresas || [])
-                ]}
-                value={selectedCompanyId}
-                onChange={setSelectedCompanyId}
-                placeholder={empresasLoading ? "Cargando empresas..." : "Seleccionar empresa"}
-                searchFields={["name"]}
-                className="w-full"
-                useThemeColors={true}
-                disabled={empresasLoading && (!empresas || empresas.length === 0)}
-              />
-            </div>
-          )}
-
           {/* Título Usuarios */}
           <div style={{ 
             display: 'flex', 
