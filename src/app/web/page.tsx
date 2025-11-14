@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { FileText, Package, Users, Building2, BarChart3, CheckCircle, ArrowRight, Phone, Mail, Send, TrendingUp, Shield, Zap, Globe, Fingerprint, MessageCircle } from "lucide-react";
+import { FileText, Package, Users, Building2, BarChart3, CheckCircle, ArrowRight, Phone, Mail, Send, TrendingUp, Shield, Zap, Globe, Fingerprint, MessageCircle, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 
 export default function WebPage() {
@@ -13,6 +13,7 @@ export default function WebPage() {
     wantCall: false
   });
   const [formStatus, setFormStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
+  const [currentSlide, setCurrentSlide] = useState(0);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -151,57 +152,240 @@ export default function WebPage() {
         </div>
       </header>
 
-      {/* Hero Section */}
+      {/* Hero Section - Carousel */}
       <section className="web-hero">
-        <div className="web-hero-background">
-          <img 
-            src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1920&q=80" 
-            alt="Almacén moderno"
-            className="web-hero-bg-image"
-          />
-          <div className="web-hero-overlay"></div>
-        </div>
-        <div className="web-container">
-          <div className="web-hero-content">
-            <h1 className="web-hero-title">
-              Administra tu negocio desde cualquier lugar
-            </h1>
-            <p className="web-hero-subtitle">
-              Sistema completo de gestión de remitos con control de stock, clientes y reportes en tiempo real.
-              La evolución de tu empresa, a un click de distancia.
-            </p>
-            <div className="web-hero-features">
-              <div className="web-hero-feature">
-                <CheckCircle className="web-icon-small" />
-                <span>Cierre de caja por turnos</span>
-              </div>
-              <div className="web-hero-feature">
-                <CheckCircle className="web-icon-small" />
-                <span>Control de stock en tiempo real</span>
-              </div>
-              <div className="web-hero-feature">
-                <CheckCircle className="web-icon-small" />
-                <span>Visualización de ventas minuto a minuto</span>
-              </div>
-              <div className="web-hero-feature">
-                <CheckCircle className="web-icon-small" />
-                <span>Recargos, descuentos y promociones</span>
-              </div>
-              <div className="web-hero-feature">
-                <CheckCircle className="web-icon-small" />
-                <span>Reportes de compras y ventas</span>
-              </div>
+        <div className="web-hero-carousel">
+          {/* Slide 1: Almacén moderno con overlay azul */}
+          <div className={`web-hero-slide ${currentSlide === 0 ? 'active' : ''}`}>
+            <div className="web-hero-slide-number">1</div>
+            <div className="web-hero-background">
+              <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1920&q=80" alt="Almacén" className="web-hero-bg-image" />
+              <div className="web-hero-overlay" style={{ background: 'linear-gradient(135deg, rgba(30, 58, 138, 0.92) 0%, rgba(79, 70, 229, 0.92) 100%)' }}></div>
             </div>
-            <div className="web-hero-cta">
-              <a href="#contacto" className="web-btn-primary">
-                Solicitar Demo
-                <ArrowRight className="web-icon-inline" />
-              </a>
-              <Link href="/auth/login" className="web-btn-outline">
-                Probar Gratis
-              </Link>
+            <div className="web-container">
+              <div className="web-hero-content">
+                <h1 className="web-hero-title">Administra tu negocio desde cualquier lugar</h1>
+                <p className="web-hero-subtitle">Sistema completo de gestión de remitos con control de stock, clientes y reportes en tiempo real.</p>
+                <div className="web-hero-cta">
+                  <a href="#contacto" className="web-btn-primary">Solicitar Demo <ArrowRight className="web-icon-inline" /></a>
+                  <Link href="/auth/login" className="web-btn-outline">Probar Gratis</Link>
+                </div>
+              </div>
             </div>
           </div>
+
+          {/* Slide 2: Cajas de supermercado con overlay verde */}
+          <div className={`web-hero-slide ${currentSlide === 1 ? 'active' : ''}`}>
+            <div className="web-hero-slide-number">2</div>
+            <div className="web-hero-background">
+              <img src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=1920&q=80" alt="Cajas" className="web-hero-bg-image" />
+              <div className="web-hero-overlay" style={{ background: 'linear-gradient(135deg, rgba(5, 150, 105, 0.92) 0%, rgba(16, 185, 129, 0.92) 100%)' }}></div>
+            </div>
+            <div className="web-container">
+              <div className="web-hero-content">
+                <h1 className="web-hero-title">Control total de tu inventario</h1>
+                <p className="web-hero-subtitle">Gestiona productos, stock y ventas desde un solo lugar. La solución completa para tu negocio.</p>
+                <div className="web-hero-cta">
+                  <a href="#contacto" className="web-btn-primary">Solicitar Demo <ArrowRight className="web-icon-inline" /></a>
+                  <Link href="/auth/login" className="web-btn-outline">Probar Gratis</Link>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Slide 3: Almacén industrial con overlay naranja */}
+          <div className={`web-hero-slide ${currentSlide === 2 ? 'active' : ''}`}>
+            <div className="web-hero-slide-number">3</div>
+            <div className="web-hero-background">
+              <img src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=1920&q=80" alt="Almacén industrial" className="web-hero-bg-image" />
+              <div className="web-hero-overlay" style={{ background: 'linear-gradient(135deg, rgba(217, 119, 6, 0.92) 0%, rgba(245, 158, 11, 0.92) 100%)' }}></div>
+            </div>
+            <div className="web-container">
+              <div className="web-hero-content">
+                <h1 className="web-hero-title">La evolución de tu empresa</h1>
+                <p className="web-hero-subtitle">Tecnología de punta para gestionar remitos, stock y clientes. Todo en un solo sistema integrado.</p>
+                <div className="web-hero-cta">
+                  <a href="#contacto" className="web-btn-primary">Solicitar Demo <ArrowRight className="web-icon-inline" /></a>
+                  <Link href="/auth/login" className="web-btn-outline">Probar Gratis</Link>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Slide 4: Naturaleza/empresa con overlay púrpura */}
+          <div className={`web-hero-slide ${currentSlide === 3 ? 'active' : ''}`}>
+            <div className="web-hero-slide-number">4</div>
+            <div className="web-hero-background">
+              <img src="https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=1920&q=80" alt="Naturaleza" className="web-hero-bg-image" />
+              <div className="web-hero-overlay" style={{ background: 'linear-gradient(135deg, rgba(147, 51, 234, 0.92) 0%, rgba(168, 85, 247, 0.92) 100%)' }}></div>
+            </div>
+            <div className="web-container">
+              <div className="web-hero-content">
+                <h1 className="web-hero-title">Gestiona tu negocio con inteligencia</h1>
+                <p className="web-hero-subtitle">Dashboard inteligente, reportes en tiempo real y control total. Tu negocio al siguiente nivel.</p>
+                <div className="web-hero-cta">
+                  <a href="#contacto" className="web-btn-primary">Solicitar Demo <ArrowRight className="web-icon-inline" /></a>
+                  <Link href="/auth/login" className="web-btn-outline">Probar Gratis</Link>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Slide 5: Servidores/tecnología con overlay azul oscuro */}
+          <div className={`web-hero-slide ${currentSlide === 4 ? 'active' : ''}`}>
+            <div className="web-hero-slide-number">5</div>
+            <div className="web-hero-background">
+              <img src="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=1920&q=80" alt="Tecnología" className="web-hero-bg-image" />
+              <div className="web-hero-overlay" style={{ background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.92) 0%, rgba(30, 58, 138, 0.92) 100%)' }}></div>
+            </div>
+            <div className="web-container">
+              <div className="web-hero-content">
+                <h1 className="web-hero-title">Tecnología que impulsa tu negocio</h1>
+                <p className="web-hero-subtitle">Sistema robusto y seguro en la nube. Accede desde cualquier dispositivo, en cualquier momento.</p>
+                <div className="web-hero-cta">
+                  <a href="#contacto" className="web-btn-primary">Solicitar Demo <ArrowRight className="web-icon-inline" /></a>
+                  <Link href="/auth/login" className="web-btn-outline">Probar Gratis</Link>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Slide 6: Almacén con estanterías - diseño minimalista */}
+          <div className={`web-hero-slide ${currentSlide === 5 ? 'active' : ''}`}>
+            <div className="web-hero-slide-number">6</div>
+            <div className="web-hero-background">
+              <img src="https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?w=1920&q=80" alt="Estanterías" className="web-hero-bg-image" />
+              <div className="web-hero-overlay" style={{ background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.95) 0%, rgba(37, 99, 235, 0.95) 100%)' }}></div>
+            </div>
+            <div className="web-container">
+              <div className="web-hero-content">
+                <h1 className="web-hero-title">Remitero: Tu sistema de gestión</h1>
+                <p className="web-hero-subtitle">Remitos, stock, clientes y reportes. Todo lo que necesitas para hacer crecer tu negocio.</p>
+                <div className="web-hero-features">
+                  <div className="web-hero-feature"><CheckCircle className="web-icon-small" /><span>Control de stock en tiempo real</span></div>
+                  <div className="web-hero-feature"><CheckCircle className="web-icon-small" /><span>Gestión de remitos ilimitada</span></div>
+                  <div className="web-hero-feature"><CheckCircle className="web-icon-small" /><span>Dashboard con estadísticas</span></div>
+                </div>
+                <div className="web-hero-cta">
+                  <a href="#contacto" className="web-btn-primary">Solicitar Demo <ArrowRight className="web-icon-inline" /></a>
+                  <Link href="/auth/login" className="web-btn-outline">Probar Gratis</Link>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Slide 7: Supermercado moderno - enfoque en retail */}
+          <div className={`web-hero-slide ${currentSlide === 6 ? 'active' : ''}`}>
+            <div className="web-hero-slide-number">7</div>
+            <div className="web-hero-background">
+              <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=1920&q=80" alt="Supermercado" className="web-hero-bg-image" />
+              <div className="web-hero-overlay" style={{ background: 'linear-gradient(135deg, rgba(220, 38, 38, 0.92) 0%, rgba(239, 68, 68, 0.92) 100%)' }}></div>
+            </div>
+            <div className="web-container">
+              <div className="web-hero-content">
+                <h1 className="web-hero-title">Perfecto para supermercados y almacenes</h1>
+                <p className="web-hero-subtitle">Sistema diseñado para el retail. Control de caja, inventario y ventas en un solo lugar.</p>
+                <div className="web-hero-cta">
+                  <a href="#contacto" className="web-btn-primary">Solicitar Demo <ArrowRight className="web-icon-inline" /></a>
+                  <Link href="/auth/login" className="web-btn-outline">Probar Gratis</Link>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Slide 8: Logística y distribución */}
+          <div className={`web-hero-slide ${currentSlide === 7 ? 'active' : ''}`}>
+            <div className="web-hero-slide-number">8</div>
+            <div className="web-hero-background">
+              <img src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=1920&q=80" alt="Logística" className="web-hero-bg-image" />
+              <div className="web-hero-overlay" style={{ background: 'linear-gradient(135deg, rgba(20, 184, 166, 0.92) 0%, rgba(6, 182, 212, 0.92) 100%)' }}></div>
+            </div>
+            <div className="web-container">
+              <div className="web-hero-content">
+                <h1 className="web-hero-title">Optimiza tu logística y distribución</h1>
+                <p className="web-hero-subtitle">Gestiona entregas, remitos y stock con precisión. Multi-empresa y multi-sucursal.</p>
+                <div className="web-hero-cta">
+                  <a href="#contacto" className="web-btn-primary">Solicitar Demo <ArrowRight className="web-icon-inline" /></a>
+                  <Link href="/auth/login" className="web-btn-outline">Probar Gratis</Link>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Slide 9: Diseño limpio con texto centrado grande */}
+          <div className={`web-hero-slide ${currentSlide === 8 ? 'active' : ''}`}>
+            <div className="web-hero-slide-number">9</div>
+            <div className="web-hero-background">
+              <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1920&q=80" alt="Minimalista" className="web-hero-bg-image" />
+              <div className="web-hero-overlay" style={{ background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.92) 0%, rgba(139, 92, 246, 0.92) 100%)' }}></div>
+            </div>
+            <div className="web-container">
+              <div className="web-hero-content" style={{ maxWidth: '900px' }}>
+                <h1 className="web-hero-title" style={{ fontSize: '4rem', marginBottom: '2rem' }}>
+                  Remitero
+                </h1>
+                <p className="web-hero-subtitle" style={{ fontSize: '1.5rem', marginBottom: '3rem' }}>
+                  La solución completa para gestionar tu negocio
+                </p>
+                <div className="web-hero-cta">
+                  <a href="#contacto" className="web-btn-primary">Solicitar Demo <ArrowRight className="web-icon-inline" /></a>
+                  <Link href="/auth/login" className="web-btn-outline">Probar Gratis</Link>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Slide 10: Enfoque en beneficios con lista destacada */}
+          <div className={`web-hero-slide ${currentSlide === 9 ? 'active' : ''}`}>
+            <div className="web-hero-slide-number">10</div>
+            <div className="web-hero-background">
+              <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1920&q=80" alt="Beneficios" className="web-hero-bg-image" />
+              <div className="web-hero-overlay" style={{ background: 'linear-gradient(135deg, rgba(30, 64, 175, 0.94) 0%, rgba(59, 130, 246, 0.94) 100%)' }}></div>
+            </div>
+            <div className="web-container">
+              <div className="web-hero-content">
+                <h1 className="web-hero-title">Todo lo que necesitas en un solo lugar</h1>
+                <div className="web-hero-features" style={{ gridTemplateColumns: '1fr', gap: '1.5rem', marginBottom: '2.5rem' }}>
+                  <div className="web-hero-feature" style={{ fontSize: '1.25rem' }}><CheckCircle className="web-icon-small" style={{ width: '28px', height: '28px' }} /><span>Cierre de caja por turnos</span></div>
+                  <div className="web-hero-feature" style={{ fontSize: '1.25rem' }}><CheckCircle className="web-icon-small" style={{ width: '28px', height: '28px' }} /><span>Control de stock en tiempo real</span></div>
+                  <div className="web-hero-feature" style={{ fontSize: '1.25rem' }}><CheckCircle className="web-icon-small" style={{ width: '28px', height: '28px' }} /><span>Visualización de ventas minuto a minuto</span></div>
+                  <div className="web-hero-feature" style={{ fontSize: '1.25rem' }}><CheckCircle className="web-icon-small" style={{ width: '28px', height: '28px' }} /><span>Reportes de compras y ventas</span></div>
+                </div>
+                <div className="web-hero-cta">
+                  <a href="#contacto" className="web-btn-primary">Solicitar Demo <ArrowRight className="web-icon-inline" /></a>
+                  <Link href="/auth/login" className="web-btn-outline">Probar Gratis</Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Carousel Controls */}
+        <div className="web-hero-controls">
+          <button 
+            className="web-hero-control-btn"
+            onClick={() => setCurrentSlide((prev) => (prev === 0 ? 9 : prev - 1))}
+            aria-label="Slide anterior"
+          >
+            <ChevronLeft className="web-icon" />
+          </button>
+          <div className="web-hero-dots">
+            {Array.from({ length: 10 }).map((_, index) => (
+              <button
+                key={index}
+                className={`web-hero-dot ${currentSlide === index ? 'active' : ''}`}
+                onClick={() => setCurrentSlide(index)}
+                aria-label={`Ir al slide ${index + 1}`}
+              />
+            ))}
+          </div>
+          <button 
+            className="web-hero-control-btn"
+            onClick={() => setCurrentSlide((prev) => (prev === 9 ? 0 : prev + 1))}
+            aria-label="Slide siguiente"
+          >
+            <ChevronRight className="web-icon" />
+          </button>
         </div>
       </section>
 
