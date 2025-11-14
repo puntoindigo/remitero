@@ -16,7 +16,7 @@ import { useToast } from "@/hooks/useToast";
 import { ToastContainer } from "@/components/common/Toast";
 
 export default function TopBar() {
-  const { data: session } = useSession();
+  const { data: session, status: sessionStatus } = useSession();
   const [showConfigModal, setShowConfigModal] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [isSubmittingProfile, setIsSubmittingProfile] = useState(false);
@@ -32,12 +32,14 @@ export default function TopBar() {
   // Solo cargar usuarios si el usuario tiene permisos (ADMIN o SUPERADMIN)
   // Para usuarios con rol USER, usar el endpoint individual
   // IMPORTANTE: Esperar a que currentUser esté cargado y tenga role antes de decidir si habilitar la query
+  // También verificar que la sesión esté lista para evitar ejecuciones prematuras
   const hasRole = currentUser?.role !== undefined && currentUser?.role !== null;
   const canViewUsers = hasRole && (currentUser?.role === 'ADMIN' || currentUser?.role === 'SUPERADMIN');
-  const shouldEnableQuery = currentUser !== null && hasRole && canViewUsers; // Solo habilitar si currentUser está cargado, tiene role Y tiene permisos
+  const sessionReady = sessionStatus !== 'loading' && sessionStatus === 'authenticated';
+  const shouldEnableQuery = currentUser !== null && hasRole && canViewUsers && sessionReady; // Solo habilitar si currentUser está cargado, tiene role, tiene permisos Y la sesión está lista
   const { data: usuarios, refetch: refetchUsuarios } = useUsuariosQuery(
     shouldEnableQuery ? session?.user?.companyId : undefined,
-    shouldEnableQuery // Solo ejecutar si currentUser está cargado, tiene role y tiene permisos
+    shouldEnableQuery // Solo ejecutar si currentUser está cargado, tiene role, tiene permisos Y la sesión está lista
   );
   
   // Para usuarios USER, obtener su perfil individualmente

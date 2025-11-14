@@ -246,12 +246,21 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
       // Cerrar el modal inmediatamente
       setShowChangePassword(false);
       
-      // En lugar de usar update() que puede fallar, simplemente recargar la página
-      // La sesión se actualizará automáticamente en el próximo request
-      // Usar un pequeño delay para asegurar que el modal se cierre visualmente
+      // Forzar actualización de la sesión usando update() de NextAuth
+      // Esto actualizará el token con los nuevos valores de la BD
+      try {
+        const { update } = await import('next-auth/react');
+        await update();
+      } catch (updateError) {
+        console.warn('Error al actualizar sesión:', updateError);
+        // Continuar de todas formas, el reload forzará la actualización
+      }
+      
+      // Hacer un reload completo de la página para forzar la obtención de la nueva sesión
+      // Esto asegura que hasTemporaryPassword se actualice correctamente
       setTimeout(() => {
-        window.location.href = '/dashboard';
-      }, 300);
+        window.location.reload();
+      }, 500);
     } catch (error: unknown) {
       // Asegurar que el error se propague correctamente al modal
       const errorMessage = error instanceof Error ? error.message : 'Error al cambiar la contraseña';
