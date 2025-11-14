@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import "../globals.css";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -8,12 +7,6 @@ export const metadata: Metadata = {
 };
 
 export default function WebLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <html lang="es">
-      <body style={{ margin: 0, padding: 0 }}>
-        {children}
-      </body>
-    </html>
-  );
+  return children;
 }
 
