@@ -4,7 +4,7 @@ import React, { useState, useEffect, Suspense, useCallback, useMemo, useRef } fr
 import { useSession } from "next-auth/react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { Plus, FileText, Calendar, User, Package, Printer, Trash2 } from "lucide-react";
-import { formatDate } from "@/lib/utils/formatters";
+import { formatDateTime } from "@/lib/utils/formatters";
 import FilterableSelect from "@/components/common/FilterableSelect";
 import { MessageModal } from "@/components/common/MessageModal";
 import DeleteConfirmModal from "@/components/common/DeleteConfirmModal";
@@ -459,7 +459,7 @@ function RemitosContent() {
               #{remito.number}
             </div>
             <div style={{ fontSize: '12px', color: '#6b7280' }}>
-              {formatDate(remito.createdAt)}
+              {formatDateTime(remito.createdAt)}
             </div>
           </div>
         );
@@ -473,7 +473,7 @@ function RemitosContent() {
     {
       key: 'total',
       label: 'Total',
-      render: (remito) => `$${remito.total.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+      render: (remito) => `$ ${remito.total.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
     }
   ] : [
     {
@@ -484,7 +484,7 @@ function RemitosContent() {
     {
       key: 'createdAt',
       label: 'Fecha',
-      render: (remito) => formatDate(remito.createdAt)
+      render: (remito) => formatDateTime(remito.createdAt)
     },
     {
       key: 'client',
@@ -494,7 +494,7 @@ function RemitosContent() {
     {
       key: 'total',
       label: 'Total',
-      render: (remito) => `$${remito.total.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+      render: (remito) => `$ ${remito.total.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
     },
     {
       key: 'status',

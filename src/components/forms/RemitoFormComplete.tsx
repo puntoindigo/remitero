@@ -8,6 +8,7 @@ import FilterableSelect from "@/components/common/FilterableSelect";
 import { FormModal } from "@/components/common/FormModal";
 import { ClienteForm } from "@/components/forms/ClienteForm";
 import { remitoSchema, type RemitoForm } from "@/lib/validations";
+import { LoadingSpinner } from "@/components/common/LoadingSpinner";
 
 interface RemitoItem {
   product_id?: string;
@@ -51,6 +52,7 @@ export function RemitoFormComplete({
   const [validationError, setValidationError] = useState<string>("");
   const [isSubmittingClient, setIsSubmittingClient] = useState<boolean>(false);
   const [newClientId, setNewClientId] = useState<string | null>(null);
+  const [isLoadingRemito, setIsLoadingRemito] = useState<boolean>(false);
 
   const {
     register,
@@ -80,11 +82,8 @@ export function RemitoFormComplete({
   // Cargar datos del remito en edición
   useEffect(() => {
     if (editingRemito) {
-      setValue("clientId", editingRemito.client?.id || "");
-      // El status ahora es un objeto con los datos del estado
-      const statusId = editingRemito.status?.id || editingRemito.status;
-      setValue("status", statusId || "");
-      setValue("notes", editingRemito.notes || "");
+      // Activar loading
+      setIsLoadingRemito(true);
       
       // SIEMPRE hacer fetch completo del remito para asegurar que los items se carguen correctamente
       if (editingRemito.id) {
@@ -128,6 +127,8 @@ export function RemitoFormComplete({
             }
             
             setShowNotes(!!fullRemito.notes);
+            // Desactivar loading cuando todo esté listo
+            setIsLoadingRemito(false);
           })
           .catch(error => {
             console.error('❌ Error fetching remito completo:', error);
@@ -147,10 +148,13 @@ export function RemitoFormComplete({
               setItems([]);
             }
             setShowNotes(!!editingRemito.notes);
+            // Desactivar loading incluso en caso de error
+            setIsLoadingRemito(false);
           });
       } else {
         setItems([]);
         setShowNotes(false);
+        setIsLoadingRemito(false);
       }
     } else {
       // Reset para nuevo remito
@@ -340,6 +344,20 @@ export function RemitoFormComplete({
         editingRemito
       }}
     >
+      {/* Preloader mientras se cargan los datos del remito */}
+      {isLoadingRemito && editingRemito ? (
+        <div style={{ 
+          display: 'flex', 
+          flexDirection: 'column', 
+          alignItems: 'center', 
+          justifyContent: 'center', 
+          minHeight: '300px',
+          padding: '2rem'
+        }}>
+          <LoadingSpinner message="Cargando remito..." size="lg" />
+        </div>
+      ) : (
+        <>
       {/* Error de validación */}
       {validationError && (
         <div style={{
@@ -608,7 +626,8 @@ export function RemitoFormComplete({
           <p className="error-message" style={{ marginTop: '0.25rem' }}>{errors.status.message}</p>
         )}
       </div>
-
+        </>
+      )}
     </FormModal>
     
     {/* Modal para nuevo cliente - renderizado fuera del FormModal para evitar anidamiento */}
