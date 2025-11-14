@@ -4,6 +4,7 @@ import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { Upload, Image as ImageIcon } from "lucide-react";
 import { FormModal } from "@/components/common/FormModal";
 
 const empresaSchema = z.object({
@@ -60,18 +61,53 @@ export function EmpresaForm({
   };
 
   const formContent = (
-    <div className="form-group">
-      <label>Nombre de la Empresa</label>
-      <input
-        {...register("name")}
-        type="text"
-        placeholder="Nombre de la empresa"
-        className="form-input-standard"
-      />
-      {errors?.name && (
-        <p className="error-message">{errors?.name.message}</p>
-      )}
-    </div>
+    <>
+      <div className="form-group">
+        <label>Nombre de la Empresa</label>
+        <input
+          {...register("name")}
+          type="text"
+          placeholder="Nombre de la empresa"
+          className="form-input-standard"
+        />
+        {errors?.name && (
+          <p className="error-message">{errors?.name.message}</p>
+        )}
+      </div>
+
+      {/* Logo de la empresa - simulado, deshabilitado */}
+      <div className="form-group">
+        <label>Logo de la Empresa</label>
+        <div
+          style={{
+            border: '2px dashed #d1d5db',
+            borderRadius: '8px',
+            padding: '2rem',
+            textAlign: 'center',
+            backgroundColor: '#f9fafb',
+            cursor: 'not-allowed',
+            opacity: 0.6
+          }}
+        >
+          <input
+            type="file"
+            accept="image/*"
+            disabled
+            style={{ display: 'none' }}
+          />
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
+            <ImageIcon size={48} color="#9ca3af" />
+            <div style={{ color: '#6b7280', fontSize: '0.875rem' }}>
+              <Upload size={16} style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: '0.25rem' }} />
+              <span>Próximamente</span>
+            </div>
+            <p style={{ color: '#9ca3af', fontSize: '0.75rem', margin: 0 }}>
+              La funcionalidad de logo estará disponible próximamente
+            </p>
+          </div>
+        </div>
+      </div>
+    </>
   );
 
   // Si está en modo embebido, renderizar solo el contenido del formulario
