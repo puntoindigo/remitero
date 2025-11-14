@@ -81,7 +81,7 @@ export default function WebPage() {
   const plans = [
     {
       name: "Básico",
-      price: "$15.000",
+      price: "$25.000",
       period: "mes",
       features: [
         "Hasta 3 usuarios",
@@ -95,7 +95,7 @@ export default function WebPage() {
     },
     {
       name: "Profesional",
-      price: "$35.000",
+      price: "$55.000",
       period: "mes",
       features: [
         "Usuarios ilimitados",
@@ -110,8 +110,8 @@ export default function WebPage() {
     },
     {
       name: "Enterprise",
-      price: "Personalizado",
-      period: "",
+      price: "Desde $120.000",
+      period: "mes",
       features: [
         "Todo lo del plan Profesional",
         "Soporte 24/7",
@@ -148,6 +148,14 @@ export default function WebPage() {
 
       {/* Hero Section */}
       <section className="web-hero">
+        <div className="web-hero-background">
+          <img 
+            src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1920&q=80" 
+            alt="Almacén moderno"
+            className="web-hero-bg-image"
+          />
+          <div className="web-hero-overlay"></div>
+        </div>
         <div className="web-container">
           <div className="web-hero-content">
             <h1 className="web-hero-title">
@@ -218,16 +226,27 @@ export default function WebPage() {
             Estamos trabajando en estas funcionalidades que llegarán muy pronto
           </p>
           <div className="web-features-grid">
-            {futureFeatures.map((feature, index) => (
-              <div key={index} className="web-feature-card web-feature-card-coming">
-                <div className="web-feature-icon web-feature-icon-coming">
-                  <feature.icon className="web-icon" />
+            {futureFeatures.map((feature, index) => {
+              const futureImages = [
+                "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&q=80", // Reportes
+                "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=600&q=80", // Balanzas
+                "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600&q=80" // Carrito online
+              ];
+              return (
+                <div key={index} className="web-feature-card web-feature-card-coming">
+                  <div className="web-feature-image">
+                    <img src={futureImages[index]} alt={feature.title} />
+                    <div className="web-feature-image-overlay"></div>
+                  </div>
+                  <div className="web-feature-icon web-feature-icon-coming">
+                    <feature.icon className="web-icon" />
+                  </div>
+                  <h3 className="web-feature-title">{feature.title}</h3>
+                  <p className="web-feature-description">{feature.description}</p>
+                  <span className="web-badge-coming">Próximamente</span>
                 </div>
-                <h3 className="web-feature-title">{feature.title}</h3>
-                <p className="web-feature-description">{feature.description}</p>
-                <span className="web-badge-coming">Próximamente</span>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
