@@ -56,6 +56,28 @@ class ErrorBoundary extends Component<Props, State> {
     console.error('ErrorBoundary caught an error:', error, errorInfo);
   }
 
+  isChunkLoadError = (): boolean => {
+    const { error } = this.state;
+    if (!error) return false;
+    
+    const errorMessage = error.message || '';
+    const errorName = error.name || '';
+    
+    // Detectar errores de carga de chunks
+    return (
+      errorName === 'ChunkLoadError' ||
+      errorMessage.includes('Loading chunk') ||
+      errorMessage.includes('Failed to fetch dynamically imported module') ||
+      errorMessage.includes('timeout') && errorMessage.includes('chunk')
+    );
+  }
+
+  handleReload = () => {
+    if (typeof window !== 'undefined') {
+      window.location.reload();
+    }
+  };
+
   handleRetry = () => {
     this.setState({
       hasError: false,
@@ -230,9 +252,50 @@ ${errorInfo?.componentStack || 'No component stack available'}
             
             <div className="error-boundary-content">
               <div className="error-boundary-message">
-                <p className="error-boundary-main-message">
-                  Se ha producido un error inesperado en la aplicación.
-                </p>
+                {this.isChunkLoadError() ? (
+                  <>
+                    <p className="error-boundary-main-message" style={{ 
+                      fontSize: '16px', 
+                      fontWeight: '600',
+                      marginBottom: '1rem',
+                      color: '#dc2626'
+                    }}>
+                      ⚠️ Error de Carga de Recursos
+                    </p>
+                    <p style={{ 
+                      marginBottom: '1rem',
+                      lineHeight: '1.6',
+                      color: '#374151'
+                    }}>
+                      Parece que hay un problema con la carga de recursos de la aplicación. 
+                      Esto suele ocurrir después de una actualización o por problemas de conexión.
+                    </p>
+                    <p style={{ 
+                      marginBottom: '1.5rem',
+                      lineHeight: '1.6',
+                      color: '#6b7280',
+                      fontSize: '14px'
+                    }}>
+                      <strong>Solución recomendada:</strong> Recarga la página para obtener la versión más reciente de la aplicación.
+                    </p>
+                    <div style={{
+                      padding: '12px 16px',
+                      backgroundColor: '#fef3c7',
+                      border: '1px solid #fbbf24',
+                      borderRadius: '0.375rem',
+                      marginBottom: '1rem'
+                    }}>
+                      <strong style={{ color: '#92400e' }}>💡 Tip:</strong>
+                      <span style={{ color: '#78350f', marginLeft: '0.5rem' }}>
+                        Si el problema persiste, intenta limpiar la caché del navegador (Ctrl+Shift+Delete o Cmd+Shift+Delete)
+                      </span>
+                    </div>
+                  </>
+                ) : (
+                  <p className="error-boundary-main-message">
+                    Se ha producido un error inesperado en la aplicación.
+                  </p>
+                )}
                 
                 {this.state.error && (
                   <div className="error-boundary-details">
@@ -288,57 +351,93 @@ ${errorInfo?.componentStack || 'No component stack available'}
             )}
             
             <div className="error-boundary-actions">
-              <button 
-                onClick={this.handleSendError}
-                className="error-boundary-send-btn"
-                disabled={this.state.sending || this.state.sent}
-              >
-                {this.state.sent ? (
-                  <>
-                    <Check className="h-4 w-4" />
-                    ¡Enviado!
-                  </>
-                ) : this.state.sending ? (
-                  <>
-                    <RefreshCw className="h-4 w-4 animate-spin" />
-                    Enviando...
-                  </>
-                ) : (
-                  <>
-                    <Send className="h-4 w-4" />
-                    Enviar Error
-                  </>
-                )}
-              </button>
-              <button 
-                onClick={this.handleCopyError}
-                className="error-boundary-copy-btn"
-              >
-                {this.state.copied ? (
-                  <>
-                    <Check className="h-4 w-4" />
-                    ¡Copiado!
-                  </>
-                ) : (
-                  <>
-                    <Copy className="h-4 w-4" />
-                    Copiar Error
-                  </>
-                )}
-              </button>
-              <button 
-                onClick={this.handleRetry}
-                className="error-boundary-retry-btn"
-              >
-                <RefreshCw className="h-4 w-4" />
-                Reintentar
-              </button>
-              <button 
-                onClick={this.handleClose}
-                className="error-boundary-close-btn"
-              >
-                Cerrar
-              </button>
+              {this.isChunkLoadError() ? (
+                <>
+                  <button 
+                    onClick={this.handleReload}
+                    className="error-boundary-retry-btn"
+                    style={{
+                      backgroundColor: '#3b82f6',
+                      color: 'white',
+                      fontWeight: '600',
+                      flex: '1'
+                    }}
+                  >
+                    <RefreshCw className="h-4 w-4" />
+                    Recargar Página
+                  </button>
+                  <button 
+                    onClick={this.handleCopyError}
+                    className="error-boundary-copy-btn"
+                  >
+                    {this.state.copied ? (
+                      <>
+                        <Check className="h-4 w-4" />
+                        ¡Copiado!
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="h-4 w-4" />
+                        Copiar Error
+                      </>
+                    )}
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button 
+                    onClick={this.handleSendError}
+                    className="error-boundary-send-btn"
+                    disabled={this.state.sending || this.state.sent}
+                  >
+                    {this.state.sent ? (
+                      <>
+                        <Check className="h-4 w-4" />
+                        ¡Enviado!
+                      </>
+                    ) : this.state.sending ? (
+                      <>
+                        <RefreshCw className="h-4 w-4 animate-spin" />
+                        Enviando...
+                      </>
+                    ) : (
+                      <>
+                        <Send className="h-4 w-4" />
+                        Enviar Error
+                      </>
+                    )}
+                  </button>
+                  <button 
+                    onClick={this.handleCopyError}
+                    className="error-boundary-copy-btn"
+                  >
+                    {this.state.copied ? (
+                      <>
+                        <Check className="h-4 w-4" />
+                        ¡Copiado!
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="h-4 w-4" />
+                        Copiar Error
+                      </>
+                    )}
+                  </button>
+                  <button 
+                    onClick={this.handleRetry}
+                    className="error-boundary-retry-btn"
+                  >
+                    <RefreshCw className="h-4 w-4" />
+                    Reintentar
+                  </button>
+                  <button 
+                    onClick={this.handleClose}
+                    className="error-boundary-close-btn"
+                  >
+                    Cerrar
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>
