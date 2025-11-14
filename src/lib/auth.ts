@@ -413,7 +413,12 @@ export const authOptions: NextAuthOptions = {
           if (updatedUser) {
             token.enable_botonera = updatedUser.enable_botonera ?? false;
             token.enable_pinned_modals = updatedUser.enable_pinned_modals ?? false;
-            token.hasTemporaryPassword = updatedUser.has_temporary_password ?? false;
+            // Asegurar que hasTemporaryPassword se actualice correctamente
+            token.hasTemporaryPassword = updatedUser.has_temporary_password === true;
+            console.log('🔑 [NextAuth jwt] Token actualizado desde BD:', {
+              hasTemporaryPassword: token.hasTemporaryPassword,
+              dbValue: updatedUser.has_temporary_password
+            });
           }
         } catch (error) {
           console.error('Error updating token from database:', error);

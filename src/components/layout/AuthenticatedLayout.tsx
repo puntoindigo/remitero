@@ -247,16 +247,19 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
       // Forzar actualización de la sesión de NextAuth antes de recargar
       // Esto asegura que hasTemporaryPassword se actualice en el token
       const { update } = await import('next-auth/react');
+      
+      // Esperar a que la actualización de la sesión se complete
       await update();
       
       // Cerrar el modal después de actualizar la sesión
       setShowChangePassword(false);
       
-      // Esperar un momento para que la sesión se actualice antes de recargar
-      setTimeout(() => {
-        // Recargar la página para aplicar los cambios
-        window.location.reload();
-      }, 500);
+      // Esperar un momento adicional para asegurar que la sesión se haya propagado
+      // antes de recargar la página
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Recargar la página para aplicar los cambios
+      window.location.reload();
     } catch (error: unknown) {
       // Asegurar que el error se propague correctamente al modal
       const errorMessage = error instanceof Error ? error.message : 'Error al cambiar la contraseña';
