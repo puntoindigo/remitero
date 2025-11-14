@@ -2953,10 +2953,15 @@ form svg {
   z-index: 100;
 }
 
-.modal.form-modal.producto-modal .vercel-select-dropdown {
+/* El dropdown se renderiza en document.body via portal con position: fixed
+   Necesitamos sobrescribir el z-index inline de 99999 */
+body > .vercel-select-dropdown[style*="z-index"] {
   z-index: 10002 !important;
-  position: absolute !important;
-  min-width: 100%;
+}
+
+/* Asegurar que el dropdown del FilterableSelect en producto-modal tenga z-index alto */
+body > .vercel-select-dropdown {
+  z-index: 10002 !important;
 }
 
 /* Asegurar que el dropdown sea visible en el modal de productos */

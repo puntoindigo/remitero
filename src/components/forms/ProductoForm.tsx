@@ -221,7 +221,15 @@ export function ProductoForm({
       // Si es textarea, Shift+Enter crea nueva línea, Enter solo activa submit
       // Si es input, Enter activa submit
       e.preventDefault();
-      handleSubmit(handleFormSubmit)();
+      e.stopPropagation();
+      // Disparar el submit del formulario
+      const form = e.currentTarget.closest('form');
+      if (form) {
+        const submitButton = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+        if (submitButton && !isSubmitting) {
+          submitButton.click();
+        }
+      }
     }
   };
 
