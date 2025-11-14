@@ -231,7 +231,6 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
         },
         body: JSON.stringify({
           password: newPassword,
-          // También actualizar el flag de contraseña temporal
         }),
       });
 
@@ -244,22 +243,15 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
       // El endpoint PUT /api/users/[id] ya limpia has_temporary_password automáticamente
       // La actividad se registra automáticamente en el endpoint PUT /api/users/[id]
 
-      // Forzar actualización de la sesión de NextAuth antes de recargar
-      // Esto asegura que hasTemporaryPassword se actualice en el token
-      const { update } = await import('next-auth/react');
-      
-      // Esperar a que la actualización de la sesión se complete
-      await update();
-      
-      // Cerrar el modal después de actualizar la sesión
+      // Cerrar el modal inmediatamente
       setShowChangePassword(false);
       
-      // Esperar un momento adicional para asegurar que la sesión se haya propagado
-      // antes de recargar la página
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Recargar la página para aplicar los cambios
-      window.location.reload();
+      // En lugar de usar update() que puede fallar, simplemente recargar la página
+      // La sesión se actualizará automáticamente en el próximo request
+      // Usar un pequeño delay para asegurar que el modal se cierre visualmente
+      setTimeout(() => {
+        window.location.href = '/dashboard';
+      }, 300);
     } catch (error: unknown) {
       // Asegurar que el error se propague correctamente al modal
       const errorMessage = error instanceof Error ? error.message : 'Error al cambiar la contraseña';

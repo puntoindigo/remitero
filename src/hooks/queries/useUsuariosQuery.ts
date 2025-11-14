@@ -46,11 +46,11 @@ export function useUsuariosQuery(companyId: string | undefined, enabled: boolean
   // Solo permitir si el usuario tiene rol ADMIN o SUPERADMIN
   const userRole = session?.user?.role;
   const hasPermission = userRole === 'ADMIN' || userRole === 'SUPERADMIN';
-  const sessionReady = status !== 'loading' && session !== null;
+  const sessionReady = status !== 'loading' && session !== null && userRole !== undefined;
   
   // Solo ejecutar si:
   // 1. enabled es true (parámetro explícito)
-  // 2. La sesión está lista (no está cargando y hay sesión)
+  // 2. La sesión está lista (no está cargando, hay sesión y tiene role)
   // 3. El usuario tiene permisos (ADMIN o SUPERADMIN)
   const shouldEnable = enabled && sessionReady && hasPermission;
   
@@ -59,6 +59,7 @@ export function useUsuariosQuery(companyId: string | undefined, enabled: boolean
     queryFn: () => fetchUsuarios(companyId),
     enabled: shouldEnable, // Solo ejecutar si tiene permisos
     staleTime: 2 * 60 * 1000,
+    retry: false, // No reintentar si falla por permisos
   });
 }
 
