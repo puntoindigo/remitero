@@ -23,6 +23,7 @@ import { useCRUDPage } from "@/hooks/useCRUDPage";
 import { useImpersonation } from "@/hooks/useImpersonation";
 import { useDataWithCompanySimple } from "@/hooks/useDataWithCompanySimple";
 import { useCurrentUserSimple } from "@/hooks/useCurrentUserSimple";
+import { CompanySelector } from "@/components/common/CompanySelector";
 import { DataTable, type DataTableColumn } from "@/components/common/DataTable";
 import { useCRUDTable } from "@/hooks/useCRUDTable";
 import { Pagination } from "@/components/common/Pagination";
