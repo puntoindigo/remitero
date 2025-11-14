@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useSession } from 'next-auth/react';
 
 export interface Usuario {
   id: string;
@@ -39,10 +40,24 @@ async function fetchUsuarios(companyId?: string): Promise<Usuario[]> {
 }
 
 export function useUsuariosQuery(companyId: string | undefined, enabled: boolean = true) {
+  const { data: session, status } = useSession();
+  
+  // Verificar permisos internamente usando la sesión
+  // Solo permitir si el usuario tiene rol ADMIN o SUPERADMIN
+  const userRole = session?.user?.role;
+  const hasPermission = userRole === 'ADMIN' || userRole === 'SUPERADMIN';
+  const sessionReady = status !== 'loading' && session !== null;
+  
+  // Solo ejecutar si:
+  // 1. enabled es true (parámetro explícito)
+  // 2. La sesión está lista (no está cargando y hay sesión)
+  // 3. El usuario tiene permisos (ADMIN o SUPERADMIN)
+  const shouldEnable = enabled && sessionReady && hasPermission;
+  
   return useQuery({
     queryKey: usuarioKeys.list(companyId),
     queryFn: () => fetchUsuarios(companyId),
-    enabled: enabled, // Solo ejecutar si está habilitado
+    enabled: shouldEnable, // Solo ejecutar si tiene permisos
     staleTime: 2 * 60 * 1000,
   });
 }
