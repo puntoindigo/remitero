@@ -199,7 +199,7 @@ export default function WebPage() {
           <div className={`web-hero-slide ${currentSlide === 0 ? 'active' : ''}`}>
             <div className="web-hero-slide-number">1</div>
             <div className="web-hero-background">
-              <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1920&q=80" alt="Almacén" className="web-hero-bg-image" />
+              <img src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=1920&q=80" alt="Archivo tradicional" className="web-hero-bg-image" />
               <div className="web-hero-overlay" style={{ background: 'linear-gradient(135deg, rgba(30, 58, 138, 0.92) 0%, rgba(79, 70, 229, 0.92) 100%)' }}></div>
             </div>
             <div className="web-container">
@@ -225,7 +225,7 @@ export default function WebPage() {
           <div className={`web-hero-slide ${currentSlide === 1 ? 'active' : ''}`}>
             <div className="web-hero-slide-number">2</div>
             <div className="web-hero-background">
-              <img src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=1920&q=80" alt="Cajas" className="web-hero-bg-image" />
+              <img src="https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=1920&q=80" alt="Biblioteca" className="web-hero-bg-image" />
               <div className="web-hero-overlay" style={{ background: 'linear-gradient(135deg, rgba(5, 150, 105, 0.92) 0%, rgba(16, 185, 129, 0.92) 100%)' }}></div>
             </div>
             <div className="web-container">
@@ -277,7 +277,7 @@ export default function WebPage() {
           <div className={`web-hero-slide ${currentSlide === 3 ? 'active' : ''}`}>
             <div className="web-hero-slide-number">4</div>
             <div className="web-hero-background">
-              <img src="https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=1920&q=80" alt="Naturaleza" className="web-hero-bg-image" />
+              <img src="https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=1920&q=80" alt="Escritorio madera" className="web-hero-bg-image" />
               <div className="web-hero-overlay" style={{ background: 'linear-gradient(135deg, rgba(147, 51, 234, 0.92) 0%, rgba(168, 85, 247, 0.92) 100%)' }}></div>
             </div>
             <div className="web-container">
@@ -303,7 +303,7 @@ export default function WebPage() {
           <div className={`web-hero-slide ${currentSlide === 4 ? 'active' : ''}`}>
             <div className="web-hero-slide-number">5</div>
             <div className="web-hero-background">
-              <img src="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=1920&q=80" alt="Tecnología" className="web-hero-bg-image" />
+              <img src="https://images.unsplash.com/photo-1452860606245-08befc0ff44b?w=1920&q=80" alt="Archivos legales" className="web-hero-bg-image" />
               <div className="web-hero-overlay" style={{ background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.92) 0%, rgba(30, 58, 138, 0.92) 100%)' }}></div>
             </div>
             <div className="web-container">
@@ -329,7 +329,7 @@ export default function WebPage() {
           <div className={`web-hero-slide ${currentSlide === 5 ? 'active' : ''}`}>
             <div className="web-hero-slide-number">6</div>
             <div className="web-hero-background">
-              <img src="https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?w=1920&q=80" alt="Estanterías" className="web-hero-bg-image" />
+              <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1920&q=80" alt="Estanterías madera" className="web-hero-bg-image" />
               <div className="web-hero-overlay" style={{ background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.95) 0%, rgba(37, 99, 235, 0.95) 100%)' }}></div>
             </div>
             <div className="web-container">
@@ -360,7 +360,7 @@ export default function WebPage() {
           <div className={`web-hero-slide ${currentSlide === 6 ? 'active' : ''}`}>
             <div className="web-hero-slide-number">7</div>
             <div className="web-hero-background">
-              <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=1920&q=80" alt="Supermercado" className="web-hero-bg-image" />
+              <img src="https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=1920&q=80" alt="Documentos" className="web-hero-bg-image" />
               <div className="web-hero-overlay" style={{ background: 'linear-gradient(135deg, rgba(220, 38, 38, 0.92) 0%, rgba(239, 68, 68, 0.92) 100%)' }}></div>
             </div>
             <div className="web-container">
@@ -442,7 +442,7 @@ export default function WebPage() {
           <div className={`web-hero-slide ${currentSlide === 9 ? 'active' : ''}`}>
             <div className="web-hero-slide-number">10</div>
             <div className="web-hero-background">
-              <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1920&q=80" alt="Beneficios" className="web-hero-bg-image" />
+              <img src="https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=1920&q=80" alt="Oficina tradicional" className="web-hero-bg-image" />
               <div className="web-hero-overlay" style={{ background: 'linear-gradient(135deg, rgba(30, 64, 175, 0.94) 0%, rgba(59, 130, 246, 0.94) 100%)' }}></div>
             </div>
             <div className="web-container">
@@ -527,12 +527,12 @@ export default function WebPage() {
           <div className="web-features-grid">
             {futureFeatures.map((feature, index) => {
               const futureImages = [
-                "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&q=80", // Reportes
-                "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=600&q=80", // Balanzas
-                "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600&q=80", // Carrito online
-                "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80", // Huella
-                "https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?w=600&q=80", // Catálogos
-                "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=600&q=80" // Lectores de barra
+                "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=600&q=80", // Reportes
+                "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=600&q=80", // Balanzas
+                "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=600&q=80", // Carrito online
+                "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=600&q=80", // Huella
+                "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&q=80", // Catálogos
+                "https://images.unsplash.com/photo-1452860606245-08befc0ff44b?w=600&q=80" // Lectores de barra
               ];
               return (
                 <div key={index} className="web-feature-card web-feature-card-coming">
