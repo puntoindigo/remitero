@@ -59,19 +59,9 @@ export default function WebPage() {
       description: "Visualiza estadísticas, gráficos y métricas clave de tu negocio en tiempo real."
     },
     {
-      icon: Building2,
-      title: "Multi-Empresa",
-      description: "Gestiona múltiples empresas desde una sola plataforma con roles y permisos."
-    },
-    {
       icon: Shield,
       title: "Seguridad Total",
       description: "Autenticación segura con Google OAuth y control de acceso por roles."
-    },
-    {
-      icon: Fingerprint,
-      title: "Control de Horarios con Huella Digital",
-      description: "Integración con lectores de huella digital para control de asistencia, turnos e identidad de personal."
     }
   ];
 
@@ -90,6 +80,16 @@ export default function WebPage() {
       icon: Globe,
       title: "Carrito Online",
       description: "Permite que tus clientes realicen pedidos online integrados con tu sistema."
+    },
+    {
+      icon: Fingerprint,
+      title: "Control de Horarios con Huella Digital",
+      description: "Integración con lectores de huella digital para control de asistencia, turnos e identidad de personal."
+    },
+    {
+      icon: FileText,
+      title: "Generador de Catálogos Online",
+      description: "Crea catálogos digitales de tus productos listos para impresión y compartir online."
     }
   ];
 
@@ -176,8 +176,15 @@ export default function WebPage() {
                 <h1 className="web-hero-title">Administra tu negocio desde cualquier lugar</h1>
                 <p className="web-hero-subtitle">Sistema completo de gestión de remitos con control de stock, clientes y reportes en tiempo real.</p>
                 <div className="web-hero-cta">
-                  <a href="#contacto" className="web-btn-primary">Solicitar Demo <ArrowRight className="web-icon-inline" /></a>
-                  <Link href="/auth/login" className="web-btn-outline">Probar Gratis</Link>
+                  <a 
+                    href="https://wa.me/5491166882626" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="web-btn-primary web-btn-whatsapp-large"
+                  >
+                    <MessageCircle className="web-icon-inline" />
+                    Solicitar
+                  </a>
                 </div>
               </div>
             </div>
@@ -195,8 +202,15 @@ export default function WebPage() {
                 <h1 className="web-hero-title">Control total de tu inventario</h1>
                 <p className="web-hero-subtitle">Gestiona productos, stock y ventas desde un solo lugar. La solución completa para tu negocio.</p>
                 <div className="web-hero-cta">
-                  <a href="#contacto" className="web-btn-primary">Solicitar Demo <ArrowRight className="web-icon-inline" /></a>
-                  <Link href="/auth/login" className="web-btn-outline">Probar Gratis</Link>
+                  <a 
+                    href="https://wa.me/5491166882626" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="web-btn-primary web-btn-whatsapp-large"
+                  >
+                    <MessageCircle className="web-icon-inline" />
+                    Solicitar
+                  </a>
                 </div>
               </div>
             </div>
@@ -214,8 +228,15 @@ export default function WebPage() {
                 <h1 className="web-hero-title">La evolución de tu empresa</h1>
                 <p className="web-hero-subtitle">Tecnología de punta para gestionar remitos, stock y clientes. Todo en un solo sistema integrado.</p>
                 <div className="web-hero-cta">
-                  <a href="#contacto" className="web-btn-primary">Solicitar Demo <ArrowRight className="web-icon-inline" /></a>
-                  <Link href="/auth/login" className="web-btn-outline">Probar Gratis</Link>
+                  <a 
+                    href="https://wa.me/5491166882626" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="web-btn-primary web-btn-whatsapp-large"
+                  >
+                    <MessageCircle className="web-icon-inline" />
+                    Solicitar
+                  </a>
                 </div>
               </div>
             </div>
@@ -233,8 +254,15 @@ export default function WebPage() {
                 <h1 className="web-hero-title">Gestiona tu negocio con inteligencia</h1>
                 <p className="web-hero-subtitle">Dashboard inteligente, reportes en tiempo real y control total. Tu negocio al siguiente nivel.</p>
                 <div className="web-hero-cta">
-                  <a href="#contacto" className="web-btn-primary">Solicitar Demo <ArrowRight className="web-icon-inline" /></a>
-                  <Link href="/auth/login" className="web-btn-outline">Probar Gratis</Link>
+                  <a 
+                    href="https://wa.me/5491166882626" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="web-btn-primary web-btn-whatsapp-large"
+                  >
+                    <MessageCircle className="web-icon-inline" />
+                    Solicitar
+                  </a>
                 </div>
               </div>
             </div>
@@ -252,8 +280,15 @@ export default function WebPage() {
                 <h1 className="web-hero-title">Tecnología que impulsa tu negocio</h1>
                 <p className="web-hero-subtitle">Sistema robusto y seguro en la nube. Accede desde cualquier dispositivo, en cualquier momento.</p>
                 <div className="web-hero-cta">
-                  <a href="#contacto" className="web-btn-primary">Solicitar Demo <ArrowRight className="web-icon-inline" /></a>
-                  <Link href="/auth/login" className="web-btn-outline">Probar Gratis</Link>
+                  <a 
+                    href="https://wa.me/5491166882626" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="web-btn-primary web-btn-whatsapp-large"
+                  >
+                    <MessageCircle className="web-icon-inline" />
+                    Solicitar
+                  </a>
                 </div>
               </div>
             </div>
@@ -276,8 +311,15 @@ export default function WebPage() {
                   <div className="web-hero-feature"><CheckCircle className="web-icon-small" /><span>Dashboard con estadísticas</span></div>
                 </div>
                 <div className="web-hero-cta">
-                  <a href="#contacto" className="web-btn-primary">Solicitar Demo <ArrowRight className="web-icon-inline" /></a>
-                  <Link href="/auth/login" className="web-btn-outline">Probar Gratis</Link>
+                  <a 
+                    href="https://wa.me/5491166882626" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="web-btn-primary web-btn-whatsapp-large"
+                  >
+                    <MessageCircle className="web-icon-inline" />
+                    Solicitar
+                  </a>
                 </div>
               </div>
             </div>
@@ -295,8 +337,15 @@ export default function WebPage() {
                 <h1 className="web-hero-title">Perfecto para supermercados y almacenes</h1>
                 <p className="web-hero-subtitle">Sistema diseñado para el retail. Control de caja, inventario y ventas en un solo lugar.</p>
                 <div className="web-hero-cta">
-                  <a href="#contacto" className="web-btn-primary">Solicitar Demo <ArrowRight className="web-icon-inline" /></a>
-                  <Link href="/auth/login" className="web-btn-outline">Probar Gratis</Link>
+                  <a 
+                    href="https://wa.me/5491166882626" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="web-btn-primary web-btn-whatsapp-large"
+                  >
+                    <MessageCircle className="web-icon-inline" />
+                    Solicitar
+                  </a>
                 </div>
               </div>
             </div>
@@ -314,8 +363,15 @@ export default function WebPage() {
                 <h1 className="web-hero-title">Optimiza tu logística y distribución</h1>
                 <p className="web-hero-subtitle">Gestiona entregas, remitos y stock con precisión. Multi-empresa y multi-sucursal.</p>
                 <div className="web-hero-cta">
-                  <a href="#contacto" className="web-btn-primary">Solicitar Demo <ArrowRight className="web-icon-inline" /></a>
-                  <Link href="/auth/login" className="web-btn-outline">Probar Gratis</Link>
+                  <a 
+                    href="https://wa.me/5491166882626" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="web-btn-primary web-btn-whatsapp-large"
+                  >
+                    <MessageCircle className="web-icon-inline" />
+                    Solicitar
+                  </a>
                 </div>
               </div>
             </div>
@@ -337,8 +393,15 @@ export default function WebPage() {
                   La solución completa para gestionar tu negocio
                 </p>
                 <div className="web-hero-cta">
-                  <a href="#contacto" className="web-btn-primary">Solicitar Demo <ArrowRight className="web-icon-inline" /></a>
-                  <Link href="/auth/login" className="web-btn-outline">Probar Gratis</Link>
+                  <a 
+                    href="https://wa.me/5491166882626" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="web-btn-primary web-btn-whatsapp-large"
+                  >
+                    <MessageCircle className="web-icon-inline" />
+                    Solicitar
+                  </a>
                 </div>
               </div>
             </div>
@@ -361,8 +424,15 @@ export default function WebPage() {
                   <div className="web-hero-feature" style={{ fontSize: '1.25rem' }}><CheckCircle className="web-icon-small" style={{ width: '28px', height: '28px' }} /><span>Reportes de compras y ventas</span></div>
                 </div>
                 <div className="web-hero-cta">
-                  <a href="#contacto" className="web-btn-primary">Solicitar Demo <ArrowRight className="web-icon-inline" /></a>
-                  <Link href="/auth/login" className="web-btn-outline">Probar Gratis</Link>
+                  <a 
+                    href="https://wa.me/5491166882626" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="web-btn-primary web-btn-whatsapp-large"
+                  >
+                    <MessageCircle className="web-icon-inline" />
+                    Solicitar
+                  </a>
                 </div>
               </div>
             </div>
@@ -419,7 +489,7 @@ export default function WebPage() {
       {/* Future Features Section */}
       <section className="web-section web-section-alt">
         <div className="web-container">
-          <h2 className="web-section-title">Próximamente</h2>
+          <h2 className="web-section-title">Además</h2>
           <p className="web-section-subtitle">
             Estamos trabajando en estas funcionalidades que llegarán muy pronto
           </p>
@@ -428,7 +498,9 @@ export default function WebPage() {
               const futureImages = [
                 "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&q=80", // Reportes
                 "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=600&q=80", // Balanzas
-                "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600&q=80" // Carrito online
+                "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600&q=80", // Carrito online
+                "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80", // Huella
+                "https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?w=600&q=80" // Catálogos
               ];
               return (
                 <div key={index} className="web-feature-card web-feature-card-coming">
@@ -473,124 +545,21 @@ export default function WebPage() {
                     </li>
                   ))}
                 </ul>
-                <a href="#contacto" className={`web-btn ${plan.popular ? "web-btn-primary" : "web-btn-outline"}`}>
-                  Solicitar Información
+                <a 
+                  href="https://wa.me/5491166882626" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className={`web-btn web-btn-whatsapp ${plan.popular ? "web-btn-primary" : "web-btn-outline"}`}
+                >
+                  <MessageCircle className="web-icon-inline" />
+                  Solicitar
                 </a>
               </div>
             ))}
           </div>
-          <div className="web-plans-note">
-            <div className="web-whatsapp-cta">
-              <MessageCircle className="web-whatsapp-icon" />
-              <div>
-                <strong>Solicite un asesor sin cargo</strong> para realizar una consulta.
-                <br />
-                <a href="https://wa.me/549XXXXXXXXX" target="_blank" rel="noopener noreferrer" className="web-whatsapp-link">
-                  Contactar por WhatsApp
-                </a>
-              </div>
-            </div>
-          </div>
         </div>
       </section>
 
-      {/* Contact Section */}
-      <section id="contacto" className="web-section web-section-contact">
-        <div className="web-container">
-          <h2 className="web-section-title">¡Ponete en contacto con nosotros!</h2>
-          <div className="web-contact-grid">
-            <div className="web-contact-info">
-              <div className="web-contact-item">
-                <Phone className="web-icon" />
-                <div>
-                  <h3>Teléfono</h3>
-                  <p>Llamanos para más información</p>
-                </div>
-              </div>
-              <div className="web-contact-item">
-                <Mail className="web-icon" />
-                <div>
-                  <h3>Email</h3>
-                  <p>Envianos un mensaje</p>
-                </div>
-              </div>
-            </div>
-            <form className="web-contact-form" onSubmit={handleSubmit}>
-              <div className="web-form-group">
-                <label htmlFor="name">Nombre</label>
-                <input
-                  type="text"
-                  id="name"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  required
-                />
-              </div>
-              <div className="web-form-group">
-                <label htmlFor="email">Email</label>
-                <input
-                  type="email"
-                  id="email"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  required
-                />
-              </div>
-              <div className="web-form-group">
-                <label htmlFor="phone">Teléfono</label>
-                <input
-                  type="tel"
-                  id="phone"
-                  value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                />
-              </div>
-              <div className="web-form-group">
-                <label htmlFor="message">Mensaje</label>
-                <textarea
-                  id="message"
-                  rows={5}
-                  value={formData.message}
-                  onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                  required
-                />
-              </div>
-              <div className="web-form-group">
-                <label className="web-checkbox-label">
-                  <input
-                    type="checkbox"
-                    checked={formData.wantCall}
-                    onChange={(e) => setFormData({ ...formData, wantCall: e.target.checked })}
-                  />
-                  <span>Quiero recibir una llamada</span>
-                </label>
-              </div>
-              <button type="submit" className="web-btn-primary" disabled={formStatus === "sending"}>
-                {formStatus === "sending" ? (
-                  "Enviando..."
-                ) : formStatus === "success" ? (
-                  "✓ Enviado"
-                ) : (
-                  <>
-                    Enviar Mensaje
-                    <Send className="web-icon-inline" />
-                  </>
-                )}
-              </button>
-              {formStatus === "success" && (
-                <div className="web-form-success">
-                  Su mensaje ha sido enviado. Muchas gracias.
-                </div>
-              )}
-              {formStatus === "error" && (
-                <div className="web-form-error">
-                  Ha habido un error al enviar el mensaje. Por favor inténtelo nuevamente más tarde.
-                </div>
-              )}
-            </form>
-          </div>
-        </div>
-      </section>
 
       {/* Footer */}
       <footer className="web-footer">
