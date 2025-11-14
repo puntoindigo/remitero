@@ -1,25 +1,34 @@
--- Script SQL para insertar productos en la empresa con ID: 01646687-9c07-463c-b71c-af96de397138
+-- Script SQL para insertar productos en el schema DEV
+-- Empresa ID: 01646687-9c07-463c-b71c-af96de397138
 -- Todos los productos se insertan con stock IN_STOCK
--- IMPORTANTE: Este script usa el schema 'dev'
 
--- Primero, verificar que la empresa existe en el schema dev
--- Si no existe, necesitarás crear la empresa primero o usar el ID correcto
--- SELECT id, name FROM dev.companies WHERE id = '01646687-9c07-463c-b71c-af96de397138';
-
--- Para ejecutar en Supabase SQL Editor:
+-- INSTRUCCIONES PARA EJECUTAR EN SUPABASE:
 -- 1. Ve a Supabase Dashboard → SQL Editor
--- 2. Asegúrate de estar en el proyecto correcto
--- 3. Ejecuta este script completo
--- 4. Si necesitas usar el schema 'dev', puedes:
---    a) Configurar el search_path: SET search_path TO dev;
---    b) O usar el nombre completo: dev.products, dev.companies
+-- 2. Pega este script completo
+-- 3. Ejecuta el script (Run o F5)
 
--- Opción 1: Configurar search_path (recomendado)
+-- IMPORTANTE: Este script usa el schema 'dev'
+-- Si necesitas verificar qué schema estás usando, ejecuta primero:
+-- SELECT current_schema();
+
+-- Configurar el schema a usar
 SET search_path TO dev;
 
--- Opción 2: Usar nombres completos (alternativa)
--- INSERT INTO dev.products (name, description, price, stock, company_id, category_id, created_at, updated_at)
+-- Verificar que la empresa existe antes de insertar
+-- Si este SELECT no devuelve resultados, la empresa no existe en el schema dev
+-- Necesitarás crear la empresa primero o usar el ID correcto
+DO $$
+DECLARE
+  empresa_exists BOOLEAN;
+BEGIN
+  SELECT EXISTS(SELECT 1 FROM companies WHERE id = '01646687-9c07-463c-b71c-af96de397138') INTO empresa_exists;
+  
+  IF NOT empresa_exists THEN
+    RAISE EXCEPTION 'La empresa con ID 01646687-9c07-463c-b71c-af96de397138 no existe en el schema dev. Verifica el ID o crea la empresa primero.';
+  END IF;
+END $$;
 
+-- Insertar productos
 INSERT INTO products (name, description, price, stock, company_id, category_id, created_at, updated_at)
 VALUES
   ('Cacao Toddy', 'Cacao en polvo', 1915.00, 'IN_STOCK', '01646687-9c07-463c-b71c-af96de397138', NULL, NOW(), NOW()),
@@ -40,4 +49,7 @@ VALUES
   ('Jardinera INALPA', 'Verduras en conserva', 1000.00, 'IN_STOCK', '01646687-9c07-463c-b71c-af96de397138', NULL, NOW(), NOW()),
   ('Sabor en polvo ALICANTE', 'Condimento sabor en polvo', 400.00, 'IN_STOCK', '01646687-9c07-463c-b71c-af96de397138', NULL, NOW(), NOW()),
   ('Hellmann''s Picante', 'Salsa picante', 2100.00, 'IN_STOCK', '01646687-9c07-463c-b71c-af96de397138', NULL, NOW(), NOW());
+
+-- Verificar que se insertaron correctamente
+SELECT COUNT(*) as productos_insertados FROM products WHERE company_id = '01646687-9c07-463c-b71c-af96de397138';
 
