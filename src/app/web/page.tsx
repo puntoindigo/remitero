@@ -200,7 +200,7 @@ export default function WebPage() {
             <div className="web-hero-slide-number">1</div>
             <div className="web-hero-background">
               <img src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=1920&q=80" alt="Archivo tradicional" className="web-hero-bg-image" />
-              <div className="web-hero-overlay" style={{ background: 'linear-gradient(135deg, rgba(30, 58, 138, 0.92) 0%, rgba(79, 70, 229, 0.92) 100%)' }}></div>
+              <div className="web-hero-overlay" style={{ background: 'linear-gradient(135deg, rgba(20, 20, 20, 0.85) 0%, rgba(30, 30, 30, 0.90) 100%)' }}></div>
             </div>
             <div className="web-container">
               <div className="web-hero-content">
@@ -226,7 +226,7 @@ export default function WebPage() {
             <div className="web-hero-slide-number">2</div>
             <div className="web-hero-background">
               <img src="https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=1920&q=80" alt="Biblioteca" className="web-hero-bg-image" />
-              <div className="web-hero-overlay" style={{ background: 'linear-gradient(135deg, rgba(5, 150, 105, 0.92) 0%, rgba(16, 185, 129, 0.92) 100%)' }}></div>
+              <div className="web-hero-overlay" style={{ background: 'linear-gradient(135deg, rgba(20, 20, 20, 0.85) 0%, rgba(30, 30, 30, 0.90) 100%)' }}></div>
             </div>
             <div className="web-container">
               <div className="web-hero-content">
@@ -252,7 +252,7 @@ export default function WebPage() {
             <div className="web-hero-slide-number">3</div>
             <div className="web-hero-background">
               <img src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=1920&q=80" alt="Almacén industrial" className="web-hero-bg-image" />
-              <div className="web-hero-overlay" style={{ background: 'linear-gradient(135deg, rgba(217, 119, 6, 0.92) 0%, rgba(245, 158, 11, 0.92) 100%)' }}></div>
+              <div className="web-hero-overlay" style={{ background: 'linear-gradient(135deg, rgba(20, 20, 20, 0.85) 0%, rgba(30, 30, 30, 0.90) 100%)' }}></div>
             </div>
             <div className="web-container">
               <div className="web-hero-content">
@@ -278,7 +278,7 @@ export default function WebPage() {
             <div className="web-hero-slide-number">4</div>
             <div className="web-hero-background">
               <img src="https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=1920&q=80" alt="Escritorio madera" className="web-hero-bg-image" />
-              <div className="web-hero-overlay" style={{ background: 'linear-gradient(135deg, rgba(147, 51, 234, 0.92) 0%, rgba(168, 85, 247, 0.92) 100%)' }}></div>
+              <div className="web-hero-overlay" style={{ background: 'linear-gradient(135deg, rgba(20, 20, 20, 0.85) 0%, rgba(30, 30, 30, 0.90) 100%)' }}></div>
             </div>
             <div className="web-container">
               <div className="web-hero-content">
@@ -304,7 +304,7 @@ export default function WebPage() {
             <div className="web-hero-slide-number">5</div>
             <div className="web-hero-background">
               <img src="https://images.unsplash.com/photo-1452860606245-08befc0ff44b?w=1920&q=80" alt="Archivos legales" className="web-hero-bg-image" />
-              <div className="web-hero-overlay" style={{ background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.92) 0%, rgba(30, 58, 138, 0.92) 100%)' }}></div>
+              <div className="web-hero-overlay" style={{ background: 'linear-gradient(135deg, rgba(20, 20, 20, 0.85) 0%, rgba(30, 30, 30, 0.90) 100%)' }}></div>
             </div>
             <div className="web-container">
               <div className="web-hero-content">
@@ -330,7 +330,7 @@ export default function WebPage() {
             <div className="web-hero-slide-number">6</div>
             <div className="web-hero-background">
               <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1920&q=80" alt="Estanterías madera" className="web-hero-bg-image" />
-              <div className="web-hero-overlay" style={{ background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.95) 0%, rgba(37, 99, 235, 0.95) 100%)' }}></div>
+              <div className="web-hero-overlay" style={{ background: 'linear-gradient(135deg, rgba(20, 20, 20, 0.85) 0%, rgba(30, 30, 30, 0.90) 100%)' }}></div>
             </div>
             <div className="web-container">
               <div className="web-hero-content">
@@ -361,7 +361,7 @@ export default function WebPage() {
             <div className="web-hero-slide-number">7</div>
             <div className="web-hero-background">
               <img src="https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=1920&q=80" alt="Documentos" className="web-hero-bg-image" />
-              <div className="web-hero-overlay" style={{ background: 'linear-gradient(135deg, rgba(220, 38, 38, 0.92) 0%, rgba(239, 68, 68, 0.92) 100%)' }}></div>
+              <div className="web-hero-overlay" style={{ background: 'linear-gradient(135deg, rgba(20, 20, 20, 0.85) 0%, rgba(30, 30, 30, 0.90) 100%)' }}></div>
             </div>
             <div className="web-container">
               <div className="web-hero-content">
@@ -387,7 +387,7 @@ export default function WebPage() {
             <div className="web-hero-slide-number">8</div>
             <div className="web-hero-background">
               <img src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=1920&q=80" alt="Logística" className="web-hero-bg-image" />
-              <div className="web-hero-overlay" style={{ background: 'linear-gradient(135deg, rgba(20, 184, 166, 0.92) 0%, rgba(6, 182, 212, 0.92) 100%)' }}></div>
+              <div className="web-hero-overlay" style={{ background: 'linear-gradient(135deg, rgba(20, 20, 20, 0.85) 0%, rgba(30, 30, 30, 0.90) 100%)' }}></div>
             </div>
             <div className="web-container">
               <div className="web-hero-content">
@@ -413,7 +413,7 @@ export default function WebPage() {
             <div className="web-hero-slide-number">9</div>
             <div className="web-hero-background">
               <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1920&q=80" alt="Minimalista" className="web-hero-bg-image" />
-              <div className="web-hero-overlay" style={{ background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.92) 0%, rgba(139, 92, 246, 0.92) 100%)' }}></div>
+              <div className="web-hero-overlay" style={{ background: 'linear-gradient(135deg, rgba(20, 20, 20, 0.85) 0%, rgba(30, 30, 30, 0.90) 100%)' }}></div>
             </div>
             <div className="web-container">
               <div className="web-hero-content" style={{ maxWidth: '900px' }}>
@@ -443,7 +443,7 @@ export default function WebPage() {
             <div className="web-hero-slide-number">10</div>
             <div className="web-hero-background">
               <img src="https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=1920&q=80" alt="Oficina tradicional" className="web-hero-bg-image" />
-              <div className="web-hero-overlay" style={{ background: 'linear-gradient(135deg, rgba(30, 64, 175, 0.94) 0%, rgba(59, 130, 246, 0.94) 100%)' }}></div>
+              <div className="web-hero-overlay" style={{ background: 'linear-gradient(135deg, rgba(20, 20, 20, 0.85) 0%, rgba(30, 30, 30, 0.90) 100%)' }}></div>
             </div>
             <div className="web-container">
               <div className="web-hero-content">

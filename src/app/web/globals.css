@@ -670,12 +670,13 @@
 }
 
 .web-plan-card {
-  background: #ffffff;
-  border: 2px solid #e5e7eb;
-  border-radius: 0.75rem;
+  background: rgba(30, 30, 30, 0.9);
+  border: 2px solid rgba(139, 90, 43, 0.3);
+  border-radius: 0.5rem;
   padding: 2rem;
   position: relative;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
 }
 
 .web-plan-card:hover {
@@ -689,8 +690,9 @@
 }
 
 .web-plan-popular {
-  border-color: #2563eb;
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+  border-color: #d4a574;
+  box-shadow: 0 6px 20px rgba(212, 165, 116, 0.4);
+  background: rgba(35, 35, 35, 0.95);
 }
 
 .web-plan-badge {
@@ -698,20 +700,25 @@
   top: -12px;
   left: 50%;
   transform: translateX(-50%);
-  background: #2563eb;
+  background: linear-gradient(135deg, #8b5a3c 0%, #6b4423 100%);
   color: #ffffff;
   padding: 0.5rem 1rem;
   border-radius: 9999px;
   font-size: 0.875rem;
   font-weight: 600;
+  box-shadow: 0 4px 12px rgba(212, 165, 116, 0.4);
+  border: 1px solid rgba(212, 165, 116, 0.3);
 }
 
 .web-plan-name {
   font-size: 1.5rem;
   font-weight: 700;
   margin-bottom: 1rem;
-  color: #111827;
+  color: #d4a574;
   text-align: center;
+  font-family: 'Georgia', serif;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .web-plan-price {
@@ -747,8 +754,9 @@
 .web-plan-amount {
   font-size: 3rem;
   font-weight: 800;
-  color: #1e40af;
+  color: #d4a574;
   letter-spacing: -0.02em;
+  font-family: 'Georgia', serif;
 }
 
 .web-plan-amount-monthly {
@@ -774,7 +782,7 @@
   align-items: start;
   gap: 0.75rem;
   padding: 0.75rem 0;
-  color: #374151;
+  color: #b8b8b8;
 }
 
 .web-plan-feature .web-icon-small {
