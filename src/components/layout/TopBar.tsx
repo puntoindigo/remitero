@@ -31,10 +31,12 @@ export default function TopBar() {
   const { toasts, showSuccess: showToastSuccess, removeToast } = useToast();
   // Solo cargar usuarios si el usuario tiene permisos (ADMIN o SUPERADMIN)
   // Para usuarios con rol USER, usar el endpoint individual
+  // IMPORTANTE: Esperar a que currentUser esté cargado antes de decidir si habilitar la query
   const canViewUsers = currentUser?.role === 'ADMIN' || currentUser?.role === 'SUPERADMIN';
+  const shouldEnableQuery = currentUser !== null && canViewUsers; // Solo habilitar si currentUser está cargado Y tiene permisos
   const { data: usuarios, refetch: refetchUsuarios } = useUsuariosQuery(
-    canViewUsers ? session?.user?.companyId : undefined,
-    canViewUsers // Solo ejecutar si tiene permisos
+    shouldEnableQuery ? session?.user?.companyId : undefined,
+    shouldEnableQuery // Solo ejecutar si currentUser está cargado y tiene permisos
   );
   
   // Para usuarios USER, obtener su perfil individualmente
