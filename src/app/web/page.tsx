@@ -14,6 +14,7 @@ export default function WebPage() {
   });
   const [formStatus, setFormStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [showLoginDropdown, setShowLoginDropdown] = useState(false);
 
   // Auto-play del carrusel
   useEffect(() => {
@@ -90,13 +91,19 @@ export default function WebPage() {
       icon: FileText,
       title: "Generador de Catálogos Online",
       description: "Crea catálogos digitales de tus productos listos para impresión y compartir online."
+    },
+    {
+      icon: Package,
+      title: "Integración con Lectores de Barra",
+      description: "Conecta lectores de código de barras para agilizar la gestión de productos y stock."
     }
   ];
 
   const plans = [
     {
       name: "Básico",
-      price: "$25.000",
+      priceAnnual: "$25.000",
+      priceMonthly: "$30.000",
       period: "mes",
       features: [
         "Hasta 3 usuarios",
@@ -110,14 +117,13 @@ export default function WebPage() {
     },
     {
       name: "Profesional",
-      price: "$55.000",
+      priceAnnual: "$55.000",
+      priceMonthly: "$65.000",
       period: "mes",
       features: [
         "Usuarios ilimitados",
-        "Multi-empresa",
         "Roles y permisos avanzados",
         "Reportes personalizados",
-        "Integración con balanzas",
         "Soporte prioritario",
         "Carrito online (próximamente)"
       ],
@@ -125,10 +131,13 @@ export default function WebPage() {
     },
     {
       name: "Enterprise",
-      price: "Desde $120.000",
+      priceAnnual: "Desde $120.000",
+      priceMonthly: "Desde $140.000",
       period: "mes",
       features: [
         "Todo lo del plan Profesional",
+        "Multi-empresa",
+        "Integración con balanzas",
         "Soporte 24/7",
         "Capacitación personalizada",
         "Desarrollo de features a medida",
@@ -152,10 +161,32 @@ export default function WebPage() {
             <nav className="web-nav">
               <a href="#caracteristicas">Características</a>
               <a href="#planes">Planes</a>
-              <a href="#contacto">Contacto</a>
-              <Link href="/auth/login" className="web-btn-secondary">
-                Iniciar Sesión
-              </Link>
+              <div 
+                className="web-login-dropdown-container"
+                onMouseEnter={() => setShowLoginDropdown(true)}
+                onMouseLeave={() => setShowLoginDropdown(false)}
+              >
+                <button className="web-btn-secondary web-login-trigger">
+                  Iniciar Sesión
+                  <ChevronRight className="web-icon-inline" style={{ transform: 'rotate(90deg)', transition: 'transform 0.2s' }} />
+                </button>
+                {showLoginDropdown && (
+                  <div className="web-login-dropdown">
+                    <Link href="/auth/login" className="web-login-option">
+                      <div className="web-login-option-content">
+                        <strong>Iniciar con Google</strong>
+                        <span>Acceso rápido con tu cuenta de Gmail</span>
+                      </div>
+                    </Link>
+                    <Link href="/auth/login" className="web-login-option">
+                      <div className="web-login-option-content">
+                        <strong>Iniciar con Email</strong>
+                        <span>Usa tu email y contraseña</span>
+                      </div>
+                    </Link>
+                  </div>
+                )}
+              </div>
             </nav>
           </div>
         </div>
@@ -500,7 +531,8 @@ export default function WebPage() {
                 "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=600&q=80", // Balanzas
                 "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600&q=80", // Carrito online
                 "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80", // Huella
-                "https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?w=600&q=80" // Catálogos
+                "https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?w=600&q=80", // Catálogos
+                "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=600&q=80" // Lectores de barra
               ];
               return (
                 <div key={index} className="web-feature-card web-feature-card-coming">

@@ -106,6 +106,74 @@
   color: #ffffff;
 }
 
+.web-login-dropdown-container {
+  position: relative;
+}
+
+.web-login-trigger {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.web-login-dropdown {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  background: #ffffff;
+  border-radius: 0.75rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  min-width: 280px;
+  z-index: 1000;
+  overflow: hidden;
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.web-login-option {
+  display: block;
+  padding: 1rem 1.25rem;
+  text-decoration: none;
+  color: #0f172a;
+  transition: background 0.2s;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.web-login-option:last-child {
+  border-bottom: none;
+}
+
+.web-login-option:hover {
+  background: #f8fafc;
+}
+
+.web-login-option-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.web-login-option-content strong {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.web-login-option-content span {
+  font-size: 0.875rem;
+  color: #64748b;
+}
+
 .web-btn-outline {
   background: transparent;
   color: #ffffff;
@@ -375,6 +443,9 @@
   transition: transform 0.2s, box-shadow 0.2s;
   position: relative;
   overflow: hidden;
+  min-height: 320px;
+  display: flex;
+  flex-direction: column;
 }
 
 .web-feature-image {
