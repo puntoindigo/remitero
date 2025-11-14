@@ -20,6 +20,8 @@ import {
 import { OptimizedPageLayout } from "@/components/layout/OptimizedPageLayout";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { useOptimizedPageData } from "@/hooks/useOptimizedPageData";
+import { useDataWithCompanySimple } from "@/hooks/useDataWithCompanySimple";
+import { CompanySelector } from "@/components/common/CompanySelector";
 import { DataTable, type DataTableColumn } from "@/components/common/DataTable";
 import { useCRUDTable } from "@/hooks/useCRUDTable";
 import { Pagination } from "@/components/common/Pagination";
@@ -38,6 +40,12 @@ function ClientesContent() {
     companyId,
     canShowContent
   } = useOptimizedPageData();
+  
+  // Para el selector de empresa, necesitamos useDataWithCompanySimple
+  const {
+    selectedCompanyId,
+    setSelectedCompanyId
+  } = useDataWithCompanySimple();
   
   const {
     editingItem: editingCliente,
@@ -214,16 +222,28 @@ function ClientesContent() {
       {/* Título y búsqueda */}
       {canShowContent && (
         <div style={{ marginBottom: '1rem' }}>
-          <h2 className="page-title-desktop" style={{ 
-            fontSize: '24px', 
-            fontWeight: 700, 
-            color: '#111827',
-            marginBottom: '0.75rem',
-            marginTop: '0',
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center',
+            marginBottom: '1rem',
             padding: '0 16px'
           }}>
-            Clientes
-          </h2>
+            <h2 className="page-title-desktop" style={{ 
+              fontSize: '24px', 
+              fontWeight: 700, 
+              color: '#111827',
+              marginBottom: 0,
+              marginTop: '0',
+              padding: 0
+            }}>
+              Clientes
+            </h2>
+            <CompanySelector
+              selectedCompanyId={selectedCompanyId}
+              setSelectedCompanyId={setSelectedCompanyId}
+            />
+          </div>
           <div style={{ 
             padding: '0 16px',
             display: 'flex',

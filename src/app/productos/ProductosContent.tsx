@@ -18,6 +18,7 @@ import { useCRUDPage } from "@/hooks/useCRUDPage";
 import { useCurrentUserSimple } from "@/hooks/useCurrentUserSimple";
 import { useEmpresas, type Empresa } from "@/hooks/useEmpresas";
 import { useDataWithCompanySimple } from "@/hooks/useDataWithCompanySimple";
+import { CompanySelector } from "@/components/common/CompanySelector";
 import { DataTable, type DataTableColumn } from "@/components/common/DataTable";
 import { useCRUDTable } from "@/hooks/useCRUDTable";
 import { Pagination } from "@/components/common/Pagination";
@@ -546,16 +547,28 @@ function ProductosContent() {
 
           {/* Título Productos */}
           {companyId && (
-            <h2 className="page-title-desktop" style={{ 
-              fontSize: '24px', 
-              fontWeight: 700, 
-              color: '#111827',
-              marginBottom: '0.75rem',
-              marginTop: shouldShowCompanySelector ? '0.5rem' : '0',
+            <div style={{ 
+              display: 'flex', 
+              justifyContent: 'space-between', 
+              alignItems: 'center',
+              marginBottom: '1rem',
               padding: '0 16px'
             }}>
-              Productos
-            </h2>
+              <h2 className="page-title-desktop" style={{ 
+                fontSize: '24px', 
+                fontWeight: 700, 
+                color: '#111827',
+                marginBottom: 0,
+                marginTop: '0',
+                padding: 0
+              }}>
+                Productos
+              </h2>
+              <CompanySelector
+                selectedCompanyId={selectedCompanyId}
+                setSelectedCompanyId={setSelectedCompanyId}
+              />
+            </div>
           )}
 
           {/* Barra de búsqueda, filtros y botón nuevo */}

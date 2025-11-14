@@ -682,16 +682,28 @@ function UsuariosContent() {
           )}
 
           {/* Título Usuarios */}
-          <h2 className="page-title-desktop" style={{ 
-            fontSize: '24px', 
-            fontWeight: 700, 
-            color: '#111827',
-            marginBottom: '0.75rem',
-            marginTop: shouldShowCompanySelector ? '0.5rem' : '0',
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center',
+            marginBottom: '1rem',
             padding: '0 16px'
           }}>
-            Usuarios
-          </h2>
+            <h2 className="page-title-desktop" style={{ 
+              fontSize: '24px', 
+              fontWeight: 700, 
+              color: '#111827',
+              marginBottom: 0,
+              marginTop: '0',
+              padding: 0
+            }}>
+              Usuarios
+            </h2>
+            <CompanySelector
+              selectedCompanyId={selectedCompanyId}
+              setSelectedCompanyId={setSelectedCompanyId}
+            />
+          </div>
 
           {/* Barra de búsqueda y botón nuevo - siempre visible */}
           <div className="search-and-action-row" style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1rem', justifyContent: 'space-between' }}>

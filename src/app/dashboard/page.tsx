@@ -7,8 +7,7 @@ import { FileText, Package, Users, Building2, Tag, ShoppingBag, Plus, Eye, Build
 import { RemitosChart } from "@/components/common/RemitosChart"
 import Link from "next/link"
 import { useCurrentUserSimple } from "@/hooks/useCurrentUserSimple"
-import { useEmpresas } from "@/hooks/useEmpresas"
-import FilterableSelect from "@/components/common/FilterableSelect"
+import { CompanySelector } from "@/components/common/CompanySelector"
 import { useShortcuts } from "@/hooks/useShortcuts"
 import { PinnedModalsPanel } from "@/components/common/PinnedModalsPanel"
 import { useIsMobile } from "@/hooks/useIsMobile"
@@ -51,7 +50,6 @@ interface TodayStats {
 export default function DashboardPage() {
   const { data: session } = useSession()
   const currentUser = useCurrentUserSimple()
-  const { empresas } = useEmpresas()
   const router = useRouter()
   const isMobile = useIsMobile()
   const [selectedCompanyId, setSelectedCompanyId] = useState<string>("")
@@ -382,22 +380,10 @@ export default function DashboardPage() {
           </h2>
           
           {/* Selector de empresa para SUPERADMIN */}
-          {currentUser?.role === "SUPERADMIN" && empresas && empresas.length > 0 && (
-            <div style={{ width: 'fit-content', flexShrink: 0 }}>
-              <FilterableSelect
-                options={[
-                  { id: "", name: "Todas las empresas" },
-                  ...empresas
-                ]}
-                value={selectedCompanyId}
-                onChange={setSelectedCompanyId}
-                placeholder="Seleccionar empresa"
-                className=""
-                useThemeColors={true}
-                style={{ width: 'fit-content', minWidth: '150px', maxWidth: '250px' }}
-              />
-            </div>
-          )}
+          <CompanySelector
+            selectedCompanyId={selectedCompanyId}
+            setSelectedCompanyId={setSelectedCompanyId}
+          />
         </div>
 
           {/* Panel de Modales Anclados */}

@@ -164,6 +164,9 @@ export default function TopBar() {
           localStorage.removeItem('impersonation');
         }
         
+        // Limpiar sessionStorage también
+        sessionStorage.clear();
+        
         // Detener impersonation si está activo (en background, sin esperar)
         if (isImpersonating) {
           stopImpersonation().catch(() => {
@@ -180,22 +183,42 @@ export default function TopBar() {
         
         // Hacer logout sin redirigir automáticamente y sin callbackUrl
         // Esto evita que NextAuth intente hacer fetch a /auth/login
-        signOut({ 
-          redirect: false
+        await signOut({ 
+          redirect: false,
+          callbackUrl: '/auth/login'
         }).catch(() => {
           // Ignorar errores silenciosamente
         });
         
-        // Redirigir inmediatamente usando window.location
-        // Usar un pequeño delay para asegurar que el signOut se inicie
-        setTimeout(() => {
-          window.location.href = '/auth/login';
-        }, 50);
+        // Limpiar todas las cookies relacionadas con NextAuth
+        // Esto asegura que la sesión se cierre completamente
+        document.cookie.split(";").forEach((c) => {
+          const cookieName = c.trim().split("=")[0];
+          if (cookieName.startsWith('next-auth') || cookieName.startsWith('__Secure-next-auth')) {
+            document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+            document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=${window.location.hostname};`;
+            document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.${window.location.hostname};`;
+          }
+        });
+        
+        // Redirigir inmediatamente usando window.location con replace para evitar que el usuario pueda volver atrás
+        window.location.replace('/auth/login');
       }
     } catch (error) {
-      // Si hay algún error, redirigir de todas formas
+      // Si hay algún error, limpiar cookies y redirigir de todas formas
       if (typeof window !== 'undefined') {
-        window.location.href = '/auth/login';
+        // Limpiar cookies de todas formas
+        document.cookie.split(";").forEach((c) => {
+          const cookieName = c.trim().split("=")[0];
+          if (cookieName.startsWith('next-auth') || cookieName.startsWith('__Secure-next-auth')) {
+            document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+            document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=${window.location.hostname};`;
+            document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.${window.location.hostname};`;
+          }
+        });
+        sessionStorage.clear();
+        localStorage.removeItem('impersonation');
+        window.location.replace('/auth/login');
       }
     }
   };

@@ -18,6 +18,7 @@ import { useCurrentUserSimple } from "@/hooks/useCurrentUserSimple";
 import { useDataWithCompanySimple } from "@/hooks/useDataWithCompanySimple";
 import { useEstadosRemitosQuery } from "@/hooks/queries/useEstadosRemitosQuery";
 import { useEmpresas } from "@/hooks/useEmpresas";
+import { CompanySelector } from "@/components/common/CompanySelector";
 import { useProductosQuery } from "@/hooks/queries/useProductosQuery";
 import { useClientesQuery, clienteKeys } from "@/hooks/queries/useClientesQuery";
 import { DataTable, type DataTableColumn } from "@/components/common/DataTable";
@@ -550,16 +551,28 @@ function RemitosContent() {
 
         {/* Título Remitos */}
         {!needsCompanySelection && (
-          <h2 className="page-title-desktop" style={{ 
-            fontSize: isMobile ? '24px' : undefined, 
-            fontWeight: isMobile ? 700 : undefined, 
-            color: isMobile ? '#111827' : undefined,
-            marginBottom: isMobile ? '0.75rem' : undefined,
-            marginTop: shouldShowCompanySelector ? '0.5rem' : '0',
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center',
+            marginBottom: '1rem',
             padding: '0 16px'
           }}>
-            Remitos
-          </h2>
+            <h2 className="page-title-desktop" style={{ 
+              fontSize: isMobile ? '24px' : undefined, 
+              fontWeight: isMobile ? 700 : undefined, 
+              color: isMobile ? '#111827' : undefined,
+              marginBottom: 0,
+              marginTop: '0',
+              padding: 0
+            }}>
+              Remitos
+            </h2>
+            <CompanySelector
+              selectedCompanyId={selectedCompanyId}
+              setSelectedCompanyId={setSelectedCompanyId}
+            />
+          </div>
         )}
 
         {/* Barra de búsqueda y filtros */}

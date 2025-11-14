@@ -110,15 +110,26 @@ function LoginPageContent() {
   useEffect(() => {
     const clearExistingSession = async () => {
       try {
+        // Limpiar storage primero
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('impersonation');
+          sessionStorage.clear();
+          
+          // Limpiar todas las cookies relacionadas con NextAuth
+          document.cookie.split(";").forEach((c) => {
+            const cookieName = c.trim().split("=")[0];
+            if (cookieName.startsWith('next-auth') || cookieName.startsWith('__Secure-next-auth')) {
+              document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+              document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=${window.location.hostname};`;
+              document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.${window.location.hostname};`;
+            }
+          });
+        }
+        
         // Verificar si hay una sesión existente
         const existingSession = await getSession();
         if (existingSession) {
           console.log('🔒 [Login] Sesión existente detectada, cerrando...');
-          
-          // Limpiar localStorage primero
-          if (typeof window !== 'undefined') {
-            localStorage.removeItem('impersonation');
-          }
           
           // Intentar cerrar sesión sin redirigir (ya estamos en login)
           // Puede fallar si la sesión ya no es válida, pero eso está bien
@@ -127,7 +138,7 @@ function LoginPageContent() {
             console.log('✅ [Login] Sesión cerrada correctamente');
           } catch (signOutError: any) {
             // Si falla al cerrar sesión (puede ser porque la sesión ya no es válida),
-            // no es un problema - ya limpiamos localStorage
+            // no es un problema - ya limpiamos cookies y storage
             // Solo loggear si no es un error de red esperado
             if (signOutError?.message && !signOutError.message.includes('Failed to fetch')) {
               console.warn('⚠️ [Login] Error al cerrar sesión:', signOutError);
@@ -135,13 +146,23 @@ function LoginPageContent() {
           }
         }
       } catch (error: any) {
-        // Si hay error al obtener sesión o cerrarla, limpiar localStorage de todas formas
+        // Si hay error al obtener sesión o cerrarla, limpiar de todas formas
         // Esto puede pasar si la sesión ya no es válida o hay problemas de red
         if (error?.message && !error.message.includes('Failed to fetch')) {
           console.warn('⚠️ [Login] Error al verificar/cerrar sesión existente:', error);
         }
         if (typeof window !== 'undefined') {
           localStorage.removeItem('impersonation');
+          sessionStorage.clear();
+          // Limpiar cookies de todas formas
+          document.cookie.split(";").forEach((c) => {
+            const cookieName = c.trim().split("=")[0];
+            if (cookieName.startsWith('next-auth') || cookieName.startsWith('__Secure-next-auth')) {
+              document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+              document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=${window.location.hostname};`;
+              document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.${window.location.hostname};`;
+            }
+          });
         }
       }
     };

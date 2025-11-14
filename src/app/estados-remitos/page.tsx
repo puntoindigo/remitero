@@ -17,6 +17,7 @@ import { EstadoRemitoForm } from "@/components/forms/EstadoRemitoForm";
 import { useEmpresas, type Empresa } from "@/hooks/useEmpresas";
 import { useCurrentUserSimple } from "@/hooks/useCurrentUserSimple";
 import { useDataWithCompanySimple } from "@/hooks/useDataWithCompanySimple";
+import { CompanySelector } from "@/components/common/CompanySelector";
 import { DataTable, type DataTableColumn } from "@/components/common/DataTable";
 import { useCRUDTable } from "@/hooks/useCRUDTable";
 import { Pagination } from "@/components/common/Pagination";
@@ -352,16 +353,28 @@ function EstadosRemitosContent() {
 
           {/* Título Estados */}
           {!needsCompanySelection && (
-            <h2 className="page-title-desktop" style={{ 
-              fontSize: '24px', 
-              fontWeight: 700, 
-              color: '#111827',
-              marginBottom: '0.75rem',
-              marginTop: shouldShowCompanySelector ? '0.5rem' : '0',
+            <div style={{ 
+              display: 'flex', 
+              justifyContent: 'space-between', 
+              alignItems: 'center',
+              marginBottom: '1rem',
               padding: '0 16px'
             }}>
-              Estados
-            </h2>
+              <h2 className="page-title-desktop" style={{ 
+                fontSize: '24px', 
+                fontWeight: 700, 
+                color: '#111827',
+                marginBottom: 0,
+                marginTop: '0',
+                padding: 0
+              }}>
+                Estados
+              </h2>
+              <CompanySelector
+                selectedCompanyId={selectedCompanyId}
+                setSelectedCompanyId={setSelectedCompanyId}
+              />
+            </div>
           )}
 
           {/* Barra de búsqueda y botón nuevo */}
