@@ -21,8 +21,17 @@ export async function PUT(
     const body = await request.json();
     const { name, description, color, icon, is_active, sort_order, is_default } = body;
 
-    // Validaciones
-    if (!name || name.trim() === '') {
+    // Si solo se está actualizando is_default, no requerir name
+    const isOnlyDefaultUpdate = is_default !== undefined && 
+      name === undefined && 
+      description === undefined && 
+      color === undefined && 
+      icon === undefined && 
+      is_active === undefined && 
+      sort_order === undefined;
+
+    // Validaciones (solo si no es una actualización solo de is_default)
+    if (!isOnlyDefaultUpdate && (!name || name.trim() === '')) {
       return NextResponse.json({ 
         error: "Datos faltantes", 
         message: "El nombre del estado es requerido." 
@@ -87,18 +96,24 @@ export async function PUT(
     }
 
     // Actualizar el estado
-    const updateData: any = {
-      name: name.trim(),
-      description: description?.trim() || null,
-      color: color || '#6b7280',
-      icon: icon || '📋',
-      is_active: is_active !== undefined ? is_active : true,
-      sort_order: sort_order !== undefined ? sort_order : 0
-    };
+    const updateData: any = {};
     
-    // Solo actualizar is_default si se proporciona explícitamente
-    if (is_default !== undefined) {
+    // Si es solo actualización de is_default, solo actualizar eso
+    if (isOnlyDefaultUpdate) {
       updateData.is_default = is_default;
+    } else {
+      // Actualización completa
+      updateData.name = name.trim();
+      updateData.description = description?.trim() || null;
+      updateData.color = color || '#6b7280';
+      updateData.icon = icon || '📋';
+      updateData.is_active = is_active !== undefined ? is_active : true;
+      updateData.sort_order = sort_order !== undefined ? sort_order : 0;
+      
+      // Solo actualizar is_default si se proporciona explícitamente
+      if (is_default !== undefined) {
+        updateData.is_default = is_default;
+      }
     }
     
     const { data: updatedEstado, error } = await supabaseAdmin

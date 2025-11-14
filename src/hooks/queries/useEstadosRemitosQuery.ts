@@ -7,6 +7,7 @@ export interface EstadoRemito {
   name: string;
   color: string;
   is_active: boolean;
+  is_default?: boolean;
 }
 
 export const estadoKeys = {
