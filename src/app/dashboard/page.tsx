@@ -355,28 +355,42 @@ export default function DashboardPage() {
     )
   }
 
+  // Obtener nombre de empresa seleccionada
+  const selectedCompanyName = selectedCompanyId 
+    ? empresas?.find(e => e.id === selectedCompanyId)?.name || "Todas las empresas"
+    : "Todas las empresas";
+
   return (
     <main className="main-content">
       <div className="form-section">
-        <h2 className="page-title-desktop" style={{ 
-          fontSize: isMobile ? '24px' : undefined, 
-          fontWeight: isMobile ? 700 : undefined, 
-          color: isMobile ? '#111827' : undefined,
-          marginBottom: isMobile ? '0.75rem' : undefined,
-          marginTop: '0',
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center',
+          marginBottom: '1rem',
           padding: '0 16px'
         }}>
-          Tablero de Control
-        </h2>
-        
+          <h2 className="page-title-desktop" style={{ 
+            fontSize: isMobile ? '24px' : undefined, 
+            fontWeight: isMobile ? 700 : undefined, 
+            color: isMobile ? '#111827' : undefined,
+            marginBottom: 0,
+            marginTop: '0',
+            padding: 0
+          }}>
+            Tablero de Control
+          </h2>
+          
           {/* Selector de empresa para SUPERADMIN */}
-          {currentUser?.role === "SUPERADMIN" && empresas?.length > 0 && (
+          {currentUser?.role === "SUPERADMIN" && empresas && empresas.length > 0 && (
             <div style={{ 
-              marginBottom: '0', 
-              marginTop: 0,
-              padding: '0 16px',
-              width: '100%' 
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem'
             }}>
+              <span style={{ fontSize: '0.875rem', color: '#6b7280' }}>
+                Empresa: <strong>{selectedCompanyName}</strong>
+              </span>
               <FilterableSelect
                 options={[
                   { id: "", name: "Todas las empresas" },
@@ -385,11 +399,13 @@ export default function DashboardPage() {
                 value={selectedCompanyId}
                 onChange={setSelectedCompanyId}
                 placeholder="Seleccionar empresa"
-                className="w-full"
+                className=""
                 useThemeColors={true}
+                style={{ width: 'auto', minWidth: '200px' }}
               />
             </div>
           )}
+        </div>
 
           {/* Panel de Modales Anclados */}
           <PinnedModalsPanel />

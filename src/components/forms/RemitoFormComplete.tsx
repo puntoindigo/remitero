@@ -157,8 +157,11 @@ export function RemitoFormComplete({
       setSelectedProduct("");
       setQuantity(1);
       setShowNotes(false);
-      // Set default status if available
-      const defaultStatus = estados.find(e => e.is_default);
+      // Set default status: buscar "Pendiente" o el que tenga is_default: true
+      const defaultStatus = estados.find(e => 
+        e.is_default || 
+        e.name?.toLowerCase().includes('pendiente')
+      ) || estados.find(e => e.is_default);
       if (defaultStatus) {
         setValue("status", defaultStatus?.id);
       }
@@ -383,26 +386,6 @@ export function RemitoFormComplete({
         </div>
       </div>
 
-      {/* Estado */}
-      <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-        <FilterableSelect
-          options={estados.map(estado => ({ 
-            id: estado?.id, 
-            name: estado?.name,
-            color: estado.color 
-          }))}
-          value={watch("status") || ""}
-          onChange={(value) => setValue("status", value)}
-          placeholder="Seleccionar estado"
-          searchFields={["name"]}
-          showColors={true}
-          searchable={false}
-        />
-        {errors.status && (
-          <p className="error-message">{errors.status.message}</p>
-        )}
-      </div>
-
       {/* Tabla de productos */}
       <div>
         <table>
@@ -418,11 +401,23 @@ export function RemitoFormComplete({
             {items.map((item, index) => (
               <tr key={index}>
                 <td>
-                  <div>
-                    <div style={{ fontSize: '14px', fontWeight: 500 }}>{item.product_name}</div>
-                    {item.product_desc && (
-                      <div style={{ fontSize: '12px', color: '#6b7280' }}>{item.product_desc}</div>
-                    )}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <img 
+                      src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 24 24' fill='none' stroke='%23d1d5db' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='3' width='18' height='18' rx='2'/%3E%3Cpath d='M9 9h6v6H9z'/%3E%3C/svg%3E"
+                      alt="Sin imagen"
+                      style={{ 
+                        width: '32px', 
+                        height: '32px', 
+                        flexShrink: 0,
+                        opacity: 0.5
+                      }}
+                    />
+                    <div>
+                      <div style={{ fontSize: '14px', fontWeight: 500 }}>{item.product_name}</div>
+                      {item.product_desc && (
+                        <div style={{ fontSize: '12px', color: '#6b7280' }}>{item.product_desc}</div>
+                      )}
+                    </div>
                   </div>
                 </td>
                 <td>
@@ -440,7 +435,14 @@ export function RemitoFormComplete({
                     currency: 'ARS' 
                   })}
                 </td>
-                <td style={{ fontSize: '14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <td style={{ 
+                  fontSize: '14px', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'space-between',
+                  padding: '12px 8px',
+                  verticalAlign: 'middle'
+                }}>
                   <span>
                     {(Number(item.line_total) || 0).toLocaleString('es-AR', { 
                       style: 'currency', 
@@ -576,6 +578,29 @@ export function RemitoFormComplete({
             rows={3}
             style={{ marginTop: '0.5rem' }}
           />
+        )}
+      </div>
+
+      {/* Estado - al final del formulario */}
+      <div className="form-group" style={{ marginTop: '1.5rem', marginBottom: '1.5rem' }}>
+        <label htmlFor="status" style={{ marginBottom: '0.5rem', display: 'block', fontWeight: 500 }}>
+          Estado *
+        </label>
+        <FilterableSelect
+          options={estados.map(estado => ({ 
+            id: estado?.id, 
+            name: estado?.name,
+            color: estado.color 
+          }))}
+          value={watch("status") || ""}
+          onChange={(value) => setValue("status", value)}
+          placeholder="Seleccionar estado"
+          searchFields={["name"]}
+          showColors={true}
+          searchable={false}
+        />
+        {errors.status && (
+          <p className="error-message">{errors.status.message}</p>
         )}
       </div>
 

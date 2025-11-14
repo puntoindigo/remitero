@@ -264,6 +264,7 @@ export async function GET(request: NextRequest) {
         byStatus: Object.values(byStatusMap),
         today: todayRemitos,
         byDay: remitosByDay,
+        estados: Array.from(estadoMap.entries()).map(([id, data]) => ({ id, ...data }))
       },
       productos: { 
         total: productosCountRes.count || 0, 

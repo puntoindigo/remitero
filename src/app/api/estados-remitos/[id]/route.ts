@@ -19,7 +19,7 @@ export async function PUT(
 
     const { id: estadoId } = await params;
     const body = await request.json();
-    const { name, description, color, icon, is_active, sort_order } = body;
+    const { name, description, color, icon, is_active, sort_order, is_default } = body;
 
     // Validaciones
     if (!name || name.trim() === '') {
@@ -61,6 +61,15 @@ export async function PUT(
 
     // Permitir editar todos los estados (incluyendo predefinidos)
 
+    // Si se está marcando como default, desmarcar todos los demás de la misma empresa
+    if (is_default === true) {
+      await supabaseAdmin
+        .from('estados_remitos')
+        .update({ is_default: false })
+        .eq('company_id', existingEstado.company_id)
+        .neq('id', estadoId);
+    }
+
     // Verificar que no exista otro estado con el mismo nombre en la empresa
     const { data: duplicateEstado } = await supabaseAdmin
       .from('estados_remitos')
@@ -78,16 +87,23 @@ export async function PUT(
     }
 
     // Actualizar el estado
+    const updateData: any = {
+      name: name.trim(),
+      description: description?.trim() || null,
+      color: color || '#6b7280',
+      icon: icon || '📋',
+      is_active: is_active !== undefined ? is_active : true,
+      sort_order: sort_order !== undefined ? sort_order : 0
+    };
+    
+    // Solo actualizar is_default si se proporciona explícitamente
+    if (is_default !== undefined) {
+      updateData.is_default = is_default;
+    }
+    
     const { data: updatedEstado, error } = await supabaseAdmin
       .from('estados_remitos')
-      .update({
-        name: name.trim(),
-        description: description?.trim() || null,
-        color: color || '#6b7280',
-        icon: icon || '📋',
-        is_active: is_active !== undefined ? is_active : true,
-        sort_order: sort_order !== undefined ? sort_order : 0
-      })
+      .update(updateData)
       .eq('id', estadoId)
       .select(`
         id,

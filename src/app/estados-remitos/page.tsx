@@ -195,6 +195,45 @@ function EstadosRemitosContent() {
   // Verificar si hay un problema con los datos del usuario
   const hasDataIssue = !companyId && currentUser?.role !== "SUPERADMIN";
 
+  // Función para cambiar el estado por defecto
+  const handleSetDefault = useCallback(async (estadoId: string) => {
+    try {
+      // Primero, desmarcar todos los estados como default
+      const { data: allEstados } = await fetch(`/api/estados-remitos?companyId=${companyId}`)
+        .then(res => res.json())
+        .catch(() => []);
+      
+      if (allEstados && Array.isArray(allEstados)) {
+        // Actualizar todos los estados para quitar is_default
+        await Promise.all(
+          allEstados.map((e: any) => 
+            fetch(`/api/estados-remitos/${e.id}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ is_default: false })
+            })
+          )
+        );
+      }
+      
+      // Luego, marcar el seleccionado como default
+      const response = await fetch(`/api/estados-remitos/${estadoId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ is_default: true })
+      });
+      
+      if (response.ok) {
+        await queryClient.invalidateQueries({ queryKey: estadoKeys.lists() });
+        showToastSuccess("Estado por defecto actualizado");
+      } else {
+        showToastError("Error al actualizar el estado por defecto");
+      }
+    } catch (error: any) {
+      showToastError(error.message || "Error al actualizar el estado por defecto");
+    }
+  }, [companyId, queryClient, showToastSuccess, showToastError]);
+
   // Definir columnas para el DataTable
   const columns: DataTableColumn<EstadoRemitoQ>[] = [
     {
@@ -215,6 +254,19 @@ function EstadosRemitosContent() {
           ></div>
           <span className="text-sm text-gray-600 font-mono">{estado.color}</span>
         </div>
+      )
+    },
+    {
+      key: 'is_default',
+      label: 'Por defecto',
+      render: (estado) => (
+        <input
+          type="radio"
+          name="default-estado"
+          checked={(estado as any).is_default || false}
+          onChange={() => handleSetDefault(estado.id)}
+          style={{ cursor: 'pointer' }}
+        />
       )
     },
     {
