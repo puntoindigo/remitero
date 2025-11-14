@@ -17,12 +17,13 @@ export default function PerfilPage() {
   const [showForm, setShowForm] = useState(true);
   
   // Solo cargar usuarios si el usuario tiene permisos (ADMIN o SUPERADMIN)
-  // IMPORTANTE: Esperar a que currentUserSimple esté cargado antes de decidir si habilitar la query
-  const canViewUsers = currentUserSimple?.role === 'ADMIN' || currentUserSimple?.role === 'SUPERADMIN';
-  const shouldEnableQuery = currentUserSimple !== null && canViewUsers; // Solo habilitar si currentUserSimple está cargado Y tiene permisos
+  // IMPORTANTE: Esperar a que currentUserSimple esté cargado y tenga role antes de decidir si habilitar la query
+  const hasRole = currentUserSimple?.role !== undefined && currentUserSimple?.role !== null;
+  const canViewUsers = hasRole && (currentUserSimple?.role === 'ADMIN' || currentUserSimple?.role === 'SUPERADMIN');
+  const shouldEnableQuery = currentUserSimple !== null && hasRole && canViewUsers; // Solo habilitar si currentUserSimple está cargado, tiene role Y tiene permisos
   const { data: usuarios, refetch } = useUsuariosQuery(
     shouldEnableQuery ? session?.user?.companyId : undefined,
-    shouldEnableQuery // Solo ejecutar si currentUserSimple está cargado y tiene permisos
+    shouldEnableQuery // Solo ejecutar si currentUserSimple está cargado, tiene role y tiene permisos
   );
 
   // Para usuarios USER, obtener su perfil individualmente

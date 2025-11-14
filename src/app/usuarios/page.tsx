@@ -101,7 +101,15 @@ function UsuariosContent() {
   const [isResendingInvitation, setIsResendingInvitation] = useState(false);
   
   const queryClient = useQueryClient();
-  const { data: usuarios = [], isLoading, error } = useUsuariosQuery(companyId || undefined);
+  // Solo cargar usuarios si el usuario tiene permisos (ADMIN o SUPERADMIN)
+  // Esta página ya bloquea usuarios USER, pero agregamos la verificación para seguridad adicional
+  const hasRole = currentUser?.role !== undefined && currentUser?.role !== null;
+  const canViewUsers = hasRole && (currentUser?.role === 'ADMIN' || currentUser?.role === 'SUPERADMIN');
+  const shouldEnableQuery = currentUser !== null && hasRole && canViewUsers;
+  const { data: usuarios = [], isLoading, error } = useUsuariosQuery(
+    shouldEnableQuery ? (companyId || undefined) : undefined,
+    shouldEnableQuery
+  );
   
   
   // Reusar mutaciones del hook legacy para operaciones de escritura
