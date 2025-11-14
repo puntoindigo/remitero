@@ -146,12 +146,12 @@ export function RemitoFormComplete({
             } else {
               setItems([]);
             }
+            setShowNotes(!!editingRemito.notes);
           });
       } else {
         setItems([]);
+        setShowNotes(false);
       }
-      
-      setShowNotes(!!editingRemito.notes);
     } else {
       // Reset para nuevo remito
       reset();
