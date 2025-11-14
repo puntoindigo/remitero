@@ -218,7 +218,9 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
   };
 
   const handleChangePassword = async (newPassword: string) => {
-    if (!session?.user?.id) return;
+    if (!session?.user?.id) {
+      throw new Error('No hay sesión de usuario');
+    }
 
     setIsChangingPassword(true);
     try {
@@ -234,8 +236,9 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
       });
 
       if (!response.ok) {
-        const result = await response.json();
-        throw new Error(result.message || 'Error al cambiar la contraseña');
+        const result = await response.json().catch(() => ({}));
+        const errorMessage = result.message || result.error || 'Error al cambiar la contraseña';
+        throw new Error(errorMessage);
       }
 
       // El endpoint PUT /api/users/[id] ya limpia has_temporary_password automáticamente
@@ -252,13 +255,13 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
       // Esperar un momento para que la sesión se actualice antes de recargar
       setTimeout(() => {
         // Recargar la página para aplicar los cambios
-      window.location.reload();
+        window.location.reload();
       }, 500);
-    } catch (error: any) {
-      alert(error.message || 'Error al cambiar la contraseña');
-      throw error;
-    } finally {
+    } catch (error: unknown) {
+      // Asegurar que el error se propague correctamente al modal
+      const errorMessage = error instanceof Error ? error.message : 'Error al cambiar la contraseña';
       setIsChangingPassword(false);
+      throw new Error(errorMessage);
     }
   };
 

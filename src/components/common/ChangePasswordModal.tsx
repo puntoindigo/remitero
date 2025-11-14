@@ -78,8 +78,11 @@ export function ChangePasswordModal({
       await onSubmit(password);
       setPassword("");
       setConfirmPassword("");
-    } catch (err: any) {
-      setError(err.message || "Error al cambiar la contraseña");
+    } catch (err: unknown) {
+      // Manejar el error de forma segura
+      const errorMessage = err instanceof Error ? err.message : "Error al cambiar la contraseña";
+      setError(errorMessage);
+      console.error('Error al cambiar contraseña:', err);
     }
   };
 
