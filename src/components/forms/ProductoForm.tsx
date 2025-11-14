@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { X, Check } from "lucide-react";
+import { X, Check, Upload, Image as ImageIcon } from "lucide-react";
 import FilterableSelect from "../common/FilterableSelect";
 import { ProductForm as ProductFormData, productSchema } from "@/lib/validations";
 import { FormModal } from "@/components/common/FormModal";
@@ -231,6 +231,70 @@ export function ProductoForm({
         categories
       }}
     >
+      {/* Upload de imagen (deshabilitado por ahora) */}
+      <div className="form-group">
+        <label style={{ 
+          fontSize: '14px', 
+          fontWeight: 500, 
+          marginBottom: '0.5rem', 
+          display: 'block',
+          color: '#6b7280'
+        }}>
+          Imagen del producto
+        </label>
+        <div
+          style={{
+            border: '2px dashed #d1d5db',
+            borderRadius: '0.5rem',
+            padding: '2rem',
+            textAlign: 'center',
+            backgroundColor: '#f9fafb',
+            cursor: 'not-allowed',
+            opacity: 0.6,
+            position: 'relative'
+          }}
+        >
+          <input
+            type="file"
+            accept="image/*"
+            disabled
+            style={{
+              position: 'absolute',
+              inset: 0,
+              width: '100%',
+              height: '100%',
+              opacity: 0,
+              cursor: 'not-allowed'
+            }}
+          />
+          <div style={{ pointerEvents: 'none' }}>
+            <ImageIcon 
+              className="h-12 w-12" 
+              style={{ 
+                color: '#9ca3af', 
+                margin: '0 auto 0.75rem',
+                display: 'block'
+              }} 
+            />
+            <p style={{ 
+              margin: 0, 
+              fontSize: '14px', 
+              color: '#6b7280',
+              fontWeight: 500
+            }}>
+              Subir imagen
+            </p>
+            <p style={{ 
+              margin: '0.25rem 0 0 0', 
+              fontSize: '12px', 
+              color: '#9ca3af'
+            }}>
+              Próximamente
+            </p>
+          </div>
+        </div>
+      </div>
+
       <FilterableSelect
         options={categories.map(cat => ({ id: cat?.id, name: cat?.name }))}
         value={watch("categoryId") || ""}

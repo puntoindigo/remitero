@@ -4,7 +4,7 @@ import React, { useState, useEffect, Suspense, useCallback, useMemo, useRef } fr
 import { useSession } from "next-auth/react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { Plus, FileText, Calendar, User, Package, Printer, Trash2 } from "lucide-react";
-import { formatDate, formatDateRelative } from "@/lib/utils/formatters";
+import { formatDate } from "@/lib/utils/formatters";
 import FilterableSelect from "@/components/common/FilterableSelect";
 import { MessageModal } from "@/components/common/MessageModal";
 import DeleteConfirmModal from "@/components/common/DeleteConfirmModal";
@@ -453,14 +453,13 @@ function RemitosContent() {
       key: 'number-date',
       label: 'Remito',
       render: (remito) => {
-        const { display, tooltip } = formatDateRelative(remito.createdAt);
         return (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
             <div style={{ fontWeight: 600, fontSize: '14px', color: '#111827' }}>
               #{remito.number}
             </div>
-            <div style={{ fontSize: '12px', color: '#6b7280' }} title={tooltip}>
-              {display}
+            <div style={{ fontSize: '12px', color: '#6b7280' }}>
+              {formatDate(remito.createdAt)}
             </div>
           </div>
         );
@@ -485,14 +484,7 @@ function RemitosContent() {
     {
       key: 'createdAt',
       label: 'Fecha',
-      render: (remito) => {
-        const { display, tooltip } = formatDateRelative(remito.createdAt);
-        return (
-          <span title={tooltip} style={{ cursor: 'help' }}>
-            {display}
-          </span>
-        );
-      }
+      render: (remito) => formatDate(remito.createdAt)
     },
     {
       key: 'client',

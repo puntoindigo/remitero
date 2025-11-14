@@ -393,7 +393,7 @@ export default function DashboardPage() {
               placeholder="Seleccionar empresa"
               className=""
               useThemeColors={true}
-              style={{ width: 'auto', minWidth: '200px' }}
+              style={{ width: 'fit-content', minWidth: '150px', maxWidth: '250px' }}
             />
           )}
         </div>
@@ -417,11 +417,10 @@ export default function DashboardPage() {
                 
                 {/* Body - Gráfico con estados integrados */}
                 <div className="dashboard-card-body">
-                  {isRemitosCard && stats.remitos.byDay && stats.remitos.byDay.length > 0 && stats.remitos.estados ? (
+                  {isRemitosCard && stats.remitos.byDay && stats.remitos.byDay.length > 0 ? (
                     <div style={{ padding: '0.5rem 0' }}>
                       <RemitosChart 
                         data={stats.remitos.byDay}
-                        estados={stats.remitos.estados}
                         total={stats.remitos.total}
                       />
                     </div>
