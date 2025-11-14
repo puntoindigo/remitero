@@ -269,7 +269,7 @@ export function FormModal({
         
         <div className="modal-body" style={(modalClassName === 'remito-modal' || modalClassName === 'producto-modal') ? { 
           padding: '1rem',
-          paddingBottom: '0.5rem',
+          paddingBottom: '0',
           maxHeight: 'calc(100vh - 200px)',
           overflowY: 'auto'
         } : modalClassName === 'perfil-modal' ? { padding: '1.25rem' } : { padding: '1rem 0' }}>
@@ -280,7 +280,12 @@ export function FormModal({
               {children}
             </>
           ) : onSubmit ? (
-            <form onSubmit={onSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <form onSubmit={onSubmit} style={(modalClassName === 'remito-modal' || modalClassName === 'producto-modal') ? {
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1rem',
+              paddingBottom: '0'
+            } : { display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               {children}
               
               <div 
@@ -291,7 +296,7 @@ export function FormModal({
                   backgroundColor: '#fff',
                   borderTop: '1px solid #e5e7eb',
                   padding: '0.75rem 1rem',
-                  marginTop: '0.5rem',
+                  marginTop: '0',
                   marginLeft: '-1rem',
                   marginRight: '-1rem',
                   marginBottom: '-1rem',
