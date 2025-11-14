@@ -23,6 +23,7 @@ interface FormModalProps {
   modalType?: 'form' | 'list'; // Tipo de modal
   modalComponent?: string; // Nombre del componente (ej: 'RemitoForm', 'ProductoForm')
   modalProps?: any; // Props adicionales para guardar cuando se ancla
+  footerLeftContent?: React.ReactNode; // Contenido adicional para el footer (izquierda)
 }
 
 export function FormModal({
@@ -40,7 +41,8 @@ export function FormModal({
   modalId,
   modalType = 'form',
   modalComponent,
-  modalProps
+  modalProps,
+  footerLeftContent
 }: FormModalProps) {
   const { colors } = useColorTheme();
   const { pinModal, unpinModal, isPinned } = usePinnedModals();
@@ -294,7 +296,10 @@ export function FormModal({
                   marginRight: '-1rem',
                   marginBottom: '-1rem',
                   zIndex: 10,
-                  boxShadow: '0 -2px 8px rgba(0, 0, 0, 0.1)'
+                  boxShadow: '0 -2px 8px rgba(0, 0, 0, 0.1)',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center'
                 } : modalClassName === 'perfil-modal' ? {
                   display: 'flex',
                   justifyContent: 'flex-end',
@@ -307,6 +312,11 @@ export function FormModal({
                   paddingTop: '0.5rem'
                 }}
               >
+                {footerLeftContent && (
+                  <div>
+                    {footerLeftContent}
+                  </div>
+                )}
                 <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
                   {showCancel && (
                     <button

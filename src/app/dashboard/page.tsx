@@ -383,27 +383,18 @@ export default function DashboardPage() {
           
           {/* Selector de empresa para SUPERADMIN */}
           {currentUser?.role === "SUPERADMIN" && empresas && empresas.length > 0 && (
-            <div style={{ 
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem'
-            }}>
-              <span style={{ fontSize: '0.875rem', color: '#6b7280' }}>
-                Empresa: <strong>{selectedCompanyName}</strong>
-              </span>
-              <FilterableSelect
-                options={[
-                  { id: "", name: "Todas las empresas" },
-                  ...empresas
-                ]}
-                value={selectedCompanyId}
-                onChange={setSelectedCompanyId}
-                placeholder="Seleccionar empresa"
-                className=""
-                useThemeColors={true}
-                style={{ width: 'auto', minWidth: '200px' }}
-              />
-            </div>
+            <FilterableSelect
+              options={[
+                { id: "", name: "Todas las empresas" },
+                ...empresas
+              ]}
+              value={selectedCompanyId}
+              onChange={setSelectedCompanyId}
+              placeholder="Seleccionar empresa"
+              className=""
+              useThemeColors={true}
+              style={{ width: 'auto', minWidth: '200px' }}
+            />
           )}
         </div>
 

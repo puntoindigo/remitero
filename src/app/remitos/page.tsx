@@ -610,7 +610,7 @@ function RemitosContent() {
             <div style={{ width: isMobile ? '100%' : '180px', flexShrink: 0 }}>
               <FilterableSelect
                 options={[
-                  { id: 'all', name: 'Estados' },
+                  { id: 'all', name: 'Todos los estados' },
                   ...(estadosActivos || []).map((estado) => ({
                     id: estado.id,
                     name: estado.name,

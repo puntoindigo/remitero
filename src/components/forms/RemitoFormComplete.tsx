@@ -321,6 +321,14 @@ export function RemitoFormComplete({
       modalClassName="remito-modal"
       modalId={editingRemito ? `remito-${editingRemito.id}` : "nuevo-remito"}
       modalComponent="RemitoFormComplete"
+      footerLeftContent={
+        <div style={{ fontSize: '18px', fontWeight: 500 }}>
+          Total: {total.toLocaleString('es-AR', { 
+            style: 'currency', 
+            currency: 'ARS' 
+          })}
+        </div>
+      }
       modalType="form"
       modalProps={{
         clients,
@@ -536,11 +544,8 @@ export function RemitoFormComplete({
         </table>
       </div>
 
-      {/* Total y Observaciones en la misma línea */}
+      {/* Observaciones */}
       <div style={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center',
         marginTop: '0.25rem',
         marginBottom: '0.25rem',
         padding: '0.25rem 0'
@@ -562,12 +567,6 @@ export function RemitoFormComplete({
         >
           {showNotes ? '− Ocultar observaciones' : '+ Agregar observaciones'}
         </button>
-        <div style={{ fontSize: '18px', fontWeight: 500 }}>
-          Total: {total.toLocaleString('es-AR', { 
-            style: 'currency', 
-            currency: 'ARS' 
-          })}
-        </div>
       </div>
 
       {/* Notas (opcional) */}
@@ -582,7 +581,7 @@ export function RemitoFormComplete({
       )}
 
       {/* Estado - al final del formulario, en una línea */}
-      <div className="form-group" style={{ marginTop: '0.75rem', marginBottom: '0.75rem' }}>
+      <div className="form-group" style={{ marginTop: '0.25rem', marginBottom: '0.75rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <label htmlFor="status" style={{ marginBottom: 0, display: 'block', fontWeight: 500, whiteSpace: 'nowrap' }}>
             Estado *

@@ -79,20 +79,22 @@ export async function PUT(
         .neq('id', estadoId);
     }
 
-    // Verificar que no exista otro estado con el mismo nombre en la empresa
-    const { data: duplicateEstado } = await supabaseAdmin
-      .from('estados_remitos')
-      .select('id')
-      .eq('company_id', existingEstado.company_id)
-      .eq('name', name.trim())
-      .neq('id', estadoId)
-      .single();
+    // Verificar que no exista otro estado con el mismo nombre en la empresa (solo si se está actualizando el nombre)
+    if (!isOnlyDefaultUpdate && name) {
+      const { data: duplicateEstado } = await supabaseAdmin
+        .from('estados_remitos')
+        .select('id')
+        .eq('company_id', existingEstado.company_id)
+        .eq('name', name.trim())
+        .neq('id', estadoId)
+        .single();
 
-    if (duplicateEstado) {
-      return NextResponse.json({ 
-        error: "Estado duplicado", 
-        message: "Ya existe un estado con ese nombre en la empresa." 
-      }, { status: 400 });
+      if (duplicateEstado) {
+        return NextResponse.json({ 
+          error: "Estado duplicado", 
+          message: "Ya existe un estado con ese nombre en la empresa." 
+        }, { status: 400 });
+      }
     }
 
     // Actualizar el estado
