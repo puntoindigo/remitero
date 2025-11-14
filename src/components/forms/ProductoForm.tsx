@@ -226,6 +226,7 @@ export function ProductoForm({
       modalId={editingProduct ? `producto-${editingProduct.id}` : "nuevo-producto"}
       modalComponent="ProductoForm"
       modalType="form"
+      modalClassName="producto-modal"
       modalProps={{
         editingProduct,
         categories

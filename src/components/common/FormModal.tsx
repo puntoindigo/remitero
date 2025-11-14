@@ -267,7 +267,7 @@ export function FormModal({
           </div>
         </div>
         
-        <div className="modal-body" style={modalClassName === 'remito-modal' ? { 
+        <div className="modal-body" style={(modalClassName === 'remito-modal' || modalClassName === 'producto-modal') ? { 
           padding: '1rem',
           paddingBottom: '0.5rem',
           maxHeight: 'calc(100vh - 200px)',
@@ -285,7 +285,7 @@ export function FormModal({
               
               <div 
                 className="modal-footer" 
-                style={modalClassName === 'remito-modal' ? {
+                style={(modalClassName === 'remito-modal' || modalClassName === 'producto-modal') ? {
                   position: 'sticky',
                   bottom: 0,
                   backgroundColor: '#fff',
