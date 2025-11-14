@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
     // Si effectiveCompanyId es null (todas las empresas), no filtrar por company_id
     let estadosQuery = supabaseAdmin
       .from('estados_remitos')
-      .select('id, name')
+      .select('id, name, color')
       .eq('is_active', true);
     
     if (effectiveCompanyId) {
@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
     
     const { data: estados } = await estadosQuery;
 
-    const estadoMap = new Map<string, string>((estados || []).map((e: any) => [e.id, e.name]));
+    const estadoMap = new Map<string, { name: string; color: string }>((estados || []).map((e: any) => [e.id, { name: e.name, color: e.color || '#3b82f6' }]));
 
     // Tiempos para "hoy"
     const startOfToday = new Date();
@@ -62,7 +62,7 @@ export async function GET(request: NextRequest) {
     }
 
     const totalRemitos = remitosData?.length || 0;
-    const byStatusMap: Record<string, { id: string; name: string; count: number }> = {};
+    const byStatusMap: Record<string, { id: string; name: string; count: number; color: string }> = {};
     let todayRemitos = 0;
     
     // Calcular remitos por día (últimos 30 días)
@@ -81,8 +81,10 @@ export async function GET(request: NextRequest) {
     
     for (const r of remitosData || []) {
       const id = r.status as string;
-      const name = estadoMap.get(id) || 'Desconocido';
-      if (!byStatusMap[id]) byStatusMap[id] = { id, name, count: 0 };
+      const estado = estadoMap.get(id);
+      const name = estado?.name || 'Desconocido';
+      const color = estado?.color || '#3b82f6';
+      if (!byStatusMap[id]) byStatusMap[id] = { id, name, count: 0, color };
       byStatusMap[id].count += 1;
       if (r.created_at >= startIso) todayRemitos += 1;
       
