@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FileText, Package, Users, Building2, BarChart3, CheckCircle, ArrowRight, Phone, Mail, Send, TrendingUp, Shield, Zap, Globe, Fingerprint, MessageCircle, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 
@@ -14,6 +14,15 @@ export default function WebPage() {
   });
   const [formStatus, setFormStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
   const [currentSlide, setCurrentSlide] = useState(0);
+
+  // Auto-play del carrusel
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev === 9 ? 0 : prev + 1));
+    }, 5000); // Cambia cada 5 segundos
+
+    return () => clearInterval(interval);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
