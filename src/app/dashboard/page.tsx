@@ -7,6 +7,7 @@ import { FileText, Package, Users, Building2, Tag, ShoppingBag, Plus, Eye, Build
 import { RemitosChart } from "@/components/common/RemitosChart"
 import Link from "next/link"
 import { useCurrentUserSimple } from "@/hooks/useCurrentUserSimple"
+import { useEmpresas } from "@/hooks/useEmpresas"
 import { CompanySelector } from "@/components/common/CompanySelector"
 import { useShortcuts } from "@/hooks/useShortcuts"
 import { PinnedModalsPanel } from "@/components/common/PinnedModalsPanel"
@@ -50,6 +51,7 @@ interface TodayStats {
 export default function DashboardPage() {
   const { data: session } = useSession()
   const currentUser = useCurrentUserSimple()
+  const { empresas } = useEmpresas()
   const router = useRouter()
   const isMobile = useIsMobile()
   const [selectedCompanyId, setSelectedCompanyId] = useState<string>("")
