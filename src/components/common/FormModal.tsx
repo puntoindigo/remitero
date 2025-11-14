@@ -303,7 +303,7 @@ export function FormModal({
                   zIndex: 10001,
                   boxShadow: '0 -2px 8px rgba(0, 0, 0, 0.1)',
                   display: 'flex',
-                  justifyContent: 'space-between',
+                  justifyContent: footerLeftContent ? 'space-between' : 'flex-end',
                   alignItems: 'center'
                 } : modalClassName === 'perfil-modal' ? {
                   display: 'flex',
