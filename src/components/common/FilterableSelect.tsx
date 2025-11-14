@@ -16,6 +16,7 @@ interface FilterableSelectProps {
   showColors?: boolean;
   searchable?: boolean;
   useThemeColors?: boolean; // Nueva prop para usar colores del tema
+  style?: React.CSSProperties; // Nueva prop para estilos inline
 }
 
 export default function FilterableSelect({
@@ -28,7 +29,8 @@ export default function FilterableSelect({
   disabled = false,
   showColors = false,
   searchable = true,
-  useThemeColors = false
+  useThemeColors = false,
+  style
 }: FilterableSelectProps) {
   const { colors } = useColorTheme();
   const [isOpen, setIsOpen] = useState(false);
@@ -278,7 +280,7 @@ export default function FilterableSelect({
   };
 
   return (
-    <div className={`vercel-select-container ${className}`} style={{ position: 'relative' }}>
+    <div className={`vercel-select-container ${className}`} style={{ position: 'relative', ...style }}>
       <button
         ref={triggerRef}
         type="button"
@@ -286,7 +288,12 @@ export default function FilterableSelect({
         disabled={disabled}
         className={`vercel-select-trigger ${isOpen ? 'vercel-select-open' : ''} ${disabled ? 'vercel-select-disabled' : ''} ${useThemeColors ? 'vercel-select-theme-enabled' : ''}`}
         style={(() => {
-          const baseStyle: React.CSSProperties = { minHeight: 'unset' };
+          const baseStyle: React.CSSProperties = { 
+            minHeight: 'unset',
+            ...(style?.width && { width: style.width }),
+            ...(style?.minWidth && { minWidth: style.minWidth }),
+            ...(style?.maxWidth && { maxWidth: style.maxWidth })
+          };
           
           // Solo aplicar estilos si muestra colores (no para theme colors, esos van en hover)
           if (showColors && selectedOption?.color) {
