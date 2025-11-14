@@ -2947,6 +2947,27 @@ form svg {
   overflow: visible !important;
 }
 
+/* Aumentar z-index de los dropdowns en el modal de productos */
+.modal.form-modal.producto-modal .vercel-select-container {
+  position: relative;
+  z-index: 100;
+}
+
+.modal.form-modal.producto-modal .vercel-select-dropdown {
+  z-index: 10002 !important;
+  position: absolute !important;
+  min-width: 100%;
+}
+
+/* Asegurar que el dropdown sea visible en el modal de productos */
+.modal.form-modal.producto-modal .form-section {
+  overflow: visible !important;
+}
+
+.modal.form-modal.producto-modal .form-section > * {
+  overflow: visible !important;
+}
+
 /* Estados de Remitos Page Styles */
 .estados-remitos-container {
   max-width: 1200px;
