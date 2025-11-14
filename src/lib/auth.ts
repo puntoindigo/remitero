@@ -406,13 +406,14 @@ export const authOptions: NextAuthOptions = {
         try {
           const { data: updatedUser } = await supabaseAdmin
             .from('users')
-            .select('enable_botonera, enable_pinned_modals')
+            .select('enable_botonera, enable_pinned_modals, has_temporary_password')
             .eq('id', token.sub)
             .single();
           
           if (updatedUser) {
             token.enable_botonera = updatedUser.enable_botonera ?? false;
             token.enable_pinned_modals = updatedUser.enable_pinned_modals ?? false;
+            token.hasTemporaryPassword = updatedUser.has_temporary_password ?? false;
           }
         } catch (error) {
           console.error('Error updating token from database:', error);

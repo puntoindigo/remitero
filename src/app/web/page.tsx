@@ -190,20 +190,35 @@ export default function WebPage() {
             <nav className="web-nav">
               <a href="#caracteristicas">Características</a>
               <a href="#planes">Planes</a>
-              <div 
-                className="web-login-dropdown-container"
-                onMouseEnter={() => setShowLoginDropdown(true)}
-                onMouseLeave={() => setShowLoginDropdown(false)}
-              >
+              <div className="web-login-dropdown-container">
                 <button 
                   className="web-btn-secondary web-login-trigger"
-                  onClick={() => setShowLoginDropdown(!showLoginDropdown)}
+                  onClick={() => {
+                    setShowLoginDropdown(!showLoginDropdown);
+                    if (!showLoginDropdown) {
+                      setLoginFlipped(false);
+                    }
+                  }}
+                  onBlur={(e) => {
+                    // Solo cerrar si el foco no va a otro elemento del dropdown
+                    if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+                      setTimeout(() => {
+                        if (!document.activeElement?.closest('.web-login-dropdown')) {
+                          setShowLoginDropdown(false);
+                          setLoginFlipped(false);
+                        }
+                      }, 200);
+                    }
+                  }}
                 >
                   Iniciar Sesión
                   <ChevronRight className="web-icon-inline" style={{ transform: 'rotate(90deg)', transition: 'transform 0.2s' }} />
                 </button>
                 {showLoginDropdown && (
-                  <div className="web-login-dropdown">
+                  <div 
+                    className="web-login-dropdown"
+                    onMouseDown={(e) => e.preventDefault()}
+                  >
                     <div className={`web-login-flip-container ${loginFlipped ? 'flipped' : ''}`}>
                       <div className="web-login-flip-front">
                         <Link href="/auth/login" className="web-login-option">
@@ -216,6 +231,7 @@ export default function WebPage() {
                           className="web-login-option web-login-flip-trigger"
                           onClick={(e) => {
                             e.preventDefault();
+                            e.stopPropagation();
                             setLoginFlipped(true);
                           }}
                         >
@@ -230,6 +246,7 @@ export default function WebPage() {
                           className="web-login-option web-login-flip-trigger"
                           onClick={(e) => {
                             e.preventDefault();
+                            e.stopPropagation();
                             setLoginFlipped(false);
                           }}
                         >
@@ -274,10 +291,9 @@ export default function WebPage() {
                     target="_blank" 
                     rel="noopener noreferrer" 
                     className="web-btn-primary web-btn-whatsapp-large"
-                    style={{ gap: '1rem' }}
                   >
                     <MessageCircle className="web-icon-inline" />
-                    Solicitar
+                    &nbsp;Solicitar
                   </a>
                 </div>
               </div>
@@ -301,10 +317,9 @@ export default function WebPage() {
                     target="_blank" 
                     rel="noopener noreferrer" 
                     className="web-btn-primary web-btn-whatsapp-large"
-                    style={{ gap: '1rem' }}
                   >
                     <MessageCircle className="web-icon-inline" />
-                    Solicitar
+                    &nbsp;Solicitar
                   </a>
                 </div>
               </div>
@@ -328,10 +343,9 @@ export default function WebPage() {
                     target="_blank" 
                     rel="noopener noreferrer" 
                     className="web-btn-primary web-btn-whatsapp-large"
-                    style={{ gap: '1rem' }}
                   >
                     <MessageCircle className="web-icon-inline" />
-                    Solicitar
+                    &nbsp;Solicitar
                   </a>
                 </div>
               </div>
@@ -355,10 +369,9 @@ export default function WebPage() {
                     target="_blank" 
                     rel="noopener noreferrer" 
                     className="web-btn-primary web-btn-whatsapp-large"
-                    style={{ gap: '1rem' }}
                   >
                     <MessageCircle className="web-icon-inline" />
-                    Solicitar
+                    &nbsp;Solicitar
                   </a>
                 </div>
               </div>
@@ -382,10 +395,9 @@ export default function WebPage() {
                     target="_blank" 
                     rel="noopener noreferrer" 
                     className="web-btn-primary web-btn-whatsapp-large"
-                    style={{ gap: '1rem' }}
                   >
                     <MessageCircle className="web-icon-inline" />
-                    Solicitar
+                    &nbsp;Solicitar
                   </a>
                 </div>
               </div>
@@ -414,10 +426,9 @@ export default function WebPage() {
                     target="_blank" 
                     rel="noopener noreferrer" 
                     className="web-btn-primary web-btn-whatsapp-large"
-                    style={{ gap: '1rem' }}
                   >
                     <MessageCircle className="web-icon-inline" />
-                    Solicitar
+                    &nbsp;Solicitar
                   </a>
                 </div>
               </div>
@@ -441,10 +452,9 @@ export default function WebPage() {
                     target="_blank" 
                     rel="noopener noreferrer" 
                     className="web-btn-primary web-btn-whatsapp-large"
-                    style={{ gap: '1rem' }}
                   >
                     <MessageCircle className="web-icon-inline" />
-                    Solicitar
+                    &nbsp;Solicitar
                   </a>
                 </div>
               </div>
@@ -468,10 +478,9 @@ export default function WebPage() {
                     target="_blank" 
                     rel="noopener noreferrer" 
                     className="web-btn-primary web-btn-whatsapp-large"
-                    style={{ gap: '1rem' }}
                   >
                     <MessageCircle className="web-icon-inline" />
-                    Solicitar
+                    &nbsp;Solicitar
                   </a>
                 </div>
               </div>
@@ -499,10 +508,9 @@ export default function WebPage() {
                     target="_blank" 
                     rel="noopener noreferrer" 
                     className="web-btn-primary web-btn-whatsapp-large"
-                    style={{ gap: '1rem' }}
                   >
                     <MessageCircle className="web-icon-inline" />
-                    Solicitar
+                    &nbsp;Solicitar
                   </a>
                 </div>
               </div>
@@ -531,10 +539,9 @@ export default function WebPage() {
                     target="_blank" 
                     rel="noopener noreferrer" 
                     className="web-btn-primary web-btn-whatsapp-large"
-                    style={{ gap: '1rem' }}
                   >
                     <MessageCircle className="web-icon-inline" />
-                    Solicitar
+                    &nbsp;Solicitar
                   </a>
                 </div>
               </div>
@@ -650,13 +657,14 @@ export default function WebPage() {
                   {isSelected && <div className="web-plan-badge">Más Popular</div>}
                   <h3 className="web-plan-name">{plan.name}</h3>
                   <div className="web-plan-price">
-                    {plan.desde && <span className="web-plan-desde">Desde</span>}
                     <div className="web-plan-price-annual">
+                      {plan.desde && <span className="web-plan-desde">Desde</span>}
                       <span className="web-plan-amount">{plan.priceAnnual}</span>
                       {plan.period && <span className="web-plan-period">/{plan.period}</span>}
                       <span className="web-plan-billing">Pago anual</span>
                     </div>
                     <div className="web-plan-price-monthly">
+                      {plan.desde && <span className="web-plan-desde">Desde</span>}
                       <span className="web-plan-amount-monthly">{plan.priceMonthly}</span>
                       {plan.period && <span className="web-plan-period">/{plan.period}</span>}
                       <span className="web-plan-billing">Pago mensual</span>
@@ -677,7 +685,7 @@ export default function WebPage() {
                     className={`web-btn web-btn-whatsapp ${isSelected ? "web-btn-primary" : "web-btn-outline"}`}
                   >
                     <MessageCircle className="web-icon-inline" />
-                    Solicitar
+                    &nbsp;Solicitar
                   </a>
                 </div>
               );
@@ -699,7 +707,7 @@ export default function WebPage() {
               className="web-btn-asesor"
             >
               <MessageCircle className="web-asesor-icon" />
-              <span>Solicitar Asesor</span>
+              <span>&nbsp;Solicitar Asesor</span>
             </a>
           </div>
         </div>

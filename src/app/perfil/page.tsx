@@ -6,16 +6,39 @@ import { useRouter } from "next/navigation";
 import { UsuarioForm } from "@/components/forms/UsuarioForm";
 import { useUsuariosQuery } from "@/hooks/queries/useUsuariosQuery";
 import { MessageModal } from "@/components/common/MessageModal";
+import { useCurrentUserSimple } from "@/hooks/useCurrentUserSimple";
 
 export default function PerfilPage() {
   const { data: session } = useSession();
   const router = useRouter();
+  const currentUserSimple = useCurrentUserSimple();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error' | 'warning' | 'info', text: string } | null>(null);
   const [showForm, setShowForm] = useState(true);
-  const { data: usuarios, refetch } = useUsuariosQuery(session?.user?.companyId);
+  
+  // Solo cargar usuarios si el usuario tiene permisos (ADMIN o SUPERADMIN)
+  const canViewUsers = currentUserSimple?.role === 'ADMIN' || currentUserSimple?.role === 'SUPERADMIN';
+  const { data: usuarios, refetch } = useUsuariosQuery(
+    canViewUsers ? session?.user?.companyId : undefined,
+    canViewUsers // Solo ejecutar si tiene permisos
+  );
 
-  const currentUser = usuarios?.find(u => u.id === session?.user?.id);
+  // Para usuarios USER, obtener su perfil individualmente
+  const [currentUser, setCurrentUser] = useState<any>(null);
+  
+  useEffect(() => {
+    if (canViewUsers && usuarios) {
+      // Si tiene permisos, buscar en la lista de usuarios
+      const user = usuarios.find(u => u.id === session?.user?.id);
+      setCurrentUser(user);
+    } else if (session?.user?.id && !canViewUsers) {
+      // Si es USER, obtener su perfil individualmente
+      fetch(`/api/users/${session.user.id}`)
+        .then(res => res.ok ? res.json() : null)
+        .then(data => setCurrentUser(data))
+        .catch(() => setCurrentUser(null));
+    }
+  }, [canViewUsers, usuarios, session?.user?.id]);
 
   useEffect(() => {
     if (!session) {
@@ -54,7 +77,20 @@ export default function PerfilPage() {
       });
 
       // Refrescar la sesión y los datos del usuario
-      await refetch();
+      if (canViewUsers) {
+        await refetch();
+      } else {
+        // Si es USER, recargar el perfil individualmente
+        const userResponse = await fetch(`/api/users/${currentUser.id}`);
+        if (userResponse.ok) {
+          const userData = await userResponse.json();
+          setCurrentUser(userData);
+        }
+      }
+      
+      // Actualizar la sesión de NextAuth
+      const { update } = await import('next-auth/react');
+      await update();
       
       // Cerrar el formulario después de un breve delay
       setTimeout(() => {
