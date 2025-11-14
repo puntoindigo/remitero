@@ -198,25 +198,7 @@ function EstadosRemitosContent() {
   // Función para cambiar el estado por defecto
   const handleSetDefault = useCallback(async (estadoId: string) => {
     try {
-      // Primero, desmarcar todos los estados como default
-      const { data: allEstados } = await fetch(`/api/estados-remitos?companyId=${companyId}`)
-        .then(res => res.json())
-        .catch(() => []);
-      
-      if (allEstados && Array.isArray(allEstados)) {
-        // Actualizar todos los estados para quitar is_default
-        await Promise.all(
-          allEstados.map((e: any) => 
-            fetch(`/api/estados-remitos/${e.id}`, {
-              method: 'PUT',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ is_default: false })
-            })
-          )
-        );
-      }
-      
-      // Luego, marcar el seleccionado como default
+      // Marcar el seleccionado como default (el API se encarga de desmarcar los demás)
       const response = await fetch(`/api/estados-remitos/${estadoId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -224,15 +206,17 @@ function EstadosRemitosContent() {
       });
       
       if (response.ok) {
+        // Invalidar queries para refrescar la lista
         await queryClient.invalidateQueries({ queryKey: estadoKeys.lists() });
         showToastSuccess("Estado por defecto actualizado");
       } else {
-        showToastError("Error al actualizar el estado por defecto");
+        const errorData = await response.json().catch(() => ({}));
+        showToastError(errorData.message || "Error al actualizar el estado por defecto");
       }
     } catch (error: any) {
       showToastError(error.message || "Error al actualizar el estado por defecto");
     }
-  }, [companyId, queryClient, showToastSuccess, showToastError]);
+  }, [queryClient, showToastSuccess, showToastError]);
 
   // Definir columnas para el DataTable
   const columns: DataTableColumn<EstadoRemitoQ>[] = [
