@@ -1,6 +1,5 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import FilterableSelect from "./FilterableSelect";
 import { useEmpresas } from "@/hooks/useEmpresas";
 import { useCurrentUserSimple } from "@/hooks/useCurrentUserSimple";
@@ -8,37 +7,17 @@ import { useCurrentUserSimple } from "@/hooks/useCurrentUserSimple";
 interface CompanySelectorProps {
   selectedCompanyId: string;
   setSelectedCompanyId: (id: string) => void;
-  storageKey?: string; // Clave para sessionStorage (opcional, por defecto 'selectedCompanyId')
 }
 
 export function CompanySelector({ 
   selectedCompanyId, 
-  setSelectedCompanyId,
-  storageKey = 'selectedCompanyId'
+  setSelectedCompanyId
 }: CompanySelectorProps) {
   const currentUser = useCurrentUserSimple();
   const { empresas } = useEmpresas();
 
-  // Cargar selección de empresa desde sessionStorage al inicializar
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const savedCompanyId = sessionStorage.getItem(storageKey);
-      if (savedCompanyId !== null && savedCompanyId !== selectedCompanyId) {
-        setSelectedCompanyId(savedCompanyId);
-      }
-    }
-  }, [storageKey]); // Solo ejecutar una vez al montar
-
-  // Guardar selección de empresa en sessionStorage cuando cambie
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      if (selectedCompanyId) {
-        sessionStorage.setItem(storageKey, selectedCompanyId);
-      } else {
-        sessionStorage.removeItem(storageKey);
-      }
-    }
-  }, [selectedCompanyId, storageKey]);
+  // Nota: La persistencia en sessionStorage se maneja en useDataWithCompanySimple
+  // No duplicar la lógica aquí para evitar conflictos
 
   // Solo mostrar si es SUPERADMIN y hay empresas
   if (currentUser?.role !== "SUPERADMIN" || !empresas || empresas.length === 0) {

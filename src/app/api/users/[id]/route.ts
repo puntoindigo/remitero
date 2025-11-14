@@ -133,6 +133,14 @@ export async function PUT(
     // Verificar permisos de edición
     const isEditingOwnProfile = session.user.id === userId;
     
+    // Verificar si solo está cambiando la contraseña (caso especial para usuarios con contraseña temporal)
+    const onlyChangingPassword = password && password.trim() !== '' && 
+                                 !name && !email && !role && 
+                                 companyId === undefined && 
+                                 isActive === undefined &&
+                                 enableBotonera === undefined &&
+                                 enablePinnedModals === undefined;
+    
     if (session.user.role === 'SUPERADMIN') {
       // SUPERADMIN puede editar cualquier usuario
     } else if (session.user.role === 'ADMIN') {
@@ -152,28 +160,33 @@ export async function PUT(
         }, { status: 403 });
       }
       
-      // USER no puede cambiar ciertos campos de su perfil
-      if (role !== undefined && role !== existingUser.role) {
-        return NextResponse.json({ 
-          error: "No autorizado", 
-          message: "No puedes cambiar tu rol." 
-        }, { status: 403 });
-      }
-      
-      // Solo bloquear si companyId está definido Y es diferente del valor actual
-      // Permitir undefined, null, o cadena vacía (que significa "no cambiar")
-      if (companyId !== undefined && companyId !== null && companyId !== '' && companyId !== existingUser.company_id) {
-        return NextResponse.json({ 
-          error: "No autorizado", 
-          message: "No puedes cambiar tu empresa." 
-        }, { status: 403 });
-      }
-      
-      if (isActive !== undefined && isActive !== existingUser.is_active) {
-        return NextResponse.json({ 
-          error: "No autorizado", 
-          message: "No puedes cambiar tu estado de activación." 
-        }, { status: 403 });
+      // Si solo está cambiando la contraseña, permitirlo sin restricciones adicionales
+      if (onlyChangingPassword) {
+        // Permitir cambio de contraseña sin verificar otros campos
+      } else {
+        // USER no puede cambiar ciertos campos de su perfil (excepto contraseña)
+        if (role !== undefined && role !== existingUser.role) {
+          return NextResponse.json({ 
+            error: "No autorizado", 
+            message: "No puedes cambiar tu rol." 
+          }, { status: 403 });
+        }
+        
+        // Solo bloquear si companyId está definido Y es diferente del valor actual
+        // Permitir undefined, null, o cadena vacía (que significa "no cambiar")
+        if (companyId !== undefined && companyId !== null && companyId !== '' && companyId !== existingUser.company_id) {
+          return NextResponse.json({ 
+            error: "No autorizado", 
+            message: "No puedes cambiar tu empresa." 
+          }, { status: 403 });
+        }
+        
+        if (isActive !== undefined && isActive !== existingUser.is_active) {
+          return NextResponse.json({ 
+            error: "No autorizado", 
+            message: "No puedes cambiar tu estado de activación." 
+          }, { status: 403 });
+        }
       }
     } else {
       // Rol desconocido

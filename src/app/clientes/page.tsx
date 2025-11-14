@@ -21,6 +21,7 @@ import { OptimizedPageLayout } from "@/components/layout/OptimizedPageLayout";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { useOptimizedPageData } from "@/hooks/useOptimizedPageData";
 import { useDataWithCompanySimple } from "@/hooks/useDataWithCompanySimple";
+import { useCurrentUserSimple } from "@/hooks/useCurrentUserSimple";
 import { CompanySelector } from "@/components/common/CompanySelector";
 import { DataTable, type DataTableColumn } from "@/components/common/DataTable";
 import { useCRUDTable } from "@/hooks/useCRUDTable";
@@ -35,6 +36,7 @@ import { useColorTheme } from "@/contexts/ColorThemeContext";
 function ClientesContent() {
   const { colors } = useColorTheme();
   const isMobile = useIsMobile();
+  const currentUser = useCurrentUserSimple();
   // 🚀 Hook optimizado que carga todo en paralelo
   const {
     companyId,
@@ -219,31 +221,45 @@ function ClientesContent() {
         editingCliente={editingCliente}
       />
 
-      {/* Título y búsqueda */}
+      {/* Título y búsqueda - siempre visible para SUPERADMIN */}
+      {currentUser?.role === "SUPERADMIN" && (
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center',
+          marginBottom: '1rem',
+          padding: '0 16px'
+        }}>
+          <h2 className="page-title-desktop" style={{ 
+            fontSize: '24px', 
+            fontWeight: 700, 
+            color: '#111827',
+            marginBottom: 0,
+            marginTop: '0',
+            padding: 0
+          }}>
+            Clientes
+          </h2>
+          <CompanySelector
+            selectedCompanyId={selectedCompanyId}
+            setSelectedCompanyId={setSelectedCompanyId}
+          />
+        </div>
+      )}
+      {currentUser?.role !== "SUPERADMIN" && canShowContent && (
+        <h2 className="page-title-desktop" style={{ 
+          fontSize: '24px', 
+          fontWeight: 700, 
+          color: '#111827',
+          marginBottom: '0.75rem',
+          marginTop: '0',
+          padding: '0 16px'
+        }}>
+          Clientes
+        </h2>
+      )}
       {canShowContent && (
         <div style={{ marginBottom: '1rem' }}>
-          <div style={{ 
-            display: 'flex', 
-            justifyContent: 'space-between', 
-            alignItems: 'center',
-            marginBottom: '1rem',
-            padding: '0 16px'
-          }}>
-            <h2 className="page-title-desktop" style={{ 
-              fontSize: '24px', 
-              fontWeight: 700, 
-              color: '#111827',
-              marginBottom: 0,
-              marginTop: '0',
-              padding: 0
-            }}>
-              Clientes
-            </h2>
-            <CompanySelector
-              selectedCompanyId={selectedCompanyId}
-              setSelectedCompanyId={setSelectedCompanyId}
-            />
-          </div>
           <div style={{ 
             padding: '0 16px',
             display: 'flex',
