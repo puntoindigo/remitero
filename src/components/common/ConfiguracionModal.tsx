@@ -35,11 +35,26 @@ export function ConfiguracionModal({ isOpen, onClose }: ConfiguracionModalProps)
 
   // Guardar preferencia de botonera
   const handleSaveBotonera = async () => {
-    if (!session?.user?.id) return;
+    console.log('⚙️ [ConfiguracionModal] handleSaveBotonera INICIADO', {
+      hasSession: !!session?.user?.id,
+      enableBotonera
+    });
+
+    if (!session?.user?.id) {
+      console.error('❌ [ConfiguracionModal] No hay sesión');
+      return;
+    }
     
+    console.log('🔄 [ConfiguracionModal] Estableciendo isSaving = true');
     setIsSaving(true);
+    
     try {
-      const response = await fetch(`/api/users/${session.user.id}`, {
+      console.log('📤 [ConfiguracionModal] Enviando request a /api/profile', {
+        method: 'PUT',
+        body: { enableBotonera }
+      });
+
+      const response = await fetch('/api/profile', {
         method: 'PUT',
         credentials: 'include',
         headers: {
@@ -50,16 +65,33 @@ export function ConfiguracionModal({ isOpen, onClose }: ConfiguracionModalProps)
         }),
       });
 
+      console.log('📥 [ConfiguracionModal] Respuesta recibida', {
+        ok: response.ok,
+        status: response.status
+      });
+
       if (!response.ok) {
-        throw new Error('Error al guardar preferencia');
+        const errorData = await response.json().catch(() => ({}));
+        console.error('❌ [ConfiguracionModal] Error en respuesta', errorData);
+        throw new Error(errorData.message || 'Error al guardar preferencia');
       }
 
-      // Actualizar la sesión sin recargar toda la página
-      // La sesión se actualizará en el próximo refresh o login
+      const result = await response.json();
+      console.log('✅ [ConfiguracionModal] Preferencia guardada exitosamente', result);
+
+      // Actualizar la sesión
+      console.log('🔄 [ConfiguracionModal] Actualizando sesión...');
+      if (typeof update === 'function') {
+        await update();
+        console.log('✅ [ConfiguracionModal] Sesión actualizada');
+      } else {
+        console.warn('⚠️ [ConfiguracionModal] update no es una función');
+      }
     } catch (error) {
-      console.error('Error guardando preferencia:', error);
+      console.error('❌ [ConfiguracionModal] Error guardando preferencia:', error);
       alert('Error al guardar la preferencia. Intenta nuevamente.');
     } finally {
+      console.log('🔄 [ConfiguracionModal] Estableciendo isSaving = false');
       setIsSaving(false);
     }
   };
@@ -291,11 +323,17 @@ export function ConfiguracionModal({ isOpen, onClose }: ConfiguracionModalProps)
                     checked={enableBotonera}
                     onChange={async (e) => {
                       const newValue = e.target.checked;
+                      console.log('⚙️ [ConfiguracionModal] enableBotonera cambiado', { newValue });
                       setEnableBotonera(newValue);
                       // Guardar inmediatamente
                       setIsSaving(true);
                       try {
-                        const response = await fetch(`/api/users/${session?.user?.id}`, {
+                        console.log('📤 [ConfiguracionModal] Enviando request a /api/profile (enableBotonera)', {
+                          method: 'PUT',
+                          body: { enableBotonera: newValue }
+                        });
+
+                        const response = await fetch('/api/profile', {
                           method: 'PUT',
                           credentials: 'include',
                           headers: {
@@ -306,10 +344,20 @@ export function ConfiguracionModal({ isOpen, onClose }: ConfiguracionModalProps)
                           }),
                         });
 
+                        console.log('📥 [ConfiguracionModal] Respuesta recibida (enableBotonera)', {
+                          ok: response.ok,
+                          status: response.status
+                        });
+
                         if (!response.ok) {
                           const errorData = await response.json().catch(() => ({}));
+                          console.error('❌ [ConfiguracionModal] Error en respuesta (enableBotonera)', errorData);
                           throw new Error(errorData.message || 'Error al guardar');
                         }
+
+                        const result = await response.json();
+                        console.log('✅ [ConfiguracionModal] enableBotonera guardado exitosamente', result);
+
                         // Disparar evento INMEDIATAMENTE para actualizar componentes sin refrescar
                         // Esto debe hacerse ANTES de cualquier otra cosa
                         const event = new CustomEvent('botonera-updated', { 
@@ -318,20 +366,24 @@ export function ConfiguracionModal({ isOpen, onClose }: ConfiguracionModalProps)
                           cancelable: true
                         });
                         window.dispatchEvent(event);
-                        console.log('📢 Evento botonera-updated disparado:', newValue);
+                        console.log('📢 [ConfiguracionModal] Evento botonera-updated disparado:', newValue);
                         
                         // Actualizar sesión en background sin forzar refresh
                         // Usar setTimeout para que el evento se procese primero
+                        console.log('🔄 [ConfiguracionModal] Actualizando sesión (enableBotonera)...');
                         setTimeout(() => {
-                          update().catch(() => {
-                            // Ignorar errores silenciosamente
-                          });
+                          if (typeof update === 'function') {
+                            update().catch((err) => {
+                              console.warn('⚠️ [ConfiguracionModal] Error al actualizar sesión:', err);
+                            });
+                          }
                         }, 50);
                       } catch (error: any) {
-                        console.error('Error:', error);
+                        console.error('❌ [ConfiguracionModal] Error guardando enableBotonera:', error);
                         setEnableBotonera(!newValue); // Revertir en caso de error
                         alert(error.message || 'Error al guardar la preferencia');
                       } finally {
+                        console.log('🔄 [ConfiguracionModal] Estableciendo isSaving = false (enableBotonera)');
                         setIsSaving(false);
                       }
                     }}

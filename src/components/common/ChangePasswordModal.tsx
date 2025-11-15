@@ -61,28 +61,40 @@ export function ChangePasswordModal({
   if (typeof window === 'undefined') return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
+    console.log('🔐 [ChangePasswordModal] handleSubmit INICIADO');
     e.preventDefault();
     setError("");
 
     if (!password || password.length < 6) {
+      console.warn('⚠️ [ChangePasswordModal] Contraseña muy corta', { length: password?.length });
       setError("La contraseña debe tener al menos 6 caracteres");
       return;
     }
 
     if (password !== confirmPassword) {
+      console.warn('⚠️ [ChangePasswordModal] Contraseñas no coinciden');
       setError("Las contraseñas no coinciden");
       return;
     }
 
+    console.log('✅ [ChangePasswordModal] Validaciones pasadas, llamando onSubmit', {
+      passwordLength: password.length,
+      isSubmitting
+    });
+
     try {
+      console.log('📤 [ChangePasswordModal] Llamando onSubmit(password)...');
       await onSubmit(password);
+      console.log('✅ [ChangePasswordModal] onSubmit completado exitosamente');
       setPassword("");
       setConfirmPassword("");
+      console.log('🧹 [ChangePasswordModal] Campos limpiados');
     } catch (err: unknown) {
+      console.error('❌ [ChangePasswordModal] Error en onSubmit:', err);
       // Manejar el error de forma segura
       const errorMessage = err instanceof Error ? err.message : "Error al cambiar la contraseña";
+      console.log('📝 [ChangePasswordModal] Estableciendo error en modal:', errorMessage);
       setError(errorMessage);
-      console.error('Error al cambiar contraseña:', err);
     }
   };
 
