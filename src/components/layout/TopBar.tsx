@@ -77,7 +77,7 @@ export default function TopBar() {
     
     setIsSubmittingProfile(true);
     try {
-      const response = await fetch(`/api/users/${session.user.id}`, {
+      const response = await fetch('/api/profile', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -91,16 +91,11 @@ export default function TopBar() {
         throw new Error(result.message || 'Error al actualizar el perfil');
       }
 
-      // Refrescar los datos del usuario
-      if (canViewUsers) {
-        await refetchUsuarios();
-      } else {
-        // Si es USER, recargar su perfil individualmente
-        const res = await fetch(`/api/users/${session.user.id}`);
-        if (res.ok) {
-          const data = await res.json();
-          setProfileUser(data);
-        }
+      // Recargar el perfil usando la nueva API
+      const userResponse = await fetch('/api/profile');
+      if (userResponse.ok) {
+        const userData = await userResponse.json();
+        setProfileUser(userData);
       }
       
       // Mostrar toast de éxito
