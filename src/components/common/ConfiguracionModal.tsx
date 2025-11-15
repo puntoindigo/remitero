@@ -444,11 +444,17 @@ export function ConfiguracionModal({ isOpen, onClose }: ConfiguracionModalProps)
                     checked={enablePinnedModals}
                     onChange={async (e) => {
                       const newValue = e.target.checked;
+                      console.log('⚙️ [ConfiguracionModal] enablePinnedModals cambiado', { newValue });
                       setEnablePinnedModals(newValue);
                       // Guardar inmediatamente
                       setIsSaving(true);
                       try {
-                        const response = await fetch(`/api/users/${session?.user?.id}`, {
+                        console.log('📤 [ConfiguracionModal] Enviando request a /api/profile (enablePinnedModals)', {
+                          method: 'PUT',
+                          body: { enablePinnedModals: newValue }
+                        });
+
+                        const response = await fetch('/api/profile', {
                           method: 'PUT',
                           credentials: 'include',
                           headers: {
@@ -459,32 +465,46 @@ export function ConfiguracionModal({ isOpen, onClose }: ConfiguracionModalProps)
                           }),
                         });
 
+                        console.log('📥 [ConfiguracionModal] Respuesta recibida (enablePinnedModals)', {
+                          ok: response.ok,
+                          status: response.status
+                        });
+
                         if (!response.ok) {
                           const errorData = await response.json().catch(() => ({}));
+                          console.error('❌ [ConfiguracionModal] Error en respuesta (enablePinnedModals)', errorData);
                           throw new Error(errorData.message || 'Error al guardar');
                         }
+
+                        const result = await response.json();
+                        console.log('✅ [ConfiguracionModal] enablePinnedModals guardado exitosamente', result);
+
                         // Disparar evento INMEDIATAMENTE para actualizar componentes sin refrescar
                         // Esto debe hacerse ANTES de cualquier otra cosa
-                        const event = new CustomEvent('botonera-updated', { 
-                          detail: { enableBotonera: newValue },
+                        const event = new CustomEvent('pinned-modals-updated', { 
+                          detail: { enablePinnedModals: newValue },
                           bubbles: true,
                           cancelable: true
                         });
                         window.dispatchEvent(event);
-                        console.log('📢 Evento botonera-updated disparado:', newValue);
+                        console.log('📢 [ConfiguracionModal] Evento pinned-modals-updated disparado:', newValue);
                         
                         // Actualizar sesión en background sin forzar refresh
                         // Usar setTimeout para que el evento se procese primero
+                        console.log('🔄 [ConfiguracionModal] Actualizando sesión (enablePinnedModals)...');
                         setTimeout(() => {
-                          update().catch(() => {
-                            // Ignorar errores silenciosamente
-                          });
+                          if (typeof update === 'function') {
+                            update().catch((err) => {
+                              console.warn('⚠️ [ConfiguracionModal] Error al actualizar sesión:', err);
+                            });
+                          }
                         }, 50);
                       } catch (error: any) {
-                        console.error('Error:', error);
+                        console.error('❌ [ConfiguracionModal] Error guardando enablePinnedModals:', error);
                         setEnablePinnedModals(!newValue); // Revertir en caso de error
                         alert(error.message || 'Error al guardar la preferencia');
                       } finally {
+                        console.log('🔄 [ConfiguracionModal] Estableciendo isSaving = false (enablePinnedModals)');
                         setIsSaving(false);
                       }
                     }}
