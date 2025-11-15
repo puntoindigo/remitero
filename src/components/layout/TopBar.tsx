@@ -11,7 +11,6 @@ import { useColorTheme } from "@/contexts/ColorThemeContext";
 import ColorThemeSelector from "@/components/common/ColorThemeSelector";
 import { ConfiguracionModal } from "@/components/common/ConfiguracionModal";
 import { UsuarioForm } from "@/components/forms/UsuarioForm";
-import { useUsuariosQuery } from "@/hooks/queries/useUsuariosQuery";
 import { useToast } from "@/hooks/useToast";
 import { ToastContainer } from "@/components/common/Toast";
 
@@ -29,35 +28,18 @@ export default function TopBar() {
   const topbarRef = useRef<HTMLDivElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
   const { toasts, showSuccess: showToastSuccess, removeToast } = useToast();
-  // Solo cargar usuarios si el usuario tiene permisos (ADMIN o SUPERADMIN)
-  // Para usuarios con rol USER, usar el endpoint individual
-  // IMPORTANTE: Esperar a que currentUser esté cargado y tenga role antes de decidir si habilitar la query
-  // También verificar que la sesión esté lista para evitar ejecuciones prematuras
-  const hasRole = currentUser?.role !== undefined && currentUser?.role !== null;
-  const canViewUsers = hasRole && (currentUser?.role === 'ADMIN' || currentUser?.role === 'SUPERADMIN');
-  const sessionReady = sessionStatus !== 'loading' && sessionStatus === 'authenticated';
-  const shouldEnableQuery = currentUser !== null && hasRole && canViewUsers && sessionReady; // Solo habilitar si currentUser está cargado, tiene role, tiene permisos Y la sesión está lista
-  const { data: usuarios, refetch: refetchUsuarios } = useUsuariosQuery(
-    shouldEnableQuery ? session?.user?.companyId : undefined,
-    shouldEnableQuery // Solo ejecutar si currentUser está cargado, tiene role, tiene permisos Y la sesión está lista
-  );
-  
-  // Para usuarios USER, obtener su perfil individualmente
+  // Obtener perfil del usuario actual usando la nueva API /api/profile
   const [profileUser, setProfileUser] = useState<any>(null);
   
   useEffect(() => {
-    if (canViewUsers) {
-      // Si tiene permisos, buscar en la lista de usuarios
-      const user = usuarios?.find(u => u.id === session?.user?.id);
-      setProfileUser(user);
-    } else if (session?.user?.id) {
-      // Si es USER, obtener su perfil individualmente
-      fetch(`/api/users/${session.user.id}`)
+    if (session?.user?.id && sessionStatus === 'authenticated') {
+      // Usar la nueva API /api/profile que no requiere permisos especiales
+      fetch('/api/profile')
         .then(res => res.ok ? res.json() : null)
         .then(data => setProfileUser(data))
         .catch(() => setProfileUser(null));
     }
-  }, [canViewUsers, usuarios, session?.user?.id]);
+  }, [session?.user?.id, sessionStatus]);
 
   // Aplicar tema al topbar con color más oscuro que el header
   useEffect(() => {

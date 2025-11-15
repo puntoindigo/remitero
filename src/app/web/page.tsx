@@ -113,8 +113,8 @@ export default function WebPage() {
     },
     {
       icon: Fingerprint,
-      title: "Control de Horarios con Huella Digital",
-      description: "Integración con lectores de huella digital para control de asistencia, turnos e identidad de personal."
+      title: "Dispositivos de Identificación",
+      description: "Integración con sistemas de identificación (huella digital, tarjetas RFID, reconocimiento facial) para control de acceso y personal."
     },
     {
       icon: Package,
@@ -587,11 +587,11 @@ export default function WebPage() {
             {futureFeatures.map((feature, index) => {
               const futureImages = [
                 "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=600&q=80", // Reportes
-                "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=600&q=80", // Balanzas
-                "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=600&q=80", // Carrito online
-                "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=600&q=80", // Huella
-                "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&q=80", // Catálogos
-                "https://images.unsplash.com/photo-1452860606245-08befc0ff44b?w=600&q=80" // Lectores de barra
+                "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=600&q=80", // Catálogos
+                "https://images.unsplash.com/photo-1556740758-90de374c12ad?w=600&q=80", // Ecommerce - Carrito online
+                "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=600&q=80", // Dispositivos de identificación
+                "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=600&q=80", // Lectores de barra - Caja de market
+                "https://images.unsplash.com/photo-1452860606245-08befc0ff44b?w=600&q=80" // Balanzas
               ];
               return (
                 <div key={index} className="web-feature-card web-feature-card-coming">
