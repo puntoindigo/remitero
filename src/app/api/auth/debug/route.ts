@@ -15,12 +15,23 @@ export async function GET() {
     actualNextAuthUrl = 'http://localhost:8000';
   }
   
+  // Determinar entorno real (no usar NODE_ENV que siempre es 'production' en Vercel)
+  const vercelEnv = process.env.VERCEL_ENV;
+  const isProduction = vercelEnv === 'production';
+  const isPreview = vercelEnv === 'preview';
+  const isDevelopment = vercelEnv === 'development' || (!vercelEnv && process.env.VERCEL_URL?.includes('remitero-dev'));
+  const actualEnvironment = isProduction ? 'production' : (isPreview ? 'preview' : 'development');
+  
   const config = {
     environment: {
-      nodeEnv: process.env.NODE_ENV,
-      vercelEnv: process.env.VERCEL_ENV || 'not-set',
+      nodeEnv: process.env.NODE_ENV, // ⚠️ Siempre 'production' en Vercel (modo de ejecución)
+      vercelEnv: vercelEnv || 'not-set', // ✅ Este es el entorno real de despliegue
+      actualEnvironment: actualEnvironment, // ✅ Entorno real calculado
       vercelUrl: process.env.VERCEL_URL || 'not-set',
       isVercel: !!process.env.VERCEL,
+      isProduction: isProduction,
+      isPreview: isPreview,
+      isDevelopment: isDevelopment,
     },
     nextAuth: {
       nextAuthUrl: nextAuthUrl,
