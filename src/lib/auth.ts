@@ -235,18 +235,24 @@ export const authOptions: NextAuthOptions = {
               console.error('❌ [NextAuth signIn] Usuario no existe (PGRST116), denegando acceso', {
                 email: email,
                 schema: process.env.DATABASE_SCHEMA || 'default',
-                reason: 'Usuario no registrado en el sistema. Debe ser creado por un administrador.'
+                reason: 'Usuario no registrado en el sistema. Debe ser creado por un administrador.',
+                errorCode: findError.code,
+                errorMessage: findError.message
               });
+              // Retornar false causará error OAuthCallback
               return false;
             } else {
-              console.error('❌ [NextAuth signIn] Error buscando usuario:', {
+              console.error('❌ [NextAuth signIn] Error buscando usuario en BD:', {
                 error: findError.message,
                 code: findError.code,
                 details: findError.details,
                 hint: findError.hint,
-                schema: process.env.DATABASE_SCHEMA || 'default'
+                schema: process.env.DATABASE_SCHEMA || 'default',
+                supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL ? 'CONFIGURADO' : 'NO CONFIGURADO',
+                hasServiceKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY
               });
               // Si hay un error al buscar, también denegar acceso por seguridad
+              // Esto causará error OAuthCallback
               return false;
             }
           }
@@ -367,9 +373,13 @@ export const authOptions: NextAuthOptions = {
             stack: error?.stack,
             code: error?.code,
             details: error?.details,
-            schema: process.env.DATABASE_SCHEMA || 'default'
+            hint: error?.hint,
+            schema: process.env.DATABASE_SCHEMA || 'default',
+            supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL ? 'CONFIGURADO' : 'NO CONFIGURADO',
+            hasServiceKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY
           });
           console.error('❌ [NextAuth signIn] Retornando false - acceso denegado por excepción');
+          // No lanzar el error, solo retornar false para que NextAuth muestre el error OAuthCallback
           return false;
         }
       }

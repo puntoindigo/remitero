@@ -83,7 +83,35 @@ function LoginPageContent() {
         });
     } else if (errorParam === 'OAuthCallback') {
       console.error('❌ [Login] Error OAuthCallback detectado');
-      setError('Error en el proceso de autenticación con Google. Esto puede deberse a un problema con la base de datos o la configuración. Por favor, intenta nuevamente o contacta al administrador.')
+      // Verificar configuración cuando hay error OAuthCallback
+      fetch('/api/auth/debug')
+        .then(res => res.json())
+        .then(config => {
+          console.log('🔍 [Login] Configuración OAuth (OAuthCallback):', config);
+          const issues = [];
+          
+          if (!config.googleOAuth?.hasGoogleClientId || !config.googleOAuth?.hasGoogleClientSecret) {
+            issues.push('Faltan credenciales de Google OAuth');
+          }
+          
+          if (!config.nextAuth?.nextAuthUrl) {
+            issues.push('NEXTAUTH_URL no está configurado');
+          }
+          
+          if (!config.status?.allConfigured) {
+            issues.push(`Variables faltantes: ${config.status?.missingVars?.join(', ')}`);
+          }
+          
+          if (issues.length > 0) {
+            setError(`Error de configuración: ${issues.join('. ')}. Contacta al administrador.`);
+          } else {
+            setError('Error en el proceso de autenticación con Google. Esto puede deberse a un problema con la base de datos, el usuario está desactivado, o la cuenta no existe. Revisa los logs del servidor para más detalles.');
+          }
+        })
+        .catch(err => {
+          console.error('❌ [Login] Error verificando configuración (OAuthCallback):', err);
+          setError('Error en el proceso de autenticación con Google. Por favor, intenta nuevamente o contacta al administrador.');
+        });
     } else if (errorParam === 'OAuthCreateAccount') {
       setError('Error al crear la cuenta. Por favor, contacta al administrador.')
     } else if (errorParam === 'EmailCreateAccount') {
