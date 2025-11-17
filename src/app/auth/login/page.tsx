@@ -90,6 +90,7 @@ function LoginPageContent() {
       ])
         .then(([lastError, config]) => {
           console.log('🔍 [Login] Último error OAuth:', lastError);
+          console.log('🔍 [Login] Último error OAuth (expandido):', JSON.stringify(lastError, null, 2));
           console.log('🔍 [Login] Configuración OAuth (OAuthCallback):', config);
           
           const issues = [];
