@@ -189,7 +189,11 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async signIn({ user, account, profile }) {
-      console.log('🔐 [NextAuth signIn] CALLBACK EJECUTADO', { 
+      console.log('🔐 [NextAuth signIn] CALLBACK EJECUTADO', {
+        timestamp: new Date().toISOString(),
+        environment: process.env.VERCEL_ENV || 'local',
+        vercelUrl: process.env.VERCEL_URL || 'local',
+        schema: process.env.DATABASE_SCHEMA || 'default', 
         provider: account?.provider, 
         email: user.email,
         hasAccount: !!account,
@@ -223,11 +227,17 @@ export const authOptions: NextAuthOptions = {
           console.log('🔐 [NextAuth signIn] Email encontrado:', email);
 
           // Buscar si el usuario ya existe
+          const currentSchema = process.env.DATABASE_SCHEMA || 'default';
           console.log('🔐 [NextAuth signIn] Buscando usuario en BD...', {
             email: email,
-            schema: process.env.DATABASE_SCHEMA || 'default'
+            schema: currentSchema,
+            supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL ? 'CONFIGURADO' : 'NO CONFIGURADO',
+            hasServiceKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
+            environment: process.env.VERCEL_ENV || 'local',
+            vercelUrl: process.env.VERCEL_URL || 'local'
           });
           const { data: existingUser, error: findError } = await supabaseAdmin
+            .schema(currentSchema)
             .from('users')
             .select('*, has_temporary_password')
             .eq('email', email)
