@@ -12,25 +12,22 @@ const cleanEnv = (value: string | undefined): string | undefined => {
 
 // Usar VERCEL_URL si está disponible (para preview branches), sino usar NEXTAUTH_URL
 const getNextAuthUrl = (): string => {
-  // Para preview branches en Vercel, usar la URL de desarrollo validada
-  // porque Google OAuth no permite wildcards
-  if (process.env.VERCEL_ENV === 'preview' || process.env.VERCEL) {
-    // Usar la URL de desarrollo que ya está validada en Google
-    const devUrl = cleanEnv(process.env.NEXTAUTH_URL);
-    if (devUrl && devUrl.includes('remitero-dev.vercel.app')) {
-      return devUrl;
-    }
-    // Si hay VERCEL_URL pero no es una URL validada, usar la de desarrollo
-    if (process.env.VERCEL_URL && !process.env.VERCEL_URL.includes('remitero-dev')) {
-      return 'https://remitero-dev.vercel.app';
-    }
+  // PRIORIDAD 1: Si hay NEXTAUTH_URL explícito, usarlo (tiene prioridad)
+  const explicitNextAuthUrl = cleanEnv(process.env.NEXTAUTH_URL);
+  if (explicitNextAuthUrl) {
+    console.log('🔧 [NextAuth URL] Usando NEXTAUTH_URL explícito:', explicitNextAuthUrl);
+    return explicitNextAuthUrl;
   }
-  // Si no hay VERCEL_URL, usar NEXTAUTH_URL
-  const url = cleanEnv(process.env.NEXTAUTH_URL);
-  if (url) {
-    return url;
+  
+  // PRIORIDAD 2: En Vercel, usar VERCEL_URL si está disponible
+  if (process.env.VERCEL_URL) {
+    const vercelUrl = `https://${process.env.VERCEL_URL}`;
+    console.log('🔧 [NextAuth URL] Usando VERCEL_URL:', vercelUrl);
+    return vercelUrl;
   }
-  // Fallback para desarrollo local
+  
+  // PRIORIDAD 3: Fallback para desarrollo local
+  console.log('🔧 [NextAuth URL] Usando fallback localhost');
   return 'http://localhost:8000';
 };
 
