@@ -227,6 +227,7 @@ export const authOptions: NextAuthOptions = {
           console.log('🔐 [NextAuth signIn] Email encontrado:', email);
 
           // Buscar si el usuario ya existe
+          // NOTA: El schema ya está configurado globalmente en supabaseAdmin (db.schema)
           const currentSchema = process.env.DATABASE_SCHEMA || 'default';
           console.log('🔐 [NextAuth signIn] Buscando usuario en BD...', {
             email: email,
@@ -237,7 +238,6 @@ export const authOptions: NextAuthOptions = {
             vercelUrl: process.env.VERCEL_URL || 'local'
           });
           const { data: existingUser, error: findError } = await supabaseAdmin
-            .schema(currentSchema)
             .from('users')
             .select('*, has_temporary_password')
             .eq('email', email)
