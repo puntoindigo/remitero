@@ -59,6 +59,10 @@ if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
 
 export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
+  pages: {
+    signIn: '/auth/login',
+    error: '/auth/login', // Redirigir errores a login con query params
+  },
   providers: [
     GoogleProvider({
       clientId: GOOGLE_CLIENT_ID!,
@@ -243,17 +247,21 @@ export const authOptions: NextAuthOptions = {
               
               // Guardar error para que el endpoint /api/auth/last-error lo pueda mostrar
               try {
-                const { setLastOAuthError } = await import('@/app/api/auth/last-error/route');
-                setLastOAuthError({
-                  email: email,
-                  error: 'Usuario no existe en la base de datos',
-                  details: errorInfo
-                });
+                // Usar require para evitar problemas de importación circular
+                const lastErrorModule = require('@/app/api/auth/last-error/route');
+                if (lastErrorModule.setLastOAuthError) {
+                  lastErrorModule.setLastOAuthError({
+                    email: email,
+                    error: 'Usuario no existe en la base de datos',
+                    details: errorInfo
+                  });
+                }
               } catch (e) {
-                // Ignorar si no se puede importar
+                console.warn('⚠️ [NextAuth signIn] No se pudo guardar error en last-error:', e);
               }
               
               // Retornar false causará error OAuthCallback
+              // NextAuth agregará ?error=OAuthCallback a la URL
               return false;
             } else {
               const errorInfo = {
@@ -269,14 +277,16 @@ export const authOptions: NextAuthOptions = {
               
               // Guardar error para que el endpoint /api/auth/last-error lo pueda mostrar
               try {
-                const { setLastOAuthError } = await import('@/app/api/auth/last-error/route');
-                setLastOAuthError({
-                  email: email,
-                  error: 'Error de conexión a la base de datos',
-                  details: errorInfo
-                });
+                const lastErrorModule = require('@/app/api/auth/last-error/route');
+                if (lastErrorModule.setLastOAuthError) {
+                  lastErrorModule.setLastOAuthError({
+                    email: email,
+                    error: 'Error de conexión a la base de datos',
+                    details: errorInfo
+                  });
+                }
               } catch (e) {
-                // Ignorar si no se puede importar
+                console.warn('⚠️ [NextAuth signIn] No se pudo guardar error en last-error:', e);
               }
               
               // Si hay un error al buscar, también denegar acceso por seguridad
@@ -313,14 +323,16 @@ export const authOptions: NextAuthOptions = {
               
               // Guardar error para que el endpoint /api/auth/last-error lo pueda mostrar
               try {
-                const { setLastOAuthError } = await import('@/app/api/auth/last-error/route');
-                setLastOAuthError({
-                  email: existingUser.email,
-                  error: 'Usuario desactivado',
-                  details: errorInfo
-                });
+                const lastErrorModule = require('@/app/api/auth/last-error/route');
+                if (lastErrorModule.setLastOAuthError) {
+                  lastErrorModule.setLastOAuthError({
+                    email: existingUser.email,
+                    error: 'Usuario desactivado',
+                    details: errorInfo
+                  });
+                }
               } catch (e) {
-                // Ignorar si no se puede importar
+                console.warn('⚠️ [NextAuth signIn] No se pudo guardar error en last-error:', e);
               }
               
               // Usuario desactivado, no permitir login
@@ -425,14 +437,16 @@ export const authOptions: NextAuthOptions = {
           
           // Guardar error para que el endpoint /api/auth/last-error lo pueda mostrar
           try {
-            const { setLastOAuthError } = await import('@/app/api/auth/last-error/route');
-            setLastOAuthError({
-              email: user.email,
-              error: 'Error en el proceso de autenticación',
-              details: errorInfo
-            });
+            const lastErrorModule = require('@/app/api/auth/last-error/route');
+            if (lastErrorModule.setLastOAuthError) {
+              lastErrorModule.setLastOAuthError({
+                email: user.email,
+                error: 'Error en el proceso de autenticación',
+                details: errorInfo
+              });
+            }
           } catch (e) {
-            // Ignorar si no se puede importar
+            console.warn('⚠️ [NextAuth signIn] No se pudo guardar error en last-error:', e);
           }
           
           // No lanzar el error, solo retornar false para que NextAuth muestre el error OAuthCallback
