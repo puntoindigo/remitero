@@ -232,17 +232,31 @@ export const authOptions: NextAuthOptions = {
           if (findError) {
             if (findError.code === 'PGRST116') {
               // Usuario no existe - DENEGAR ACCESO
-              console.error('❌ [NextAuth signIn] Usuario no existe (PGRST116), denegando acceso', {
+              const errorInfo = {
                 email: email,
                 schema: process.env.DATABASE_SCHEMA || 'default',
                 reason: 'Usuario no registrado en el sistema. Debe ser creado por un administrador.',
                 errorCode: findError.code,
                 errorMessage: findError.message
-              });
+              };
+              console.error('❌ [NextAuth signIn] Usuario no existe (PGRST116), denegando acceso', errorInfo);
+              
+              // Guardar error para que el endpoint /api/auth/last-error lo pueda mostrar
+              try {
+                const { setLastOAuthError } = await import('@/app/api/auth/last-error/route');
+                setLastOAuthError({
+                  email: email,
+                  error: 'Usuario no existe en la base de datos',
+                  details: errorInfo
+                });
+              } catch (e) {
+                // Ignorar si no se puede importar
+              }
+              
               // Retornar false causará error OAuthCallback
               return false;
             } else {
-              console.error('❌ [NextAuth signIn] Error buscando usuario en BD:', {
+              const errorInfo = {
                 error: findError.message,
                 code: findError.code,
                 details: findError.details,
@@ -250,7 +264,21 @@ export const authOptions: NextAuthOptions = {
                 schema: process.env.DATABASE_SCHEMA || 'default',
                 supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL ? 'CONFIGURADO' : 'NO CONFIGURADO',
                 hasServiceKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY
-              });
+              };
+              console.error('❌ [NextAuth signIn] Error buscando usuario en BD:', errorInfo);
+              
+              // Guardar error para que el endpoint /api/auth/last-error lo pueda mostrar
+              try {
+                const { setLastOAuthError } = await import('@/app/api/auth/last-error/route');
+                setLastOAuthError({
+                  email: email,
+                  error: 'Error de conexión a la base de datos',
+                  details: errorInfo
+                });
+              } catch (e) {
+                // Ignorar si no se puede importar
+              }
+              
               // Si hay un error al buscar, también denegar acceso por seguridad
               // Esto causará error OAuthCallback
               return false;
@@ -274,13 +302,27 @@ export const authOptions: NextAuthOptions = {
             // IMPORTANTE: is_active puede ser null, undefined, false, o true
             // Solo rechazar si es explícitamente false
             if (existingUser.is_active === false) {
-              console.error('❌ [NextAuth signIn] Usuario desactivado, denegando acceso', {
+              const errorInfo = {
                 id: existingUser.id,
                 email: existingUser.email,
                 is_active: existingUser.is_active,
                 is_active_type: typeof existingUser.is_active,
                 schema: process.env.DATABASE_SCHEMA || 'default'
-              });
+              };
+              console.error('❌ [NextAuth signIn] Usuario desactivado, denegando acceso', errorInfo);
+              
+              // Guardar error para que el endpoint /api/auth/last-error lo pueda mostrar
+              try {
+                const { setLastOAuthError } = await import('@/app/api/auth/last-error/route');
+                setLastOAuthError({
+                  email: existingUser.email,
+                  error: 'Usuario desactivado',
+                  details: errorInfo
+                });
+              } catch (e) {
+                // Ignorar si no se puede importar
+              }
+              
               // Usuario desactivado, no permitir login
               // Retornar false para que NextAuth deniegue el acceso
               return false;
@@ -367,7 +409,7 @@ export const authOptions: NextAuthOptions = {
           console.log('✅ [NextAuth signIn] Login con Google exitoso, retornando true');
           return true;
         } catch (error: any) {
-          console.error('❌ [NextAuth signIn] Error en callback de Google:', {
+          const errorInfo = {
             error: error,
             message: error?.message,
             stack: error?.stack,
@@ -377,8 +419,22 @@ export const authOptions: NextAuthOptions = {
             schema: process.env.DATABASE_SCHEMA || 'default',
             supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL ? 'CONFIGURADO' : 'NO CONFIGURADO',
             hasServiceKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY
-          });
+          };
+          console.error('❌ [NextAuth signIn] Error en callback de Google:', errorInfo);
           console.error('❌ [NextAuth signIn] Retornando false - acceso denegado por excepción');
+          
+          // Guardar error para que el endpoint /api/auth/last-error lo pueda mostrar
+          try {
+            const { setLastOAuthError } = await import('@/app/api/auth/last-error/route');
+            setLastOAuthError({
+              email: user.email,
+              error: 'Error en el proceso de autenticación',
+              details: errorInfo
+            });
+          } catch (e) {
+            // Ignorar si no se puede importar
+          }
+          
           // No lanzar el error, solo retornar false para que NextAuth muestre el error OAuthCallback
           return false;
         }

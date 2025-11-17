@@ -83,11 +83,15 @@ function LoginPageContent() {
         });
     } else if (errorParam === 'OAuthCallback') {
       console.error('❌ [Login] Error OAuthCallback detectado');
-      // Verificar configuración cuando hay error OAuthCallback
-      fetch('/api/auth/debug')
-        .then(res => res.json())
-        .then(config => {
+      // Obtener el último error del servidor y la configuración
+      Promise.all([
+        fetch('/api/auth/last-error').then(res => res.json()),
+        fetch('/api/auth/debug').then(res => res.json())
+      ])
+        .then(([lastError, config]) => {
+          console.log('🔍 [Login] Último error OAuth:', lastError);
           console.log('🔍 [Login] Configuración OAuth (OAuthCallback):', config);
+          
           const issues = [];
           
           if (!config.googleOAuth?.hasGoogleClientId || !config.googleOAuth?.hasGoogleClientSecret) {
@@ -102,7 +106,19 @@ function LoginPageContent() {
             issues.push(`Variables faltantes: ${config.status?.missingVars?.join(', ')}`);
           }
           
-          if (issues.length > 0) {
+          // Si hay un error específico del servidor, mostrarlo
+          if (lastError?.hasError && lastError?.lastError) {
+            const error = lastError.lastError;
+            if (error.error === 'Usuario no existe en la base de datos') {
+              setError(`Tu cuenta de Google (${error.email || 'email no disponible'}) no está registrada en el sistema. Debes ser creado por un administrador antes de poder iniciar sesión.`);
+            } else if (error.error === 'Usuario desactivado') {
+              setError(`Tu cuenta (${error.email || 'email no disponible'}) ha sido desactivada. Contacta al administrador para más información.`);
+            } else if (error.error === 'Error de conexión a la base de datos') {
+              setError('Error de conexión a la base de datos. Por favor, intenta nuevamente o contacta al administrador.');
+            } else {
+              setError(`Error en el proceso de autenticación: ${error.error}. ${error.details ? 'Revisa los logs del servidor para más detalles.' : ''}`);
+            }
+          } else if (issues.length > 0) {
             setError(`Error de configuración: ${issues.join('. ')}. Contacta al administrador.`);
           } else {
             setError('Error en el proceso de autenticación con Google. Esto puede deberse a un problema con la base de datos, el usuario está desactivado, o la cuenta no existe. Revisa los logs del servidor para más detalles.');
