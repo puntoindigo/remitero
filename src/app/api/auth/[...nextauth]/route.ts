@@ -88,6 +88,34 @@ const wrappedHandler = async (req: any, context: any) => {
     
     const result = await handler(req, context);
     
+    // Verificar si la respuesta contiene un error de OAuth
+    if (result?.status && result.status >= 400) {
+      const location = result?.headers?.get('location');
+      if (location && location.includes('error=')) {
+        const errorParam = new URL(location).searchParams.get('error');
+        console.error('❌ [NextAuth API] Error detectado en respuesta:', {
+          status: result.status,
+          error: errorParam,
+          location: location
+        });
+        
+        // Si es un error de OAuth, verificar las credenciales
+        if (errorParam === 'OAuthCallback' || errorParam === 'Configuration') {
+          console.error('❌ [NextAuth API] Verificando credenciales de Google OAuth...');
+          const hasClientId = !!process.env.GOOGLE_CLIENT_ID?.trim();
+          const hasClientSecret = !!process.env.GOOGLE_CLIENT_SECRET?.trim();
+          const clientIdPrefix = process.env.GOOGLE_CLIENT_ID?.substring(0, 30) || 'NO CONFIGURADO';
+          console.error('❌ [NextAuth API] Estado de credenciales:', {
+            hasClientId,
+            hasClientSecret,
+            clientIdPrefix: clientIdPrefix + '...',
+            clientIdLength: process.env.GOOGLE_CLIENT_ID?.length,
+            clientSecretLength: process.env.GOOGLE_CLIENT_SECRET?.length
+          });
+        }
+      }
+    }
+    
     console.log('✅ [NextAuth API] Request procesado exitosamente', {
       status: result?.status,
       statusText: result?.statusText,
@@ -101,6 +129,15 @@ const wrappedHandler = async (req: any, context: any) => {
     console.error('❌ [NextAuth API] Error message:', error?.message);
     console.error('❌ [NextAuth API] Error code:', error?.code);
     console.error('❌ [NextAuth API] Error stack:', error?.stack);
+    
+    // Detectar error específico de invalid_client
+    if (error?.message?.includes('invalid_client') || error?.message?.includes('Unauthorized')) {
+      console.error('❌ [NextAuth API] ERROR: invalid_client detectado - Las credenciales de Google OAuth son inválidas o el cliente está deshabilitado');
+      console.error('❌ [NextAuth API] Verifica en Google Cloud Console:');
+      console.error('   1. Que el cliente OAuth esté HABILITADO (no deshabilitado)');
+      console.error('   2. Que GOOGLE_CLIENT_ID y GOOGLE_CLIENT_SECRET sean correctos');
+      console.error('   3. Que las URIs de redirección estén configuradas correctamente');
+    }
     
     // En lugar de lanzar el error, devolver una respuesta JSON de error
     // Esto previene que NextAuth reciba HTML en lugar de JSON

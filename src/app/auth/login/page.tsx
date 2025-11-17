@@ -121,7 +121,14 @@ function LoginPageContent() {
           } else if (issues.length > 0) {
             setError(`Error de configuración: ${issues.join('. ')}. Contacta al administrador.`);
           } else {
-            setError('Error en el proceso de autenticación con Google. Esto puede deberse a un problema con la base de datos, el usuario está desactivado, o la cuenta no existe. Revisa los logs del servidor para más detalles.');
+            // Verificar si es un error de invalid_client (credenciales inválidas)
+            const errorFromUrl = searchParams.get('error');
+            if (errorFromUrl === 'OAuthCallback') {
+              // Podría ser invalid_client u otro error, mostrar mensaje genérico pero útil
+              setError('Error en el proceso de autenticación con Google. Esto puede deberse a: credenciales inválidas, cliente OAuth deshabilitado, problema con la base de datos, usuario desactivado, o la cuenta no existe. Revisa los logs del servidor para más detalles.');
+            } else {
+              setError('Error en el proceso de autenticación con Google. Esto puede deberse a un problema con la base de datos, el usuario está desactivado, o la cuenta no existe. Revisa los logs del servidor para más detalles.');
+            }
           }
         })
         .catch(err => {
