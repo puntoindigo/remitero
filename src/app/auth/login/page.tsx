@@ -82,16 +82,19 @@ function LoginPageContent() {
           setError('Error al iniciar sesión con Google. Por favor, intenta nuevamente o contacta al administrador.');
         });
     } else if (errorParam === 'OAuthCallback') {
-      console.error('❌ [Login] Error OAuthCallback detectado');
-      // Obtener el último error del servidor y la configuración
+      console.log('⚠️ [Login] Error OAuthCallback detectado - investigando causa...');
+      
+      // Mostrar mensaje de error genérico inmediatamente para que el usuario sepa que hay un problema
+      setError('Error al iniciar sesión con Google. Verificando detalles...');
+      
+      // Obtener el último error del servidor y la configuración de forma segura
       Promise.all([
-        fetch('/api/auth/last-error').then(res => res.json()),
-        fetch('/api/auth/debug').then(res => res.json())
+        fetch('/api/auth/last-error').then(res => res.json()).catch(() => ({ hasError: false, lastError: null })),
+        fetch('/api/auth/debug').then(res => res.json()).catch(() => ({ googleOAuth: {}, nextAuth: {}, status: {} }))
       ])
         .then(([lastError, config]) => {
           console.log('🔍 [Login] Último error OAuth:', lastError);
-          console.log('🔍 [Login] Último error OAuth (expandido):', JSON.stringify(lastError, null, 2));
-          console.log('🔍 [Login] Configuración OAuth (OAuthCallback):', config);
+          console.log('🔍 [Login] Configuración OAuth:', config);
           
           const issues = [];
           
@@ -122,19 +125,13 @@ function LoginPageContent() {
           } else if (issues.length > 0) {
             setError(`Error de configuración: ${issues.join('. ')}. Contacta al administrador.`);
           } else {
-            // Verificar si es un error de invalid_client (credenciales inválidas)
-            const errorFromUrl = searchParams.get('error');
-            if (errorFromUrl === 'OAuthCallback') {
-              // Podría ser invalid_client u otro error, mostrar mensaje genérico pero útil
-              setError('Error en el proceso de autenticación con Google. Esto puede deberse a: credenciales inválidas, cliente OAuth deshabilitado, problema con la base de datos, usuario desactivado, o la cuenta no existe. Revisa los logs del servidor para más detalles.');
-            } else {
-              setError('Error en el proceso de autenticación con Google. Esto puede deberse a un problema con la base de datos, el usuario está desactivado, o la cuenta no existe. Revisa los logs del servidor para más detalles.');
-            }
+            // Error genérico pero informativo para invalid_client
+            setError('Error al iniciar sesión con Google. Las credenciales de OAuth pueden ser inválidas o el cliente puede estar deshabilitado. Verifica en Google Cloud Console que el cliente OAuth esté habilitado y que las URIs de redirección estén configuradas correctamente.');
           }
         })
         .catch(err => {
-          console.error('❌ [Login] Error verificando configuración (OAuthCallback):', err);
-          setError('Error en el proceso de autenticación con Google. Por favor, intenta nuevamente o contacta al administrador.');
+          console.log('⚠️ [Login] No se pudo obtener detalles del error:', err);
+          setError('Error al iniciar sesión con Google. Verifica que las credenciales de OAuth estén correctas y que el cliente esté habilitado en Google Cloud Console.');
         });
     } else if (errorParam === 'OAuthCreateAccount') {
       setError('Error al crear la cuenta. Por favor, contacta al administrador.')
