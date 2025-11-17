@@ -103,7 +103,8 @@ export function ChangePasswordModal({
       className="modal-overlay"
       onClick={(e) => {
         // Cerrar al hacer click en el overlay (no en el modal)
-        if (e.target === e.currentTarget && !isSubmitting) {
+        // No permitir cerrar si es obligatorio
+        if (e.target === e.currentTarget && !isSubmitting && !isMandatory) {
           onClose();
         }
       }}
@@ -137,7 +138,12 @@ export function ChangePasswordModal({
             type="button"
             onClick={onClose}
             className="modal-close-button"
-            disabled={isSubmitting}
+            disabled={isSubmitting || isMandatory}
+            style={{ 
+              opacity: isMandatory ? 0.5 : 1, 
+              cursor: isMandatory ? 'not-allowed' : 'pointer' 
+            }}
+            title={isMandatory ? 'Debe cambiar su contraseña para continuar' : 'Cerrar'}
           >
             <X className="h-5 w-5" />
           </button>

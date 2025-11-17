@@ -118,8 +118,8 @@ export default function WebPage() {
     },
     {
       icon: Package,
-      title: "Integración con Lectores de Barra",
-      description: "Conecta lectores de código de barras para agilizar la gestión de productos y stock."
+      title: "Códigos de Barras",
+      description: "Integración completa con códigos de barras y QR para agilizar la gestión de productos y stock."
     },
     {
       icon: Zap,
@@ -250,11 +250,11 @@ export default function WebPage() {
       {/* Hero Section - Carousel */}
       <section className="web-hero">
         <div className="web-hero-carousel">
-          {/* Slide 1: Almacén moderno con overlay azul */}
+          {/* Slide 1: Ecommerce moderno */}
           <div className={`web-hero-slide ${currentSlide === 0 ? 'active' : ''}`}>
             <div className="web-hero-slide-number">1</div>
             <div className="web-hero-background">
-              <img src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=1920&q=80" alt="Archivo tradicional" className="web-hero-bg-image" />
+              <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=1920&q=90&auto=format&fit=crop" alt="Ecommerce moderno" className="web-hero-bg-image" />
               <div className="web-hero-overlay" style={{ background: 'linear-gradient(135deg, rgba(20, 20, 20, 0.85) 0%, rgba(30, 30, 30, 0.90) 100%)' }}></div>
             </div>
             <div className="web-container">
@@ -276,11 +276,11 @@ export default function WebPage() {
             </div>
           </div>
 
-          {/* Slide 2: Cajas de supermercado con overlay verde */}
+          {/* Slide 2: Dashboard con reportes */}
           <div className={`web-hero-slide ${currentSlide === 1 ? 'active' : ''}`}>
             <div className="web-hero-slide-number">2</div>
             <div className="web-hero-background">
-              <img src="https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=1920&q=80" alt="Biblioteca" className="web-hero-bg-image" />
+              <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1920&q=90&auto=format&fit=crop" alt="Dashboard con reportes" className="web-hero-bg-image" />
               <div className="web-hero-overlay" style={{ background: 'linear-gradient(135deg, rgba(20, 20, 20, 0.85) 0%, rgba(30, 30, 30, 0.90) 100%)' }}></div>
             </div>
             <div className="web-container">
@@ -302,11 +302,11 @@ export default function WebPage() {
             </div>
           </div>
 
-          {/* Slide 3: Almacén industrial con overlay naranja */}
+          {/* Slide 3: Ecommerce tienda online */}
           <div className={`web-hero-slide ${currentSlide === 2 ? 'active' : ''}`}>
             <div className="web-hero-slide-number">3</div>
             <div className="web-hero-background">
-              <img src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=1920&q=80" alt="Almacén industrial" className="web-hero-bg-image" />
+              <img src="https://images.unsplash.com/photo-1556740758-90de374c12ad?w=1920&q=90&auto=format&fit=crop" alt="Ecommerce tienda online" className="web-hero-bg-image" />
               <div className="web-hero-overlay" style={{ background: 'linear-gradient(135deg, rgba(20, 20, 20, 0.85) 0%, rgba(30, 30, 30, 0.90) 100%)' }}></div>
             </div>
             <div className="web-container">
@@ -328,11 +328,11 @@ export default function WebPage() {
             </div>
           </div>
 
-          {/* Slide 4: Naturaleza/empresa con overlay púrpura */}
+          {/* Slide 4: Dashboard analytics */}
           <div className={`web-hero-slide ${currentSlide === 3 ? 'active' : ''}`}>
             <div className="web-hero-slide-number">4</div>
             <div className="web-hero-background">
-              <img src="https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=1920&q=80" alt="Escritorio madera" className="web-hero-bg-image" />
+              <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1920&q=90&auto=format&fit=crop" alt="Dashboard analytics" className="web-hero-bg-image" />
               <div className="web-hero-overlay" style={{ background: 'linear-gradient(135deg, rgba(20, 20, 20, 0.85) 0%, rgba(30, 30, 30, 0.90) 100%)' }}></div>
             </div>
             <div className="web-container">
@@ -354,11 +354,11 @@ export default function WebPage() {
             </div>
           </div>
 
-          {/* Slide 5: Servidores/tecnología con overlay azul oscuro */}
+          {/* Slide 5: Ecommerce checkout */}
           <div className={`web-hero-slide ${currentSlide === 4 ? 'active' : ''}`}>
             <div className="web-hero-slide-number">5</div>
             <div className="web-hero-background">
-              <img src="https://images.unsplash.com/photo-1452860606245-08befc0ff44b?w=1920&q=80" alt="Archivos legales" className="web-hero-bg-image" />
+              <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=1920&q=90&auto=format&fit=crop" alt="Ecommerce checkout" className="web-hero-bg-image" />
               <div className="web-hero-overlay" style={{ background: 'linear-gradient(135deg, rgba(20, 20, 20, 0.85) 0%, rgba(30, 30, 30, 0.90) 100%)' }}></div>
             </div>
             <div className="web-container">
@@ -380,11 +380,11 @@ export default function WebPage() {
             </div>
           </div>
 
-          {/* Slide 6: Almacén con estanterías - diseño minimalista */}
+          {/* Slide 6: Dashboard con gráficos */}
           <div className={`web-hero-slide ${currentSlide === 5 ? 'active' : ''}`}>
             <div className="web-hero-slide-number">6</div>
             <div className="web-hero-background">
-              <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1920&q=80" alt="Estanterías madera" className="web-hero-bg-image" />
+              <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1920&q=90&auto=format&fit=crop" alt="Dashboard con gráficos" className="web-hero-bg-image" />
               <div className="web-hero-overlay" style={{ background: 'linear-gradient(135deg, rgba(20, 20, 20, 0.85) 0%, rgba(30, 30, 30, 0.90) 100%)' }}></div>
             </div>
             <div className="web-container">
@@ -411,11 +411,11 @@ export default function WebPage() {
             </div>
           </div>
 
-          {/* Slide 7: Supermercado moderno - enfoque en retail */}
+          {/* Slide 7: Ecommerce moderno */}
           <div className={`web-hero-slide ${currentSlide === 6 ? 'active' : ''}`}>
             <div className="web-hero-slide-number">7</div>
             <div className="web-hero-background">
-              <img src="https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=1920&q=80" alt="Documentos" className="web-hero-bg-image" />
+              <img src="https://images.unsplash.com/photo-1556740758-90de374c12ad?w=1920&q=90&auto=format&fit=crop" alt="Ecommerce moderno" className="web-hero-bg-image" />
               <div className="web-hero-overlay" style={{ background: 'linear-gradient(135deg, rgba(20, 20, 20, 0.85) 0%, rgba(30, 30, 30, 0.90) 100%)' }}></div>
             </div>
             <div className="web-container">
@@ -437,11 +437,11 @@ export default function WebPage() {
             </div>
           </div>
 
-          {/* Slide 8: Logística y distribución */}
+          {/* Slide 8: Dashboard reportes avanzados */}
           <div className={`web-hero-slide ${currentSlide === 7 ? 'active' : ''}`}>
             <div className="web-hero-slide-number">8</div>
             <div className="web-hero-background">
-              <img src="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=1920&q=80" alt="Logística" className="web-hero-bg-image" />
+              <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1920&q=90&auto=format&fit=crop" alt="Dashboard reportes avanzados" className="web-hero-bg-image" />
               <div className="web-hero-overlay" style={{ background: 'linear-gradient(135deg, rgba(20, 20, 20, 0.85) 0%, rgba(30, 30, 30, 0.90) 100%)' }}></div>
             </div>
             <div className="web-container">
@@ -463,11 +463,11 @@ export default function WebPage() {
             </div>
           </div>
 
-          {/* Slide 9: Diseño limpio con texto centrado grande */}
+          {/* Slide 9: Ecommerce carrito de compras */}
           <div className={`web-hero-slide ${currentSlide === 8 ? 'active' : ''}`}>
             <div className="web-hero-slide-number">9</div>
             <div className="web-hero-background">
-              <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1920&q=80" alt="Minimalista" className="web-hero-bg-image" />
+              <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=1920&q=90&auto=format&fit=crop" alt="Ecommerce carrito de compras" className="web-hero-bg-image" />
               <div className="web-hero-overlay" style={{ background: 'linear-gradient(135deg, rgba(20, 20, 20, 0.85) 0%, rgba(30, 30, 30, 0.90) 100%)' }}></div>
             </div>
             <div className="web-container">
@@ -493,11 +493,11 @@ export default function WebPage() {
             </div>
           </div>
 
-          {/* Slide 10: Enfoque en beneficios con lista destacada */}
+          {/* Slide 10: Dashboard analytics moderno */}
           <div className={`web-hero-slide ${currentSlide === 9 ? 'active' : ''}`}>
             <div className="web-hero-slide-number">10</div>
             <div className="web-hero-background">
-              <img src="https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=1920&q=80" alt="Oficina tradicional" className="web-hero-bg-image" />
+              <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1920&q=90&auto=format&fit=crop" alt="Dashboard analytics moderno" className="web-hero-bg-image" />
               <div className="web-hero-overlay" style={{ background: 'linear-gradient(135deg, rgba(20, 20, 20, 0.85) 0%, rgba(30, 30, 30, 0.90) 100%)' }}></div>
             </div>
             <div className="web-container">
@@ -586,12 +586,12 @@ export default function WebPage() {
           <div className="web-features-grid">
             {futureFeatures.map((feature, index) => {
               const futureImages = [
-                "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=600&q=80", // Reportes
-                "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=600&q=80", // Catálogos
-                "https://images.unsplash.com/photo-1556740758-90de374c12ad?w=600&q=80", // Ecommerce - Carrito online
-                "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=600&q=80", // Dispositivos de identificación
-                "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=600&q=80", // Lectores de barra - Caja de market
-                "https://images.unsplash.com/photo-1452860606245-08befc0ff44b?w=600&q=80" // Balanzas
+                "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&q=90&auto=format&fit=crop", // Reportes - Dashboard moderno
+                "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=600&q=90&auto=format&fit=crop", // Catálogos
+                "https://images.unsplash.com/photo-1556740758-90de374c12ad?w=600&q=90&auto=format&fit=crop", // Ecommerce - Carrito online moderno
+                "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=600&q=90&auto=format&fit=crop", // Dispositivos de identificación
+                "https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=600&q=90&auto=format&fit=crop", // Códigos de Barras - QR y códigos modernos
+                "https://images.unsplash.com/photo-1452860606245-08befc0ff44b?w=600&q=90&auto=format&fit=crop" // Balanzas
               ];
               return (
                 <div key={index} className="web-feature-card web-feature-card-coming">

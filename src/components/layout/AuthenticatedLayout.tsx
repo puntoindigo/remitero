@@ -295,21 +295,25 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
           console.log('📞 [AuthenticatedLayout] Llamando update()...');
           const updateResult = await nextAuthReact.update();
           console.log('✅ [AuthenticatedLayout] update() completado', { updateResult });
+          
+          // Esperar un poco más para asegurar que el token se propague
+          console.log('⏳ [AuthenticatedLayout] Esperando 1000ms para propagación del token...');
+          await new Promise(resolve => setTimeout(resolve, 1000));
         } else {
           console.warn('⚠️ [AuthenticatedLayout] update no es una función, saltando actualización');
+          // Si no hay update, esperar un poco antes del reload
+          await new Promise(resolve => setTimeout(resolve, 1000));
         }
       } catch (updateError) {
         console.error('❌ [AuthenticatedLayout] Error al actualizar sesión:', updateError);
         // Continuar de todas formas, el reload forzará la actualización
+        await new Promise(resolve => setTimeout(resolve, 1000));
       }
       
       // Hacer un reload completo de la página para forzar la obtención de la nueva sesión
       // Esto asegura que hasTemporaryPassword se actualice correctamente
-      console.log('⏳ [AuthenticatedLayout] Esperando 500ms antes de reload...');
-      setTimeout(() => {
-        console.log('🔄 [AuthenticatedLayout] Recargando página...');
-        window.location.reload();
-      }, 500);
+      console.log('🔄 [AuthenticatedLayout] Recargando página...');
+      window.location.reload();
     } catch (error: unknown) {
       console.error('❌ [AuthenticatedLayout] Error en handleChangePassword:', error);
       // Asegurar que el error se propague correctamente al modal

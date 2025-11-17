@@ -16,7 +16,7 @@
   right: 0;
   bottom: 0;
   background: 
-    url('https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=1920&q=80') center/cover,
+    url('https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1920&q=90&auto=format&fit=crop') center/cover,
     linear-gradient(135deg, rgba(26, 26, 26, 0.95) 0%, rgba(30, 30, 30, 0.98) 100%);
   background-blend-mode: overlay;
   opacity: 0.3;
