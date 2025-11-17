@@ -43,8 +43,12 @@ console.log('🔧 [NextAuth Config] Inicializando configuración...', {
   nextAuthUrl: NEXTAUTH_URL,
   nextAuthUrlRaw: process.env.NEXTAUTH_URL,
   vercelUrl: process.env.VERCEL_URL,
-  googleClientIdPrefix: GOOGLE_CLIENT_ID?.substring(0, 20) + '...',
-  googleClientIdLength: GOOGLE_CLIENT_ID?.length
+  vercelEnv: process.env.VERCEL_ENV,
+  googleClientIdPrefix: GOOGLE_CLIENT_ID?.substring(0, 30) + '...',
+  googleClientIdLength: GOOGLE_CLIENT_ID?.length,
+  googleClientIdFull: GOOGLE_CLIENT_ID, // ⚠️ Solo para debugging - remover después
+  googleClientSecretPrefix: GOOGLE_CLIENT_SECRET?.substring(0, 10) + '...',
+  googleClientSecretLength: GOOGLE_CLIENT_SECRET?.length
 });
 
 if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
