@@ -88,12 +88,25 @@ export const authOptions: NextAuthOptions = {
             return null
           }
 
+          // Determinar schema según entorno (igual que en Google OAuth)
+          let currentSchema: string;
+          if (process.env.VERCEL_ENV === 'production') {
+            currentSchema = 'public';
+          } else if (process.env.DATABASE_SCHEMA) {
+            currentSchema = process.env.DATABASE_SCHEMA.trim();
+          } else {
+            // Por defecto: 'dev' para localhost y preview
+            currentSchema = 'dev';
+          }
+          
           console.log('🔐 [Credentials authorize] Buscando usuario:', {
             email: credentials.email,
-            schema: process.env.DATABASE_SCHEMA || 'default'
+            schema: currentSchema,
+            vercelEnv: process.env.VERCEL_ENV || 'local'
           });
 
           const { data: user, error } = await supabaseAdmin
+            .schema(currentSchema)
             .from('users')
             .select('*, has_temporary_password')
             .eq('email', credentials.email)
@@ -153,6 +166,7 @@ export const authOptions: NextAuthOptions = {
           let companyName: string | undefined = undefined;
           if (user.company_id) {
             const { data: company } = await supabaseAdmin
+              .schema(currentSchema)
               .from('companies')
               .select('name')
               .eq('id', user.company_id)
@@ -227,17 +241,30 @@ export const authOptions: NextAuthOptions = {
           console.log('🔐 [NextAuth signIn] Email encontrado:', email);
 
           // Buscar si el usuario ya existe
-          // NOTA: El schema ya está configurado globalmente en supabaseAdmin (db.schema)
-          const currentSchema = process.env.DATABASE_SCHEMA || 'default';
+          // IMPORTANTE: Usar schema explícito para asegurar que funcione en todos los entornos
+          // En localhost/dev: usar 'dev', en producción: usar 'public'
+          let currentSchema: string;
+          if (process.env.VERCEL_ENV === 'production') {
+            currentSchema = 'public';
+          } else if (process.env.DATABASE_SCHEMA) {
+            currentSchema = process.env.DATABASE_SCHEMA.trim();
+          } else {
+            // Por defecto: 'dev' para localhost y preview
+            currentSchema = 'dev';
+          }
+          
           console.log('🔐 [NextAuth signIn] Buscando usuario en BD...', {
             email: email,
             schema: currentSchema,
+            vercelEnv: process.env.VERCEL_ENV || 'local',
+            vercelUrl: process.env.VERCEL_URL || 'local',
+            databaseSchemaEnv: process.env.DATABASE_SCHEMA || 'not-set',
             supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL ? 'CONFIGURADO' : 'NO CONFIGURADO',
-            hasServiceKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
-            environment: process.env.VERCEL_ENV || 'local',
-            vercelUrl: process.env.VERCEL_URL || 'local'
+            hasServiceKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY
           });
+          
           const { data: existingUser, error: findError } = await supabaseAdmin
+            .schema(currentSchema)
             .from('users')
             .select('*, has_temporary_password')
             .eq('email', email)
@@ -365,6 +392,7 @@ export const authOptions: NextAuthOptions = {
             // Usuario existe y está activo, actualizar información si es necesario
             console.log('🔐 [NextAuth signIn] Actualizando información del usuario...');
             const { error: updateError } = await supabaseAdmin
+              .schema(currentSchema)
               .from('users')
               .update({
                 name: user.name || existingUser.name,
@@ -407,6 +435,7 @@ export const authOptions: NextAuthOptions = {
           if ((user as any).companyId) {
             console.log('🔐 [NextAuth signIn] Obteniendo nombre de empresa...');
             const { data: company } = await supabaseAdmin
+              .schema(currentSchema)
               .from('companies')
               .select('name')
               .eq('id', (user as any).companyId)
