@@ -196,25 +196,6 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
     return null;
   }
 
-  // BLOQUEO CRÍTICO: Si el usuario tiene contraseña temporal, NO renderizar ninguna página
-  // Solo mostrar el modal de cambio de contraseña
-  // Esto previene que se ejecuten queries que causan 403 (como useUsuariosQuery en /usuarios)
-  if (hasTemporaryPassword && !isChangingPassword) {
-    console.log('🔒 [AuthenticatedLayout] Usuario con contraseña temporal - bloqueando acceso a páginas');
-    return (
-      <>
-        <ChangePasswordModal
-          isOpen={showChangePassword}
-          onClose={() => {}} // No permitir cerrar si es obligatorio
-          onSubmit={handleChangePassword}
-          isSubmitting={isChangingPassword}
-          isMandatory={true}
-        />
-        {/* No renderizar children cuando hay contraseña temporal - previene 403 */}
-      </>
-    );
-  }
-
   // Detectar página actual y configurar FAB
   const getFABConfig = () => {
     const fabRoutes: Record<string, { label: string; action: string }> = {
@@ -238,6 +219,7 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
     window.dispatchEvent(event);
   };
 
+  // Función para manejar el cambio de contraseña (DEBE estar antes del bloque de retorno temprano)
   const handleChangePassword = async (newPassword: string) => {
     console.log('🔐 [AuthenticatedLayout] handleChangePassword INICIADO', {
       hasSession: !!session?.user?.id,
@@ -344,6 +326,26 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
       throw new Error(errorMessage);
     }
   };
+
+  // BLOQUEO CRÍTICO: Si el usuario tiene contraseña temporal, NO renderizar ninguna página
+  // Solo mostrar el modal de cambio de contraseña
+  // Esto previene que se ejecuten queries que causan 403 (como useUsuariosQuery en /usuarios)
+  // IMPORTANTE: Esta verificación debe ir DESPUÉS de definir handleChangePassword
+  if (hasTemporaryPassword && !isChangingPassword) {
+    console.log('🔒 [AuthenticatedLayout] Usuario con contraseña temporal - bloqueando acceso a páginas');
+    return (
+      <>
+        <ChangePasswordModal
+          isOpen={showChangePassword}
+          onClose={() => {}} // No permitir cerrar si es obligatorio
+          onSubmit={handleChangePassword}
+          isSubmitting={isChangingPassword}
+          isMandatory={true}
+        />
+        {/* No renderizar children cuando hay contraseña temporal - previene 403 */}
+      </>
+    );
+  }
 
   // Para rutas protegidas con sesión válida
   return (
