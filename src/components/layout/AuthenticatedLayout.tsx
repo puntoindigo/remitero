@@ -52,15 +52,17 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
   );
   
   // Detectar si el usuario tiene contraseña temporal (DEBE estar antes de cualquier return)
+  const hasTemporaryPassword = session?.user && (session.user as any).hasTemporaryPassword === true;
+  
   useEffect(() => {
     // Solo mostrar el modal si hay sesión, tiene contraseña temporal, y no estamos cambiando la contraseña
-    if (session?.user && (session.user as any).hasTemporaryPassword && !isChangingPassword) {
+    if (hasTemporaryPassword && !isChangingPassword) {
       setShowChangePassword(true);
-    } else if (!(session?.user && (session.user as any).hasTemporaryPassword)) {
+    } else if (!hasTemporaryPassword) {
       // Si no tiene contraseña temporal, cerrar el modal
       setShowChangePassword(false);
     }
-  }, [session, isChangingPassword]);
+  }, [hasTemporaryPassword, isChangingPassword]);
 
   // Validar que la sesión corresponde a un usuario válido en la BD
   // Esto previene sesiones "fantasma" cuando el schema está vacío
@@ -192,6 +194,25 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
   // Si la sesión no es válida, no renderizar nada (ya se redirigió a login)
   if (session?.user?.id && sessionValid === false) {
     return null;
+  }
+
+  // BLOQUEO CRÍTICO: Si el usuario tiene contraseña temporal, NO renderizar ninguna página
+  // Solo mostrar el modal de cambio de contraseña
+  // Esto previene que se ejecuten queries que causan 403 (como useUsuariosQuery en /usuarios)
+  if (hasTemporaryPassword && !isChangingPassword) {
+    console.log('🔒 [AuthenticatedLayout] Usuario con contraseña temporal - bloqueando acceso a páginas');
+    return (
+      <>
+        <ChangePasswordModal
+          isOpen={showChangePassword}
+          onClose={() => {}} // No permitir cerrar si es obligatorio
+          onSubmit={handleChangePassword}
+          isSubmitting={isChangingPassword}
+          isMandatory={true}
+        />
+        {/* No renderizar children cuando hay contraseña temporal - previene 403 */}
+      </>
+    );
   }
 
   // Detectar página actual y configurar FAB
