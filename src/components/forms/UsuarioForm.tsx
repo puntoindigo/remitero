@@ -7,8 +7,9 @@ import { z } from "zod";
 import { useSession } from "next-auth/react";
 import { FormModal } from "@/components/common/FormModal";
 import { PasswordGeneratorModal } from "@/components/common/PasswordGeneratorModal";
+import { ConfirmationModal } from "@/components/common/ConfirmationModal";
 import { useColorTheme } from "@/contexts/ColorThemeContext";
-import { Key, Eye, EyeOff } from "lucide-react";
+import { Key, Eye, EyeOff, RotateCcw } from "lucide-react";
 import { useIsDevelopment } from "@/hooks/useIsDevelopment";
 
 // Función para detectar si es email de Google
@@ -120,6 +121,8 @@ export function UsuarioForm({
   const [showPasswordGenerator, setShowPasswordGenerator] = React.useState(false);
   const [showPassword, setShowPassword] = React.useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);
+  const [isResettingPassword, setIsResettingPassword] = React.useState(false);
+  const [showResetPasswordConfirm, setShowResetPasswordConfirm] = React.useState(false);
   const isDevelopment = useIsDevelopment();
   
   // DEBUG: Log para verificar si editingUser existe
@@ -292,6 +295,36 @@ export function UsuarioForm({
     }
   };
 
+  // Función para resetear contraseña (solo para Admin/SuperAdmin editando otros usuarios)
+  const handleResetPassword = async () => {
+    if (!editingUser || !editingUser.id) return;
+    
+    setIsResettingPassword(true);
+    try {
+      const response = await fetch(`/api/users/${editingUser.id}/reset-password`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || 'Error al resetear la contraseña');
+      }
+
+      // Mostrar mensaje de éxito
+      alert('Contraseña temporal generada y enviada por email al usuario. Deberá cambiarla al iniciar sesión.');
+      setShowResetPasswordConfirm(false);
+    } catch (error: any) {
+      console.error('Error al resetear contraseña:', error);
+      alert(error.message || 'Error al resetear la contraseña');
+    } finally {
+      setIsResettingPassword(false);
+    }
+  };
+
   // Determinar el título según el contexto
   const getTitle = () => {
     if (isCurrentUser) {
@@ -422,18 +455,18 @@ export function UsuarioForm({
           />
         </div>
 
-        {/* Mostrar campo de contraseña solo si hay @ y no es Gmail */}
-        {hasAtSymbol && !isGmailEmail(emailValue) && (
+        {/* Mostrar campo de contraseña solo si NO se está editando (nuevo usuario) */}
+        {!editingUser && hasAtSymbol && !isGmailEmail(emailValue) && (
           <div className="form-group">
             <label className="form-label-large">
-              Contraseña {!editingUser && "*"}
+              Contraseña *
             </label>
             <div style={{ position: 'relative', width: '100%' }}>
               <input
                 {...register("password")}
                 type={showPassword ? "text" : "password"}
-                placeholder={editingUser ? "Dejar vacío para mantener la actual" : "Contraseña"}
-                autoComplete={editingUser ? "new-password" : "new-password"}
+                placeholder="Contraseña"
+                autoComplete="new-password"
                 className="form-input-standard"
                 style={{ 
                   paddingRight: '88px', 
@@ -542,104 +575,71 @@ export function UsuarioForm({
             )}
           </div>
         )}
-      </div>
 
-      {/* Campo de confirmar contraseña SOLO cuando se edita un usuario (no en nuevo usuario) */}
-      {editingUser && hasAtSymbol && !isGmailEmail(emailValue) && (
-        <div className="form-row">
+        {/* Botón para resetear contraseña cuando se edita un usuario (solo Admin/SuperAdmin, no Gmail) */}
+        {editingUser && !isCurrentUser && (isCurrentUserAdmin || isCurrentUserSuperAdmin) && hasAtSymbol && !isGmailEmail(emailValue) && (
           <div className="form-group">
-            <label className="form-label-large">
-              Confirmar Contraseña
+            <label className="form-label-large" style={{ marginBottom: '0.5rem' }}>
+              Contraseña
             </label>
-            <div style={{ position: 'relative', width: '100%' }}>
-              <input
-                {...register("confirmPassword")}
-                type={showConfirmPassword ? "text" : "password"}
-                placeholder="Dejar vacío si no cambias la contraseña"
-                autoComplete="new-password"
-                className="form-input-standard"
-                style={{
-                  paddingRight: '40px',
-                  width: '100%',
-                  boxSizing: 'border-box',
-                  borderColor: passwordValue && confirmPasswordValue && passwordValue !== confirmPasswordValue
-                    ? '#ef4444'
-                    : undefined
-                }}
-              />
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  setShowConfirmPassword(!showConfirmPassword);
-                }}
-                title={showConfirmPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
-                style={{
-                  position: 'absolute',
-                  right: '8px',
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  padding: '4px',
-                  width: '32px',
-                  height: '32px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  zIndex: 10,
-                  cursor: 'pointer',
-                  border: '1px solid #d1d5db',
-                  borderRadius: '4px',
-                  background: '#ffffff',
-                  color: '#6b7280',
-                  transition: 'all 0.2s',
-                  margin: 0,
-                  boxSizing: 'border-box'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = '#f3f4f6';
-                  e.currentTarget.style.color = '#1f2937';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = '#ffffff';
-                  e.currentTarget.style.color = '#6b7280';
-                }}
-                onMouseDown={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                }}
-              >
-                {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setShowResetPasswordConfirm(true);
+              }}
+              disabled={isResettingPassword}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                padding: '0.5rem 1rem',
+                backgroundColor: '#3b82f6',
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: isResettingPassword ? 'not-allowed' : 'pointer',
+                fontSize: '0.875rem',
+                fontWeight: 500,
+                transition: 'all 0.2s',
+                opacity: isResettingPassword ? 0.6 : 1,
+                width: '100%',
+                justifyContent: 'center'
+              }}
+              onMouseEnter={(e) => {
+                if (!isResettingPassword) {
+                  e.currentTarget.style.backgroundColor = '#2563eb';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!isResettingPassword) {
+                  e.currentTarget.style.backgroundColor = '#3b82f6';
+                }
+              }}
+            >
+              <RotateCcw className="h-4 w-4" />
+              {isResettingPassword ? 'Reseteando...' : 'Resetear contraseña temporal'}
+            </button>
+            <p style={{ marginTop: '0.5rem', fontSize: '0.75rem', color: '#6b7280' }}>
+              Generará una contraseña temporal y la enviará por email al usuario. Deberá cambiarla al iniciar sesión.
+            </p>
           </div>
-        </div>
-      )}
+        )}
+      </div>
       
-      {/* Mensaje de error de contraseñas debajo de ambas (como colspan=2) - SOLO cuando se edita */}
-      {editingUser && hasAtSymbol && !isGmailEmail(emailValue) && showConfirmPasswordError && (
-        <div style={{ 
-          width: '100%',
-          marginTop: '0.5rem',
-          marginBottom: '1rem'
-        }}>
-          <p 
-            className="error-message"
-            style={{
-              color: '#ef4444',
-              fontSize: '0.875rem',
-              margin: 0,
-              opacity: errors.confirmPassword ? 1 : 0,
-              transform: errors.confirmPassword ? 'translateY(0)' : 'translateY(-10px)',
-              maxHeight: errors.confirmPassword ? '100px' : '0',
-              overflow: 'hidden',
-              transition: 'opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
-            }}
-          >
-            {confirmPasswordErrorMessage}
-          </p>
-        </div>
-      )}
+      {/* Modal de confirmación para resetear contraseña */}
+      <ConfirmationModal
+        isOpen={showResetPasswordConfirm}
+        onClose={() => setShowResetPasswordConfirm(false)}
+        onConfirm={handleResetPassword}
+        title="Resetear contraseña"
+        message={`¿Estás seguro de que deseas resetear la contraseña de ${editingUser?.name || editingUser?.email}? Se generará una contraseña temporal y se enviará por email. El usuario deberá cambiarla al iniciar sesión.`}
+        type="warning"
+        confirmText="Resetear"
+        cancelText="Cancelar"
+        isLoading={isResettingPassword}
+      />
 
       {shouldShowCompanyField && (
         <div className="form-row">

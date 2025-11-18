@@ -339,9 +339,9 @@ function UsuariosContent() {
       label: 'Email',
       render: (usuario) => (
         usuario?.email ? (
-          <div className="email-info">
-            <Mail className="h-3 w-3 inline" />
-            &nbsp;{usuario?.email}
+          <div className="email-info" style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', whiteSpace: 'nowrap' }}>
+            <Mail className="h-3 w-3" style={{ flexShrink: 0 }} />
+            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{usuario?.email}</span>
           </div>
         ) : (
           <span className="text-muted">Sin email</span>
@@ -434,10 +434,10 @@ function UsuariosContent() {
           return (
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'nowrap' }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                <div style={{ fontSize: '0.8125rem', fontWeight: 500 }}>
                   {usuario.lastActivity.description}
                 </div>
-                <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>
+                <div style={{ fontSize: '0.6875rem', color: '#6b7280' }}>
                   {timeAgo}
                 </div>
               </div>
