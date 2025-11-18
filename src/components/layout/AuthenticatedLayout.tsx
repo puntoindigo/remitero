@@ -301,9 +301,10 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
   // BLOQUEO CRÍTICO: Si el usuario tiene contraseña temporal, NO renderizar ninguna página
   // Solo mostrar el modal de cambio de contraseña
   // Esto previene que se ejecuten queries que causan 403 (como useUsuariosQuery en /usuarios)
-  // IMPORTANTE: Esta verificación debe ir DESPUÉS de definir handleChangePassword
+  // IMPORTANTE: Este check DEBE estar ANTES de renderizar {children} para evitar que React monte los componentes hijos
+  // IMPORTANTE: handleChangePassword ya está declarado arriba, así que podemos usarlo aquí
   if (hasTemporaryPassword && !isChangingPassword) {
-    console.log('🔒 [AuthenticatedLayout] Usuario con contraseña temporal - bloqueando acceso a páginas');
+    console.log('🔒 [AuthenticatedLayout] Usuario con contraseña temporal - bloqueando acceso a páginas ANTES de renderizar children');
     return (
       <>
         <ChangePasswordModal
