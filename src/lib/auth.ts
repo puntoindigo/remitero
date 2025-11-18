@@ -524,24 +524,51 @@ export const authOptions: NextAuthOptions = {
       // Si se llama update() desde el cliente, obtener valores actualizados de la BD
       if (trigger === "update" && token.sub) {
         try {
-          const { data: updatedUser } = await supabaseAdmin
+          // IMPORTANTE: Usar schema explícito para asegurar que funcione en todos los entornos
+          // En localhost/dev: usar 'dev', en producción: usar 'public'
+          let currentSchema: string;
+          if (process.env.VERCEL_ENV === 'production') {
+            currentSchema = 'public';
+          } else if (process.env.DATABASE_SCHEMA) {
+            currentSchema = process.env.DATABASE_SCHEMA.trim();
+          } else {
+            // Por defecto: 'dev' para localhost y preview
+            currentSchema = 'dev';
+          }
+
+          console.log('🔑 [NextAuth jwt] Actualizando token desde BD (trigger=update)', {
+            userId: token.sub,
+            schema: currentSchema,
+            vercelEnv: process.env.VERCEL_ENV || 'local'
+          });
+
+          const { data: updatedUser, error: updateError } = await supabaseAdmin
+            .schema(currentSchema) // <-- Schema explícito añadido aquí
             .from('users')
             .select('enable_botonera, enable_pinned_modals, has_temporary_password')
             .eq('id', token.sub)
             .single();
           
-          if (updatedUser) {
+          if (updateError) {
+            console.error('❌ [NextAuth jwt] Error obteniendo usuario para actualizar token:', {
+              error: updateError.message,
+              code: updateError.code,
+              schema: currentSchema
+            });
+            // Continuar con los valores del token existente si hay error
+          } else if (updatedUser) {
             token.enable_botonera = updatedUser.enable_botonera ?? false;
             token.enable_pinned_modals = updatedUser.enable_pinned_modals ?? false;
             // Asegurar que hasTemporaryPassword se actualice correctamente
             token.hasTemporaryPassword = updatedUser.has_temporary_password === true;
-            console.log('🔑 [NextAuth jwt] Token actualizado desde BD:', {
+            console.log('✅ [NextAuth jwt] Token actualizado desde BD:', {
               hasTemporaryPassword: token.hasTemporaryPassword,
-              dbValue: updatedUser.has_temporary_password
+              dbValue: updatedUser.has_temporary_password,
+              schema: currentSchema
             });
           }
         } catch (error) {
-          console.error('Error updating token from database:', error);
+          console.error('❌ [NextAuth jwt] Error updating token from database:', error);
           // Continuar con los valores del token existente si hay error
         }
       }
