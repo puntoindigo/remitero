@@ -2,7 +2,7 @@
 
 import { useSession } from "next-auth/react"
 import { useState, useEffect, useRef } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 import { FileText, Package, Users, Building2, Tag, ShoppingBag, Plus, Eye, Building } from "lucide-react"
 import { RemitosChart } from "@/components/common/RemitosChart"
 import Link from "next/link"
@@ -53,6 +53,7 @@ export default function DashboardPage() {
   const currentUser = useCurrentUserSimple()
   const { empresas } = useEmpresas()
   const router = useRouter()
+  const pathname = usePathname()
   const isMobile = useIsMobile()
   const [selectedCompanyId, setSelectedCompanyId] = useState<string>("")
   const [stats, setStats] = useState<DashboardStats>({
@@ -79,18 +80,26 @@ export default function DashboardPage() {
   // Redirigir a versión mobile si es necesario
   // IMPORTANTE: Solo redirigir si realmente es mobile (ancho < 768px)
   // Evitar redirecciones innecesarias en desktop
+  // NO redirigir si ya estamos en /dashboard/mobile (evitar loops)
+  // NO redirigir si el usuario está cambiando contraseña temporal
   useEffect(() => {
-    if (typeof window !== 'undefined' && isMobile) {
+    if (typeof window !== 'undefined' && isMobile && pathname !== '/dashboard/mobile') {
       // Verificar nuevamente el ancho antes de redirigir (evitar falsos positivos)
       const actualWidth = window.innerWidth;
-      if (actualWidth < 768) {
-        console.log('📱 [Dashboard] Redirigiendo a versión mobile', { actualWidth, isMobile });
+      // También verificar user agent para detectar dispositivos reales vs ventanas pequeñas
+      const isRealMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      
+      // Solo redirigir si:
+      // 1. El ancho es realmente pequeño (< 768px)
+      // 2. Y es un dispositivo móvil real O el ancho es muy pequeño (< 600px para evitar falsos positivos)
+      if (actualWidth < 768 && (isRealMobile || actualWidth < 600)) {
+        console.log('📱 [Dashboard] Redirigiendo a versión mobile', { actualWidth, isMobile, isRealMobile, currentPath: pathname });
         router.replace('/dashboard/mobile');
       } else {
-        console.log('🖥️ [Dashboard] Es desktop, no redirigir', { actualWidth, isMobile });
+        console.log('🖥️ [Dashboard] Es desktop, no redirigir', { actualWidth, isMobile, isRealMobile, currentPath: pathname });
       }
     }
-  }, [isMobile, router]);
+  }, [isMobile, router, pathname]);
 
   // Cargar selección de empresa desde sessionStorage al inicializar
   useEffect(() => {
