@@ -48,16 +48,32 @@ export function useUsuariosQuery(companyId: string | undefined, enabled: boolean
   const hasPermission = userRole === 'ADMIN' || userRole === 'SUPERADMIN';
   const sessionReady = status !== 'loading' && session !== null && userRole !== undefined;
   
+  // Verificar también si el usuario tiene contraseña temporal (no debería ejecutar queries)
+  const hasTemporaryPassword = session?.user && (session.user as any).hasTemporaryPassword === true;
+  
   // Solo ejecutar si:
   // 1. enabled es true (parámetro explícito)
   // 2. La sesión está lista (no está cargando, hay sesión y tiene role)
   // 3. El usuario tiene permisos (ADMIN o SUPERADMIN)
-  const shouldEnable = enabled && sessionReady && hasPermission;
+  // 4. El usuario NO tiene contraseña temporal (debe cambiarla primero)
+  const shouldEnable = enabled && sessionReady && hasPermission && !hasTemporaryPassword;
+  
+  // Logging para debug
+  if (!shouldEnable && enabled) {
+    console.log('🚫 [useUsuariosQuery] Query deshabilitada:', {
+      enabled,
+      sessionReady,
+      hasPermission,
+      hasTemporaryPassword,
+      userRole,
+      reason: !sessionReady ? 'session not ready' : !hasPermission ? 'no permission' : hasTemporaryPassword ? 'temporary password' : 'unknown'
+    });
+  }
   
   return useQuery({
     queryKey: usuarioKeys.list(companyId),
     queryFn: () => fetchUsuarios(companyId),
-    enabled: shouldEnable, // Solo ejecutar si tiene permisos
+    enabled: shouldEnable, // Solo ejecutar si tiene permisos y no tiene contraseña temporal
     staleTime: 2 * 60 * 1000,
     retry: false, // No reintentar si falla por permisos
   });

@@ -55,7 +55,12 @@ const userSchema = z.object({
   if (!data.password || data.password === "") {
     return false;
   }
-  return data.password === data.confirmPassword;
+  // Solo validar confirmPassword si está presente (cuando se edita)
+  // En nuevo usuario, no hay confirmPassword, así que no validamos
+  if (data.confirmPassword !== undefined && data.confirmPassword !== "") {
+    return data.password === data.confirmPassword;
+  }
+  return true; // Si no hay confirmPassword, no validar coincidencia
 }, {
   message: "Las contraseñas no coinciden.",
   path: ["confirmPassword"],
@@ -527,77 +532,80 @@ export function UsuarioForm({
           )}
         </div>
 
-        <div className="form-group">
-          <label className="form-label-large">
-            Confirmar Contraseña {!editingUser && "*"}
-          </label>
-          <div style={{ position: 'relative', width: '100%' }}>
-            <input
-              {...register("confirmPassword")}
-              type={showConfirmPassword ? "text" : "password"}
-              placeholder={editingUser ? "Dejar vacío si no cambias la contraseña" : "Confirmar contraseña"}
-              autoComplete="new-password"
-              className="form-input-standard"
-              style={{
-                paddingRight: '40px',
-                width: '100%',
-                boxSizing: 'border-box',
-                borderColor: passwordValue && confirmPasswordValue && passwordValue !== confirmPasswordValue
-                  ? '#ef4444'
-                  : undefined
-              }}
-            />
-            <button
-              type="button"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                setShowConfirmPassword(!showConfirmPassword);
-              }}
-              title={showConfirmPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
-              style={{
-                position: 'absolute',
-                right: '8px',
-                top: '50%',
-                transform: 'translateY(-50%)',
-                padding: '4px',
-                width: '32px',
-                height: '32px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                zIndex: 10,
-                cursor: 'pointer',
-                border: '1px solid #d1d5db',
-                borderRadius: '4px',
-                background: '#ffffff',
-                color: '#6b7280',
-                transition: 'all 0.2s',
-                margin: 0,
-                boxSizing: 'border-box'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = '#f3f4f6';
-                e.currentTarget.style.color = '#1f2937';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = '#ffffff';
-                e.currentTarget.style.color = '#6b7280';
-              }}
-              onMouseDown={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-              }}
-            >
-              {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-            </button>
+        {/* Campo de confirmar contraseña SOLO cuando se edita un usuario (no en nuevo usuario) */}
+        {editingUser && (
+          <div className="form-group">
+            <label className="form-label-large">
+              Confirmar Contraseña
+            </label>
+            <div style={{ position: 'relative', width: '100%' }}>
+              <input
+                {...register("confirmPassword")}
+                type={showConfirmPassword ? "text" : "password"}
+                placeholder="Dejar vacío si no cambias la contraseña"
+                autoComplete="new-password"
+                className="form-input-standard"
+                style={{
+                  paddingRight: '40px',
+                  width: '100%',
+                  boxSizing: 'border-box',
+                  borderColor: passwordValue && confirmPasswordValue && passwordValue !== confirmPasswordValue
+                    ? '#ef4444'
+                    : undefined
+                }}
+              />
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setShowConfirmPassword(!showConfirmPassword);
+                }}
+                title={showConfirmPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                style={{
+                  position: 'absolute',
+                  right: '8px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  padding: '4px',
+                  width: '32px',
+                  height: '32px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  zIndex: 10,
+                  cursor: 'pointer',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '4px',
+                  background: '#ffffff',
+                  color: '#6b7280',
+                  transition: 'all 0.2s',
+                  margin: 0,
+                  boxSizing: 'border-box'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = '#f3f4f6';
+                  e.currentTarget.style.color = '#1f2937';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = '#ffffff';
+                  e.currentTarget.style.color = '#6b7280';
+                }}
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                }}
+              >
+                {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            </div>
           </div>
-        </div>
+        )}
       </div>
       )}
       
-      {/* Mensaje de error de contraseñas debajo de ambas (como colspan=2) */}
-      {hasAtSymbol && !isGmailEmail(emailValue) && showConfirmPasswordError && (
+      {/* Mensaje de error de contraseñas debajo de ambas (como colspan=2) - SOLO cuando se edita */}
+      {editingUser && hasAtSymbol && !isGmailEmail(emailValue) && showConfirmPasswordError && (
         <div style={{ 
           width: '100%',
           marginTop: '0.5rem',

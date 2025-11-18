@@ -77,9 +77,18 @@ export default function DashboardPage() {
   const debounceTimer = useRef<NodeJS.Timeout | null>(null)
 
   // Redirigir a versión mobile si es necesario
+  // IMPORTANTE: Solo redirigir si realmente es mobile (ancho < 768px)
+  // Evitar redirecciones innecesarias en desktop
   useEffect(() => {
-    if (isMobile && typeof window !== 'undefined') {
-      router.replace('/dashboard/mobile');
+    if (typeof window !== 'undefined' && isMobile) {
+      // Verificar nuevamente el ancho antes de redirigir (evitar falsos positivos)
+      const actualWidth = window.innerWidth;
+      if (actualWidth < 768) {
+        console.log('📱 [Dashboard] Redirigiendo a versión mobile', { actualWidth, isMobile });
+        router.replace('/dashboard/mobile');
+      } else {
+        console.log('🖥️ [Dashboard] Es desktop, no redirigir', { actualWidth, isMobile });
+      }
     }
   }, [isMobile, router]);
 
