@@ -355,7 +355,10 @@ export function UsuarioForm({
             onBlur={handleEmailBlur}
           />
         </div>
+      </div>
 
+      {/* Fila con Rol y Contraseña (si aplica) */}
+      <div className="form-row">
         {canEditRole && (
           <div className="form-group">
             <label className="form-label-large">
@@ -383,8 +386,130 @@ export function UsuarioForm({
             </select>
           </div>
         )}
+
+        {/* Mostrar campo de contraseña solo si hay @ y no es Gmail */}
+        {hasAtSymbol && !isGmailEmail(emailValue) && (
+          <div className="form-group">
+            <label className="form-label-large">
+              Contraseña {!editingUser && "*"}
+            </label>
+            <div style={{ position: 'relative', width: '100%' }}>
+              <input
+                {...register("password")}
+                type={showPassword ? "text" : "password"}
+                placeholder={editingUser ? "Dejar vacío para mantener la actual" : "Contraseña"}
+                autoComplete={editingUser ? "new-password" : "new-password"}
+                className="form-input-standard"
+                style={{ 
+                  paddingRight: '88px', 
+                  width: '100%',
+                  boxSizing: 'border-box'
+                }}
+              />
+              <div style={{ position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)', display: 'flex', gap: '4px', alignItems: 'center' }}>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setShowPassword(!showPassword);
+                  }}
+                  title={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                  style={{
+                    padding: '4px',
+                    width: '32px',
+                    height: '32px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    zIndex: 10,
+                    cursor: 'pointer',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '4px',
+                    background: '#ffffff',
+                    color: '#6b7280',
+                    transition: 'all 0.2s',
+                    margin: 0,
+                    boxSizing: 'border-box'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = '#f3f4f6';
+                    e.currentTarget.style.color = '#1f2937';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = '#ffffff';
+                    e.currentTarget.style.color = '#6b7280';
+                  }}
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                  }}
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setShowPasswordGenerator(true);
+                  }}
+                  title="Generar contraseña automática"
+                  style={{
+                    padding: '4px',
+                    width: '32px',
+                    height: '32px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    zIndex: 10,
+                    cursor: 'pointer',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '4px',
+                    background: '#ffffff',
+                    color: '#6b7280',
+                    transition: 'all 0.2s',
+                    margin: 0,
+                    boxSizing: 'border-box'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = '#f3f4f6';
+                    e.currentTarget.style.color = '#1f2937';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = '#ffffff';
+                    e.currentTarget.style.color = '#6b7280';
+                  }}
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                  }}
+                >
+                  <Key className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+            {showPasswordError && (
+              <p 
+                className="error-message"
+                style={{
+                  opacity: errors.password ? 1 : 0,
+                  transform: errors.password ? 'translateY(0)' : 'translateY(-10px)',
+                  maxHeight: errors.password ? '100px' : '0',
+                  marginTop: errors.password ? '0.5rem' : '0',
+                  marginBottom: errors.password ? '0' : '0',
+                  overflow: 'hidden',
+                  transition: 'opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), margin 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
+                }}
+              >
+                {passwordErrorMessage}
+              </p>
+            )}
+          </div>
+        )}
       </div>
 
+      {/* Fila con Teléfono y Dirección */}
       <div className="form-row">
         <div className="form-group" style={isCurrentUser ? { flex: '1 1 50%', minWidth: '200px' } : {}}>
           <label className="form-label-large">
@@ -421,129 +546,9 @@ export function UsuarioForm({
         </div>
       </div>
 
-      {/* Mostrar campos de contraseña solo si hay @ y no es Gmail */}
-      {hasAtSymbol && !isGmailEmail(emailValue) && (
-      <div className="form-row">
-        <div className="form-group">
-          <label className="form-label-large">
-            Contraseña {!editingUser && "*"}
-          </label>
-          <div style={{ position: 'relative', width: '100%' }}>
-            <input
-              {...register("password")}
-              type={showPassword ? "text" : "password"}
-              placeholder={editingUser ? "Dejar vacío para mantener la actual" : "Contraseña"}
-              autoComplete={editingUser ? "new-password" : "new-password"}
-              className="form-input-standard"
-              style={{ 
-                paddingRight: '88px', 
-                width: '100%',
-                boxSizing: 'border-box'
-              }}
-            />
-            <div style={{ position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)', display: 'flex', gap: '4px', alignItems: 'center' }}>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  setShowPassword(!showPassword);
-                }}
-                title={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
-                style={{
-                  padding: '4px',
-                  width: '32px',
-                  height: '32px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  zIndex: 10,
-                  cursor: 'pointer',
-                  border: '1px solid #d1d5db',
-                  borderRadius: '4px',
-                  background: '#ffffff',
-                  color: '#6b7280',
-                  transition: 'all 0.2s',
-                  margin: 0,
-                  boxSizing: 'border-box'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = '#f3f4f6';
-                  e.currentTarget.style.color = '#1f2937';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = '#ffffff';
-                  e.currentTarget.style.color = '#6b7280';
-                }}
-                onMouseDown={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                }}
-              >
-                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </button>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  setShowPasswordGenerator(true);
-                }}
-                title="Generar contraseña automática"
-                style={{
-                  padding: '4px',
-                  width: '32px',
-                  height: '32px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  zIndex: 10,
-                  cursor: 'pointer',
-                  border: '1px solid #d1d5db',
-                  borderRadius: '4px',
-                  background: '#ffffff',
-                  color: '#6b7280',
-                  transition: 'all 0.2s',
-                  margin: 0,
-                  boxSizing: 'border-box'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = '#f3f4f6';
-                  e.currentTarget.style.color = '#1f2937';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = '#ffffff';
-                  e.currentTarget.style.color = '#6b7280';
-                }}
-                onMouseDown={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                }}
-              >
-                <Key className="h-4 w-4" />
-              </button>
-            </div>
-          </div>
-          {showPasswordError && (
-            <p 
-              className="error-message"
-              style={{
-                opacity: errors.password ? 1 : 0,
-                transform: errors.password ? 'translateY(0)' : 'translateY(-10px)',
-                maxHeight: errors.password ? '100px' : '0',
-                marginTop: errors.password ? '0.5rem' : '0',
-                marginBottom: errors.password ? '0' : '0',
-                overflow: 'hidden',
-                transition: 'opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), margin 0.4s cubic-bezier(0.4, 0, 0.2, 1)'
-              }}
-            >
-              {passwordErrorMessage}
-            </p>
-          )}
-        </div>
-
-        {/* Campo de confirmar contraseña SOLO cuando se edita un usuario (no en nuevo usuario) */}
-        {editingUser && (
+      {/* Campo de confirmar contraseña SOLO cuando se edita un usuario (no en nuevo usuario) */}
+      {editingUser && hasAtSymbol && !isGmailEmail(emailValue) && (
+        <div className="form-row">
           <div className="form-group">
             <label className="form-label-large">
               Confirmar Contraseña
@@ -610,8 +615,7 @@ export function UsuarioForm({
               </button>
             </div>
           </div>
-        )}
-      </div>
+        </div>
       )}
       
       {/* Mensaje de error de contraseñas debajo de ambas (como colspan=2) - SOLO cuando se edita */}
