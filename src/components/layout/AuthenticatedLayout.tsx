@@ -319,6 +319,29 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
     );
   }
 
+  // Detectar página actual y configurar FAB (DEBE estar después del bloqueo)
+  const getFABConfig = () => {
+    const fabRoutes: Record<string, { label: string; action: string }> = {
+      '/remitos': { label: 'Nuevo Remito', action: 'newRemito' },
+      '/clientes': { label: 'Nuevo Cliente', action: 'newCliente' },
+      '/productos': { label: 'Nuevo Producto', action: 'newProducto' },
+      '/categorias': { label: 'Nueva Categoría', action: 'newCategoria' },
+      '/estados-remitos': { label: 'Nuevo Estado', action: 'newEstado' },
+      '/usuarios': { label: 'Nuevo Usuario', action: 'newUsuario' },
+      '/empresas': { label: 'Nueva Empresa', action: 'newEmpresa' },
+    };
+
+    return fabRoutes[pathname] || null;
+  };
+
+  const fabConfig = getFABConfig();
+
+  const handleFABClick = () => {
+    // Emitir evento personalizado para que cada página lo maneje
+    const event = new CustomEvent('fabClick', { detail: { action: fabConfig?.action } });
+    window.dispatchEvent(event);
+  };
+
   // Para rutas protegidas con sesión válida
   return (
     <>
