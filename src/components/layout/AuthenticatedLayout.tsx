@@ -196,50 +196,7 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
     return null;
   }
 
-  // BLOQUEO CRÍTICO: Si el usuario tiene contraseña temporal, NO renderizar ninguna página
-  // Solo mostrar el modal de cambio de contraseña
-  // Esto previene que se ejecuten queries que causan 403 (como useUsuariosQuery en /usuarios)
-  // IMPORTANTE: Este check DEBE estar ANTES de renderizar {children} para evitar que React monte los componentes hijos
-  if (hasTemporaryPassword && !isChangingPassword) {
-    console.log('🔒 [AuthenticatedLayout] Usuario con contraseña temporal - bloqueando acceso a páginas ANTES de renderizar children');
-    return (
-      <>
-        <ChangePasswordModal
-          isOpen={showChangePassword}
-          onClose={() => {}} // No permitir cerrar si es obligatorio
-          onSubmit={handleChangePassword}
-          isSubmitting={isChangingPassword}
-          isMandatory={true}
-        />
-        {/* No renderizar children cuando hay contraseña temporal - previene 403 */}
-      </>
-    );
-  }
-
-  // Detectar página actual y configurar FAB
-  const getFABConfig = () => {
-    const fabRoutes: Record<string, { label: string; action: string }> = {
-      '/remitos': { label: 'Nuevo Remito', action: 'newRemito' },
-      '/clientes': { label: 'Nuevo Cliente', action: 'newCliente' },
-      '/productos': { label: 'Nuevo Producto', action: 'newProducto' },
-      '/categorias': { label: 'Nueva Categoría', action: 'newCategoria' },
-      '/estados-remitos': { label: 'Nuevo Estado', action: 'newEstado' },
-      '/usuarios': { label: 'Nuevo Usuario', action: 'newUsuario' },
-      '/empresas': { label: 'Nueva Empresa', action: 'newEmpresa' },
-    };
-
-    return fabRoutes[pathname] || null;
-  };
-
-  const fabConfig = getFABConfig();
-
-  const handleFABClick = () => {
-    // Emitir evento personalizado para que cada página lo maneje
-    const event = new CustomEvent('fabClick', { detail: { action: fabConfig?.action } });
-    window.dispatchEvent(event);
-  };
-
-  // Función para manejar el cambio de contraseña (DEBE estar antes del bloque de retorno temprano)
+  // Función para manejar el cambio de contraseña (DEBE estar ANTES del bloqueo para evitar "Cannot access before initialization")
   const handleChangePassword = async (newPassword: string) => {
     console.log('🔐 [AuthenticatedLayout] handleChangePassword INICIADO', {
       hasSession: !!session?.user?.id,
