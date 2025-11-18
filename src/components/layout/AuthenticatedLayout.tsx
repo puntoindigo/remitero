@@ -24,7 +24,7 @@ interface AuthenticatedLayoutProps {
 
 export default function AuthenticatedLayout({ children }: AuthenticatedLayoutProps) {
   const pathname = usePathname();
-  const { data: session, status } = useSession();
+  const { data: session, status, update: updateSession } = useSession();
   const router = useRouter();
   const [showChangePassword, setShowChangePassword] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
@@ -288,29 +288,23 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
       // Esto actualizará el token con los nuevos valores de la BD
       console.log('🔄 [AuthenticatedLayout] Intentando actualizar sesión de NextAuth');
       try {
-        const nextAuthReact = await import('next-auth/react');
-        console.log('📦 [AuthenticatedLayout] next-auth/react importado', {
-          hasUpdate: typeof nextAuthReact.update === 'function',
-          exports: Object.keys(nextAuthReact)
-        });
-        
-        if (typeof nextAuthReact.update === 'function') {
-          console.log('📞 [AuthenticatedLayout] Llamando update()...');
-          const updateResult = await nextAuthReact.update();
-          console.log('✅ [AuthenticatedLayout] update() completado', { updateResult });
+        if (typeof updateSession === 'function') {
+          console.log('📞 [AuthenticatedLayout] Llamando updateSession()...');
+          const updateResult = await updateSession();
+          console.log('✅ [AuthenticatedLayout] updateSession() completado', { updateResult });
           
           // Esperar un poco más para asegurar que el token se propague
-          console.log('⏳ [AuthenticatedLayout] Esperando 1000ms para propagación del token...');
-          await new Promise(resolve => setTimeout(resolve, 1000));
+          console.log('⏳ [AuthenticatedLayout] Esperando 1500ms para propagación del token...');
+          await new Promise(resolve => setTimeout(resolve, 1500));
         } else {
-          console.warn('⚠️ [AuthenticatedLayout] update no es una función, saltando actualización');
+          console.warn('⚠️ [AuthenticatedLayout] updateSession no es una función, saltando actualización');
           // Si no hay update, esperar un poco antes del reload
-          await new Promise(resolve => setTimeout(resolve, 1000));
+          await new Promise(resolve => setTimeout(resolve, 1500));
         }
       } catch (updateError) {
         console.error('❌ [AuthenticatedLayout] Error al actualizar sesión:', updateError);
         // Continuar de todas formas, el reload forzará la actualización
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise(resolve => setTimeout(resolve, 1500));
       }
       
       // Hacer un reload completo de la página para forzar la obtención de la nueva sesión
