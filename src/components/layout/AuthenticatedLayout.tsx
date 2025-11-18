@@ -18,6 +18,7 @@ import { useNavigationLoading } from "@/hooks/useNavigationLoading";
 import { useRoutePrefetch } from "@/hooks/useRoutePrefetch";
 import { useApiWarmup } from "@/hooks/useApiWarmup";
 import { useToast } from "@/hooks/useToast.js";
+import { ToastContainer } from "@/components/common/Toast.jsx";
 
 interface AuthenticatedLayoutProps {
   children: React.ReactNode;
@@ -27,7 +28,7 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
   const pathname = usePathname();
   const { data: session, status, update: updateSession } = useSession();
   const router = useRouter();
-  const { showSuccess: showToastSuccess } = useToast();
+  const { toasts, showSuccess: showToastSuccess, removeToast } = useToast();
   const [showChangePassword, setShowChangePassword] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [passwordChangedSuccessfully, setPasswordChangedSuccessfully] = useState(false);
@@ -626,6 +627,9 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
         isSubmitting={isChangingPassword}
         isMandatory={true}
       />
+
+      {/* Toast Container para notificaciones globales */}
+      <ToastContainer toasts={toasts} removeToast={removeToast} />
 
       {/* Navegación OSD tipo monitor */}
       <OSDBottomNavigation />
