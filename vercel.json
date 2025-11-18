@@ -8,8 +8,5 @@
   "github": {
     "autoAlias": false,
     "autoDeployOnPush": true
-  },
-  "env": {
-    "NODE_ENV": "production"
   }
 }

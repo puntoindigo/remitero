@@ -528,7 +528,7 @@ Has sido invitado a formar parte del Sistema de Remitos.
 Tu información de acceso:
 - Email: ${userEmail}
 - Rol: ${roleName}
-${!isGmail && tempPassword ? `- Contraseña temporal: ${tempPassword}\n\n⚠️ IMPORTANTE: Esta es una contraseña temporal. Deberás cambiarla al primer acceso.` : ''}
+${shouldShowTempPassword && tempPassword ? `- Contraseña temporal: ${tempPassword.trim()}\n\n⚠️ IMPORTANTE: Esta es una contraseña temporal. Deberás cambiarla al primer acceso.` : ''}
 
 Accede al sistema aquí:
 ${loginUrl}
