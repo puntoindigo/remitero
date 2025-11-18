@@ -318,6 +318,7 @@ export async function sendInvitationEmail({
     });
     
     // Generar HTML de contraseña temporal si corresponde
+    // IMPORTANTE: Para usuarios no-Gmail, SIEMPRE debe incluirse la contraseña temporal
     let tempPasswordHtml = '';
     if (shouldShowTempPassword && tempPassword) {
       const cleanTempPassword = tempPassword.trim();
@@ -328,14 +329,34 @@ export async function sendInvitationEmail({
       console.log('✅ [Email] HTML de contraseña temporal generado:', {
         tempPasswordHtmlLength: tempPasswordHtml.length,
         containsPassword: tempPasswordHtml.includes(cleanTempPassword),
-        passwordInHtml: cleanTempPassword
+        passwordInHtml: cleanTempPassword,
+        environment: process.env.VERCEL_ENV || 'local',
+        vercelUrl: process.env.VERCEL_URL || 'local'
       });
     } else {
+      // Log detallado para debug en producción
       console.warn('⚠️ [Email] NO se generará HTML de contraseña temporal:', {
-        reason: !isGmail ? 'tempPassword inválido' : 'es Gmail',
+        reason: !isGmail ? 'tempPassword inválido o vacío' : 'es Gmail (no necesita contraseña)',
         isGmail,
-        hasValidTempPassword
+        hasValidTempPassword,
+        tempPasswordValue: tempPassword ? `${tempPassword.substring(0, 2)}***` : null,
+        tempPasswordType: typeof tempPassword,
+        tempPasswordLength: tempPassword?.length || 0,
+        tempPasswordIsNull: tempPassword === null,
+        tempPasswordIsUndefined: tempPassword === undefined,
+        environment: process.env.VERCEL_ENV || 'local',
+        vercelUrl: process.env.VERCEL_URL || 'local'
       });
+      
+      // Si no es Gmail y no hay contraseña, esto es un problema
+      if (!isGmail && !hasValidTempPassword) {
+        console.error('❌ [Email] ERROR CRÍTICO: Usuario no-Gmail sin contraseña temporal!', {
+          email: userEmail,
+          isGmail,
+          tempPassword,
+          environment: process.env.VERCEL_ENV || 'local'
+        });
+      }
     }
 
     // Verificar que tempPasswordHtml se haya generado correctamente ANTES de crear mailOptions
@@ -345,8 +366,24 @@ export async function sendInvitationEmail({
       tempPasswordHtmlPreview: tempPasswordHtml.substring(0, 100),
       shouldShowTempPassword,
       hasValidTempPassword,
-      isGmail
+      isGmail,
+      environment: process.env.VERCEL_ENV || 'local',
+      vercelUrl: process.env.VERCEL_URL || 'local',
+      // Verificación crítica: si no es Gmail y no hay HTML, es un error
+      isError: !isGmail && tempPasswordHtml.length === 0 && hasValidTempPassword
     });
+    
+    // Validación adicional: si no es Gmail y debería tener contraseña pero no se generó HTML, es un error
+    if (!isGmail && hasValidTempPassword && tempPasswordHtml.length === 0) {
+      console.error('❌ [Email] ERROR: Usuario no-Gmail con contraseña válida pero HTML no generado!', {
+        email: userEmail,
+        tempPassword: tempPassword ? `${tempPassword.substring(0, 2)}***` : null,
+        tempPasswordLength: tempPassword?.length || 0,
+        shouldShowTempPassword,
+        hasValidTempPassword,
+        environment: process.env.VERCEL_ENV || 'local'
+      });
+    }
 
     const mailOptions = {
       from: `"Sistema de Remitos" <${process.env.EMAIL_USER}>`,
@@ -520,14 +557,19 @@ Este es un email automático, por favor no respondas a este mensaje.
       tempPasswordInHtml: tempPassword ? mailOptions.html?.includes(tempPassword.trim()) : false,
       tempPasswordInText: tempPassword ? mailOptions.text?.includes(tempPassword.trim()) : false,
       htmlIndexOfPassword: mailOptions.html?.indexOf('Contraseña temporal') ?? -1,
-      htmlIndexOfPasswordValue: mailOptions.html?.indexOf(tempPassword?.trim() || '') ?? -1,
+      htmlIndexOfPasswordValue: tempPassword ? (mailOptions.html?.indexOf(tempPassword.trim()) ?? -1) : -1,
       htmlPreview: mailOptions.html?.indexOf('Contraseña temporal') >= 0 
         ? mailOptions.html.substring(mailOptions.html.indexOf('Contraseña temporal') - 50, mailOptions.html.indexOf('Contraseña temporal') + 200) 
         : 'NO ENCONTRADO - tempPasswordHtml está vacío o no se insertó',
       htmlAroundInfoBox: mailOptions.html?.substring(
         mailOptions.html.indexOf('Tu información de acceso') - 20,
         mailOptions.html.indexOf('Tu información de acceso') + 500
-      ) || 'NO ENCONTRADO'
+      ) || 'NO ENCONTRADO',
+      environment: process.env.VERCEL_ENV || 'local',
+      vercelUrl: process.env.VERCEL_URL || 'local',
+      // Verificación final: confirmar que la contraseña está en el HTML si debería estar
+      passwordShouldBeInHtml: shouldShowTempPassword && hasValidTempPassword,
+      passwordIsInHtml: tempPassword ? (mailOptions.html?.includes(tempPassword.trim()) ?? false) : false
     });
     
     const info = await transporter.sendMail(mailOptions);

@@ -466,13 +466,34 @@ export async function POST(request: NextRequest) {
       });
       
       // Asegurar que tempPassword no sea string vacío
-      const finalTempPassword = (tempPassword && typeof tempPassword === 'string' && tempPassword.trim().length > 0) ? tempPassword.trim() : null;
+      // IMPORTANTE: Para usuarios no-Gmail, SIEMPRE debe haber contraseña temporal
+      let finalTempPassword: string | null = null;
+      if (tempPassword && typeof tempPassword === 'string' && tempPassword.trim().length > 0) {
+        finalTempPassword = tempPassword.trim();
+      } else if (!isGmail) {
+        // Si no es Gmail y no hay contraseña, esto es un error crítico
+        console.error('❌ [Users] ERROR CRÍTICO: Usuario no-Gmail sin contraseña temporal!', {
+          email: finalEmail,
+          isGmail,
+          tempPassword,
+          tempPasswordType: typeof tempPassword,
+          tempPasswordLength: tempPassword?.length || 0,
+          hasTemporaryPassword,
+          environment: process.env.VERCEL_ENV || 'local',
+          vercelUrl: process.env.VERCEL_URL || 'local'
+        });
+        // No fallar la creación del usuario, pero loguear el error
+      }
       
       console.log('📧 [Users] Estado de finalTempPassword DESPUÉS de procesar:', {
         finalTempPasswordType: typeof finalTempPassword,
-        finalTempPasswordValue: finalTempPassword,
+        finalTempPasswordValue: finalTempPassword ? `${finalTempPassword.substring(0, 2)}***` : null,
         finalTempPasswordIsNull: finalTempPassword === null,
-        finalTempPasswordLength: finalTempPassword?.length || 0
+        finalTempPasswordLength: finalTempPassword?.length || 0,
+        isGmail,
+        shouldHavePassword: !isGmail,
+        environment: process.env.VERCEL_ENV || 'local',
+        vercelUrl: process.env.VERCEL_URL || 'local'
       });
       
       const emailSent = await sendInvitationEmail({
