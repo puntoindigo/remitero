@@ -17,6 +17,7 @@ import { GlobalLoadingOverlay } from "@/components/common/GlobalLoadingOverlay";
 import { useNavigationLoading } from "@/hooks/useNavigationLoading";
 import { useRoutePrefetch } from "@/hooks/useRoutePrefetch";
 import { useApiWarmup } from "@/hooks/useApiWarmup";
+import { useToast } from "@/hooks/useToast.js";
 
 interface AuthenticatedLayoutProps {
   children: React.ReactNode;
@@ -26,8 +27,10 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
   const pathname = usePathname();
   const { data: session, status, update: updateSession } = useSession();
   const router = useRouter();
+  const { showSuccess: showToastSuccess } = useToast();
   const [showChangePassword, setShowChangePassword] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [passwordChangedSuccessfully, setPasswordChangedSuccessfully] = useState(false);
   const { isOnline } = useNetworkStatus();
   const { isLoading: isNavigating, message: navigationMessage } = useNavigationLoading();
   
@@ -269,6 +272,12 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
       // El endpoint PUT /api/profile ya limpia has_temporary_password automáticamente
       // La actividad se registra automáticamente en el endpoint PUT /api/profile
 
+      // Marcar que la contraseña se cambió exitosamente (previene que el modal reaparezca)
+      setPasswordChangedSuccessfully(true);
+      
+      // Mostrar toast de éxito
+      showToastSuccess('Contraseña cambiada exitosamente');
+      
       // Cerrar el modal inmediatamente
       console.log('🚪 [AuthenticatedLayout] Cerrando modal de cambio de contraseña');
       setShowChangePassword(false);
@@ -282,24 +291,32 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
           const updateResult = await updateSession();
           console.log('✅ [AuthenticatedLayout] updateSession() completado', { updateResult });
           
-          // Esperar un poco más para asegurar que el token se propague
-          console.log('⏳ [AuthenticatedLayout] Esperando 1500ms para propagación del token...');
-          await new Promise(resolve => setTimeout(resolve, 1500));
+          // Esperar un poco para asegurar que el token se propague (reducido de 1500ms a 500ms)
+          console.log('⏳ [AuthenticatedLayout] Esperando 500ms para propagación del token...');
+          await new Promise(resolve => setTimeout(resolve, 500));
         } else {
           console.warn('⚠️ [AuthenticatedLayout] updateSession no es una función, saltando actualización');
-          // Si no hay update, esperar un poco antes del reload
-          await new Promise(resolve => setTimeout(resolve, 1500));
+          // Si no hay update, esperar un poco antes del refresh
+          await new Promise(resolve => setTimeout(resolve, 500));
         }
       } catch (updateError) {
         console.error('❌ [AuthenticatedLayout] Error al actualizar sesión:', updateError);
-        // Continuar de todas formas, el reload forzará la actualización
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        // Continuar de todas formas, el refresh forzará la actualización
+        await new Promise(resolve => setTimeout(resolve, 500));
       }
       
-      // Hacer un reload completo de la página para forzar la obtención de la nueva sesión
-      // Esto asegura que hasTemporaryPassword se actualice correctamente
-      console.log('🔄 [AuthenticatedLayout] Recargando página...');
-      window.location.reload();
+      // Usar router.refresh() en lugar de window.location.reload() para un refresh más suave
+      // Esto actualiza los datos del servidor sin recargar toda la página
+      console.log('🔄 [AuthenticatedLayout] Refrescando datos del servidor...');
+      router.refresh();
+      
+      // Finalmente, resetear isChangingPassword después de un breve delay
+      // para asegurar que el estado se actualice correctamente
+      setTimeout(() => {
+        console.log('🔄 [AuthenticatedLayout] Reseteando isChangingPassword');
+        setIsChangingPassword(false);
+        setPasswordChangedSuccessfully(false);
+      }, 1000);
     } catch (error: unknown) {
       console.error('❌ [AuthenticatedLayout] Error en handleChangePassword:', error);
       // Asegurar que el error se propague correctamente al modal
@@ -315,14 +332,16 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
   // Esto previene que se ejecuten queries que causan 403 (como useUsuariosQuery en /usuarios)
   // IMPORTANTE: Este check DEBE estar ANTES de renderizar {children} para evitar que React monte los componentes hijos
   // IMPORTANTE: handleChangePassword ya está declarado arriba, así que podemos usarlo aquí
+  // NO bloquear si la contraseña se cambió exitosamente (evita que el modal reaparezca)
   console.log('🔍 [AuthenticatedLayout] Verificando bloqueo de contraseña temporal:', {
     hasTemporaryPassword,
     isChangingPassword,
-    willBlock: hasTemporaryPassword && !isChangingPassword,
+    passwordChangedSuccessfully,
+    willBlock: hasTemporaryPassword && !isChangingPassword && !passwordChangedSuccessfully,
     pathname
   });
   
-  if (hasTemporaryPassword && !isChangingPassword) {
+  if (hasTemporaryPassword && !isChangingPassword && !passwordChangedSuccessfully) {
     console.log('🔒 [AuthenticatedLayout] ✅ BLOQUEO ACTIVO - Usuario con contraseña temporal - bloqueando acceso a páginas ANTES de renderizar children');
     return (
       <>
