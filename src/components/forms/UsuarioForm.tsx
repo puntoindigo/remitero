@@ -388,7 +388,7 @@ export function UsuarioForm({
         </div>
       )}
 
-      {/* Fila con Teléfono */}
+      {/* Fila con Teléfono, Dirección y Contraseña (si aplica) - Contraseña al lado de Dirección y debajo de Rol */}
       <div className="form-row">
         <div className="form-group" style={isCurrentUser ? { flex: '1 1 50%', minWidth: '200px' } : {}}>
           <label className="form-label-large">
@@ -406,10 +406,7 @@ export function UsuarioForm({
             className="form-input-standard"
           />
         </div>
-      </div>
 
-      {/* Fila con Dirección y Contraseña (si aplica) */}
-      <div className="form-row">
         <div className="form-group" style={isCurrentUser ? { flex: '1 1 50%', minWidth: '200px' } : {}}>
           <label className="form-label-large">
             Dirección
