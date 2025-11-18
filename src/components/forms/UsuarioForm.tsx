@@ -357,9 +357,9 @@ export function UsuarioForm({
         </div>
       </div>
 
-      {/* Fila con Rol y Contraseña (si aplica) */}
-      <div className="form-row">
-        {canEditRole && (
+      {/* Fila con Rol (debajo de Email) */}
+      {canEditRole && (
+        <div className="form-row">
           <div className="form-group">
             <label className="form-label-large">
               Rol *
@@ -385,7 +385,47 @@ export function UsuarioForm({
               )}
             </select>
           </div>
-        )}
+        </div>
+      )}
+
+      {/* Fila con Teléfono */}
+      <div className="form-row">
+        <div className="form-group" style={isCurrentUser ? { flex: '1 1 50%', minWidth: '200px' } : {}}>
+          <label className="form-label-large">
+            Teléfono
+            {errors?.phone && (
+              <span style={{ color: '#ef4444', marginLeft: '8px', fontSize: '0.875rem', fontWeight: 'normal' }}>
+                {errors?.phone.message}
+              </span>
+            )}
+          </label>
+          <input
+            {...register("phone")}
+            type="tel"
+            placeholder="Teléfono"
+            className="form-input-standard"
+          />
+        </div>
+      </div>
+
+      {/* Fila con Dirección y Contraseña (si aplica) */}
+      <div className="form-row">
+        <div className="form-group" style={isCurrentUser ? { flex: '1 1 50%', minWidth: '200px' } : {}}>
+          <label className="form-label-large">
+            Dirección
+            {errors?.address && (
+              <span style={{ color: '#ef4444', marginLeft: '8px', fontSize: '0.875rem', fontWeight: 'normal' }}>
+                {errors?.address.message}
+              </span>
+            )}
+          </label>
+          <input
+            {...register("address")}
+            type="text"
+            placeholder="Dirección"
+            className="form-input-standard"
+          />
+        </div>
 
         {/* Mostrar campo de contraseña solo si hay @ y no es Gmail */}
         {hasAtSymbol && !isGmailEmail(emailValue) && (
@@ -507,43 +547,6 @@ export function UsuarioForm({
             )}
           </div>
         )}
-      </div>
-
-      {/* Fila con Teléfono y Dirección */}
-      <div className="form-row">
-        <div className="form-group" style={isCurrentUser ? { flex: '1 1 50%', minWidth: '200px' } : {}}>
-          <label className="form-label-large">
-            Teléfono
-            {errors?.phone && (
-              <span style={{ color: '#ef4444', marginLeft: '8px', fontSize: '0.875rem', fontWeight: 'normal' }}>
-                {errors?.phone.message}
-              </span>
-            )}
-          </label>
-          <input
-            {...register("phone")}
-            type="tel"
-            placeholder="Teléfono"
-            className="form-input-standard"
-          />
-        </div>
-
-        <div className="form-group" style={isCurrentUser ? { flex: '1 1 50%', minWidth: '200px' } : {}}>
-          <label className="form-label-large">
-            Dirección
-            {errors?.address && (
-              <span style={{ color: '#ef4444', marginLeft: '8px', fontSize: '0.875rem', fontWeight: 'normal' }}>
-                {errors?.address.message}
-              </span>
-            )}
-          </label>
-          <input
-            {...register("address")}
-            type="text"
-            placeholder="Dirección"
-            className="form-input-standard"
-          />
-        </div>
       </div>
 
       {/* Campo de confirmar contraseña SOLO cuando se edita un usuario (no en nuevo usuario) */}
