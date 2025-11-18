@@ -150,8 +150,25 @@ export function useUsuarios(companyId?: string) {
   };
 
   useEffect(() => {
-    loadUsuarios();
-  }, [session?.user?.role, companyId]);
+    // Solo cargar usuarios si el usuario tiene permisos (ADMIN o SUPERADMIN)
+    // Esto previene llamadas innecesarias a /api/users cuando el usuario no tiene permisos
+    const userRole = session?.user?.role;
+    const hasPermission = userRole === 'ADMIN' || userRole === 'SUPERADMIN';
+    const sessionReady = session !== null && userRole !== undefined;
+    
+    if (sessionReady && hasPermission) {
+      loadUsuarios();
+    } else {
+      // Si no tiene permisos, establecer estado vacío y no cargar
+      setUsuarios([]);
+      setIsLoading(false);
+      if (!sessionReady) {
+        setError(null); // Esperando sesión
+      } else {
+        setError(null); // No tiene permisos, pero no es un error
+      }
+    }
+  }, [session?.user?.role, companyId, session]);
 
   return {
     usuarios,
