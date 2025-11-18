@@ -319,6 +319,7 @@ export function UsuarioForm({
       }}
       modalClassName={isCurrentUser ? "perfil-modal" : ""}
     >
+      {/* Primera fila: Nombre, Email, Rol */}
       <div className="form-row">
         <div className="form-group" style={isCurrentUser ? { flex: '1 1 50%', minWidth: '200px' } : {}}>
           <label className="form-label-large">
@@ -385,6 +386,7 @@ export function UsuarioForm({
         )}
       </div>
 
+      {/* Segunda fila: Teléfono, Dirección, Contraseña (si aplica) */}
       <div className="form-row">
         <div className="form-group" style={isCurrentUser ? { flex: '1 1 50%', minWidth: '200px' } : {}}>
           <label className="form-label-large">
@@ -419,15 +421,13 @@ export function UsuarioForm({
             className="form-input-standard"
           />
         </div>
-      </div>
 
-      {/* Mostrar campos de contraseña solo si hay @ y no es Gmail */}
-      {hasAtSymbol && !isGmailEmail(emailValue) && (
-      <div className="form-row">
-        <div className="form-group">
-          <label className="form-label-large">
-            Contraseña {!editingUser && "*"}
-          </label>
+        {/* Mostrar campo de contraseña solo si hay @ y no es Gmail */}
+        {hasAtSymbol && !isGmailEmail(emailValue) && (
+          <div className="form-group">
+            <label className="form-label-large">
+              Contraseña {!editingUser && "*"}
+            </label>
             <div style={{ position: 'relative', width: '100%' }}>
               <input
                 {...register("password")}
@@ -541,10 +541,12 @@ export function UsuarioForm({
               </p>
             )}
           </div>
-        </div>
+        )}
+      </div>
 
-        {/* Campo de confirmar contraseña SOLO cuando se edita un usuario (no en nuevo usuario) */}
-        {editingUser && (
+      {/* Campo de confirmar contraseña SOLO cuando se edita un usuario (no en nuevo usuario) */}
+      {editingUser && hasAtSymbol && !isGmailEmail(emailValue) && (
+        <div className="form-row">
           <div className="form-group">
             <label className="form-label-large">
               Confirmar Contraseña
@@ -611,8 +613,7 @@ export function UsuarioForm({
               </button>
             </div>
           </div>
-        )}
-      </div>
+        </div>
       )}
       
       {/* Mensaje de error de contraseñas debajo de ambas (como colspan=2) - SOLO cuando se edita */}

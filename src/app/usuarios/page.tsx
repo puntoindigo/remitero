@@ -144,13 +144,14 @@ function UsuariosContent() {
   }, [searchParams, companyId, showForm]); // Solo ejecutar cuando cambien searchParams o companyId
 
   // Configurar shortcuts de teclado
+  // El shortkey debe funcionar siempre que no esté abierto el formulario
   useShortcuts([
     {
       key: 'n',
       action: handleNew,
       description: 'Nuevo Usuario'
     }
-  ], !!companyId && !showForm);
+  ], !showForm);
 
   // Listener para FAB mobile
   useEffect(() => {
