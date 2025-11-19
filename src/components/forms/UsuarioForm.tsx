@@ -42,47 +42,6 @@ const userSchema = z.object({
   phone: z.string().optional(),
   address: z.string().optional(),
   enableBotonera: z.boolean().optional(),
-}).refine((data) => {
-  // Si el email contiene @ (no es solo Gmail), requerir contraseña
-  const hasAtSymbol = data.email.includes('@');
-  if (!hasAtSymbol) {
-    return true; // Si es solo palabra (se autocompleta a Gmail), no requerir contraseña
-  }
-  // Si tiene @, verificar si es Gmail
-  const isGmail = isGmailEmail(data.email);
-  if (isGmail) {
-    return true; // Gmail no requiere contraseña
-  }
-  // Si no es Gmail, requerir contraseña
-  if (!data.password || data.password === "") {
-    return false;
-  }
-  // Solo validar confirmPassword si está presente (cuando se edita)
-  // En nuevo usuario, no hay confirmPassword, así que no validamos
-  if (data.confirmPassword !== undefined && data.confirmPassword !== "") {
-    return data.password === data.confirmPassword;
-  }
-  return true; // Si no hay confirmPassword, no validar coincidencia
-}, {
-  message: "Las contraseñas no coinciden.",
-  path: ["confirmPassword"],
-}).refine((data) => {
-  const hasAtSymbol = data.email.includes('@');
-  if (!hasAtSymbol) {
-    return true; // Solo palabra (se autocompleta a Gmail)
-  }
-  const isGmail = isGmailEmail(data.email);
-  if (isGmail) {
-    return true; // Gmail no requiere contraseña
-  }
-  // Si no es Gmail, requerir contraseña de al menos 6 caracteres
-  if (!data.password || data.password === "") {
-    return false;
-  }
-  return data.password.length >= 6;
-}, {
-  message: "La contraseña debe tener al menos 6 caracteres (requerida para emails no Gmail)",
-  path: ["password"],
 });
 
 type UsuarioFormData = z.infer<typeof userSchema>;
@@ -145,8 +104,6 @@ export function UsuarioForm({
     }
   });
 
-  const passwordValue = watch("password");
-  const confirmPasswordValue = watch("confirmPassword");
   const emailValue = watch("email");
   const roleValue = watch("role");
   
@@ -166,41 +123,6 @@ export function UsuarioForm({
     }
   };
   
-  // Estado para manejar la animación de salida del error de contraseña
-  const [showPasswordError, setShowPasswordError] = React.useState(false);
-  const [showConfirmPasswordError, setShowConfirmPasswordError] = React.useState(false);
-  const [passwordErrorMessage, setPasswordErrorMessage] = React.useState('');
-  const [confirmPasswordErrorMessage, setConfirmPasswordErrorMessage] = React.useState('');
-  
-  // Efecto para manejar la animación de entrada/salida del error de contraseña
-  React.useEffect(() => {
-    if (errors.password?.message) {
-      setPasswordErrorMessage(errors.password.message);
-      setShowPasswordError(true);
-    } else if (showPasswordError) {
-      // Si hay error visible pero ya no hay error, iniciar animación de salida
-      const timer = setTimeout(() => {
-        setShowPasswordError(false);
-        setPasswordErrorMessage('');
-      }, 400);
-      return () => clearTimeout(timer);
-    }
-  }, [errors.password, showPasswordError]);
-  
-  // Efecto para manejar la animación de entrada/salida del error de confirmar contraseña
-  React.useEffect(() => {
-    if (errors.confirmPassword?.message) {
-      setConfirmPasswordErrorMessage(errors.confirmPassword.message);
-      setShowConfirmPasswordError(true);
-    } else if (showConfirmPasswordError) {
-      // Si hay error visible pero ya no hay error, iniciar animación de salida
-      const timer = setTimeout(() => {
-        setShowConfirmPasswordError(false);
-        setConfirmPasswordErrorMessage('');
-      }, 400);
-      return () => clearTimeout(timer);
-    }
-  }, [errors.confirmPassword, showConfirmPasswordError]);
 
   // Observar el valor del rol para mostrar/ocultar empresa
   const selectedRole = watch("role");
