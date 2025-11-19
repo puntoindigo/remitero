@@ -176,20 +176,16 @@ function ClientesContent() {
     try {
       setIsSubmitting(true);
       
-      // Obtener el companyId efectivo (de selectedCompanyId para SUPERADMIN o companyId para otros)
-      const effectiveCompanyId = currentUser?.role === "SUPERADMIN" 
-        ? (selectedCompanyId || companyId)
-        : companyId;
-      
       if (editingCliente) {
         await updateMutation.mutateAsync({ id: editingCliente.id, data });
         showSuccess("Cliente actualizado correctamente");
       } else {
-        if (!effectiveCompanyId) {
+        // Para crear, siempre necesitamos companyId (useDataWithCompanySimple ya calcula el efectivo)
+        if (!companyId) {
           showError("Debes seleccionar una empresa antes de crear un cliente");
           return;
         }
-        await createMutation.mutateAsync({ ...data, companyId: effectiveCompanyId });
+        await createMutation.mutateAsync({ ...data, companyId });
         showSuccess("Cliente creado correctamente");
       }
       
