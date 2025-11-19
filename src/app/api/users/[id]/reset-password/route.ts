@@ -2,9 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
-import bcrypt from "bcryptjs";
 import crypto from "crypto";
-import { sendInvitationEmail } from "@/lib/email";
+import { sendPasswordResetEmail } from "@/lib/email-reset-password";
 import { logUserActivity } from "@/lib/user-activity-logger";
 
 export async function POST(
@@ -57,58 +56,60 @@ export async function POST(
       }, { status: 400 });
     }
 
-    // Generar contraseña temporal aleatoria (8 caracteres)
-    const tempPassword = crypto.randomBytes(4).toString('hex');
+    // Generar token único para reset de contraseña (32 caracteres hexadecimales)
+    const resetToken = crypto.randomBytes(32).toString('hex');
     
-    // Hash de la contraseña
-    const hashedPassword = await bcrypt.hash(tempPassword, 10);
+    // Calcular fecha de expiración (30 minutos desde ahora)
+    const expiresAt = new Date();
+    expiresAt.setMinutes(expiresAt.getMinutes() + 30);
 
-    // Actualizar usuario con contraseña temporal y marcar flag
+    // Actualizar usuario con token y fecha de expiración
     const { error: updateError } = await supabaseAdmin
       .from('users')
       .update({
-        password: hashedPassword,
-        has_temporary_password: true,
+        password_reset_token: resetToken,
+        password_reset_expires: expiresAt.toISOString(),
       })
       .eq('id', userId);
 
     if (updateError) {
-      console.error('Error updating user password:', updateError);
+      console.error('Error updating user reset token:', updateError);
       return NextResponse.json({ 
         error: "Error interno del servidor",
-        message: "No se pudo actualizar la contraseña."
+        message: "No se pudo generar el token de reset."
       }, { status: 500 });
     }
 
-    // Obtener información de la empresa si existe
-    let companyName = null;
-    if (user.company_id) {
-      const { data: company } = await supabaseAdmin
-        .from('companies')
-        .select('name')
-        .eq('id', user.company_id)
-        .single();
-      if (company) {
-        companyName = company.name;
-      }
-    }
+    // Construir URL de reset con el token
+    const baseUrl = process.env.NEXTAUTH_URL 
+      ? process.env.NEXTAUTH_URL.trim().replace(/\/$/, '')
+      : 'https://remitero-dev.vercel.app';
+    
+    const resetUrl = `${baseUrl}/auth/reset-password?token=${resetToken}`;
 
-    // URL directa a login
-    const loginUrl = process.env.NEXTAUTH_URL 
-      ? `${process.env.NEXTAUTH_URL.trim().replace(/\/$/, '')}/auth/login`
-      : 'https://remitero-dev.vercel.app/auth/login';
-
-    // Enviar email con la contraseña temporal usando sendInvitationEmail
+    // Enviar email con el enlace de reset
     try {
-      await sendInvitationEmail({
+      const emailSent = await sendPasswordResetEmail({
         to: user.email,
         userName: user.name || user.email.split('@')[0],
-        userEmail: user.email,
-        role: user.role,
-        loginUrl: loginUrl,
-        isGmail: false, // Ya verificamos que no es Gmail arriba
-        tempPassword: tempPassword
+        resetUrl: resetUrl
       });
+
+      if (!emailSent) {
+        // Si falla el email, limpiar el token
+        await supabaseAdmin
+          .from('users')
+          .update({
+            password_reset_token: null,
+            password_reset_expires: null,
+          })
+          .eq('id', userId);
+        
+        return NextResponse.json(
+          { error: "Error interno", message: "No se pudo enviar el email" },
+          { status: 500 }
+        );
+      }
 
       console.log('✅ [Reset Password] Email enviado exitosamente a:', user.email);
 
@@ -116,11 +117,12 @@ export async function POST(
       try {
         await logUserActivity(
           userId,
-          'PASSWORD_RESET_BY_ADMIN',
-          `Contraseña reseteada por ${session.user.name || session.user.email}`,
+          'PASSWORD_RESET_REQUESTED_BY_ADMIN',
+          `Solicitud de reset de contraseña generada por ${session.user.name || session.user.email}`,
           { 
             resetBy: session.user.id,
-            resetByName: session.user.name || session.user.email
+            resetByName: session.user.name || session.user.email,
+            tokenExpiresAt: expiresAt.toISOString()
           }
         );
       } catch (activityError: any) {
@@ -128,6 +130,15 @@ export async function POST(
       }
     } catch (emailError: any) {
       console.error('❌ [Reset Password] Error al enviar email:', emailError);
+      // Limpiar el token si falla el email
+      await supabaseAdmin
+        .from('users')
+        .update({
+          password_reset_token: null,
+          password_reset_expires: null,
+        })
+        .eq('id', userId);
+      
       return NextResponse.json(
         { error: "Error interno", message: "No se pudo enviar el email" },
         { status: 500 }
@@ -137,7 +148,7 @@ export async function POST(
     return NextResponse.json(
       { 
         success: true, 
-        message: "Contraseña temporal generada y enviada por email al usuario." 
+        message: "Se ha enviado un enlace para restablecer la contraseña al email del usuario." 
       },
       { status: 200 }
     );
