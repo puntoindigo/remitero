@@ -141,24 +141,15 @@ export async function PUT(request: NextRequest) {
       updateData.name = name.trim();
     }
 
-    // Actualizar email si se proporciona y es diferente
+    // NO permitir cambiar el email desde el perfil (solo admins pueden cambiar emails de otros usuarios)
+    // Si se intenta cambiar el email, ignorarlo silenciosamente
     if (email !== undefined && email.trim() !== '' && email !== existingUser.email) {
-      // Verificar que el email no esté en uso
-      const { data: emailCheck } = await supabaseAdmin
-        .from('users')
-        .select('id')
-        .eq('email', email.trim())
-        .neq('id', session.user.id)
-        .single();
-
-      if (emailCheck) {
-        return NextResponse.json({ 
-          error: "Email en uso",
-          message: "Este email ya está registrado por otro usuario."
-        }, { status: 400 });
-      }
-
-      updateData.email = email.trim();
+      console.warn('⚠️ [API Profile] Intento de cambiar email desde perfil, ignorado:', {
+        userId: session.user.id,
+        currentEmail: existingUser.email,
+        attemptedEmail: email.trim()
+      });
+      // No actualizar el email - el usuario no puede cambiar su propio email
     }
 
     // Actualizar teléfono si se proporciona

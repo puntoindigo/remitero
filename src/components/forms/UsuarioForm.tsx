@@ -348,7 +348,18 @@ export function UsuarioForm({
             autoComplete="off"
             className="form-input-standard"
             onBlur={handleEmailBlur}
+            disabled={isCurrentUser}
+            style={isCurrentUser ? { 
+              backgroundColor: '#f3f4f6', 
+              cursor: 'not-allowed',
+              color: '#6b7280'
+            } : {}}
           />
+          {isCurrentUser && (
+            <p style={{ marginTop: '0.25rem', fontSize: '0.75rem', color: '#6b7280' }}>
+              No puedes cambiar tu email
+            </p>
+          )}
         </div>
 
         {canEditRole && (

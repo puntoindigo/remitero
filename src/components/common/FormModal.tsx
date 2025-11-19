@@ -52,7 +52,9 @@ export function FormModal({
   const [showModal, setShowModal] = useState(false);
   
   // Verificar si los modales anclados están habilitados
-  const pinnedModalsEnabled = (currentUser as any)?.enable_pinned_modals ?? false;
+  // DESHABILITAR EN PRODUCCIÓN - solo disponible en desarrollo/testing
+  const isProduction = process.env.NODE_ENV === 'production' || process.env.VERCEL_ENV === 'production';
+  const pinnedModalsEnabled = !isProduction && ((currentUser as any)?.enable_pinned_modals ?? false);
   
   // Generar ID único si no se proporciona
   const uniqueModalId = modalId || `${modalComponent || 'modal'}-${title.toLowerCase().replace(/\s+/g, '-')}`;

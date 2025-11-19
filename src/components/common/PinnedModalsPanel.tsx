@@ -39,7 +39,9 @@ export function PinnedModalsPanel() {
   const [submittingStates, setSubmittingStates] = useState<Record<string, boolean>>({});
   
   // Verificar si los modales anclados están habilitados
-  const pinnedModalsEnabled = (session?.user as any)?.enable_pinned_modals ?? false;
+  // DESHABILITAR EN PRODUCCIÓN - solo disponible en desarrollo/testing
+  const isProduction = process.env.NODE_ENV === 'production' || process.env.VERCEL_ENV === 'production';
+  const pinnedModalsEnabled = !isProduction && ((session?.user as any)?.enable_pinned_modals ?? false);
   
   // Obtener companyId del usuario actual
   const companyId = currentUser?.companyId || undefined;

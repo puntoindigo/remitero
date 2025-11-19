@@ -187,9 +187,9 @@ export function RemitoFormComplete({
     const lineTotal = unitPrice * quantity;
 
     const newItem: RemitoItem = {
-      product_id: product?.id,
-      product_name: product?.name,
-      product_desc: product.description || '',
+      product_id: product?.id || '',
+      product_name: product?.name || '',
+      product_desc: product?.description || '',
       quantity,
       unit_price: unitPrice,
       line_total: lineTotal
