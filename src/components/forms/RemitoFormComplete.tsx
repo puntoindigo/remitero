@@ -77,7 +77,7 @@ export function RemitoFormComplete({
       if (clientExists) {
         // Usar setTimeout para asegurar que el DOM esté actualizado
         setTimeout(() => {
-          setValue("clientId", newClientId, { shouldValidate: false });
+          setValue("clientId", String(newClientId || ""), { shouldValidate: false });
           setNewClientId(null); // Limpiar el ID para evitar re-seleccionar
         }, 50);
       }
@@ -107,10 +107,10 @@ export function RemitoFormComplete({
             });
             
             // Actualizar el estado del formulario con los datos completos
-            setValue("clientId", fullRemito.client?.id || fullRemito.clientId || "");
-            const statusId = fullRemito.status?.id || fullRemito.status || "";
-            setValue("status", statusId || "");
-            setValue("notes", fullRemito.notes || "");
+            setValue("clientId", String(fullRemito.client?.id || fullRemito.clientId || ""));
+            const statusId = String(fullRemito.status?.id || fullRemito.status || "");
+            setValue("status", statusId);
+            setValue("notes", String(fullRemito.notes || ""));
             
             // Cargar items del remito (pueden venir como 'items', 'remitoItems' o 'remito_items')
             const fetchedItems = fullRemito.items || fullRemito.remitoItems || fullRemito.remito_items || [];
@@ -163,7 +163,11 @@ export function RemitoFormComplete({
       }
     } else {
       // Reset para nuevo remito
-      reset();
+      reset({
+        clientId: "",
+        status: "",
+        notes: ""
+      });
       setItems([]);
       setSelectedProduct("");
       setQuantity(1);
@@ -305,7 +309,11 @@ export function RemitoFormComplete({
   };
 
   const handleCancel = () => {
-    reset();
+    reset({
+      clientId: "",
+      status: "",
+      notes: ""
+    });
     setItems([]);
     setSelectedProduct("");
     setQuantity(1);
