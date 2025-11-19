@@ -62,7 +62,12 @@ export function RemitoFormComplete({
     watch,
     formState: { errors }
   } = useForm<RemitoForm>({
-    resolver: zodResolver(remitoSchema)
+    resolver: zodResolver(remitoSchema),
+    defaultValues: {
+      clientId: "",
+      status: "",
+      notes: ""
+    }
   });
 
   // Efecto para seleccionar el nuevo cliente cuando aparezca en la lista
