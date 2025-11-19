@@ -350,10 +350,8 @@ export function UsuarioForm({
             onBlur={handleEmailBlur}
             disabled={isCurrentUser}
             style={isCurrentUser ? { 
-              backgroundColor: 'rgb(243, 244, 246) !important', 
               cursor: 'not-allowed',
-              color: '#6b7280'
-            } as React.CSSProperties & { backgroundColor?: string } : {}}
+            } : {}}
           />
         </div>
 
