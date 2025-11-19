@@ -71,18 +71,6 @@ export async function POST(
 
     // Detectar si es Gmail
     const isGmail = user.email.toLowerCase().endsWith('@gmail.com') || user.email.toLowerCase().endsWith('@googlemail.com');
-    
-    // Para resend, no incluimos contraseña (por seguridad, el usuario ya debería tenerla)
-    // Solo incluimos si el usuario tiene contraseña temporal activa
-    const { data: userWithPassword } = await supabaseAdmin
-      .from('users')
-      .select('has_temporary_password')
-      .eq('id', userId)
-      .single();
-    
-    let tempPassword: string | null = null;
-    // Si no es Gmail y tiene contraseña temporal, no incluimos la contraseña en el resend
-    // (por seguridad, el usuario debería usar "Olvidé mi contraseña" si la necesita)
 
     console.log('📧 [Resend Invitation] Preparando envío de email:', {
       to: user.email,
@@ -99,8 +87,7 @@ export async function POST(
         userEmail: user.email,
         role: user.role,
         loginUrl,
-        isGmail,
-        tempPassword: null // No incluimos contraseña en resend por seguridad
+        isGmail
       });
 
       if (!emailSent) {
