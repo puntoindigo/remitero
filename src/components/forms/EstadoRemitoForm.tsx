@@ -113,7 +113,6 @@ export function EstadoRemitoForm({
             id="name"
             placeholder="Ej: Enviado, Entregado, Cancelado"
             className="form-input-standard"
-            required
           />
           {errors?.name && (
             <p className="error-message">{errors?.name.message}</p>
@@ -127,7 +126,6 @@ export function EstadoRemitoForm({
               type="color"
               id="color"
               className="w-12 h-10 border border-gray-300 rounded cursor-pointer"
-              required
             />
             <input
               {...register("color")}
