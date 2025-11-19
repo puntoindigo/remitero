@@ -102,7 +102,6 @@ export function ClienteForm({
             type="text"
             placeholder="Nombre"
             className="form-input-standard"
-            required
           />
         </div>
 

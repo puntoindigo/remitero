@@ -163,11 +163,6 @@ export function RemitoFormComplete({
       }
     } else {
       // Reset para nuevo remito
-      reset({
-        clientId: "",
-        status: "",
-        notes: ""
-      });
       setItems([]);
       setSelectedProduct("");
       setQuantity(1);
@@ -177,9 +172,12 @@ export function RemitoFormComplete({
         e.is_default || 
         e.name?.toLowerCase().includes('pendiente')
       ) || estados.find(e => e.is_default);
-      if (defaultStatus) {
-        setValue("status", defaultStatus?.id);
-      }
+      const defaultStatusId = defaultStatus ? String(defaultStatus?.id || "") : "";
+      reset({
+        clientId: "",
+        status: defaultStatusId,
+        notes: ""
+      });
     }
   }, [editingRemito, setValue, reset, estados]);
 
@@ -389,16 +387,16 @@ export function RemitoFormComplete({
       
       {/* Cliente */}
       <div className="form-group" style={{ marginBottom: '0.5rem' }}>
-        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start' }}>
+        <label className="form-label-large" style={{ marginBottom: '0.5rem', display: 'block' }}>
+          Cliente *
+          {errors?.clientId && (
+            <span style={{ color: '#ef4444', marginLeft: '8px', fontSize: '0.875rem', fontWeight: 'normal' }}>
+              {errors.clientId.message}
+            </span>
+          )}
+        </label>
+        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
           <div style={{ flex: 1 }}>
-            <label className="form-label-large" style={{ marginBottom: '0.5rem', display: 'block' }}>
-              Cliente *
-              {errors?.clientId && (
-                <span style={{ color: '#ef4444', marginLeft: '8px', fontSize: '0.875rem', fontWeight: 'normal' }}>
-                  {errors.clientId.message}
-                </span>
-              )}
-            </label>
             <FilterableSelect
               options={clients.map(client => ({ id: String(client?.id || ''), name: String(client?.name || '') }))}
               value={String(watch("clientId") || "")}
@@ -415,7 +413,7 @@ export function RemitoFormComplete({
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '0.25rem',
+              justifyContent: 'center',
               padding: '0.5rem',
               backgroundColor: '#6b7280',
               color: 'white',
@@ -424,10 +422,12 @@ export function RemitoFormComplete({
               cursor: 'pointer',
               fontSize: '0.75rem',
               fontWeight: '500',
-              minWidth: 'auto'
+              minWidth: 'auto',
+              height: 'fit-content',
+              flexShrink: 0
             }}
           >
-            <Plus className="h-3 w-3" />
+            <Plus className="h-4 w-4" />
           </button>
         </div>
       </div>
@@ -620,30 +620,28 @@ export function RemitoFormComplete({
 
       {/* Estado - al final del formulario, en una línea */}
       <div className="form-group" style={{ marginTop: '0.25rem', marginBottom: '0.75rem' }}>
-        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
-          <label htmlFor="status" style={{ marginBottom: 0, display: 'block', fontWeight: 500, whiteSpace: 'nowrap' }}>
-            Estado *
-            {errors?.status && (
-              <span style={{ color: '#ef4444', marginLeft: '8px', fontSize: '0.875rem', fontWeight: 'normal' }}>
-                {errors.status.message}
-              </span>
-            )}
-          </label>
-          <div style={{ flex: 1 }}>
-            <FilterableSelect
-              options={estados.map(estado => ({ 
-                id: String(estado?.id || ''), 
-                name: String(estado?.name || ''),
-                color: estado?.color 
-              }))}
-              value={String(watch("status") || "")}
-              onChange={(value) => setValue("status", String(value || ""), { shouldValidate: true })}
-              placeholder="Seleccionar estado"
-              searchFields={["name"]}
-              showColors={true}
-              searchable={false}
-            />
-          </div>
+        <label className="form-label-large" style={{ marginBottom: '0.5rem', display: 'block' }}>
+          Estado *
+          {errors?.status && (
+            <span style={{ color: '#ef4444', marginLeft: '8px', fontSize: '0.875rem', fontWeight: 'normal' }}>
+              {errors.status.message}
+            </span>
+          )}
+        </label>
+        <div style={{ width: 'fit-content', minWidth: '200px', maxWidth: '300px' }}>
+          <FilterableSelect
+            options={estados.map(estado => ({ 
+              id: String(estado?.id || ''), 
+              name: String(estado?.name || ''),
+              color: estado?.color 
+            }))}
+            value={String(watch("status") || "")}
+            onChange={(value) => setValue("status", String(value || ""), { shouldValidate: true })}
+            placeholder="Seleccionar estado"
+            searchFields={["name"]}
+            showColors={true}
+            searchable={false}
+          />
         </div>
       </div>
         </>
