@@ -248,7 +248,6 @@ export async function sendInvitationEmail({
   role,
   loginUrl,
   isGmail,
-  tempPassword,
   resetUrl
 }: SendInvitationEmailParams): Promise<boolean> {
   console.log('📧 [Email] Iniciando envío de email de invitación:', {
@@ -258,14 +257,7 @@ export async function sendInvitationEmail({
     role,
     loginUrl,
     isGmail,
-    isGmailType: typeof isGmail,
-    hasTempPassword: !!tempPassword,
-    tempPasswordType: typeof tempPassword,
-    tempPasswordValue: tempPassword ? `${tempPassword.substring(0, 2)}***` : null,
-    tempPasswordFull: tempPassword, // Log completo para debug
-    tempPasswordLength: tempPassword?.length || 0,
-    willShowPassword: !isGmail && !!tempPassword,
-    conditionCheck: `!isGmail=${!isGmail}, tempPassword=${!!tempPassword}, tempPassword.trim().length=${tempPassword?.trim().length || 0}, result=${!isGmail && !!tempPassword && tempPassword.trim().length > 0}`
+    hasResetUrl: !!resetUrl
   });
 
   try {
@@ -300,25 +292,7 @@ export async function sendInvitationEmail({
 
     const roleName = roleNames[role] || role;
 
-    // Calcular si debemos mostrar la contraseña temporal
-    const hasValidTempPassword = tempPassword && typeof tempPassword === 'string' && tempPassword.trim().length > 0;
-    const shouldShowTempPassword = !isGmail && hasValidTempPassword;
-    
-    console.log('🔍 [Email] Evaluando mostrar contraseña temporal:', {
-      isGmail,
-      isGmailValue: isGmail,
-      hasTempPassword: !!tempPassword,
-      tempPasswordType: typeof tempPassword,
-      tempPasswordValue: tempPassword,
-      tempPasswordLength: tempPassword?.length,
-      tempPasswordTrimmed: tempPassword?.trim(),
-      tempPasswordTrimmedLength: tempPassword?.trim().length || 0,
-      hasValidTempPassword,
-      shouldShow: shouldShowTempPassword,
-      condition: `!isGmail=${!isGmail} && hasValidTempPassword=${hasValidTempPassword}, result=${shouldShowTempPassword}`
-    });
-    
-    // Generar HTML de contraseña temporal o link de reset según corresponda
+    // Generar HTML de link de reset según corresponda
     let passwordSectionHtml = '';
     
     if (resetUrl && !isGmail) {
@@ -335,13 +309,6 @@ export async function sendInvitationEmail({
                   ⚠️ IMPORTANTE: Este enlace caducará en 48 horas. Asegúrate de establecer tu contraseña antes de que expire.
                 </p>
                 `;
-    } else if (shouldShowTempPassword && tempPassword) {
-      // Para usuarios existentes con contraseña temporal (compatibilidad hacia atrás)
-      const cleanTempPassword = tempPassword.trim();
-      passwordSectionHtml = `
-                <p style="margin-top: 15px;"><strong>Contraseña temporal:</strong> <span style="background-color: #fef3c7; padding: 8px 12px; border-radius: 4px; font-family: 'Courier New', monospace; font-weight: bold; font-size: 16px; color: #92400e; letter-spacing: 2px; border: 2px solid #f59e0b; display: inline-block; margin-left: 8px;">${cleanTempPassword}</span></p>
-                <p style="font-size: 0.875rem; color: #ef4444; margin-top: 10px; font-weight: bold;">⚠️ IMPORTANTE: Esta es una contraseña temporal. Deberás cambiarla al primer acceso.</p>
-                `;
     }
 
     // Verificar que passwordSectionHtml se haya generado correctamente ANTES de crear mailOptions
@@ -350,8 +317,6 @@ export async function sendInvitationEmail({
       passwordSectionHtmlIsEmpty: passwordSectionHtml.length === 0,
       passwordSectionHtmlPreview: passwordSectionHtml.substring(0, 100),
       hasResetUrl: !!resetUrl,
-      shouldShowTempPassword,
-      hasValidTempPassword,
       isGmail,
       environment: process.env.VERCEL_ENV || 'local',
       vercelUrl: process.env.VERCEL_URL || 'local'
@@ -502,7 +467,7 @@ Has sido invitado a formar parte del Sistema de Remitos.
 Tu información de acceso:
 - Email: ${userEmail}
 - Rol: ${roleName}
-${resetUrl && !isGmail ? `\n\nPara comenzar, necesitas establecer tu contraseña:\n${resetUrl}\n\n⚠️ IMPORTANTE: Este enlace caducará en 48 horas. Asegúrate de establecer tu contraseña antes de que expire.` : shouldShowTempPassword && tempPassword ? `- Contraseña temporal: ${tempPassword.trim()}\n\n⚠️ IMPORTANTE: Esta es una contraseña temporal. Deberás cambiarla al primer acceso.` : ''}
+${resetUrl && !isGmail ? `\n\nPara comenzar, necesitas establecer tu contraseña:\n${resetUrl}\n\n⚠️ IMPORTANTE: Este enlace caducará en 48 horas. Asegúrate de establecer tu contraseña antes de que expire.` : ''}
 ${!resetUrl ? `\n\nAccede al sistema aquí:\n${loginUrl}` : ''}
 
 Si el enlace no funciona, copia y pega la URL completa en tu navegador.
@@ -521,10 +486,7 @@ Este es un email automático, por favor no respondas a este mensaje.
       hasHtml: !!mailOptions.html,
       hasText: !!mailOptions.text,
       isGmail,
-      hasTempPassword: !!tempPassword,
       hasResetUrl: !!resetUrl,
-      tempPasswordValue: tempPassword ? `${tempPassword.substring(0, 2)}***` : null,
-      shouldShowTempPassword,
       passwordSectionHtmlLength: passwordSectionHtml.length,
       environment: process.env.VERCEL_ENV || 'local',
       vercelUrl: process.env.VERCEL_URL || 'local'

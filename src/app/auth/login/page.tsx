@@ -378,13 +378,13 @@ function LoginPageContent() {
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.message || 'Error al enviar la contraseña temporal');
+        throw new Error(result.message || 'Error al enviar el enlace de recuperación');
       }
 
       setShowForgotPassword(false);
       setError(""); // Limpiar error si existe
       // Mostrar mensaje de éxito (podrías usar un toast aquí)
-      alert('Se ha enviado una contraseña temporal a tu email. Por favor, revisa tu bandeja de entrada.');
+      alert('Se ha enviado un enlace para restablecer tu contraseña a tu email. Por favor, revisa tu bandeja de entrada.');
     } catch (error: any) {
       throw error;
     } finally {

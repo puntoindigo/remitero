@@ -230,7 +230,7 @@ export function UsuarioForm({
       }
 
       // Mostrar mensaje de éxito con toast
-      showSuccess('Contraseña temporal generada y enviada por email al usuario. Deberá cambiarla al iniciar sesión.');
+      showSuccess('Se ha enviado un enlace para restablecer la contraseña al usuario por email. Deberá establecer una nueva contraseña.');
       setShowResetPasswordConfirm(false);
       // Cerrar el modal después de un breve delay para que se vea el toast
       setTimeout(() => {
@@ -425,7 +425,7 @@ export function UsuarioForm({
         onClose={() => setShowResetPasswordConfirm(false)}
         onConfirm={handleResetPassword}
         title="Resetear contraseña"
-        message={`¿Estás seguro de que deseas resetear la contraseña de ${editingUser?.name || editingUser?.email}? Se generará una contraseña temporal y se enviará por email. El usuario deberá cambiarla al iniciar sesión.`}
+        message={`¿Estás seguro de que deseas resetear la contraseña de ${editingUser?.name || editingUser?.email}? Se enviará un enlace por email para que el usuario establezca una nueva contraseña.`}
         type="warning"
         confirmText="Resetear"
         cancelText="Cancelar"

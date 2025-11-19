@@ -440,15 +440,14 @@ export async function POST(request: NextRequest) {
       if (isGmail) {
         // Para Gmail, enviar email de invitación normal (sin contraseña)
         const loginUrl = baseUrl;
-        emailSent = await sendInvitationEmail({
-          to: finalEmail,
-          userName: finalName,
-          userEmail: finalEmail,
-          role: newUser.role,
-          loginUrl,
-          isGmail: true,
-          tempPassword: null
-        });
+          emailSent = await sendInvitationEmail({
+            to: finalEmail,
+            userName: finalName,
+            userEmail: finalEmail,
+            role: newUser.role,
+            loginUrl,
+            isGmail: true
+          });
       } else {
         // Para no-Gmail, enviar email de invitación con link de reset de contraseña
         if (resetToken && resetExpires) {
@@ -460,7 +459,6 @@ export async function POST(request: NextRequest) {
             role: newUser.role,
             loginUrl: baseUrl,
             isGmail: false,
-            tempPassword: null,
             resetUrl: resetUrl
           });
         } else {
