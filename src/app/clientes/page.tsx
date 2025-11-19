@@ -62,6 +62,8 @@ function ClientesContent() {
     handleCancelDelete
   } = useCRUDPage<Cliente>();
 
+  const { modalState, showSuccess, showError, closeModal } = useMessageModal();
+
   // Wrapper para handleNew que verifica companyId
   const handleNew = useCallback(() => {
     if (!companyId) {
@@ -70,8 +72,6 @@ function ClientesContent() {
     }
     handleNewBase();
   }, [companyId, handleNewBase, showError]);
-
-  const { modalState, showSuccess, showError, closeModal } = useMessageModal();
   const { toasts, showSuccess: showToastSuccess, showError: showToastError, removeToast } = useToast();
   
   // 🚀 REACT QUERY: Reemplaza state y fetch
