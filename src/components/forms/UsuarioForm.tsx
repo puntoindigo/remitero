@@ -37,6 +37,7 @@ const userSchema = z.object({
     }),
   password: z.string().optional().or(z.literal("")),
   confirmPassword: z.string().optional().or(z.literal("")),
+  oldPassword: z.string().optional().or(z.literal("")),
   role: z.enum(["SUPERADMIN", "ADMIN", "USER"]),
   companyId: z.string().optional(),
   phone: z.string().optional(),
@@ -96,6 +97,7 @@ export function UsuarioForm({
       email: editingUser?.email || "",
       password: "",
       confirmPassword: "",
+      oldPassword: "",
       role: editingUser?.role || "USER",
       companyId: editingUser?.companyId || companyId || "",
       phone: editingUser?.phone || "",
@@ -450,37 +452,70 @@ export function UsuarioForm({
         </div>
       )}
 
-      {/* Toggle para habilitar botonera (solo en desarrollo y para el usuario actual) */}
-      {isCurrentUser && isDevelopment && (
+      {/* Sección de cambio de contraseña (solo para el usuario actual) */}
+      {isCurrentUser && (
         <div className="form-row">
           <div className="form-group" style={{ flex: 1 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-              <input
-                {...register("enableBotonera")}
-                type="checkbox"
-                id="enableBotonera"
-                style={{
-                  width: '1.25rem',
-                  height: '1.25rem',
-                  cursor: 'pointer',
-                  accentColor: colors.primary,
-                }}
-              />
-              <label 
-                htmlFor="enableBotonera"
-                style={{
-                  fontSize: '0.875rem',
-                  color: '#4b5563',
-                  cursor: 'pointer',
-                  userSelect: 'none',
-                  fontWeight: 500,
-                }}
-              >
-                Habilitar Botonera (Solo desarrollo)
+            <label className="form-label-large" style={{ marginBottom: '1rem', fontSize: '1rem', fontWeight: 600 }}>
+              Cambiar contraseña
+            </label>
+            
+            <div style={{ marginBottom: '1rem' }}>
+              <label className="form-label-large" style={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                Contraseña actual
               </label>
+              <input
+                {...register("oldPassword")}
+                type="password"
+                placeholder="Ingresa tu contraseña actual"
+                className="form-input-standard"
+                autoComplete="current-password"
+              />
+              {errors?.oldPassword && (
+                <span style={{ color: '#ef4444', marginTop: '0.25rem', fontSize: '0.875rem', display: 'block' }}>
+                  {errors.oldPassword.message}
+                </span>
+              )}
             </div>
-            <p style={{ marginTop: '0.5rem', fontSize: '0.75rem', color: '#6b7280' }}>
-              Muestra la barra de navegación inferior con botones de Operaciones, Configuración y Administración
+            
+            <div style={{ marginBottom: '1rem' }}>
+              <label className="form-label-large" style={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                Nueva contraseña
+              </label>
+              <input
+                {...register("password")}
+                type="password"
+                placeholder="Mínimo 6 caracteres"
+                className="form-input-standard"
+                autoComplete="new-password"
+              />
+              {errors?.password && (
+                <span style={{ color: '#ef4444', marginTop: '0.25rem', fontSize: '0.875rem', display: 'block' }}>
+                  {errors.password.message}
+                </span>
+              )}
+            </div>
+            
+            <div>
+              <label className="form-label-large" style={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                Confirmar nueva contraseña
+              </label>
+              <input
+                {...register("confirmPassword")}
+                type="password"
+                placeholder="Repite la nueva contraseña"
+                className="form-input-standard"
+                autoComplete="new-password"
+              />
+              {errors?.confirmPassword && (
+                <span style={{ color: '#ef4444', marginTop: '0.25rem', fontSize: '0.875rem', display: 'block' }}>
+                  {errors.confirmPassword.message}
+                </span>
+              )}
+            </div>
+            
+            <p style={{ marginTop: '0.75rem', fontSize: '0.75rem', color: '#6b7280' }}>
+              Deja estos campos vacíos si no deseas cambiar tu contraseña.
             </p>
           </div>
         </div>

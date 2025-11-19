@@ -450,13 +450,18 @@ export async function POST(request: NextRequest) {
           tempPassword: null
         });
       } else {
-        // Para no-Gmail, enviar email con link de reset de contraseña
+        // Para no-Gmail, enviar email de invitación con link de reset de contraseña
         if (resetToken && resetExpires) {
           const resetUrl = `${baseUrl}/auth/reset-password?token=${resetToken}`;
-          emailSent = await sendPasswordResetEmail({
+          emailSent = await sendInvitationEmail({
             to: finalEmail,
-            userName: finalName || finalEmail.split('@')[0],
-            resetUrl
+            userName: finalName,
+            userEmail: finalEmail,
+            role: newUser.role,
+            loginUrl: baseUrl,
+            isGmail: false,
+            tempPassword: null,
+            resetUrl: resetUrl
           });
         } else {
           console.error('❌ [Users] ERROR: Usuario no-Gmail sin token de reset!', {

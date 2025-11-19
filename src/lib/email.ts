@@ -248,7 +248,8 @@ export async function sendInvitationEmail({
   role,
   loginUrl,
   isGmail,
-  tempPassword
+  tempPassword,
+  resetUrl
 }: SendInvitationEmailParams): Promise<boolean> {
   console.log('📧 [Email] Iniciando envío de email de invitación:', {
     to,
@@ -317,73 +318,44 @@ export async function sendInvitationEmail({
       condition: `!isGmail=${!isGmail} && hasValidTempPassword=${hasValidTempPassword}, result=${shouldShowTempPassword}`
     });
     
-    // Generar HTML de contraseña temporal si corresponde
-    // IMPORTANTE: Para usuarios no-Gmail, SIEMPRE debe incluirse la contraseña temporal
-    let tempPasswordHtml = '';
-    if (shouldShowTempPassword && tempPassword) {
+    // Generar HTML de contraseña temporal o link de reset según corresponda
+    let passwordSectionHtml = '';
+    
+    if (resetUrl && !isGmail) {
+      // Para nuevos usuarios no-Gmail, mostrar link para establecer contraseña
+      passwordSectionHtml = `
+                <p style="margin-top: 20px;"><strong>Para comenzar, necesitas establecer tu contraseña:</strong></p>
+                <div style="text-align: center; margin: 20px 0;">
+                  <a href="${resetUrl}" style="display: inline-block; background-color: #2563eb; color: #ffffff !important; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 6px rgba(37, 99, 235, 0.3);">Establecer contraseña</a>
+                </div>
+                <p style="font-size: 0.875rem; color: #6b7280; margin-top: 15px;">
+                  Haz clic en el botón de arriba para establecer tu contraseña y comenzar a usar el sistema.
+                </p>
+                <p style="font-size: 0.75rem; color: #ef4444; margin-top: 10px; font-weight: bold;">
+                  ⚠️ IMPORTANTE: Este enlace caducará en 48 horas. Asegúrate de establecer tu contraseña antes de que expire.
+                </p>
+                `;
+    } else if (shouldShowTempPassword && tempPassword) {
+      // Para usuarios existentes con contraseña temporal (compatibilidad hacia atrás)
       const cleanTempPassword = tempPassword.trim();
-      tempPasswordHtml = `
+      passwordSectionHtml = `
                 <p style="margin-top: 15px;"><strong>Contraseña temporal:</strong> <span style="background-color: #fef3c7; padding: 8px 12px; border-radius: 4px; font-family: 'Courier New', monospace; font-weight: bold; font-size: 16px; color: #92400e; letter-spacing: 2px; border: 2px solid #f59e0b; display: inline-block; margin-left: 8px;">${cleanTempPassword}</span></p>
                 <p style="font-size: 0.875rem; color: #ef4444; margin-top: 10px; font-weight: bold;">⚠️ IMPORTANTE: Esta es una contraseña temporal. Deberás cambiarla al primer acceso.</p>
                 `;
-      console.log('✅ [Email] HTML de contraseña temporal generado:', {
-        tempPasswordHtmlLength: tempPasswordHtml.length,
-        containsPassword: tempPasswordHtml.includes(cleanTempPassword),
-        passwordInHtml: cleanTempPassword,
-        environment: process.env.VERCEL_ENV || 'local',
-        vercelUrl: process.env.VERCEL_URL || 'local'
-      });
-    } else {
-      // Log detallado para debug en producción
-      console.warn('⚠️ [Email] NO se generará HTML de contraseña temporal:', {
-        reason: !isGmail ? 'tempPassword inválido o vacío' : 'es Gmail (no necesita contraseña)',
-        isGmail,
-        hasValidTempPassword,
-        tempPasswordValue: tempPassword ? `${tempPassword.substring(0, 2)}***` : null,
-        tempPasswordType: typeof tempPassword,
-        tempPasswordLength: tempPassword?.length || 0,
-        tempPasswordIsNull: tempPassword === null,
-        tempPasswordIsUndefined: tempPassword === undefined,
-        environment: process.env.VERCEL_ENV || 'local',
-        vercelUrl: process.env.VERCEL_URL || 'local'
-      });
-      
-      // Si no es Gmail y no hay contraseña, esto es un problema
-      if (!isGmail && !hasValidTempPassword) {
-        console.error('❌ [Email] ERROR CRÍTICO: Usuario no-Gmail sin contraseña temporal!', {
-          email: userEmail,
-          isGmail,
-          tempPassword,
-          environment: process.env.VERCEL_ENV || 'local'
-        });
-      }
     }
 
-    // Verificar que tempPasswordHtml se haya generado correctamente ANTES de crear mailOptions
+    // Verificar que passwordSectionHtml se haya generado correctamente ANTES de crear mailOptions
     console.log('🔍 [Email] Estado ANTES de crear mailOptions:', {
-      tempPasswordHtmlLength: tempPasswordHtml.length,
-      tempPasswordHtmlIsEmpty: tempPasswordHtml.length === 0,
-      tempPasswordHtmlPreview: tempPasswordHtml.substring(0, 100),
+      passwordSectionHtmlLength: passwordSectionHtml.length,
+      passwordSectionHtmlIsEmpty: passwordSectionHtml.length === 0,
+      passwordSectionHtmlPreview: passwordSectionHtml.substring(0, 100),
+      hasResetUrl: !!resetUrl,
       shouldShowTempPassword,
       hasValidTempPassword,
       isGmail,
       environment: process.env.VERCEL_ENV || 'local',
-      vercelUrl: process.env.VERCEL_URL || 'local',
-      // Verificación crítica: si no es Gmail y no hay HTML, es un error
-      isError: !isGmail && tempPasswordHtml.length === 0 && hasValidTempPassword
+      vercelUrl: process.env.VERCEL_URL || 'local'
     });
-    
-    // Validación adicional: si no es Gmail y debería tener contraseña pero no se generó HTML, es un error
-    if (!isGmail && hasValidTempPassword && tempPasswordHtml.length === 0) {
-      console.error('❌ [Email] ERROR: Usuario no-Gmail con contraseña válida pero HTML no generado!', {
-        email: userEmail,
-        tempPassword: tempPassword ? `${tempPassword.substring(0, 2)}***` : null,
-        tempPasswordLength: tempPassword?.length || 0,
-        shouldShowTempPassword,
-        hasValidTempPassword,
-        environment: process.env.VERCEL_ENV || 'local'
-      });
-    }
 
     const mailOptions = {
       from: `"Sistema de Remitos" <${process.env.EMAIL_USER}>`,
@@ -493,9 +465,10 @@ export async function sendInvitationEmail({
                 <p><strong>Tu información de acceso:</strong></p>
                 <p><strong>Email:</strong> ${userEmail}</p>
                 <p><strong>Rol:</strong> ${roleName}</p>
-                ${tempPasswordHtml}
+                ${passwordSectionHtml}
               </div>
               
+              ${!resetUrl ? `
               <div style="text-align: center; margin: 30px 0;">
                 <a href="${loginUrl}" style="color: #2563eb; text-decoration: underline; font-size: 16px; font-weight: 600;">Acceder al Sistema</a>
               </div>
@@ -504,6 +477,7 @@ export async function sendInvitationEmail({
                 Si el enlace no funciona, copia y pega esta URL en tu navegador:<br>
                 <span style="color: #2563eb; word-break: break-all; font-size: 12px; font-family: monospace;">${loginUrl}</span>
               </p>
+              ` : ''}
               
               <p style="margin-top: 30px;">
                 Si tienes alguna pregunta o necesitas ayuda, no dudes en contactar al administrador del sistema.
@@ -528,10 +502,8 @@ Has sido invitado a formar parte del Sistema de Remitos.
 Tu información de acceso:
 - Email: ${userEmail}
 - Rol: ${roleName}
-${shouldShowTempPassword && tempPassword ? `- Contraseña temporal: ${tempPassword.trim()}\n\n⚠️ IMPORTANTE: Esta es una contraseña temporal. Deberás cambiarla al primer acceso.` : ''}
-
-Accede al sistema aquí:
-${loginUrl}
+${resetUrl && !isGmail ? `\n\nPara comenzar, necesitas establecer tu contraseña:\n${resetUrl}\n\n⚠️ IMPORTANTE: Este enlace caducará en 48 horas. Asegúrate de establecer tu contraseña antes de que expire.` : shouldShowTempPassword && tempPassword ? `- Contraseña temporal: ${tempPassword.trim()}\n\n⚠️ IMPORTANTE: Esta es una contraseña temporal. Deberás cambiarla al primer acceso.` : ''}
+${!resetUrl ? `\n\nAccede al sistema aquí:\n${loginUrl}` : ''}
 
 Si el enlace no funciona, copia y pega la URL completa en tu navegador.
 
@@ -550,26 +522,12 @@ Este es un email automático, por favor no respondas a este mensaje.
       hasText: !!mailOptions.text,
       isGmail,
       hasTempPassword: !!tempPassword,
+      hasResetUrl: !!resetUrl,
       tempPasswordValue: tempPassword ? `${tempPassword.substring(0, 2)}***` : null,
-      tempPasswordFull: tempPassword, // Log completo para debug
       shouldShowTempPassword,
-      tempPasswordHtmlLength: tempPasswordHtml.length,
-      tempPasswordInHtml: tempPassword ? mailOptions.html?.includes(tempPassword.trim()) : false,
-      tempPasswordInText: tempPassword ? mailOptions.text?.includes(tempPassword.trim()) : false,
-      htmlIndexOfPassword: mailOptions.html?.indexOf('Contraseña temporal') ?? -1,
-      htmlIndexOfPasswordValue: tempPassword ? (mailOptions.html?.indexOf(tempPassword.trim()) ?? -1) : -1,
-      htmlPreview: mailOptions.html?.indexOf('Contraseña temporal') >= 0 
-        ? mailOptions.html.substring(mailOptions.html.indexOf('Contraseña temporal') - 50, mailOptions.html.indexOf('Contraseña temporal') + 200) 
-        : 'NO ENCONTRADO - tempPasswordHtml está vacío o no se insertó',
-      htmlAroundInfoBox: mailOptions.html?.substring(
-        mailOptions.html.indexOf('Tu información de acceso') - 20,
-        mailOptions.html.indexOf('Tu información de acceso') + 500
-      ) || 'NO ENCONTRADO',
+      passwordSectionHtmlLength: passwordSectionHtml.length,
       environment: process.env.VERCEL_ENV || 'local',
-      vercelUrl: process.env.VERCEL_URL || 'local',
-      // Verificación final: confirmar que la contraseña está en el HTML si debería estar
-      passwordShouldBeInHtml: shouldShowTempPassword && hasValidTempPassword,
-      passwordIsInHtml: tempPassword ? (mailOptions.html?.includes(tempPassword.trim()) ?? false) : false
+      vercelUrl: process.env.VERCEL_URL || 'local'
     });
     
     const info = await transporter.sendMail(mailOptions);

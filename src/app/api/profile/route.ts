@@ -109,7 +109,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { name, email, phone, address, password, confirmPassword, enableBotonera, enablePinnedModals } = body;
+    const { name, email, phone, address, oldPassword, password, confirmPassword, enableBotonera, enablePinnedModals } = body;
     console.log('📥 [API Profile] Body recibido', {
       hasName: !!name,
       hasEmail: !!email,
@@ -123,7 +123,7 @@ export async function PUT(request: NextRequest) {
     // Obtener usuario actual para validaciones
     const { data: existingUser, error: fetchError } = await supabaseAdmin
       .from('users')
-      .select('email, has_temporary_password')
+      .select('email, password, has_temporary_password')
       .eq('id', session.user.id)
       .single();
 
@@ -185,8 +185,30 @@ export async function PUT(request: NextRequest) {
     let passwordChanged = false;
     if (password && password.trim() !== '') {
       console.log('🔑 [API Profile] Procesando cambio de contraseña', {
-        passwordLength: password.length
+        passwordLength: password.length,
+        hasOldPassword: !!oldPassword
       });
+
+      // Validar que se proporcione la contraseña anterior (excepto si tiene contraseña temporal)
+      if (!existingUser.has_temporary_password) {
+        if (!oldPassword || oldPassword.trim() === '') {
+          return NextResponse.json({ 
+            error: "Contraseña anterior requerida", 
+            message: "Debes ingresar tu contraseña actual para cambiarla." 
+          }, { status: 400 });
+        }
+
+        // Verificar que la contraseña anterior sea correcta
+        if (existingUser.password) {
+          const isOldPasswordValid = await bcrypt.compare(oldPassword.trim(), existingUser.password);
+          if (!isOldPasswordValid) {
+            return NextResponse.json({ 
+              error: "Contraseña incorrecta", 
+              message: "La contraseña actual no es correcta." 
+            }, { status: 400 });
+          }
+        }
+      }
 
       if (password.length < 6) {
         console.warn('⚠️ [API Profile] Contraseña muy corta');
