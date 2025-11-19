@@ -328,6 +328,47 @@ export function UsuarioForm({
     return editingUser ? "Editar Usuario" : "Nuevo Usuario";
   };
 
+  // Contenido del footer izquierdo: botón para resetear contraseña (solo cuando se edita un usuario)
+  const footerLeftContent = editingUser && !isCurrentUser && (isCurrentUserAdmin || isCurrentUserSuperAdmin) && hasAtSymbol && !isGmailEmail(emailValue) ? (
+    <button
+      type="button"
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setShowResetPasswordConfirm(true);
+      }}
+      disabled={isResettingPassword}
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '0.5rem',
+        padding: '0.5rem 1rem',
+        backgroundColor: isResettingPassword ? '#9ca3af' : '#3b82f6',
+        color: '#ffffff',
+        border: 'none',
+        borderRadius: '6px',
+        cursor: isResettingPassword ? 'not-allowed' : 'pointer',
+        fontSize: '0.875rem',
+        fontWeight: 500,
+        transition: 'all 0.2s',
+        opacity: isResettingPassword ? 0.6 : 1,
+      }}
+      onMouseEnter={(e) => {
+        if (!isResettingPassword) {
+          e.currentTarget.style.backgroundColor = '#2563eb';
+        }
+      }}
+      onMouseLeave={(e) => {
+        if (!isResettingPassword) {
+          e.currentTarget.style.backgroundColor = '#3b82f6';
+        }
+      }}
+    >
+      <RotateCcw className="h-4 w-4" />
+      {isResettingPassword ? 'Reseteando...' : 'Resetear contraseña'}
+    </button>
+  ) : null;
+
   return (
     <FormModal
       isOpen={isOpen}
@@ -346,6 +387,7 @@ export function UsuarioForm({
         isCurrentUser
       }}
       modalClassName={isCurrentUser ? "perfil-modal" : ""}
+      footerLeftContent={footerLeftContent}
     >
       {/* Primera fila: Nombre, Email, Rol */}
       <div className="form-row">
