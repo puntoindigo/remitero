@@ -58,18 +58,6 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
   // Detectar si el usuario tiene contraseña temporal (DEBE estar antes de cualquier return)
   const hasTemporaryPassword = session?.user && (session.user as any).hasTemporaryPassword === true;
   
-  // LOGGING DETALLADO para debug
-  useEffect(() => {
-    console.log('🔍 [AuthenticatedLayout] Estado de contraseña temporal:', {
-      hasSession: !!session,
-      hasUser: !!session?.user,
-      hasTemporaryPasswordValue: (session?.user as any)?.hasTemporaryPassword,
-      hasTemporaryPassword: hasTemporaryPassword,
-      isChangingPassword: isChangingPassword,
-      pathname: pathname
-    });
-  }, [session, hasTemporaryPassword, isChangingPassword, pathname]);
-  
   useEffect(() => {
     // Solo mostrar el modal si hay sesión, tiene contraseña temporal, y no estamos cambiando la contraseña
     if (hasTemporaryPassword && !isChangingPassword) {
@@ -334,16 +322,7 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
   // IMPORTANTE: Este check DEBE estar ANTES de renderizar {children} para evitar que React monte los componentes hijos
   // IMPORTANTE: handleChangePassword ya está declarado arriba, así que podemos usarlo aquí
   // NO bloquear si la contraseña se cambió exitosamente (evita que el modal reaparezca)
-  console.log('🔍 [AuthenticatedLayout] Verificando bloqueo de contraseña temporal:', {
-    hasTemporaryPassword,
-    isChangingPassword,
-    passwordChangedSuccessfully,
-    willBlock: hasTemporaryPassword && !isChangingPassword && !passwordChangedSuccessfully,
-    pathname
-  });
-  
   if (hasTemporaryPassword && !isChangingPassword && !passwordChangedSuccessfully) {
-    console.log('🔒 [AuthenticatedLayout] ✅ BLOQUEO ACTIVO - Usuario con contraseña temporal - bloqueando acceso a páginas ANTES de renderizar children');
     return (
       <>
         <ChangePasswordModal
@@ -356,12 +335,6 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
         {/* No renderizar children cuando hay contraseña temporal - previene 403 */}
       </>
     );
-  } else {
-    console.log('🔓 [AuthenticatedLayout] ❌ BLOQUEO NO ACTIVO - Permitir renderizado de children', {
-      hasTemporaryPassword,
-      isChangingPassword,
-      reason: hasTemporaryPassword ? 'isChangingPassword=true' : 'hasTemporaryPassword=false'
-    });
   }
 
   // Detectar página actual y configurar FAB (DEBE estar después del bloqueo)

@@ -125,16 +125,6 @@ export function UsuarioForm({
   const [showResetPasswordConfirm, setShowResetPasswordConfirm] = React.useState(false);
   const isDevelopment = useIsDevelopment();
   
-  // DEBUG: Log para verificar si editingUser existe
-  React.useEffect(() => {
-    console.log('🔍 [UsuarioForm] Estado de editingUser:', {
-      hasEditingUser: !!editingUser,
-      editingUserId: editingUser?.id,
-      editingUserName: editingUser?.name,
-      shouldShowConfirmPassword: !!editingUser
-    });
-  }, [editingUser]);
-  
   const {
     register,
     handleSubmit,
