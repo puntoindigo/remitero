@@ -31,7 +31,6 @@ import { SearchInput } from "@/components/common/SearchInput";
 import { useShortcuts } from "@/hooks/useShortcuts";
 import { useCRUDPage } from "@/hooks/useCRUDPage";
 import { useColorTheme } from "@/contexts/ColorThemeContext";
-import { useCallback } from "react";
 
 function ClientesContent() {
   const { colors } = useColorTheme();
