@@ -3748,6 +3748,12 @@ body > .vercel-select-dropdown {
   transition: border-color 0.15s ease !important;
 }
 
+.form-input-standard:disabled {
+  background-color: rgb(243, 244, 246) !important;
+  cursor: not-allowed !important;
+  color: #6b7280 !important;
+}
+
 .form-input-standard:focus {
   outline: none !important;
   border-color: #3b82f6 !important;
