@@ -35,8 +35,8 @@ export const clientSchema = z.object({
 
 export const remitoSchema = z.object({
   clientId: z.string().min(1, "Cliente requerido"),
-  status: z.string().optional(),
-  notes: z.string().optional()
+  status: z.string().min(1, "Estado requerido"),
+  notes: z.string().optional().or(z.literal(""))
   // items se maneja separadamente en el estado del componente
 })
 

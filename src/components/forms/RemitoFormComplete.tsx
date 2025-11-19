@@ -112,9 +112,9 @@ export function RemitoFormComplete({
             
             if (Array.isArray(fetchedItems) && fetchedItems.length > 0) {
               const loadedItems = fetchedItems.map((item: any) => ({
-                product_id: item.product_id || item.productId || item.product?.id || item.products?.id || '',
-                product_name: item.product_name || item.productName || item.product?.name || item.products?.name || "",
-                product_desc: item.product_desc || item.productDesc || item.product?.description || item.products?.description || "",
+                product_id: String(item.product_id || item.productId || item.product?.id || item.products?.id || ''),
+                product_name: String(item.product_name || item.productName || item.product?.name || item.products?.name || ""),
+                product_desc: String(item.product_desc || item.productDesc || item.product?.description || item.products?.description || ""),
                 quantity: Number(item.quantity) || 1,
                 unit_price: Number(item.unit_price || item.unitPrice || item.product?.price || item.products?.price) || 0,
                 line_total: Number(item.line_total || item.lineTotal || (item.quantity * (item.unit_price || item.unitPrice))) || 0
@@ -136,9 +136,9 @@ export function RemitoFormComplete({
             const remitoItems = editingRemito.items || editingRemito.remitoItems || editingRemito.remito_items || [];
             if (Array.isArray(remitoItems) && remitoItems.length > 0) {
               const loadedItems = remitoItems.map((item: any) => ({
-                product_id: item.product_id || item.productId || item.product?.id || item.products?.id || '',
-                product_name: item.product_name || item.productName || item.product?.name || item.products?.name || "",
-                product_desc: item.product_desc || item.productDesc || item.product?.description || item.products?.description || "",
+                product_id: String(item.product_id || item.productId || item.product?.id || item.products?.id || ''),
+                product_name: String(item.product_name || item.productName || item.product?.name || item.products?.name || ""),
+                product_desc: String(item.product_desc || item.productDesc || item.product?.description || item.products?.description || ""),
                 quantity: Number(item.quantity) || 1,
                 unit_price: Number(item.unit_price || item.unitPrice || item.product?.price || item.products?.price) || 0,
                 line_total: Number(item.line_total || item.lineTotal || (item.quantity * (item.unit_price || item.unitPrice))) || 0
@@ -187,9 +187,9 @@ export function RemitoFormComplete({
     const lineTotal = unitPrice * quantity;
 
     const newItem: RemitoItem = {
-      product_id: product?.id || '',
-      product_name: product?.name || '',
-      product_desc: product?.description || '',
+      product_id: String(product?.id || ''),
+      product_name: String(product?.name || ''),
+      product_desc: String(product?.description || ''),
       quantity,
       unit_price: unitPrice,
       line_total: lineTotal
@@ -234,12 +234,12 @@ export function RemitoFormComplete({
     const formData = {
       ...data,
       items: items.map(item => ({
-        product_id: item.product_id,
-        product_name: item.product_name,
-        product_desc: item.product_desc,
-        quantity: item.quantity,
-        unit_price: item.unit_price,
-        line_total: item.line_total
+        product_id: String(item.product_id || ''),
+        product_name: String(item.product_name || ''),
+        product_desc: String(item.product_desc || ''),
+        quantity: Number(item.quantity || 0),
+        unit_price: Number(item.unit_price || 0),
+        line_total: Number(item.line_total || 0)
       })),
       total
     };
@@ -376,18 +376,23 @@ export function RemitoFormComplete({
       
       {/* Cliente */}
       <div className="form-group" style={{ marginBottom: '0.5rem' }}>
-        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start' }}>
           <div style={{ flex: 1 }}>
+            <label className="form-label-large" style={{ marginBottom: '0.5rem', display: 'block' }}>
+              Cliente *
+              {errors?.clientId && (
+                <span style={{ color: '#ef4444', marginLeft: '8px', fontSize: '0.875rem', fontWeight: 'normal' }}>
+                  {errors.clientId.message}
+                </span>
+              )}
+            </label>
             <FilterableSelect
-              options={clients.map(client => ({ id: client?.id, name: client?.name }))}
+              options={clients.map(client => ({ id: client?.id || '', name: client?.name || '' }))}
               value={watch("clientId") || ""}
-              onChange={(value) => setValue("clientId", value)}
+              onChange={(value) => setValue("clientId", value || "", { shouldValidate: true })}
               placeholder="Seleccionar cliente"
               searchFields={["name"]}
             />
-            {errors.clientId && (
-              <p className="error-message">{errors.clientId.message}</p>
-            )}
           </div>
           <button
             type="button"
@@ -507,9 +512,9 @@ export function RemitoFormComplete({
                         const unitPrice = Number(product.price);
                         const lineTotal = unitPrice * quantity;
                         const newItem: RemitoItem = {
-                          product_id: product?.id,
-                          product_name: product?.name,
-                          product_desc: product.description || '',
+                          product_id: String(product?.id || ''),
+                          product_name: String(product?.name || ''),
+                          product_desc: String(product?.description || ''),
                           quantity,
                           unit_price: unitPrice,
                           line_total: lineTotal
@@ -602,9 +607,14 @@ export function RemitoFormComplete({
 
       {/* Estado - al final del formulario, en una línea */}
       <div className="form-group" style={{ marginTop: '0.25rem', marginBottom: '0.75rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
           <label htmlFor="status" style={{ marginBottom: 0, display: 'block', fontWeight: 500, whiteSpace: 'nowrap' }}>
             Estado *
+            {errors?.status && (
+              <span style={{ color: '#ef4444', marginLeft: '8px', fontSize: '0.875rem', fontWeight: 'normal' }}>
+                {errors.status.message}
+              </span>
+            )}
           </label>
           <div style={{ flex: 1 }}>
             <FilterableSelect
@@ -622,9 +632,6 @@ export function RemitoFormComplete({
             />
           </div>
         </div>
-        {errors.status && (
-          <p className="error-message" style={{ marginTop: '0.25rem' }}>{errors.status.message}</p>
-        )}
       </div>
         </>
       )}
