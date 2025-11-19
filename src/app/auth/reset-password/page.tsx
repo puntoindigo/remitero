@@ -365,7 +365,7 @@ function ResetPasswordContent() {
           fontSize: '0.75rem', 
           color: '#6b7280' 
         }}>
-          Por motivos de seguridad, este enlace caducará en 30 minutos.
+          Por motivos de seguridad, este enlace caducará en 48 horas.
         </p>
       </div>
     </div>

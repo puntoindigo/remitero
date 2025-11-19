@@ -143,7 +143,7 @@ export async function sendPasswordResetEmail({
               </div>
               
               <p style="font-size: 0.875rem; color: #ef4444; font-weight: bold; margin-top: 20px;">
-                ⚠️ Por motivos de seguridad, este enlace caducará en 30 minutos o después de que restablezcas tu contraseña.
+                ⚠️ Por motivos de seguridad, este enlace caducará en 48 horas o después de que restablezcas tu contraseña.
               </p>
             </div>
             
@@ -170,7 +170,7 @@ ${resetUrl}
 
 Si hacer clic no parece funcionar, puedes copiar y pegar el enlace en la ventana de dirección de tu navegador o volver a escribirlo allí. Te daremos instrucciones para restablecer tu contraseña.
 
-⚠️ Por motivos de seguridad, este enlace caducará en 30 minutos o después de que restablezcas tu contraseña.
+⚠️ Por motivos de seguridad, este enlace caducará en 48 horas o después de que restablezcas tu contraseña.
 
 Este es un correo electrónico generado automáticamente. No responder.
       `
