@@ -235,7 +235,7 @@ interface SendInvitationEmailParams {
   role: string;
   loginUrl: string;
   isGmail: boolean;
-  tempPassword: string | null;
+  resetUrl?: string | null; // URL para establecer contraseña (para nuevos usuarios no-Gmail)
 }
 
 /**
