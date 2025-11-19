@@ -6,10 +6,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useSession } from "next-auth/react";
 import { FormModal } from "@/components/common/FormModal";
-import { PasswordGeneratorModal } from "@/components/common/PasswordGeneratorModal";
 import { ConfirmationModal } from "@/components/common/ConfirmationModal";
 import { useColorTheme } from "@/contexts/ColorThemeContext";
-import { Key, Eye, EyeOff, RotateCcw } from "lucide-react";
+import { RotateCcw } from "lucide-react";
 import { useIsDevelopment } from "@/hooks/useIsDevelopment";
 import { useToast } from "@/hooks/useToast.js";
 import { ToastContainer } from "@/components/common/Toast.jsx";
@@ -120,9 +119,6 @@ export function UsuarioForm({
 }: UsuarioFormProps) {
   const { colors } = useColorTheme();
   const { data: session } = useSession();
-  const [showPasswordGenerator, setShowPasswordGenerator] = React.useState(false);
-  const [showPassword, setShowPassword] = React.useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);
   const [isResettingPassword, setIsResettingPassword] = React.useState(false);
   const [showResetPasswordConfirm, setShowResetPasswordConfirm] = React.useState(false);
   const isDevelopment = useIsDevelopment();
@@ -568,15 +564,6 @@ export function UsuarioForm({
         </div>
       )}
 
-      {/* Modal del generador de contraseñas */}
-      <PasswordGeneratorModal
-        isOpen={showPasswordGenerator}
-        onClose={() => setShowPasswordGenerator(false)}
-        onPasswordGenerated={(password) => {
-          setValue("password", password);
-          setShowPasswordGenerator(false);
-        }}
-      />
 
       {/* Toast Container */}
       <ToastContainer toasts={toasts} removeToast={removeToast} />
