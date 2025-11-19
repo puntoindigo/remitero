@@ -36,17 +36,18 @@ function ClientesContent() {
   const { colors } = useColorTheme();
   const isMobile = useIsMobile();
   const currentUser = useCurrentUserSimple();
-  // 🚀 Hook optimizado que carga todo en paralelo
+  // Hook centralizado para manejo de companyId
   const {
     companyId,
+    selectedCompanyId,
+    setSelectedCompanyId,
+    shouldShowCompanySelector
+  } = useDataWithCompanySimple();
+  
+  // Para compatibilidad con useOptimizedPageData (solo para canShowContent)
+  const {
     canShowContent
   } = useOptimizedPageData();
-  
-  // Para el selector de empresa, necesitamos useDataWithCompanySimple
-  const {
-    selectedCompanyId,
-    setSelectedCompanyId
-  } = useDataWithCompanySimple();
   
   const {
     editingItem: editingCliente,
@@ -175,11 +176,20 @@ function ClientesContent() {
     try {
       setIsSubmitting(true);
       
+      // Obtener el companyId efectivo (de selectedCompanyId para SUPERADMIN o companyId para otros)
+      const effectiveCompanyId = currentUser?.role === "SUPERADMIN" 
+        ? (selectedCompanyId || companyId)
+        : companyId;
+      
       if (editingCliente) {
         await updateMutation.mutateAsync({ id: editingCliente.id, data });
         showSuccess("Cliente actualizado correctamente");
       } else {
-        await createMutation.mutateAsync(data);
+        if (!effectiveCompanyId) {
+          showError("Debes seleccionar una empresa antes de crear un cliente");
+          return;
+        }
+        await createMutation.mutateAsync({ ...data, companyId: effectiveCompanyId });
         showSuccess("Cliente creado correctamente");
       }
       
