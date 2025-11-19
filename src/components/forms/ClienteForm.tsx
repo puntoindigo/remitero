@@ -89,6 +89,14 @@ export function ClienteForm({
     <>
       <div className="form-row">
         <div className="form-group">
+          <label className="form-label-large">
+            Nombre *
+            {errors?.name && (
+              <span style={{ color: '#ef4444', marginLeft: '8px', fontSize: '0.875rem', fontWeight: 'normal' }}>
+                {errors?.name.message}
+              </span>
+            )}
+          </label>
           <input
             {...register("name")}
             type="text"
@@ -96,47 +104,59 @@ export function ClienteForm({
             className="form-input-standard"
             required
           />
-          {errors?.name && (
-            <p className="error-message">{errors?.name.message}</p>
-          )}
         </div>
 
         <div className="form-group">
+          <label className="form-label-large">
+            Email
+            {errors?.email && (
+              <span style={{ color: '#ef4444', marginLeft: '8px', fontSize: '0.875rem', fontWeight: 'normal' }}>
+                {errors?.email.message}
+              </span>
+            )}
+          </label>
           <input
             {...register("email")}
             type="email"
             placeholder="email"
             className="form-input-standard"
           />
-          {errors?.email && (
-            <p className="error-message">{errors?.email.message}</p>
-          )}
         </div>
       </div>
 
       <div className="form-row">
         <div className="form-group">
+          <label className="form-label-large">
+            Teléfono
+            {errors?.phone && (
+              <span style={{ color: '#ef4444', marginLeft: '8px', fontSize: '0.875rem', fontWeight: 'normal' }}>
+                {errors.phone.message}
+              </span>
+            )}
+          </label>
           <input
             {...register("phone")}
             type="tel"
             placeholder="telefono"
             className="form-input-standard"
           />
-          {errors.phone && (
-            <p className="error-message">{errors.phone.message}</p>
-          )}
         </div>
 
         <div className="form-group">
+          <label className="form-label-large">
+            Dirección
+            {errors?.address && (
+              <span style={{ color: '#ef4444', marginLeft: '8px', fontSize: '0.875rem', fontWeight: 'normal' }}>
+                {errors.address.message}
+              </span>
+            )}
+          </label>
           <input
             {...register("address")}
             type="text"
             placeholder="direccion"
             className="form-input-standard"
           />
-          {errors.address && (
-            <p className="error-message">{errors.address.message}</p>
-          )}
         </div>
       </div>
     </>

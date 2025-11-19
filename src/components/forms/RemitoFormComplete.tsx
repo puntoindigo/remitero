@@ -387,9 +387,9 @@ export function RemitoFormComplete({
               )}
             </label>
             <FilterableSelect
-              options={clients.map(client => ({ id: client?.id || '', name: client?.name || '' }))}
-              value={watch("clientId") || ""}
-              onChange={(value) => setValue("clientId", value || "", { shouldValidate: true })}
+              options={clients.map(client => ({ id: String(client?.id || ''), name: String(client?.name || '') }))}
+              value={String(watch("clientId") || "")}
+              onChange={(value) => setValue("clientId", String(value || ""), { shouldValidate: true })}
               placeholder="Seleccionar cliente"
               searchFields={["name"]}
             />
@@ -619,12 +619,12 @@ export function RemitoFormComplete({
           <div style={{ flex: 1 }}>
             <FilterableSelect
               options={estados.map(estado => ({ 
-                id: estado?.id, 
-                name: estado?.name,
-                color: estado.color 
+                id: String(estado?.id || ''), 
+                name: String(estado?.name || ''),
+                color: estado?.color 
               }))}
-              value={watch("status") || ""}
-              onChange={(value) => setValue("status", value)}
+              value={String(watch("status") || "")}
+              onChange={(value) => setValue("status", String(value || ""), { shouldValidate: true })}
               placeholder="Seleccionar estado"
               searchFields={["name"]}
               showColors={true}

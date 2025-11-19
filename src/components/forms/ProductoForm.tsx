@@ -314,33 +314,53 @@ export function ProductoForm({
         </div>
       </div>
 
-      <FilterableSelect
-        options={categories.map(cat => ({ id: cat?.id, name: cat?.name }))}
-        value={watch("categoryId") || ""}
-        onChange={(value) => setValue("categoryId", value || "", { shouldValidate: true })}
-        placeholder="Seleccionar categoría *"
-        searchFields={["name"]}
-        className="form-select-standard"
-      />
-      {errors?.categoryId && (
-        <p className="error-message">{errors?.categoryId.message}</p>
-      )}
+      <div className="form-group">
+        <label className="form-label-large">
+          Categoría *
+          {errors?.categoryId && (
+            <span style={{ color: '#ef4444', marginLeft: '8px', fontSize: '0.875rem', fontWeight: 'normal' }}>
+              {errors?.categoryId.message}
+            </span>
+          )}
+        </label>
+        <FilterableSelect
+          options={categories.map(cat => ({ id: cat?.id || '', name: cat?.name || '' }))}
+          value={watch("categoryId") || ""}
+          onChange={(value) => setValue("categoryId", value || "", { shouldValidate: true })}
+          placeholder="Seleccionar categoría"
+          searchFields={["name"]}
+          className="form-select-standard"
+        />
+      </div>
 
       <div className="form-row" style={{ display: 'flex', justifyContent: 'space-between', gap: '16px' }}>
         <div className="form-group" style={{ flex: 1 }}>
+          <label className="form-label-large">
+            Nombre *
+            {errors?.name && (
+              <span style={{ color: '#ef4444', marginLeft: '8px', fontSize: '0.875rem', fontWeight: 'normal' }}>
+                {errors?.name.message}
+              </span>
+            )}
+          </label>
           <input
             {...register("name")}
             type="text"
-            placeholder="Nombre *"
+            placeholder="Nombre"
             className="form-input-standard"
             onKeyDown={handleKeyDown}
           />
-          {errors?.name && (
-            <p className="error-message">{errors?.name.message}</p>
-          )}
         </div>
 
         <div className="form-group" style={{ flex: 1 }}>
+          <label className="form-label-large">
+            Precio *
+            {errors?.price && (
+              <span style={{ color: '#ef4444', marginLeft: '8px', fontSize: '0.875rem', fontWeight: 'normal' }}>
+                {errors.price.message}
+              </span>
+            )}
+          </label>
           <div className="price-input-standard">
             <span className="price-symbol-standard">$</span>
             <input
@@ -349,18 +369,23 @@ export function ProductoForm({
               onChange={handlePriceChange}
               onBlur={handlePriceBlur}
               onKeyDown={handleKeyDown}
-              placeholder="Precio *"
+              placeholder="Precio"
               className="form-input-standard"
               inputMode="decimal"
             />
           </div>
-          {errors.price && (
-            <p className="error-message">{errors.price.message}</p>
-          )}
         </div>
       </div>
 
       <div className="form-group">
+        <label className="form-label-large">
+          Descripción
+          {errors?.description && (
+            <span style={{ color: '#ef4444', marginLeft: '8px', fontSize: '0.875rem', fontWeight: 'normal' }}>
+              {errors.description.message}
+            </span>
+          )}
+        </label>
         <textarea
           {...register("description")}
           placeholder="Descripción (opcional)"
@@ -368,9 +393,6 @@ export function ProductoForm({
           className="form-textarea-standard"
           onKeyDown={handleKeyDown}
         />
-        {errors.description && (
-          <p className="error-message">{errors.description.message}</p>
-        )}
       </div>
 
       {/* Stock abajo a la izquierda */}

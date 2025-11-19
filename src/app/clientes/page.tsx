@@ -17,7 +17,6 @@ import {
   useDeleteClienteMutation,
   type Cliente 
 } from "@/hooks/queries/useClientesQuery";
-import { OptimizedPageLayout } from "@/components/layout/OptimizedPageLayout";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { useOptimizedPageData } from "@/hooks/useOptimizedPageData";
 import { useDataWithCompanySimple } from "@/hooks/useDataWithCompanySimple";
@@ -207,11 +206,8 @@ function ClientesContent() {
   };
 
   return (
-    <OptimizedPageLayout
-      title="Gestión"
-      emptyStateIcon={<Users className="empty-icon" />}
-      emptyStateMessage="Para ver los clientes, primero selecciona una empresa."
-    >
+    <main className="main-content">
+      <div className="form-section">
       {/* Formulario */}
       <ClienteForm
         isOpen={showForm}
@@ -345,7 +341,8 @@ function ClientesContent() {
 
       {/* Toast Container */}
       <ToastContainer toasts={toasts} onRemove={removeToast} />
-    </OptimizedPageLayout>
+      </div>
+    </main>
   );
 }
 
