@@ -7,6 +7,8 @@ import bcrypt from "bcryptjs";
 import { logger } from "@/lib/logger";
 import { getLastUserActivity, getLastUserActivitiesForUsers, getActionDescription, logUserActivity } from "@/lib/user-activity-logger";
 import { sendInvitationEmail } from "@/lib/email";
+import crypto from "crypto";
+import { sendPasswordResetEmail } from "@/lib/email-reset-password";
 
 export async function GET(request: NextRequest) {
   try {
@@ -276,48 +278,33 @@ export async function POST(request: NextRequest) {
 
     // isGmail ya está declarado arriba (línea 232), reutilizamos esa variable
     
-    // Hash de la contraseña solo si se proporcionó (no requerida para Gmail)
+    // Para usuarios no-Gmail, generar token de reset en lugar de contraseña temporal
     let hashedPassword: string | null = null;
-    let tempPassword: string | null = null;
     let hasTemporaryPassword = false;
+    let resetToken: string | null = null;
+    let resetExpires: Date | null = null;
     
     if (isGmail) {
       // Gmail no necesita contraseña
       hashedPassword = null;
       hasTemporaryPassword = false;
-      tempPassword = null; // Gmail no tiene contraseña temporal
     } else {
-      // Para no-Gmail, SIEMPRE usar contraseña temporal
-      // Si se proporciona contraseña, usarla pero marcarla como temporal
-      // Si NO se proporciona, generar una automáticamente
-      if (normalizedPassword && normalizedPassword.length > 0) {
-        // Usuario proporcionó contraseña - usarla pero marcarla como temporal
-        tempPassword = normalizedPassword; // Guardar la contraseña para incluirla en el email
-        hashedPassword = await bcrypt.hash(normalizedPassword, 10);
-        hasTemporaryPassword = true; // SIEMPRE temporal para no-Gmail
-        console.log('🔑 [Users] Contraseña proporcionada por usuario (será temporal):', {
-          email: finalEmail,
-          isGmail: false,
-          hasTempPassword: !!tempPassword,
-          tempPasswordLength: tempPassword?.length,
-          tempPasswordValue: tempPassword ? `${tempPassword.substring(0, 2)}***` : null,
-          tempPasswordFull: tempPassword // Log completo para debug (solo en servidor)
-        });
-      } else {
-        // Generar contraseña temporal aleatoria (8 caracteres alfanuméricos)
-        const crypto = await import('crypto');
-        tempPassword = crypto.randomBytes(4).toString('hex');
-        hashedPassword = await bcrypt.hash(tempPassword, 10);
-        hasTemporaryPassword = true;
-        console.log('🔑 [Users] Contraseña temporal generada automáticamente para usuario no-Gmail:', {
-          email: finalEmail,
-          isGmail: false,
-          hasTempPassword: !!tempPassword,
-          tempPasswordLength: tempPassword?.length,
-          tempPasswordValue: tempPassword ? `${tempPassword.substring(0, 2)}***` : null,
-          tempPasswordFull: tempPassword // Log completo para debug (solo en servidor)
-        });
-      }
+      // Para no-Gmail, generar token de reset (48 horas de validez)
+      resetToken = crypto.randomBytes(32).toString('hex');
+      resetExpires = new Date();
+      resetExpires.setHours(resetExpires.getHours() + 48); // 48 horas
+      
+      // No establecer contraseña inicial - el usuario la establecerá con el token
+      hashedPassword = null;
+      hasTemporaryPassword = true; // Marcar como temporal para forzar cambio
+      
+      console.log('🔑 [Users] Token de reset generado para usuario no-Gmail:', {
+        email: finalEmail,
+        isGmail: false,
+        hasResetToken: !!resetToken,
+        resetTokenLength: resetToken?.length,
+        resetExpires: resetExpires.toISOString()
+      });
     }
 
     // Determinar companyId
@@ -344,11 +331,13 @@ export async function POST(request: NextRequest) {
       .insert([{
         name: finalName,
         email: finalEmail,
-        password: hashedPassword, // null para Gmail sin contraseña
+        password: hashedPassword, // null para Gmail sin contraseña, null para no-Gmail hasta que usen el token
         role,
         company_id: finalCompanyId,
         is_active: true, // Por defecto, todos los usuarios nuevos están activos
-        has_temporary_password: hasTemporaryPassword // Marcar contraseña temporal
+        has_temporary_password: hasTemporaryPassword, // Marcar contraseña temporal
+        password_reset_token: resetToken, // Token para reset de contraseña (48 horas)
+        password_reset_expires: resetExpires ? resetExpires.toISOString() : null
       }])
       .select(`
         id,
@@ -440,78 +429,49 @@ export async function POST(request: NextRequest) {
 
     // Enviar email de invitación al nuevo usuario
     try {
-      // URL directa a login para usuarios no-Google
-      const loginUrl = process.env.NEXTAUTH_URL 
-        ? process.env.NEXTAUTH_URL.replace(/\/$/, '')
+      const baseUrl = process.env.NEXTAUTH_URL 
+        ? process.env.NEXTAUTH_URL.trim().replace(/\/$/, '')
         : 'https://remitero-dev.vercel.app';
       
       console.log('📧 [Users] Intentando enviar email de invitación a:', finalEmail);
-      console.log('📧 [Users] Estado de tempPassword ANTES de procesar:', {
-        tempPasswordType: typeof tempPassword,
-        tempPasswordValue: tempPassword,
-        tempPasswordIsNull: tempPassword === null,
-        tempPasswordIsUndefined: tempPassword === undefined,
-        tempPasswordLength: tempPassword?.length || 0,
-        isGmail,
-        hasTemporaryPassword
-      });
       
-      console.log('📧 [Users] Parámetros del email:', {
-        isGmail,
-        hasTempPassword: !!tempPassword,
-        tempPasswordLength: tempPassword?.length || 0,
-        tempPasswordValue: tempPassword ? `${tempPassword.substring(0, 2)}***` : null,
-        tempPasswordFull: tempPassword, // Log completo para debug (solo en servidor)
-        willShowInEmail: !isGmail && !!tempPassword && tempPassword.trim().length > 0
-      });
+      let emailSent = false;
       
-      // Asegurar que tempPassword no sea string vacío
-      // IMPORTANTE: Para usuarios no-Gmail, SIEMPRE debe haber contraseña temporal
-      let finalTempPassword: string | null = null;
-      if (tempPassword && typeof tempPassword === 'string' && tempPassword.trim().length > 0) {
-        finalTempPassword = tempPassword.trim();
-      } else if (!isGmail) {
-        // Si no es Gmail y no hay contraseña, esto es un error crítico
-        console.error('❌ [Users] ERROR CRÍTICO: Usuario no-Gmail sin contraseña temporal!', {
-          email: finalEmail,
-          isGmail,
-          tempPassword,
-          tempPasswordType: typeof tempPassword,
-          tempPasswordLength: tempPassword?.length || 0,
-          hasTemporaryPassword,
-          environment: process.env.VERCEL_ENV || 'local',
-          vercelUrl: process.env.VERCEL_URL || 'local'
+      if (isGmail) {
+        // Para Gmail, enviar email de invitación normal (sin contraseña)
+        const loginUrl = baseUrl;
+        emailSent = await sendInvitationEmail({
+          to: finalEmail,
+          userName: finalName,
+          userEmail: finalEmail,
+          role: newUser.role,
+          loginUrl,
+          isGmail: true,
+          tempPassword: null
         });
-        // No fallar la creación del usuario, pero loguear el error
+      } else {
+        // Para no-Gmail, enviar email con link de reset de contraseña
+        if (resetToken && resetExpires) {
+          const resetUrl = `${baseUrl}/auth/reset-password?token=${resetToken}`;
+          emailSent = await sendPasswordResetEmail({
+            to: finalEmail,
+            userName: finalName || finalEmail.split('@')[0],
+            resetUrl
+          });
+        } else {
+          console.error('❌ [Users] ERROR: Usuario no-Gmail sin token de reset!', {
+            email: finalEmail,
+            hasResetToken: !!resetToken,
+            hasResetExpires: !!resetExpires
+          });
+        }
       }
-      
-      console.log('📧 [Users] Estado de finalTempPassword DESPUÉS de procesar:', {
-        finalTempPasswordType: typeof finalTempPassword,
-        finalTempPasswordValue: finalTempPassword ? `${finalTempPassword.substring(0, 2)}***` : null,
-        finalTempPasswordIsNull: finalTempPassword === null,
-        finalTempPasswordLength: finalTempPassword?.length || 0,
-        isGmail,
-        shouldHavePassword: !isGmail,
-        environment: process.env.VERCEL_ENV || 'local',
-        vercelUrl: process.env.VERCEL_URL || 'local'
-      });
-      
-      const emailSent = await sendInvitationEmail({
-        to: finalEmail,
-        userName: finalName,
-        userEmail: finalEmail,
-        role: newUser.role,
-        loginUrl,
-        isGmail,
-        tempPassword: finalTempPassword
-      });
       
       if (emailSent) {
         console.log('✅ [Users] Email de invitación enviado exitosamente a:', finalEmail);
       } else {
         console.warn('⚠️ [Users] No se pudo enviar el email de invitación a:', finalEmail);
         console.warn('⚠️ [Users] El usuario fue creado correctamente, pero el email no se envió');
-        console.warn('⚠️ [Users] Revisa los logs anteriores para ver el error específico');
       }
     } catch (emailError: any) {
       // No fallar la creación del usuario si el email falla, solo loguear el error

@@ -59,9 +59,9 @@ export async function POST(
     // Generar token único para reset de contraseña (32 caracteres hexadecimales)
     const resetToken = crypto.randomBytes(32).toString('hex');
     
-    // Calcular fecha de expiración (30 minutos desde ahora)
+    // Calcular fecha de expiración (48 horas desde ahora)
     const expiresAt = new Date();
-    expiresAt.setMinutes(expiresAt.getMinutes() + 30);
+    expiresAt.setHours(expiresAt.getHours() + 48);
 
     // Actualizar usuario con token y fecha de expiración
     const { error: updateError } = await supabaseAdmin

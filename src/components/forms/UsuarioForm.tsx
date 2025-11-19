@@ -312,6 +312,10 @@ export function UsuarioForm({
       // Mostrar mensaje de éxito con toast
       showSuccess('Contraseña temporal generada y enviada por email al usuario. Deberá cambiarla al iniciar sesión.');
       setShowResetPasswordConfirm(false);
+      // Cerrar el modal después de un breve delay para que se vea el toast
+      setTimeout(() => {
+        onClose();
+      }, 1500);
     } catch (error: any) {
       console.error('Error al resetear contraseña:', error);
       showError(error.message || 'Error al resetear la contraseña');
