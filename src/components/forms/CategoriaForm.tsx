@@ -77,16 +77,20 @@ export function CategoriaForm({
       isSubmitting={isSubmitting}
     >
       <div className="form-group">
-        <label className="form-label-large">Nombre de la categoría</label>
+        <label className="form-label-large">
+          Nombre de la categoría *
+          {errors?.name && (
+            <span style={{ color: '#ef4444', marginLeft: '8px', fontSize: '0.875rem', fontWeight: 'normal' }}>
+              {errors?.name.message}
+            </span>
+          )}
+        </label>
         <input
           {...register("name")}
           type="text"
           placeholder="Ingresa el nombre de la categoría"
           className="form-input-standard"
         />
-        {errors?.name && (
-          <p className="error-message">{errors?.name.message}</p>
-        )}
       </div>
     </FormModal>
   );

@@ -400,7 +400,13 @@ export function RemitoFormComplete({
             <FilterableSelect
               options={clients.map(client => ({ id: String(client?.id || ''), name: String(client?.name || '') }))}
               value={String(watch("clientId") || "")}
-              onChange={(value) => setValue("clientId", String(value || ""), { shouldValidate: true })}
+              onChange={(value) => {
+                setValue("clientId", String(value || ""), { shouldValidate: true });
+                // Limpiar error cuando se selecciona un cliente
+                if (value && errors?.clientId) {
+                  setValue("clientId", String(value || ""), { shouldValidate: false });
+                }
+              }}
               placeholder="Seleccionar cliente"
               searchFields={["name"]}
             />

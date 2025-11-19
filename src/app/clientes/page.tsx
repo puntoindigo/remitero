@@ -31,6 +31,7 @@ import { SearchInput } from "@/components/common/SearchInput";
 import { useShortcuts } from "@/hooks/useShortcuts";
 import { useCRUDPage } from "@/hooks/useCRUDPage";
 import { useColorTheme } from "@/contexts/ColorThemeContext";
+import { useCallback } from "react";
 
 function ClientesContent() {
   const { colors } = useColorTheme();
@@ -53,7 +54,7 @@ function ClientesContent() {
     editingItem: editingCliente,
     showForm,
     isSubmitting,
-    handleNew,
+    handleNew: handleNewBase,
     handleEdit,
     handleCloseForm,
     setIsSubmitting,
@@ -61,6 +62,15 @@ function ClientesContent() {
     handleDeleteRequest,
     handleCancelDelete
   } = useCRUDPage<Cliente>();
+
+  // Wrapper para handleNew que verifica companyId
+  const handleNew = useCallback(() => {
+    if (!companyId) {
+      showError("Debes seleccionar una empresa antes de crear un cliente");
+      return;
+    }
+    handleNewBase();
+  }, [companyId, handleNewBase, showError]);
 
   const { modalState, showSuccess, showError, closeModal } = useMessageModal();
   const { toasts, showSuccess: showToastSuccess, showError: showToastError, removeToast } = useToast();

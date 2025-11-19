@@ -267,25 +267,25 @@ export function UsuarioForm({
         alignItems: 'center',
         gap: '0.5rem',
         padding: '0.5rem 1rem',
-        backgroundColor: isResettingPassword ? '#9ca3af' : '#3b82f6',
-        color: '#ffffff',
-        border: 'none',
-        borderRadius: '6px',
-        cursor: isResettingPassword ? 'not-allowed' : 'pointer',
-        fontSize: '0.875rem',
+        fontSize: '0.8125rem',
         fontWeight: 500,
+        color: '#fff',
+        background: isResettingPassword ? '#9ca3af' : colors.gradient,
+        border: 'none',
+        borderRadius: '0.375rem',
+        cursor: isResettingPassword ? 'not-allowed' : 'pointer',
         transition: 'all 0.2s',
         opacity: isResettingPassword ? 0.6 : 1,
       }}
       onMouseEnter={(e) => {
         if (!isResettingPassword) {
-          e.currentTarget.style.backgroundColor = '#2563eb';
+          e.currentTarget.style.transform = 'translateY(-1px)';
+          e.currentTarget.style.boxShadow = `0 4px 12px ${colors.primary}40`;
         }
       }}
       onMouseLeave={(e) => {
-        if (!isResettingPassword) {
-          e.currentTarget.style.backgroundColor = '#3b82f6';
-        }
+        e.currentTarget.style.transform = 'translateY(0)';
+        e.currentTarget.style.boxShadow = 'none';
       }}
     >
       <RotateCcw className="h-4 w-4" />
@@ -350,16 +350,11 @@ export function UsuarioForm({
             onBlur={handleEmailBlur}
             disabled={isCurrentUser}
             style={isCurrentUser ? { 
-              backgroundColor: '#f3f4f6', 
+              backgroundColor: 'rgb(243, 244, 246)', 
               cursor: 'not-allowed',
               color: '#6b7280'
             } : {}}
           />
-          {isCurrentUser && (
-            <p style={{ marginTop: '0.25rem', fontSize: '0.75rem', color: '#6b7280' }}>
-              No puedes cambiar tu email
-            </p>
-          )}
         </div>
 
         {canEditRole && (

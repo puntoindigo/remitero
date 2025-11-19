@@ -106,7 +106,14 @@ export function EstadoRemitoForm({
     >
       <div className="form-row">
         <div className="form-group">
-          <label htmlFor="name" className="form-label-large">Nombre *</label>
+          <label htmlFor="name" className="form-label-large">
+            Nombre *
+            {errors?.name && (
+              <span style={{ color: '#ef4444', marginLeft: '8px', fontSize: '0.875rem', fontWeight: 'normal' }}>
+                {errors?.name.message}
+              </span>
+            )}
+          </label>
           <input
             {...register("name")}
             type="text"
@@ -114,12 +121,16 @@ export function EstadoRemitoForm({
             placeholder="Ej: Enviado, Entregado, Cancelado"
             className="form-input-standard"
           />
-          {errors?.name && (
-            <p className="error-message">{errors?.name.message}</p>
-          )}
         </div>
         <div className="form-group">
-          <label htmlFor="color" className="form-label-large">Color *</label>
+          <label htmlFor="color" className="form-label-large">
+            Color *
+            {errors?.color && (
+              <span style={{ color: '#ef4444', marginLeft: '8px', fontSize: '0.875rem', fontWeight: 'normal' }}>
+                {errors?.color.message}
+              </span>
+            )}
+          </label>
           <div className="flex items-center gap-2">
             <input
               {...register("color")}
@@ -134,9 +145,6 @@ export function EstadoRemitoForm({
               placeholder="#3b82f6"
             />
           </div>
-          {errors.color && (
-            <p className="error-message">{errors.color.message}</p>
-          )}
         </div>
       </div>
 

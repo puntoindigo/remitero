@@ -167,7 +167,9 @@ export function FormModal({
           minWidth: '300px',
           maxWidth: modalClassName === 'perfil-modal' ? '700px' : '90vw',
           maxHeight: modalClassName === 'perfil-modal' ? '85vh' : '90vh',
-          overflow: 'auto',
+          overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column',
           boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
         }}
       >
@@ -179,6 +181,11 @@ export function FormModal({
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
+            position: 'sticky',
+            top: 0,
+            backgroundColor: 'white',
+            zIndex: 10,
+            flexShrink: 0,
           } : {}}
         >
           <div>
@@ -274,7 +281,12 @@ export function FormModal({
           paddingBottom: '0',
           maxHeight: 'calc(100vh - 200px)',
           overflowY: 'auto'
-        } : modalClassName === 'perfil-modal' ? { padding: '1.25rem' } : { padding: '1rem 0' }}>
+        } : modalClassName === 'perfil-modal' ? { 
+          padding: '1.25rem',
+          overflowY: 'auto',
+          flex: 1,
+          minHeight: 0
+        } : { padding: '1rem 0' }}>
           {nested ? (
             // Cuando está anidado, solo renderizar children sin envolver en form
             // El children (ClienteForm) ya tiene su propio form
@@ -308,12 +320,19 @@ export function FormModal({
                   justifyContent: footerLeftContent ? 'space-between' : 'flex-end',
                   alignItems: 'center'
                 } : modalClassName === 'perfil-modal' ? {
+                  position: 'sticky',
+                  bottom: 0,
+                  backgroundColor: '#fff',
+                  borderTop: '1px solid #e5e7eb',
+                  padding: '1rem 1.25rem',
+                  marginTop: 'auto',
                   display: 'flex',
-                  justifyContent: 'flex-end',
+                  justifyContent: footerLeftContent ? 'space-between' : 'flex-end',
+                  alignItems: 'center',
                   gap: '0.5rem',
-                  marginTop: '1rem',
-                  paddingTop: '1rem',
-                  borderTop: '1px solid #e5e7eb'
+                  zIndex: 10,
+                  flexShrink: 0,
+                  boxShadow: '0 -2px 8px rgba(0, 0, 0, 0.05)'
                 } : {
                   marginTop: '0.5rem',
                   paddingTop: '0.5rem'

@@ -19,9 +19,9 @@ export const categorySchema = z.object({
 })
 
 export const productSchema = z.object({
-  name: z.string().min(1, "Nombre de producto requerido"),
+  name: z.string().min(1, "Nombre requerido"),
   description: z.string().optional(),
-  price: z.number().min(0, "Precio debe ser mayor a 0"),
+  price: z.number().min(0.01, "Precio requerido"),
   categoryId: z.string().min(1, "Categoría requerida"),
   stock: z.enum(["IN_STOCK", "OUT_OF_STOCK"]).optional()
 })
