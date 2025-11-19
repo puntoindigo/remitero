@@ -32,43 +32,21 @@ function LoginPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const isDev = useIsDevelopment()
-  
-  // Log del entorno al cargar la página
-  useEffect(() => {
-    const hostname = window.location.hostname
-    const environment = isDev ? 'DEVELOPMENT' : 'PRODUCTION'
-    console.log('🌍 [Login] Entorno detectado:', {
-      environment,
-      hostname,
-      isDevelopment: isDev,
-      url: window.location.href
-    })
-  }, [isDev])
 
   // Verificar si hay errores en la URL
   useEffect(() => {
     const errorParam = searchParams.get('error')
     const callbackUrl = searchParams.get('callbackUrl')
     
-    console.log('🔍 [Login] Verificando parámetros de URL', {
-      error: errorParam,
-      callbackUrl: callbackUrl,
-      fullUrl: window.location.href
-    });
-    
     if (errorParam === 'UserInactive' || errorParam === 'AccessDenied') {
-      console.log('❌ [Login] Error detectado: Usuario desactivado');
       setError('Tu cuenta ha sido desactivada. Contacta al administrador para más información.')
     } else if (errorParam === 'SessionInvalid') {
-      console.log('❌ [Login] Error detectado: Sesión inválida');
       setError('Tu sesión no es válida. Por favor, inicia sesión nuevamente.')
     } else if (errorParam === 'OAuthSignin') {
-      console.log('❌ [Login] Error detectado: OAuthSignin - Verificando configuración...');
       // Verificar configuración cuando hay error OAuthSignin
       fetch('/api/auth/debug')
         .then(res => res.json())
         .then(config => {
-          console.log('🔍 [Login] Configuración OAuth:', config);
           if (!config.hasGoogleClientId || !config.hasGoogleClientSecret) {
             setError('Error de configuración: Faltan credenciales de Google OAuth. Contacta al administrador.');
           } else if (!config.nextAuthUrl) {
@@ -82,8 +60,6 @@ function LoginPageContent() {
           setError('Error al iniciar sesión con Google. Por favor, intenta nuevamente o contacta al administrador.');
         });
     } else if (errorParam === 'OAuthCallback') {
-      console.log('⚠️ [Login] Error OAuthCallback detectado - investigando causa...');
-      
       // Mostrar mensaje de error genérico inmediatamente para que el usuario sepa que hay un problema
       setError('Error al iniciar sesión con Google. Verificando detalles...');
       
@@ -93,8 +69,6 @@ function LoginPageContent() {
         fetch('/api/auth/debug').then(res => res.json()).catch(() => ({ googleOAuth: {}, nextAuth: {}, status: {} }))
       ])
         .then(([lastError, config]) => {
-          console.log('🔍 [Login] Último error OAuth:', lastError);
-          console.log('🔍 [Login] Configuración OAuth:', config);
           
           const issues = [];
           
@@ -129,8 +103,7 @@ function LoginPageContent() {
             setError('Error al iniciar sesión con Google. Las credenciales de OAuth pueden ser inválidas o el cliente puede estar deshabilitado. Verifica en Google Cloud Console que el cliente OAuth esté habilitado y que las URIs de redirección estén configuradas correctamente.');
           }
         })
-        .catch(err => {
-          console.log('⚠️ [Login] No se pudo obtener detalles del error:', err);
+        .catch(() => {
           setError('Error al iniciar sesión con Google. Verifica que las credenciales de OAuth estén correctas y que el cliente esté habilitado en Google Cloud Console.');
         });
     } else if (errorParam === 'OAuthCreateAccount') {
@@ -179,13 +152,10 @@ function LoginPageContent() {
         // Verificar si hay una sesión existente
         const existingSession = await getSession();
         if (existingSession) {
-          console.log('🔒 [Login] Sesión existente detectada, cerrando...');
-          
           // Intentar cerrar sesión sin redirigir (ya estamos en login)
           // Puede fallar si la sesión ya no es válida, pero eso está bien
           try {
             await signOut({ redirect: false });
-            console.log('✅ [Login] Sesión cerrada correctamente');
           } catch (signOutError: any) {
             // Si falla al cerrar sesión (puede ser porque la sesión ya no es válida),
             // no es un problema - ya limpiamos cookies y storage
@@ -253,7 +223,6 @@ function LoginPageContent() {
     try {
       const existingSession = await getSession();
       if (existingSession) {
-        console.log('🔒 [Login] Cerrando sesión existente antes de login...');
         await signOut({ redirect: false });
         // Limpiar localStorage relacionado con sesión
         if (typeof window !== 'undefined') {
@@ -585,7 +554,6 @@ function LoginPageContent() {
                 try {
                   const existingSession = await getSession();
                   if (existingSession) {
-                    console.log('🔒 [Login] Cerrando sesión existente antes de login con Google...');
                     await signOut({ redirect: false });
                     // Limpiar localStorage relacionado con sesión
                     if (typeof window !== 'undefined') {

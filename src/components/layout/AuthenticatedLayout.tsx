@@ -202,29 +202,13 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
 
   // Función para manejar el cambio de contraseña (DEBE estar ANTES del bloqueo para evitar "Cannot access before initialization")
   const handleChangePassword = async (newPassword: string) => {
-    console.log('🔐 [AuthenticatedLayout] handleChangePassword INICIADO', {
-      hasSession: !!session?.user?.id,
-      userId: session?.user?.id,
-      passwordLength: newPassword?.length
-    });
-
     if (!session?.user?.id) {
-      console.error('❌ [AuthenticatedLayout] No hay sesión de usuario');
       throw new Error('No hay sesión de usuario');
     }
 
-    console.log('🔄 [AuthenticatedLayout] Estableciendo isChangingPassword = true');
     setIsChangingPassword(true);
     
     try {
-      console.log('📤 [AuthenticatedLayout] Enviando request a /api/profile', {
-        method: 'PUT',
-        body: {
-          password: '***' + newPassword?.substring(newPassword.length - 2),
-          confirmPassword: '***' + newPassword?.substring(newPassword.length - 2),
-        }
-      });
-
       const response = await fetch('/api/profile', {
         method: 'PUT',
         headers: {
@@ -236,27 +220,11 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
         }),
       });
 
-      console.log('📥 [AuthenticatedLayout] Respuesta recibida', {
-        ok: response.ok,
-        status: response.status,
-        statusText: response.statusText
-      });
-
       if (!response.ok) {
         const result = await response.json().catch(() => ({}));
-        console.error('❌ [AuthenticatedLayout] Error en respuesta', {
-          status: response.status,
-          result
-        });
         const errorMessage = result.message || result.error || 'Error al cambiar la contraseña';
         throw new Error(errorMessage);
       }
-
-      const result = await response.json();
-      console.log('✅ [AuthenticatedLayout] Contraseña cambiada exitosamente', {
-        userId: result.id,
-        hasTemporaryPassword: result.hasTemporaryPassword
-      });
 
       // El endpoint PUT /api/profile ya limpia has_temporary_password automáticamente
       // La actividad se registra automáticamente en el endpoint PUT /api/profile
@@ -268,23 +236,16 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
       showToastSuccess('Contraseña cambiada exitosamente');
       
       // Cerrar el modal inmediatamente
-      console.log('🚪 [AuthenticatedLayout] Cerrando modal de cambio de contraseña');
       setShowChangePassword(false);
       
       // Forzar actualización de la sesión usando update() de NextAuth
       // Esto actualizará el token con los nuevos valores de la BD
-      console.log('🔄 [AuthenticatedLayout] Intentando actualizar sesión de NextAuth');
       try {
         if (typeof updateSession === 'function') {
-          console.log('📞 [AuthenticatedLayout] Llamando updateSession()...');
-          const updateResult = await updateSession();
-          console.log('✅ [AuthenticatedLayout] updateSession() completado', { updateResult });
-          
-          // Esperar un poco para asegurar que el token se propague (reducido de 1500ms a 500ms)
-          console.log('⏳ [AuthenticatedLayout] Esperando 500ms para propagación del token...');
+          await updateSession();
+          // Esperar un poco para asegurar que el token se propague
           await new Promise(resolve => setTimeout(resolve, 500));
         } else {
-          console.warn('⚠️ [AuthenticatedLayout] updateSession no es una función, saltando actualización');
           // Si no hay update, esperar un poco antes del refresh
           await new Promise(resolve => setTimeout(resolve, 500));
         }
@@ -296,13 +257,11 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
       
       // Usar router.refresh() en lugar de window.location.reload() para un refresh más suave
       // Esto actualiza los datos del servidor sin recargar toda la página
-      console.log('🔄 [AuthenticatedLayout] Refrescando datos del servidor...');
       router.refresh();
       
       // Finalmente, resetear isChangingPassword después de un breve delay
       // para asegurar que el estado se actualice correctamente
       setTimeout(() => {
-        console.log('🔄 [AuthenticatedLayout] Reseteando isChangingPassword');
         setIsChangingPassword(false);
         setPasswordChangedSuccessfully(false);
       }, 1000);
@@ -310,7 +269,6 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
       console.error('❌ [AuthenticatedLayout] Error en handleChangePassword:', error);
       // Asegurar que el error se propague correctamente al modal
       const errorMessage = error instanceof Error ? error.message : 'Error al cambiar la contraseña';
-      console.log('🔄 [AuthenticatedLayout] Estableciendo isChangingPassword = false (error)');
       setIsChangingPassword(false);
       throw new Error(errorMessage);
     }
