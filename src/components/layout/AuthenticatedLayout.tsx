@@ -41,7 +41,7 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
   useApiWarmup();
   
   // Rutas que no requieren autenticación
-  const publicRoutes = ["/auth/login", "/auth/error", "/manual", "/web"];
+  const publicRoutes = ["/auth/login", "/auth/error", "/auth/reset-password", "/manual", "/web"];
   const isPrintRoute = pathname.match(/\/remitos\/[^\/]+\/print/);
   // No incluir "/" como ruta pública - page.tsx manejará la redirección
   const isPublicRoute = publicRoutes.some(route => pathname.startsWith(route)) || isPrintRoute;

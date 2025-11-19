@@ -11,6 +11,8 @@ import { ConfirmationModal } from "@/components/common/ConfirmationModal";
 import { useColorTheme } from "@/contexts/ColorThemeContext";
 import { Key, Eye, EyeOff, RotateCcw } from "lucide-react";
 import { useIsDevelopment } from "@/hooks/useIsDevelopment";
+import { useToast } from "@/hooks/useToast.js";
+import { ToastContainer } from "@/components/common/Toast.jsx";
 
 // Función para detectar si es email de Google
 const isGmailEmail = (email: string): boolean => {
@@ -285,6 +287,9 @@ export function UsuarioForm({
     }
   };
 
+  // Hook para toasts
+  const { toasts, showSuccess, showError, removeToast } = useToast();
+
   // Función para resetear contraseña (solo para Admin/SuperAdmin editando otros usuarios)
   const handleResetPassword = async () => {
     if (!editingUser || !editingUser.id) return;
@@ -304,12 +309,12 @@ export function UsuarioForm({
         throw new Error(result.message || 'Error al resetear la contraseña');
       }
 
-      // Mostrar mensaje de éxito
-      alert('Contraseña temporal generada y enviada por email al usuario. Deberá cambiarla al iniciar sesión.');
+      // Mostrar mensaje de éxito con toast
+      showSuccess('Contraseña temporal generada y enviada por email al usuario. Deberá cambiarla al iniciar sesión.');
       setShowResetPasswordConfirm(false);
     } catch (error: any) {
       console.error('Error al resetear contraseña:', error);
-      alert(error.message || 'Error al resetear la contraseña');
+      showError(error.message || 'Error al resetear la contraseña');
     } finally {
       setIsResettingPassword(false);
     }
@@ -566,56 +571,6 @@ export function UsuarioForm({
           </div>
         )}
 
-        {/* Botón para resetear contraseña cuando se edita un usuario (solo Admin/SuperAdmin, no Gmail) */}
-        {editingUser && !isCurrentUser && (isCurrentUserAdmin || isCurrentUserSuperAdmin) && hasAtSymbol && !isGmailEmail(emailValue) && (
-          <div className="form-group">
-            <label className="form-label-large" style={{ marginBottom: '0.5rem' }}>
-              Contraseña
-            </label>
-            <button
-              type="button"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                setShowResetPasswordConfirm(true);
-              }}
-              disabled={isResettingPassword}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                padding: '0.5rem 1rem',
-                backgroundColor: '#3b82f6',
-                color: '#ffffff',
-                border: 'none',
-                borderRadius: '6px',
-                cursor: isResettingPassword ? 'not-allowed' : 'pointer',
-                fontSize: '0.875rem',
-                fontWeight: 500,
-                transition: 'all 0.2s',
-                opacity: isResettingPassword ? 0.6 : 1,
-                width: '100%',
-                justifyContent: 'center'
-              }}
-              onMouseEnter={(e) => {
-                if (!isResettingPassword) {
-                  e.currentTarget.style.backgroundColor = '#2563eb';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (!isResettingPassword) {
-                  e.currentTarget.style.backgroundColor = '#3b82f6';
-                }
-              }}
-            >
-              <RotateCcw className="h-4 w-4" />
-              {isResettingPassword ? 'Reseteando...' : 'Resetear contraseña temporal'}
-            </button>
-            <p style={{ marginTop: '0.5rem', fontSize: '0.75rem', color: '#6b7280' }}>
-              Generará una contraseña temporal y la enviará por email al usuario. Deberá cambiarla al iniciar sesión.
-            </p>
-          </div>
-        )}
       </div>
       
       {/* Modal de confirmación para resetear contraseña */}
@@ -696,6 +651,9 @@ export function UsuarioForm({
           setShowPasswordGenerator(false);
         }}
       />
+
+      {/* Toast Container */}
+      <ToastContainer toasts={toasts} removeToast={removeToast} />
     </FormModal>
   );
 }
