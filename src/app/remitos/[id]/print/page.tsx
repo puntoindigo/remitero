@@ -12,7 +12,9 @@ export default function PrintRemito() {
   const currentUser = useCurrentUserSimple();
   const [remito, setRemito] = useState<Remito | null>(null);
   const [loading, setLoading] = useState(true);
-  const ENABLE_AUTO_PRINT = true; // Habilitar impresión automática
+  // Solo imprimir automáticamente si NO viene del modal (no tiene ?noAutoPrint=true)
+  const noAutoPrint = searchParams?.get('noAutoPrint') === 'true';
+  const ENABLE_AUTO_PRINT = !noAutoPrint; // Deshabilitar si viene del modal
   
   // Obtener nombre de empresa: primero del remito, luego del usuario, finalmente valor por defecto
   const companyName = remito?.companyName || (remito as any)?.company?.name || currentUser?.companyName || 'Sistema de Gestión';

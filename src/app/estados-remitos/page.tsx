@@ -236,12 +236,13 @@ function EstadosRemitosContent() {
       render: (estado) => (
         <div style={{ display: 'inline-flex', alignItems: 'center', whiteSpace: 'nowrap' }}>
           <div 
-            className="w-4 h-4 rounded-full border"
+            className="w-4 h-4 rounded-full border border-gray-300"
             style={{ 
               backgroundColor: estado.color, 
               marginRight: isMobile ? 0 : '4px',
-              width: isMobile ? '20px' : '16px',
-              height: isMobile ? '20px' : '16px'
+              width: '16px',
+              height: '16px',
+              flexShrink: 0
             }}
           ></div>
           {!isMobile && (

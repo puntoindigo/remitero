@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from 'react';
+import { X, Printer } from 'lucide-react';
 
 interface PrintRemitoModalProps {
   remitoId: string;
@@ -30,42 +31,68 @@ export function PrintRemitoModal({ remitoId, remitoNumber, onClose }: PrintRemit
 
   return (
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm"
       onClick={onClose}
+      style={{ padding: '16px' }}
     >
       <div 
-        className="bg-white rounded-lg shadow-xl w-[95vw] h-[90vh] flex flex-col"
+        className="bg-white rounded-lg shadow-2xl flex flex-col"
         onClick={(e) => e.stopPropagation()}
+        style={{
+          width: 'min(90vw, 800px)',
+          height: 'min(85vh, 700px)',
+          maxWidth: '800px',
+          maxHeight: '700px',
+          border: '1px solid #e5e7eb',
+          display: 'flex',
+          flexDirection: 'column'
+        }}
       >
-        {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b">
-          <h2 className="text-xl font-bold">Remito #{remitoNumber || remitoId}</h2>
+        {/* Header con cruz visible */}
+        <div className="flex items-center justify-between p-3 border-b bg-gray-50 rounded-t-lg">
+          <h2 className="text-lg font-semibold text-gray-900">Remito #{remitoNumber || remitoId}</h2>
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors"
+            className="p-1.5 rounded-md hover:bg-gray-200 transition-colors text-gray-600 hover:text-gray-900"
+            title="Cerrar"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: '32px',
+              height: '32px'
+            }}
           >
-            ✕ Cerrar
+            <X className="h-5 w-5" />
           </button>
         </div>
 
-        {/* Iframe */}
-        <div className="flex-1 overflow-hidden">
+        {/* Iframe - más pequeño */}
+        <div className="flex-1 overflow-auto p-4" style={{ minHeight: 0 }}>
           <iframe
             id="print-iframe"
-            src={`/remitos/${remitoId}/print`}
-            className="w-full h-full border-none"
+            src={`/remitos/${remitoId}/print?noAutoPrint=true`}
+            className="w-full h-full border border-gray-200 rounded"
             title="Vista previa del remito"
+            style={{ minHeight: '400px' }}
           />
         </div>
 
-        {/* Footer con botón de imprimir */}
-        <div className="p-4 border-t flex justify-center">
+        {/* Footer con botones */}
+        <div className="p-3 border-t bg-gray-50 rounded-b-lg flex justify-between items-center gap-3">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors flex items-center gap-2 text-sm font-medium"
+          >
+            <X className="h-4 w-4" />
+            Cerrar
+          </button>
           <button
             onClick={handlePrint}
-            className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors flex items-center gap-2"
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center gap-2 text-sm font-medium"
           >
-            <span>🖨️</span>
-            <span>Imprimir</span>
+            <Printer className="h-4 w-4" />
+            Imprimir
           </button>
         </div>
       </div>
