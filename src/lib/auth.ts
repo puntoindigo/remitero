@@ -173,15 +173,28 @@ export const authOptions: NextAuthOptions = {
 
           // Verificar que el usuario tenga contraseña (no es Gmail OAuth)
           if (!user.password) {
+            console.warn('⚠️ [Credentials authorize] Usuario sin contraseña (probablemente Gmail):', credentials.email);
             return null
           }
+
+          console.log('🔐 [Credentials authorize] Verificando contraseña...', {
+            hasStoredPassword: !!user.password,
+            passwordLength: user.password?.length,
+            email: credentials.email
+          });
 
           const isPasswordValid = await bcrypt.compare(
             credentials.password,
             user.password
           )
 
+          console.log('🔐 [Credentials authorize] Resultado de comparación de contraseña:', {
+            isValid: isPasswordValid,
+            email: credentials.email
+          });
+
           if (!isPasswordValid) {
+            console.warn('⚠️ [Credentials authorize] Contraseña incorrecta para:', credentials.email);
             return null
           }
 
@@ -203,18 +216,27 @@ export const authOptions: NextAuthOptions = {
           // Registrar login
           await logUserActivity(user.id, 'LOGIN', 'Inició sesión con credenciales');
 
-                return {
-                  id: user.id,
-                  email: user.email,
-                  name: user.name,
-                  role: user.role,
-                  companyId: user.company_id,
+          const userObject = {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            role: user.role,
+            companyId: user.company_id,
             companyName: companyName,
             impersonatingUserId: null,
             hasTemporaryPassword: user.has_temporary_password || false,
             enable_botonera: user.enable_botonera ?? false,
             enable_pinned_modals: user.enable_pinned_modals ?? false
-                } as any
+          } as any;
+
+          console.log('✅ [Credentials authorize] Login exitoso, retornando user object:', {
+            id: userObject.id,
+            email: userObject.email,
+            role: userObject.role,
+            companyId: userObject.companyId
+          });
+
+          return userObject;
         } catch (error) {
           return null
         }
