@@ -16,8 +16,9 @@ export default function PrintRemito() {
   const noAutoPrint = searchParams?.get('noAutoPrint') === 'true';
   const ENABLE_AUTO_PRINT = !noAutoPrint; // Deshabilitar si viene del modal
   
-  // Obtener nombre de empresa: primero del remito, luego del usuario, finalmente valor por defecto
-  const companyName = remito?.companyName || (remito as any)?.company?.name || currentUser?.companyName || 'Sistema de Gestión';
+  // Obtener nombre de empresa: primero del remito (company del remito), luego valor por defecto
+  // Ya no usar companyName del usuario, solo del remito
+  const companyName = (remito as any)?.company?.name || remito?.companyName || 'Sistema de Gestión';
   const isFallback = companyName === 'Sistema de Gestión';
 
   useEffect(() => {

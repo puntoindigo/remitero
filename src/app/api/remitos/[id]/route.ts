@@ -111,6 +111,21 @@ export async function GET(
       }
     }
 
+    // Obtener datos de la empresa del remito
+    let company = null;
+    if (remito.company_id) {
+      try {
+        const { data: companyData } = await supabaseAdmin
+          .from('companies')
+          .select('id, name')
+          .eq('id', remito.company_id)
+          .single();
+        if (companyData) company = companyData;
+      } catch (companyError) {
+        console.warn('⚠️ [Remitos] Error obteniendo empresa (no crítico):', companyError);
+      }
+    }
+
     // Obtener items del remito
     let remitoItems: any[] = [];
     try {
@@ -169,6 +184,10 @@ export async function GET(
         name: '',
         color: '',
         is_active: true
+      } : null),
+      companies: company || (remito.company_id ? {
+        id: remito.company_id,
+        name: ''
       } : null),
       remito_items: remitoItems
     };
