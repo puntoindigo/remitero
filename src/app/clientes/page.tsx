@@ -120,7 +120,6 @@ function ClientesContent() {
 
   // Detectar si viene de /nuevo y abrir formulario
   const searchParams = useSearchParams();
-  const router = useRouter();
   const pathname = usePathname();
   
   useEffect(() => {
