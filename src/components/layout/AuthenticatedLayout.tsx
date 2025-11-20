@@ -413,16 +413,16 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
           
           /* Selector de empresa - pegado al top sin padding */
           .form-section > div:first-child {
-            padding: 12px 16px 0 16px !important;
+            padding: 8px 8px 0 8px !important;
             margin: 0 !important;
             width: 100% !important;
             max-width: 100% !important;
           }
           
-          /* Contenido con padding lateral */
+          /* Contenido con padding lateral reducido */
           .form-section > *:not(:first-child) {
-            padding-left: 16px !important;
-            padding-right: 16px !important;
+            padding-left: 8px !important;
+            padding-right: 8px !important;
             width: 100% !important;
             max-width: 100% !important;
           }
@@ -447,7 +447,7 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
           }
           
           .data-table th {
-            padding: 10px 8px;
+            padding: 6px 4px;
             font-size: 11px;
             font-weight: 600;
             text-transform: uppercase;
@@ -477,7 +477,7 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
           }
           
           .data-table td {
-            padding: 8px 6px;
+            padding: 4px 3px;
             font-size: 12px;
             overflow: hidden;
             text-overflow: ellipsis;

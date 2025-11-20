@@ -295,7 +295,7 @@ export function DocumentacionModal({ isOpen, onClose }: DocumentacionModalProps)
               {copied ? (
                 <Check className="h-5 w-5 text-green-600 dark:text-green-400" />
               ) : (
-                <LinkIcon className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+                <LinkIcon className="h-5 w-5" />
               )}
             </button>
             <button

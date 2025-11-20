@@ -3513,12 +3513,12 @@ body > .vercel-select-dropdown {
   /* Ajustar padding de td en mobile - más compacto */
   .data-table td {
     border-bottom: 1px solid #f3f4f6;
-    padding: 6px 4px;
+    padding: 4px 3px !important;
   }
   
   /* Ajustar padding de th en mobile */
   .data-table th {
-    padding: 8px 4px;
+    padding: 6px 4px !important;
   }
   
   /* Reducir padding general del body en mobile */
@@ -3529,11 +3529,11 @@ body > .vercel-select-dropdown {
   
   /* Reducir padding de contenedores principales en mobile */
   .main-content {
-    padding: 8px 4px;
+    padding: 4px 2px !important;
   }
   
   .form-section {
-    padding: 8px 4px;
+    padding: 4px 2px !important;
   }
   
   .data-table tbody tr:last-child td {
@@ -3557,10 +3557,15 @@ body > .vercel-select-dropdown {
   }
 }
 
-/* Desktop: mostrar botón de ver PDF */
+/* Desktop: mostrar botón de ver PDF y ocultar botón de imprimir del listado */
 @media (min-width: 769px) {
   .action-button.view-pdf-button {
     display: inline-flex !important;
+  }
+  
+  /* Ocultar botón de imprimir del listado en desktop (solo se usa el modal) */
+  .action-button.print-button {
+    display: none !important;
   }
 }
 
