@@ -1,8 +1,9 @@
 "use client";
 
-import React, { Suspense, useCallback, useEffect } from "react";
+import React, { Suspense, useCallback, useEffect, useState } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { Plus, Users, Mail, Phone, MapPin, FileText, Edit, Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { formatDate } from "@/lib/utils/formatters";
 import { MessageModal } from "@/components/common/MessageModal";
 import DeleteConfirmModal from "@/components/common/DeleteConfirmModal";
@@ -79,6 +80,39 @@ function ClientesContent() {
   const createMutation = useCreateClienteMutation();
   const updateMutation = useUpdateClienteMutation();
   const deleteMutation = useDeleteClienteMutation();
+  
+  // Obtener conteo de remitos por cliente
+  const [remitosCounts, setRemitosCounts] = useState<Record<string, number>>({});
+  const router = useRouter();
+  
+  useEffect(() => {
+    if (!companyId || clientes.length === 0) return;
+    
+    const fetchRemitosCounts = async () => {
+      try {
+        const clientIds = clientes.map(c => c.id);
+        const response = await fetch(`/api/remitos?companyId=${companyId}&limit=10000`);
+        if (response.ok) {
+          const data = await response.json();
+          const remitos = data.items || [];
+          
+          // Contar remitos por cliente
+          const counts: Record<string, number> = {};
+          remitos.forEach((remito: any) => {
+            if (remito.client?.id) {
+              counts[remito.client.id] = (counts[remito.client.id] || 0) + 1;
+            }
+          });
+          
+          setRemitosCounts(counts);
+        }
+      } catch (error) {
+        console.error('Error fetching remitos counts:', error);
+      }
+    };
+    
+    fetchRemitosCounts();
+  }, [companyId, clientes]);
 
   // Función de eliminación con useCallback
   const handleDeleteCliente = useCallback((cliente: Cliente) => {
@@ -146,6 +180,11 @@ function ClientesContent() {
     searchPlaceholder: "Buscar clientes..."
   });
 
+  // Función para navegar a remitos filtrados por cliente
+  const handleViewRemitos = (clienteId: string) => {
+    router.push(`/remitos?client=${clienteId}`);
+  };
+
   // Definir columnas para el DataTable - desktop tradicional, mobile sin teléfono y dirección
   const columns: DataTableColumn<Cliente>[] = isMobile ? [
     {
@@ -157,6 +196,29 @@ function ClientesContent() {
       key: 'email',
       label: 'Email',
       render: (cliente) => cliente.email || '-'
+    },
+    {
+      key: 'remitos',
+      label: 'Remitos',
+      render: (cliente) => {
+        const count = remitosCounts[cliente.id] || 0;
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <span>{count}</span>
+            {count > 0 && (
+              <FileText 
+                className="h-4 w-4" 
+                style={{ cursor: 'pointer', color: colors.primary }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleViewRemitos(cliente.id);
+                }}
+                title="Ver remitos de este cliente"
+              />
+            )}
+          </div>
+        );
+      }
     }
   ] : [
     {
@@ -178,6 +240,29 @@ function ClientesContent() {
       key: 'address',
       label: 'Dirección',
       render: (cliente) => cliente.address || '-'
+    },
+    {
+      key: 'remitos',
+      label: 'Remitos',
+      render: (cliente) => {
+        const count = remitosCounts[cliente.id] || 0;
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <span>{count}</span>
+            {count > 0 && (
+              <FileText 
+                className="h-4 w-4" 
+                style={{ cursor: 'pointer', color: colors.primary }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleViewRemitos(cliente.id);
+                }}
+                title="Ver remitos de este cliente"
+              />
+            )}
+          </div>
+        );
+      }
     }
   ];
 
