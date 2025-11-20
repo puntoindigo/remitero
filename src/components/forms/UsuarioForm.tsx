@@ -81,6 +81,7 @@ export function UsuarioForm({
   const { data: session } = useSession();
   const [isResettingPassword, setIsResettingPassword] = React.useState(false);
   const [showResetPasswordConfirm, setShowResetPasswordConfirm] = React.useState(false);
+  const [showChangePassword, setShowChangePassword] = React.useState(false);
   const isDevelopment = useIsDevelopment();
   
   const {
@@ -460,67 +461,83 @@ export function UsuarioForm({
       {isCurrentUser && (
         <div className="form-row">
           <div className="form-group" style={{ flex: 1 }}>
-            <label className="form-label-large" style={{ marginBottom: '1rem', fontSize: '1rem', fontWeight: 600 }}>
-              Cambiar contraseña
-            </label>
+            <button
+              type="button"
+              onClick={() => setShowChangePassword(!showChangePassword)}
+              style={{
+                background: 'none',
+                border: 'none',
+                padding: 0,
+                marginBottom: showChangePassword ? '1rem' : 0,
+                fontSize: '1rem',
+                fontWeight: 600,
+                color: colors.primary || '#3b82f6',
+                cursor: 'pointer',
+                textDecoration: 'underline',
+                textAlign: 'left',
+                width: '100%'
+              }}
+            >
+              {showChangePassword ? '▼' : '▶'} Cambiar contraseña
+            </button>
             
-            <div style={{ marginBottom: '1rem' }}>
-              <label className="form-label-large" style={{ fontSize: '0.875rem', fontWeight: 500 }}>
-                Contraseña actual
-              </label>
-              <input
-                {...register("oldPassword")}
-                type="password"
-                placeholder="Ingresa tu contraseña actual"
-                className="form-input-standard"
-                autoComplete="current-password"
-              />
-              {errors?.oldPassword && (
-                <span style={{ color: '#ef4444', marginTop: '0.25rem', fontSize: '0.875rem', display: 'block' }}>
-                  {errors.oldPassword.message}
-                </span>
-              )}
-            </div>
-            
-            <div style={{ marginBottom: '1rem' }}>
-              <label className="form-label-large" style={{ fontSize: '0.875rem', fontWeight: 500 }}>
-                Nueva contraseña
-              </label>
-              <input
-                {...register("password")}
-                type="password"
-                placeholder="Mínimo 6 caracteres"
-                className="form-input-standard"
-                autoComplete="new-password"
-              />
-              {errors?.password && (
-                <span style={{ color: '#ef4444', marginTop: '0.25rem', fontSize: '0.875rem', display: 'block' }}>
-                  {errors.password.message}
-                </span>
-              )}
-            </div>
-            
-            <div>
-              <label className="form-label-large" style={{ fontSize: '0.875rem', fontWeight: 500 }}>
-                Confirmar nueva contraseña
-              </label>
-              <input
-                {...register("confirmPassword")}
-                type="password"
-                placeholder="Repite la nueva contraseña"
-                className="form-input-standard"
-                autoComplete="new-password"
-              />
-              {errors?.confirmPassword && (
-                <span style={{ color: '#ef4444', marginTop: '0.25rem', fontSize: '0.875rem', display: 'block' }}>
-                  {errors.confirmPassword.message}
-                </span>
-              )}
-            </div>
-            
-            <p style={{ marginTop: '0.75rem', fontSize: '0.75rem', color: '#6b7280' }}>
-              Deja estos campos vacíos si no deseas cambiar tu contraseña.
-            </p>
+            {showChangePassword && (
+              <>
+                <div style={{ marginBottom: '1rem', marginTop: '1rem' }}>
+                  <label className="form-label-large" style={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                    Contraseña actual
+                  </label>
+                  <input
+                    {...register("oldPassword")}
+                    type="password"
+                    placeholder="Ingresa tu contraseña actual"
+                    className="form-input-standard"
+                    autoComplete="current-password"
+                  />
+                  {errors?.oldPassword && (
+                    <span style={{ color: '#ef4444', marginTop: '0.25rem', fontSize: '0.875rem', display: 'block' }}>
+                      {errors.oldPassword.message}
+                    </span>
+                  )}
+                </div>
+                
+                <div style={{ marginBottom: '1rem' }}>
+                  <label className="form-label-large" style={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                    Nueva contraseña
+                  </label>
+                  <input
+                    {...register("password")}
+                    type="password"
+                    placeholder="Mínimo 6 caracteres"
+                    className="form-input-standard"
+                    autoComplete="new-password"
+                  />
+                  {errors?.password && (
+                    <span style={{ color: '#ef4444', marginTop: '0.25rem', fontSize: '0.875rem', display: 'block' }}>
+                      {errors.password.message}
+                    </span>
+                  )}
+                </div>
+                
+                <div>
+                  <label className="form-label-large" style={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                    Confirmar nueva contraseña
+                  </label>
+                  <input
+                    {...register("confirmPassword")}
+                    type="password"
+                    placeholder="Repite la nueva contraseña"
+                    className="form-input-standard"
+                    autoComplete="new-password"
+                  />
+                  {errors?.confirmPassword && (
+                    <span style={{ color: '#ef4444', marginTop: '0.25rem', fontSize: '0.875rem', display: 'block' }}>
+                      {errors.confirmPassword.message}
+                    </span>
+                  )}
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}

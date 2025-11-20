@@ -3505,9 +3505,9 @@ body > .vercel-select-dropdown {
 
 /* Sin borde azul en mobile */
 @media (max-width: 768px) {
-  /* Ocultar thead en mobile para evitar que tape la primera fila */
+  /* Mostrar thead en mobile con estilos ajustados */
   .data-table thead {
-    display: none !important;
+    display: table-header-group !important;
   }
   
   /* Ajustar padding de td en mobile */

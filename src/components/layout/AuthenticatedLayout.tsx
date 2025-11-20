@@ -461,14 +461,9 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
             white-space: nowrap;
           }
           
-          /* Ocultar header cuando showActions es false */
-          .data-table thead[style*="display: none"] {
-            display: none !important;
-          }
-          
-          /* Ajustar padding de tbody cuando no hay header */
-          .data-table:has(thead[style*="display: none"]) tbody tr:first-child td {
-            padding-top: 0.5rem;
+          /* Mostrar header en mobile con estilos ajustados */
+          .data-table thead {
+            display: table-header-group !important;
           }
           
           .data-table td {
@@ -498,6 +493,13 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
             width: auto !important;
             min-width: 80px !important;
             flex: 1 !important;
+            text-align: left !important;
+            padding-left: 8px !important;
+          }
+
+          .data-table th[data-column="category"] {
+            text-align: left !important;
+            padding-left: 8px !important;
           }
 
           .data-table td[data-column="price"] {

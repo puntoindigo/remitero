@@ -174,6 +174,7 @@ export function DataTable<T>({
               {columns.map((column) => (
                 <th 
                   key={column.key}
+                  data-column={column.key}
                   style={{ width: column.width }}
                   className={column.sortable ? "sortable" : ""}
                 >
