@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
     // Buscar usuario por token y verificar que no haya expirado
     const { data: user, error: userError } = await supabaseAdmin
       .from('users')
-      .select('id, email, name, password_reset_token, password_reset_expires')
+      .select('id, email, name, password_reset_token, password_reset_expires, has_temporary_password, password')
       .eq('password_reset_token', token)
       .single();
 
@@ -77,14 +77,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Detectar si es invitación (usuario nuevo) o recuperación
+    const isInvitation = user.has_temporary_password || !user.password;
+    const isGmail = user.email?.toLowerCase().endsWith('@gmail.com') || user.email?.toLowerCase().endsWith('@googlemail.com');
+
     // Registrar actividad
     try {
       await logUserActivity(
         user.id,
-        'PASSWORD_RESET_COMPLETED',
-        'Contraseña restablecida exitosamente mediante token',
+        isInvitation ? 'PASSWORD_SET_FROM_INVITATION' : 'PASSWORD_RESET_COMPLETED',
+        isInvitation ? 'Contraseña establecida desde invitación' : 'Contraseña restablecida exitosamente mediante token',
         { 
           resetMethod: 'token',
+          isInvitation,
           ipAddress: request.headers.get('x-forwarded-for') || 'unknown'
         }
       );
@@ -95,7 +100,12 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       { 
         success: true, 
-        message: "Contraseña restablecida exitosamente. Ya puedes iniciar sesión con tu nueva contraseña." 
+        message: isInvitation 
+          ? "Contraseña establecida exitosamente. Serás redirigido a la aplicación." 
+          : "Contraseña restablecida exitosamente. Ya puedes iniciar sesión con tu nueva contraseña.",
+        isInvitation,
+        email: user.email,
+        isGmail
       },
       { status: 200 }
     );
@@ -124,7 +134,7 @@ export async function GET(request: NextRequest) {
     // Buscar usuario por token
     const { data: user, error: userError } = await supabaseAdmin
       .from('users')
-      .select('id, email, password_reset_expires')
+      .select('id, email, name, password_reset_expires, has_temporary_password, password')
       .eq('password_reset_token', token)
       .single();
 
@@ -146,8 +156,19 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    // Detectar si es invitación (usuario nuevo) o recuperación
+    // Es invitación si tiene has_temporary_password o no tiene contraseña
+    const isInvitation = user.has_temporary_password || !user.password;
+    const isGmail = user.email?.toLowerCase().endsWith('@gmail.com') || user.email?.toLowerCase().endsWith('@googlemail.com');
+
     return NextResponse.json(
-      { valid: true, email: user.email },
+      { 
+        valid: true, 
+        email: user.email,
+        name: user.name,
+        isInvitation,
+        isGmail
+      },
       { status: 200 }
     );
   } catch (error: any) {
