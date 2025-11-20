@@ -101,10 +101,12 @@ function ResetPasswordContent() {
       if (data.isInvitation && !data.isGmail) {
         try {
           // Intentar iniciar sesión automáticamente
+          // Especificar callbackUrl explícitamente como ruta relativa para evitar errores de URL
           const signInResult = await signIn('credentials', {
             email: data.email,
             password: password,
             redirect: false,
+            callbackUrl: '/',
           });
 
           if (signInResult?.ok) {
