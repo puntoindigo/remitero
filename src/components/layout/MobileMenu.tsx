@@ -25,7 +25,6 @@ export function MobileMenu({ onClose }: MobileMenuProps = { onClose: undefined }
   const { colors } = useColorTheme();
 
   useEffect(() => {
-    setIsOpen(false);
     onClose?.();
   }, [pathname, onClose]);
 
