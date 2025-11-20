@@ -10,13 +10,16 @@ import { ShortcutText } from "@/components/common/ShortcutText";
 import { useColorTheme } from "@/contexts/ColorThemeContext";
 import ColorThemeSelector from "@/components/common/ColorThemeSelector";
 import { ConfiguracionModal } from "@/components/common/ConfiguracionModal";
+import { DocumentacionModal } from "@/components/common/DocumentacionModal";
 import { UsuarioForm } from "@/components/forms/UsuarioForm";
 import { useToast } from "@/hooks/useToast";
 import { ToastContainer } from "@/components/common/Toast";
+import { BookOpen } from "lucide-react";
 
 export default function TopBar() {
   const { data: session, status: sessionStatus } = useSession();
   const [showConfigModal, setShowConfigModal] = useState(false);
+  const [showDocumentacionModal, setShowDocumentacionModal] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [isSubmittingProfile, setIsSubmittingProfile] = useState(false);
   const currentUser = useCurrentUserSimple();
@@ -116,6 +119,11 @@ export default function TopBar() {
   const handleSettingsClick = () => {
     setShowUserMenu(false);
     setShowConfigModal(true);
+  };
+
+  const handleDocumentacionClick = () => {
+    setShowUserMenu(false);
+    setShowDocumentacionModal(true);
   };
 
   // Calcular posición del dropdown usando position fixed
@@ -332,6 +340,15 @@ export default function TopBar() {
                       <Settings className="h-4 w-4" />
                       <span>Configuración</span>
                     </button>
+                    {(session?.user?.role === 'SUPERADMIN' || currentUser?.role === 'SUPERADMIN') && (
+                      <button
+                        onClick={handleDocumentacionClick}
+                        className="user-menu-item user-menu-item-dark"
+                      >
+                        <BookOpen className="h-4 w-4" />
+                        <span>Documentación</span>
+                      </button>
+                    )}
                     <button
                       onClick={handleLogoutRequest}
                       className="user-menu-item user-menu-item-dark user-menu-item-logout"
@@ -384,6 +401,11 @@ export default function TopBar() {
       <ConfiguracionModal
         isOpen={showConfigModal}
         onClose={() => setShowConfigModal(false)}
+      />
+
+      <DocumentacionModal
+        isOpen={showDocumentacionModal}
+        onClose={() => setShowDocumentacionModal(false)}
       />
 
       {profileUser && (

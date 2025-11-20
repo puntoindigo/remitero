@@ -568,6 +568,17 @@ function LoginPageContent() {
                 }
 
                 try {
+                  // Limpiar sesión existente antes de login con Google para evitar conflictos entre entornos
+                  try {
+                    await signOut({ redirect: false });
+                    if (typeof window !== 'undefined') {
+                      localStorage.removeItem('impersonation');
+                    }
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                  } catch (e) {
+                    console.warn('⚠️ [Login] Error al limpiar sesión antes de Google login:', e);
+                  }
+                  
                   // OAuth providers REQUIEREN redirect: true (no pueden usar redirect: false)
                   // NextAuth manejará la redirección a Google y luego de vuelta
                   // IMPORTANTE: signIn con redirect: true NO retorna un valor porque redirige inmediatamente

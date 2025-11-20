@@ -417,22 +417,25 @@ export function ConfiguracionModal({ isOpen, onClose }: ConfiguracionModalProps)
                   </div>
                 </label>
               </div>
-              
-              {/* Modales Anclados */}
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '1rem' }}>
-                <div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.125rem' }}>
-                    <Pin className="h-3.5 w-3.5" style={{ color: colors.primary }} />
-                    <div style={{ fontSize: '0.8125rem', fontWeight: 500, color: '#1f2937' }}>
-                      Habilitar Modales Anclados
+            </div>
+          )}
+
+          {/* Modales Anclados - Solo en dev o para SUPERADMIN */}
+          {(isDevelopment || session?.user?.role === 'SUPERADMIN') && (
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '1rem' }}>
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.125rem' }}>
+                      <Pin className="h-3.5 w-3.5" style={{ color: colors.primary }} />
+                      <div style={{ fontSize: '0.8125rem', fontWeight: 500, color: '#1f2937' }}>
+                        Habilitar Modales Anclados
+                      </div>
+                    </div>
+                    <div style={{ fontSize: '0.6875rem', color: '#6b7280', marginLeft: '1.75rem' }}>
+                      Permite anclar formularios al Panel de Control
                     </div>
                   </div>
-                  <div style={{ fontSize: '0.6875rem', color: '#6b7280', marginLeft: '1.75rem' }}>
-                    Permite anclar formularios al Panel de Control
-                  </div>
-                </div>
-                <label
-                  style={{
+                  <label
+                    style={{
                     position: 'relative',
                     display: 'inline-flex',
                     alignItems: 'center',
@@ -537,9 +540,8 @@ export function ConfiguracionModal({ isOpen, onClose }: ConfiguracionModalProps)
                     />
                   </div>
                 </label>
-              </div>
-            </div>
-          )}
+                </div>
+              )}
 
           {/* Footer */}
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem', marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid #e5e7eb' }}>
@@ -558,7 +560,7 @@ export function ConfiguracionModal({ isOpen, onClose }: ConfiguracionModalProps)
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.transform = 'translateY(-1px)';
-                e.currentTarget.style.boxShadow = `0 4px 12px ${colors.primary}40`;
+                e.currentTarget.style.boxShadow = `0 4px 12px ${colors?.primary || '#667eea'}40`;
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.transform = 'translateY(0)';
