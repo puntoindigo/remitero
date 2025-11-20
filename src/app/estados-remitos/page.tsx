@@ -221,6 +221,8 @@ function EstadosRemitosContent() {
     }
   }, [queryClient, showToastSuccess, showToastError]);
 
+  const isMobile = useIsMobile();
+  
   // Definir columnas para el DataTable
   const columns: DataTableColumn<EstadoRemitoQ>[] = [
     {
@@ -237,9 +239,16 @@ function EstadosRemitosContent() {
         <div style={{ display: 'inline-flex', alignItems: 'center', whiteSpace: 'nowrap' }}>
           <div 
             className="w-4 h-4 rounded-full border"
-            style={{ backgroundColor: estado.color, marginRight: '4px' }}
+            style={{ 
+              backgroundColor: estado.color, 
+              marginRight: isMobile ? 0 : '4px',
+              width: isMobile ? '20px' : '16px',
+              height: isMobile ? '20px' : '16px'
+            }}
           ></div>
-          <span className="text-sm text-gray-600 font-mono">{estado.color}</span>
+          {!isMobile && (
+            <span className="text-sm text-gray-600 font-mono">{estado.color}</span>
+          )}
         </div>
       )
     },
@@ -278,7 +287,8 @@ function EstadosRemitosContent() {
         );
       }
     },
-    {
+    // Ocultar columna Registrado en mobile
+    ...(isMobile ? [] : [{
       key: 'created_at',
       label: 'Registrado',
       render: (estado) => (
@@ -293,7 +303,7 @@ function EstadosRemitosContent() {
           }) : 'N/A'}
         </div>
       )
-    }
+    }])
   ];
 
   if (estadosLoading) {

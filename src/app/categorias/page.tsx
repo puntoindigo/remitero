@@ -197,7 +197,9 @@ function CategoriasContent() {
   // Verificar si hay un problema con los datos del usuario
   const hasDataIssue = !companyId && currentUser?.role !== "SUPERADMIN";
 
-  // Definir columnas para el DataTable
+  const isMobile = useIsMobile();
+  
+  // Definir columnas para el DataTable - ocultar Registrado en mobile
   const columns: DataTableColumn<Categoria>[] = [
     {
       key: 'name',
@@ -208,7 +210,8 @@ function CategoriasContent() {
         </div>
       )
     },
-    {
+    // Ocultar columna Registrado en mobile
+    ...(isMobile ? [] : [{
       key: 'createdAt',
       label: 'Registrado',
       render: (categoria) => {
@@ -222,7 +225,7 @@ function CategoriasContent() {
           hour12: false
         });
       }
-    }
+    }])
   ];
 
   if (isLoading) {

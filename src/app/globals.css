@@ -3531,7 +3531,14 @@ body > .vercel-select-dropdown {
     display: none !important;
   }
   
-  /* Mostrar botón de ver PDF en mobile */
+  /* Ocultar botón de ver PDF en mobile (solo desktop) */
+  .action-button.view-pdf-button {
+    display: none !important;
+  }
+}
+
+/* Desktop: mostrar botón de ver PDF */
+@media (min-width: 769px) {
   .action-button.view-pdf-button {
     display: inline-flex !important;
   }

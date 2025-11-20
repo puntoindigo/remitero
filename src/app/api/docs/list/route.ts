@@ -118,18 +118,21 @@ export async function GET() {
       console.warn('Error al leer directorio docs:', err);
     }
     
-    // Agregar COMMITS como documento especial (siempre primero)
-    documents.unshift({
-      name: 'COMMITS',
-      path: '/api/docs/commits',
-      title: 'Commits',
-      modifiedAt: new Date().toISOString(), // Siempre actual
-      isInDocs: false,
-    });
+    // Agregar COMMITS como documento especial solo en localhost
+    const isLocalhost = !process.env.VERCEL && (process.env.NODE_ENV === 'development' || process.env.NEXT_PUBLIC_IS_LOCALHOST === 'true');
+    if (isLocalhost) {
+      documents.unshift({
+        name: 'COMMITS',
+        path: '/api/docs/commits',
+        title: 'Commits',
+        modifiedAt: new Date().toISOString(), // Siempre actual
+        isInDocs: false,
+      });
+    }
     
     // Ordenar por fecha de modificación (más reciente primero)
     documents.sort((a, b) => {
-      // COMMITS siempre primero
+      // COMMITS siempre primero (si existe)
       if (a.name === 'COMMITS') return -1;
       if (b.name === 'COMMITS') return 1;
       

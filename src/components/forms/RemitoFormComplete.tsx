@@ -9,6 +9,7 @@ import { FormModal } from "@/components/common/FormModal";
 import { ClienteForm } from "@/components/forms/ClienteForm";
 import { remitoSchema, type RemitoForm } from "@/lib/validations";
 import { LoadingSpinner } from "@/components/common/LoadingSpinner";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 interface RemitoItem {
   product_id?: string;
@@ -44,6 +45,7 @@ export function RemitoFormComplete({
   companyId,
   onClientCreated
 }: RemitoFormCompleteProps) {
+  const isMobile = useIsMobile();
   const [items, setItems] = useState<RemitoItem[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<string>("");
   const [quantity, setQuantity] = useState<number>(1);
@@ -454,16 +456,18 @@ export function RemitoFormComplete({
               <tr key={index}>
                 <td>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <img 
-                      src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 24 24' fill='none' stroke='%23d1d5db' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='3' width='18' height='18' rx='2'/%3E%3Cpath d='M9 9h6v6H9z'/%3E%3C/svg%3E"
-                      alt="Sin imagen"
-                      style={{ 
-                        width: '32px', 
-                        height: '32px', 
-                        flexShrink: 0,
-                        opacity: 0.5
-                      }}
-                    />
+                    {!isMobile && (
+                      <img 
+                        src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 24 24' fill='none' stroke='%23d1d5db' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='3' width='18' height='18' rx='2'/%3E%3Cpath d='M9 9h6v6H9z'/%3E%3C/svg%3E"
+                        alt="Sin imagen"
+                        style={{ 
+                          width: '32px', 
+                          height: '32px', 
+                          flexShrink: 0,
+                          opacity: 0.5
+                        }}
+                      />
+                    )}
                     <div>
                       <div style={{ fontSize: '14px', fontWeight: 500 }}>{item.product_name}</div>
                       {item.product_desc && (
