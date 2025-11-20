@@ -358,24 +358,6 @@ function ProductosContent() {
   // Definir columnas para el DataTable - desktop tradicional, mobile sin descripción
   const columns: DataTableColumn<Product>[] = isMobile ? [
     {
-      key: 'image',
-      label: '',
-      render: () => (
-        <div style={{ width: '40px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-          <img 
-            src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 24 24' fill='none' stroke='%23d1d5db' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='3' width='18' height='18' rx='2'/%3E%3Cpath d='M9 9h6v6H9z'/%3E%3C/svg%3E"
-            alt="Sin imagen"
-            style={{ 
-              width: '32px', 
-              height: '32px', 
-              flexShrink: 0,
-              opacity: 0.5
-            }}
-          />
-        </div>
-      )
-    },
-    {
       key: 'name',
       label: 'Nombre',
       render: (producto) => producto.name || 'Sin nombre'
@@ -411,17 +393,12 @@ function ProductosContent() {
       label: 'Stock',
       render: (producto) => {
         const isInStock = (producto.stock || 'OUT_OF_STOCK') === 'IN_STOCK';
-        const stockColor = isInStock ? '#16a34a' : '#ef4444';
         return (
           <span style={{
-            padding: '4px 8px',
-            borderRadius: '4px',
-            backgroundColor: `${stockColor}20`,
-            color: stockColor,
-            fontSize: '12px',
-            fontWeight: 500
+            fontSize: '18px',
+            lineHeight: '1'
           }}>
-            {isInStock ? 'En stock' : 'Sin stock'}
+            {isInStock ? '✓' : '✗'}
           </span>
         );
       }

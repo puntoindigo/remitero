@@ -4,10 +4,11 @@ import { useEffect } from 'react';
 
 interface PrintRemitoModalProps {
   remitoId: string;
+  remitoNumber?: string;
   onClose: () => void;
 }
 
-export function PrintRemitoModal({ remitoId, onClose }: PrintRemitoModalProps) {
+export function PrintRemitoModal({ remitoId, remitoNumber, onClose }: PrintRemitoModalProps) {
   useEffect(() => {
     // Cerrar con ESC
     const handleEsc = (e: KeyboardEvent) => {
@@ -38,21 +39,13 @@ export function PrintRemitoModal({ remitoId, onClose }: PrintRemitoModalProps) {
       >
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b">
-          <h2 className="text-xl font-bold">Vista Previa del Remito</h2>
-          <div className="flex gap-2">
-            <button
-              onClick={handlePrint}
-              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
-            >
-              🖨️ Imprimir
-            </button>
-            <button
-              onClick={onClose}
-              className="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors"
-            >
-              ✕ Cerrar
-            </button>
-          </div>
+          <h2 className="text-xl font-bold">Remito #{remitoNumber || remitoId}</h2>
+          <button
+            onClick={onClose}
+            className="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors"
+          >
+            ✕ Cerrar
+          </button>
         </div>
 
         {/* Iframe */}
@@ -65,9 +58,15 @@ export function PrintRemitoModal({ remitoId, onClose }: PrintRemitoModalProps) {
           />
         </div>
 
-        {/* Footer hint */}
-        <div className="p-2 text-center text-sm text-gray-500 border-t">
-          Presiona <kbd className="px-2 py-1 bg-gray-100 rounded">ESC</kbd> para cerrar
+        {/* Footer con botón de imprimir */}
+        <div className="p-4 border-t flex justify-center">
+          <button
+            onClick={handlePrint}
+            className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors flex items-center gap-2"
+          >
+            <span>🖨️</span>
+            <span>Imprimir</span>
+          </button>
         </div>
       </div>
     </div>

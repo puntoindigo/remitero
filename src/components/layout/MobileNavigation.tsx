@@ -107,34 +107,6 @@ export function MobileNavigation() {
                 </span>
               </Link>
               
-              {/* Botón + flotante para crear nuevo */}
-              {item.newPath && (
-                <button
-                  onClick={() => handlePlusClick(item.newPath)}
-                  style={{
-                    position: 'absolute',
-                    top: '-0.5rem',
-                    right: '0.5rem',
-                    width: '24px',
-                    height: '24px',
-                    borderRadius: '50%',
-                    backgroundColor: '#3b82f6',
-                    color: '#ffffff',
-                    border: 'none',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    cursor: 'pointer',
-                    boxShadow: '0 2px 4px rgba(59, 130, 246, 0.3)',
-                    fontSize: '0.875rem',
-                    fontWeight: 600,
-                    padding: 0,
-                  }}
-                  title={`Nuevo ${item.label.slice(0, -1)}`}
-                >
-                  <Plus size={14} />
-                </button>
-              )}
             </div>
           );
         })}

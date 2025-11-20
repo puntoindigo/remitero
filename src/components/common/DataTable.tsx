@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Edit, Trash2, Plus, Printer } from "lucide-react";
+import { Edit, Trash2, Plus, Printer, Eye } from "lucide-react";
 import { LoadingSpinner } from "./LoadingSpinner";
 import { LoadingTable } from "./LoadingTable";
 import { ShortcutText } from "./ShortcutText";
@@ -25,6 +25,7 @@ export interface DataTableProps<T> {
   onEdit?: (item: T) => void;
   onDelete?: (item: T) => void;
   onPrint?: (item: T) => void;
+  onViewPDF?: (item: T) => void;
   onNew?: () => void;
   newButtonText?: string;
   newButtonIcon?: React.ReactNode;
@@ -50,6 +51,7 @@ export function DataTable<T>({
   onEdit,
   onDelete,
   onPrint,
+  onViewPDF,
   onNew,
   newButtonText = "Nuevo",
   newButtonIcon = <Plus className="h-4 w-4 mr-2" />,
@@ -178,7 +180,7 @@ export function DataTable<T>({
                   {column.label}
                 </th>
               ))}
-              {showActions && (onEdit || onDelete || onPrint) && (
+              {showActions && (onEdit || onDelete || onPrint || onViewPDF) && (
                 <th className="actions-column">{actionsColumnLabel}</th>
               )}
             </tr>
@@ -197,9 +199,18 @@ export function DataTable<T>({
                     }
                   </td>
                 ))}
-                {showActions && (onEdit || onDelete || onPrint) && (
+                {showActions && (onEdit || onDelete || onPrint || onViewPDF) && (
                   <td className="actions-cell">
                     <div className="action-buttons">
+                      {onViewPDF && (
+                        <button
+                          onClick={() => onViewPDF(item)}
+                          className="action-button view-pdf-button"
+                          title="Ver PDF"
+                        >
+                          <Eye className="h-4 w-4" />
+                        </button>
+                      )}
                       {onPrint && (
                         <button
                           onClick={() => onPrint(item)}

@@ -9,6 +9,7 @@ import FilterableSelect from "@/components/common/FilterableSelect";
 import { MessageModal } from "@/components/common/MessageModal";
 import DeleteConfirmModal from "@/components/common/DeleteConfirmModal";
 import { ConfirmationModal } from "@/components/common/ConfirmationModal";
+import { PrintRemitoModal } from "@/components/common/PrintRemitoModal";
 import { ToastContainer } from "@/components/common/Toast.jsx";
 import { useMessageModal } from "@/hooks/useMessageModal";
 import { useToast } from "@/hooks/useToast.js";
@@ -96,6 +97,8 @@ function RemitosContent() {
   // Estados para modales y confirmaciones
   const [showPrintConfirm, setShowPrintConfirm] = useState(false);
   const [remitoToPrint, setRemitoToPrint] = useState<Remito | null>(null);
+  const [showPDFModal, setShowPDFModal] = useState(false);
+  const [remitoToView, setRemitoToView] = useState<Remito | null>(null);
   
   // Loading state management
   const { loading: loadingState, startLoading, stopLoading } = useLoading();
@@ -134,6 +137,11 @@ function RemitosContent() {
   const handlePrintRemito = useCallback((remito: Remito) => {
     setRemitoToPrint(remito);
     setShowPrintConfirm(true);
+  }, []);
+
+  const handleViewPDF = useCallback((remito: Remito) => {
+    setRemitoToView(remito);
+    setShowPDFModal(true);
   }, []);
 
   // Refs para evitar loops infinitos entre URL y estado
@@ -346,6 +354,7 @@ function RemitosContent() {
     },
     onDelete: handleDeleteRemito,
     onPrint: handlePrintRemito,
+    onViewPDF: !isMobile ? handleViewPDF : undefined,
     onNew: handleNewRemito,
     getItemId: (remito) => remito?.id,
     emptyMessage: "No hay remitos",
@@ -430,8 +439,8 @@ function RemitosContent() {
         showToastSuccess("Remito creado correctamente");
         handleCloseForm();
         
-        // Ofrecer imprimir el remito recién creado con modal personalizado
-        if (newRemito?.number) {
+        // Ofrecer imprimir el remito recién creado solo en desktop
+        if (newRemito?.number && !isMobile) {
           setRemitoToPrint(newRemito as any);
           setShowPrintConfirm(true);
         }
@@ -763,6 +772,18 @@ function RemitosContent() {
           confirmText="Sí, imprimir"
           cancelText="No"
         />
+
+        {/* Modal para ver PDF del remito */}
+        {showPDFModal && remitoToView?.id && (
+          <PrintRemitoModal
+            remitoId={remitoToView.id}
+            remitoNumber={remitoToView.number}
+            onClose={() => {
+              setShowPDFModal(false);
+              setRemitoToView(null);
+            }}
+          />
+        )}
       </div>
     </main>
     </>

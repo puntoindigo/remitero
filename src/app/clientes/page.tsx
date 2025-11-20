@@ -191,11 +191,6 @@ function ClientesContent() {
       render: (cliente) => cliente.name
     },
     {
-      key: 'email',
-      label: 'Email',
-      render: (cliente) => cliente.email || '-'
-    },
-    {
       key: 'remitos',
       label: 'Remitos',
       render: (cliente) => {
