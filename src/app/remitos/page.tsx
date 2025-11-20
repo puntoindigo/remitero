@@ -682,6 +682,8 @@ function RemitosContent() {
               showNewButton={false}
               onEdit={handleEditRemito}
               onDelete={handleDeleteRemito}
+              onPrint={handlePrintRemito}
+              onViewPDF={!isMobile ? handleViewPDF : undefined}
             />
                 <Pagination 
                   currentPage={page}
