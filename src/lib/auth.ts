@@ -162,6 +162,10 @@ export const authOptions: NextAuthOptions = {
               email: user.email,
               is_active: user.is_active
             });
+            return null
+          }
+
+          console.log('🔐 [Credentials authorize] Verificando contraseña...');
             // Usuario desactivado, retornar null para que NextAuth muestre error
             // NextAuth manejará esto como credenciales inválidas
             return null

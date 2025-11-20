@@ -109,8 +109,13 @@ function ResetPasswordContent() {
             href: window.location.href
           });
 
+          // Esperar un momento para asegurar que la contraseña se haya actualizado en la BD
+          console.log('⏳ [Reset Password] Esperando 500ms para asegurar persistencia de contraseña...');
+          await new Promise(resolve => setTimeout(resolve, 500));
+
           // Intentar iniciar sesión automáticamente
           // Usar ruta relativa simple para evitar problemas con URLs
+          console.log('🔐 [Reset Password] Llamando a signIn...');
           const signInResult = await signIn('credentials', {
             email: data.email,
             password: password,
@@ -118,17 +123,33 @@ function ResetPasswordContent() {
             callbackUrl: '/', // Ruta relativa simple
           });
 
-          console.log('🔍 [Reset Password] Resultado del login:', {
+          console.log('🔍 [Reset Password] Resultado completo del signIn:', {
             ok: signInResult?.ok,
             error: signInResult?.error,
             status: signInResult?.status,
-            url: signInResult?.url
+            url: signInResult?.url,
+            resultType: typeof signInResult,
+            resultKeys: signInResult ? Object.keys(signInResult) : 'null',
+            fullResult: JSON.stringify(signInResult, null, 2)
           });
 
-          if (signInResult?.ok) {
+          // Verificar sesión después del signIn
+          console.log('🔍 [Reset Password] Verificando sesión después del signIn...');
+          const { getSession } = await import('next-auth/react');
+          const session = await getSession();
+          console.log('🔍 [Reset Password] Sesión obtenida:', {
+            hasSession: !!session,
+            userId: session?.user?.id,
+            email: session?.user?.email,
+            role: session?.user?.role
+          });
+
+          if (signInResult?.ok || session) {
             // Sesión iniciada exitosamente, usar window.location para forzar recarga completa
             // Esto asegura que la sesión se establezca correctamente
             console.log('✅ [Reset Password] Login exitoso, redirigiendo...');
+            // Pequeño delay para asegurar que la cookie se establezca
+            await new Promise(resolve => setTimeout(resolve, 200));
             window.location.href = '/';
             return; // No mostrar pantalla de éxito, redirigir inmediatamente
           } else {
@@ -136,7 +157,8 @@ function ResetPasswordContent() {
             console.error('❌ [Reset Password] Error en login automático:', {
               error: signInResult?.error,
               status: signInResult?.status,
-              url: signInResult?.url
+              url: signInResult?.url,
+              hasSession: !!session
             });
             setError('Contraseña establecida, pero hubo un error al iniciar sesión. Por favor, inicia sesión manualmente.');
             setSuccess(false);
