@@ -27,7 +27,7 @@ export function VercelMobileNav() {
   const router = useRouter();
   const currentUser = useCurrentUserSimple();
   const { colors } = useColorTheme();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(true); // Abrir automáticamente en mobile
 
   // Detectar qué página está activa para mostrar el botón + correcto
   const getNewPath = () => {

@@ -479,6 +479,39 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
             word-wrap: break-word;
             max-width: 0; /* Permite que las celdas se ajusten */
           }
+
+          /* Ajustar espaciado en productos mobile - reducir espacio entre stock y acciones */
+          .data-table td[data-column="stock"] {
+            padding-right: 4px !important;
+            width: 30px !important;
+            min-width: 30px !important;
+            max-width: 30px !important;
+          }
+
+          .data-table td[data-column="name"] {
+            width: auto !important;
+            min-width: 100px !important;
+            flex: 1 !important;
+          }
+
+          .data-table td[data-column="category"] {
+            width: auto !important;
+            min-width: 80px !important;
+            flex: 1 !important;
+          }
+
+          .data-table td[data-column="price"] {
+            width: auto !important;
+            min-width: 80px !important;
+            flex: 1 !important;
+          }
+
+          .actions-cell {
+            padding-left: 4px !important;
+            width: 60px !important;
+            min-width: 60px !important;
+            max-width: 60px !important;
+          }
           
           /* Evitar overflow en elementos internos */
           .data-table td > * {

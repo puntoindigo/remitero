@@ -377,25 +377,7 @@ export function ProductoForm({
         </div>
       </div>
 
-      <div className="form-group">
-        <label className="form-label-large">
-          Descripción
-          {errors?.description && (
-            <span style={{ color: '#ef4444', marginLeft: '8px', fontSize: '0.875rem', fontWeight: 'normal' }}>
-              {errors.description.message}
-            </span>
-          )}
-        </label>
-        <textarea
-          {...register("description")}
-          placeholder="Descripción (opcional)"
-          rows={3}
-          className="form-textarea-standard"
-          onKeyDown={handleKeyDown}
-        />
-      </div>
-
-      {/* Stock abajo a la izquierda */}
+      {/* Stock primero */}
       <div style={{ 
         display: 'flex', 
         alignItems: 'center', 
@@ -428,6 +410,24 @@ export function ProductoForm({
             <X className="h-5 w-5" style={{ color: '#ef4444' }} />
           )}
         </button>
+      </div>
+
+      <div className="form-group">
+        <label className="form-label-large">
+          Descripción
+          {errors?.description && (
+            <span style={{ color: '#ef4444', marginLeft: '8px', fontSize: '0.875rem', fontWeight: 'normal' }}>
+              {errors.description.message}
+            </span>
+          )}
+        </label>
+        <textarea
+          {...register("description")}
+          placeholder="Descripción (opcional)"
+          rows={3}
+          className="form-textarea-standard"
+          onKeyDown={handleKeyDown}
+        />
       </div>
     </FormModal>
   );

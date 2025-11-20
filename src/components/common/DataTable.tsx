@@ -192,7 +192,7 @@ export function DataTable<T>({
                 className={rowClassName(item, index)}
               >
                 {columns.map((column) => (
-                  <td key={column.key}>
+                  <td key={column.key} data-column={column.key}>
                     {column.render 
                       ? column.render(item, index)
                       : (item as any)[column.key]
