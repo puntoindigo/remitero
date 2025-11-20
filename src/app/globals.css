@@ -3510,10 +3510,30 @@ body > .vercel-select-dropdown {
     display: table-header-group !important;
   }
   
-  /* Ajustar padding de td en mobile */
+  /* Ajustar padding de td en mobile - más compacto */
   .data-table td {
     border-bottom: 1px solid #f3f4f6;
-    padding: 8px 6px;
+    padding: 6px 4px;
+  }
+  
+  /* Ajustar padding de th en mobile */
+  .data-table th {
+    padding: 8px 4px;
+  }
+  
+  /* Reducir padding general del body en mobile */
+  body {
+    padding: 0;
+    margin: 0;
+  }
+  
+  /* Reducir padding de contenedores principales en mobile */
+  .main-content {
+    padding: 8px 4px;
+  }
+  
+  .form-section {
+    padding: 8px 4px;
   }
   
   .data-table tbody tr:last-child td {

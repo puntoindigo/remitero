@@ -1,8 +1,10 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { X, FileText, ChevronLeft, ChevronRight, Copy, Check } from 'lucide-react';
+import { X, FileText, ChevronLeft, ChevronRight, Link as LinkIcon, Check, Trash2 } from 'lucide-react';
 import { MarkdownContent } from '@/components/docs/MarkdownContent';
+import DeleteConfirmModal from '@/components/common/DeleteConfirmModal';
+import { useToast } from '@/hooks/useToast.js';
 
 interface DocumentacionModalProps {
   isOpen: boolean;
@@ -25,6 +27,8 @@ export function DocumentacionModal({ isOpen, onClose }: DocumentacionModalProps)
   const [loadingDocs, setLoadingDocs] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState<DocumentInfo | null>(null);
+  const { toasts, showSuccess, showError, removeToast } = useToast();
 
   // Cargar lista de documentos al abrir
   useEffect(() => {
@@ -243,19 +247,6 @@ export function DocumentacionModal({ isOpen, onClose }: DocumentacionModalProps)
               </div>
             )}
             <div className="flex items-center gap-2">
-              {currentDoc && (
-                <button
-                  onClick={handleCopyLink}
-                  className="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                  title="Copiar link al portapapeles"
-                >
-                  {copied ? (
-                    <Check className="h-5 w-5 text-green-600 dark:text-green-400" />
-                  ) : (
-                    <Copy className="h-5 w-5 text-gray-600 dark:text-gray-400" />
-                  )}
-                </button>
-              )}
               <button
                 onClick={onClose}
                 className="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
@@ -293,6 +284,30 @@ export function DocumentacionModal({ isOpen, onClose }: DocumentacionModalProps)
           )}
         </div>
 
+        {/* Botones de acción (copiar link y eliminar) - arriba del contenido */}
+        {currentDoc && currentDoc.name !== 'COMMITS' && (
+          <div className="px-4 py-2 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 flex items-center justify-end gap-2">
+            <button
+              onClick={handleCopyLink}
+              className="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              title="Copiar link al portapapeles"
+            >
+              {copied ? (
+                <Check className="h-5 w-5 text-green-600 dark:text-green-400" />
+              ) : (
+                <LinkIcon className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+              )}
+            </button>
+            <button
+              onClick={() => setShowDeleteConfirm(currentDoc)}
+              className="p-2 rounded hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+              title="Eliminar documento"
+            >
+              <Trash2 className="h-5 w-5 text-red-600 dark:text-red-400" />
+            </button>
+          </div>
+        )}
+
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-6 bg-white dark:bg-gray-900">
           {loading || loadingDocs ? (
@@ -310,6 +325,64 @@ export function DocumentacionModal({ isOpen, onClose }: DocumentacionModalProps)
           )}
         </div>
       </div>
+      
+      {/* Modal de confirmación de eliminación */}
+      {showDeleteConfirm && (
+        <DeleteConfirmModal
+          isOpen={!!showDeleteConfirm}
+          onClose={() => setShowDeleteConfirm(null)}
+          onConfirm={async () => {
+            if (!showDeleteConfirm) return;
+            
+            try {
+              const response = await fetch(`/api/docs/delete`, {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                  name: showDeleteConfirm.name,
+                  isInDocs: showDeleteConfirm.isInDocs 
+                })
+              });
+              
+              if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.message || 'Error al eliminar documento');
+              }
+              
+              showSuccess('Documento eliminado correctamente');
+              setShowDeleteConfirm(null);
+              
+              // Recargar lista de documentos
+              await loadDocumentsList();
+              
+              // Si el documento eliminado era el actual, ir al primero
+              if (currentDocIndex >= documents.length - 1) {
+                setCurrentDocIndex(0);
+              }
+            } catch (err: any) {
+              showError(err.message || 'Error al eliminar documento');
+            }
+          }}
+          title="Eliminar Documento"
+          message={`¿Estás seguro de que deseas eliminar "${showDeleteConfirm.title}"? Esta acción no se puede deshacer.`}
+        />
+      )}
+      
+      {/* Toast Container */}
+      {toasts.length > 0 && (
+        <div className="fixed bottom-4 right-4 z-[999999] flex flex-col gap-2">
+          {toasts.map((toast) => (
+            <div
+              key={toast.id}
+              className={`px-4 py-3 rounded-lg shadow-lg ${
+                toast.type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+              }`}
+            >
+              {toast.message}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
