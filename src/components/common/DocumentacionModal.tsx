@@ -80,31 +80,38 @@ export function DocumentacionModal({ isOpen, onClose }: DocumentacionModalProps)
         
         // Formatear commits como markdown
         let markdown = '# Commits\n\n';
-        commits.forEach((commit: any, idx: number) => {
-          const date = new Date(commit.date);
-          const formattedDate = date.toLocaleString('es-AR', {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: false
+        
+        if (commits.length === 0) {
+          markdown += '⚠️ **Los commits no están disponibles en este entorno.**\n\n';
+          markdown += 'Los commits solo están disponibles en desarrollo local.\n\n';
+          markdown += 'En producción (Vercel), el acceso a git no está disponible por razones de seguridad.\n\n';
+        } else {
+          commits.forEach((commit: any, idx: number) => {
+            const date = new Date(commit.date);
+            const formattedDate = date.toLocaleString('es-AR', {
+              year: 'numeric',
+              month: '2-digit',
+              day: '2-digit',
+              hour: '2-digit',
+              minute: '2-digit',
+              hour12: false
+            });
+            
+            markdown += `## Commit ${commits.length - idx}\n\n`;
+            markdown += `**Fecha/Hora:** ${formattedDate}\n\n`;
+            markdown += `**Hash:** \`${commit.hash.substring(0, 7)}\`\n\n`;
+            markdown += `**Autor:** ${commit.author}\n\n`;
+            markdown += `**Mensaje:** ${commit.message}\n\n`;
+            
+            // Extraer "qué hay que probar" si existe en el mensaje
+            const probarMatch = commit.message.match(/probar[:\-]?\s*(.+)/i);
+            if (probarMatch) {
+              markdown += `**Qué probar:** ${probarMatch[1]}\n\n`;
+            }
+            
+            markdown += '---\n\n';
           });
-          
-          markdown += `## Commit ${commits.length - idx}\n\n`;
-          markdown += `**Fecha/Hora:** ${formattedDate}\n\n`;
-          markdown += `**Hash:** \`${commit.hash.substring(0, 7)}\`\n\n`;
-          markdown += `**Autor:** ${commit.author}\n\n`;
-          markdown += `**Mensaje:** ${commit.message}\n\n`;
-          
-          // Extraer "qué hay que probar" si existe en el mensaje
-          const probarMatch = commit.message.match(/probar[:\-]?\s*(.+)/i);
-          if (probarMatch) {
-            markdown += `**Qué probar:** ${probarMatch[1]}\n\n`;
-          }
-          
-          markdown += '---\n\n';
-        });
+        }
         
         setContent(markdown);
       } else {
