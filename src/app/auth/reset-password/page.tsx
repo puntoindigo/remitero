@@ -97,8 +97,6 @@ function ResetPasswordContent() {
         throw new Error(data.message || 'Error al restablecer la contraseña');
       }
 
-      setSuccess(true);
-      
       // Si es invitación (usuario nuevo), iniciar sesión automáticamente
       if (data.isInvitation && !data.isGmail) {
         try {
@@ -110,25 +108,31 @@ function ResetPasswordContent() {
           });
 
           if (signInResult?.ok) {
-            // Sesión iniciada exitosamente, redirigir a la app
-            setTimeout(() => {
-              router.push('/');
-            }, 1500);
+            // Sesión iniciada exitosamente, usar window.location para forzar recarga completa
+            // Esto asegura que la sesión se establezca correctamente
+            window.location.href = '/';
+            return; // No mostrar pantalla de éxito, redirigir inmediatamente
           } else {
-            // Si falla el login automático, redirigir al login con email
+            // Si falla el login automático, mostrar error
+            console.error('Error en login automático:', signInResult?.error);
+            setError('Contraseña establecida, pero hubo un error al iniciar sesión. Por favor, inicia sesión manualmente.');
+            setSuccess(false);
+            // Redirigir al login después de un momento
             setTimeout(() => {
               router.push(`/auth/login?message=password-set-success&email=${encodeURIComponent(data.email)}`);
-            }, 2000);
+            }, 3000);
           }
-        } catch (signInError) {
+        } catch (signInError: any) {
           console.error('Error al iniciar sesión automáticamente:', signInError);
-          // Si falla, redirigir al login con email
+          setError('Contraseña establecida, pero hubo un error al iniciar sesión. Por favor, inicia sesión manualmente.');
+          setSuccess(false);
           setTimeout(() => {
             router.push(`/auth/login?message=password-set-success&email=${encodeURIComponent(data.email)}`);
-          }, 2000);
+          }, 3000);
         }
       } else {
-        // Si es recuperación, redirigir al login después de 3 segundos con email
+        // Si es recuperación, mostrar pantalla de éxito y redirigir al login
+        setSuccess(true);
         setTimeout(() => {
           router.push(`/auth/login?message=password-reset-success&email=${encodeURIComponent(data.email || userEmail)}`);
         }, 3000);
