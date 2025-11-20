@@ -257,11 +257,24 @@ function EstadosRemitosContent() {
     {
       key: 'is_active',
       label: 'Activo',
-      render: (estado) => (
-        <span className={`badge ${estado.is_active ? 'badge-success' : 'badge-inactive'}`} style={{ padding: '4%' }}>
-          {estado.is_active ? 'Activo' : 'Inactivo'}
-        </span>
-      )
+      render: (estado) => {
+        const isActive = estado.is_active;
+        const activeColor = '#059669';
+        const inactiveColor = '#6b7280';
+        const color = isActive ? activeColor : inactiveColor;
+        return (
+          <span style={{
+            padding: '4px 8px',
+            borderRadius: '4px',
+            backgroundColor: `${color}20`,
+            color: color,
+            fontSize: '12px',
+            fontWeight: 500
+          }}>
+            {isActive ? 'Activo' : 'Inactivo'}
+          </span>
+        );
+      }
     },
     {
       key: 'created_at',

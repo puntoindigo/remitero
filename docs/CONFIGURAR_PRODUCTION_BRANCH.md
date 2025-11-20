@@ -42,5 +42,5 @@ Esto fuerza un deploy a producción independientemente de la configuración.
 
 ---
 
-**Última actualización**: Diciembre 2024
+**Última actualización**: Enero 2025
 

@@ -351,12 +351,26 @@ function UsuariosContent() {
     {
       key: 'role',
       label: 'Rol',
-      render: (usuario) => (
-        <span className={`badge ${usuario.role === 'SUPERADMIN' ? 'badge-superadmin' : 
-          usuario.role === 'ADMIN' ? 'badge-admin' : 'badge-user'}`} style={{ padding: '4%' }}>
-          {usuario.role}
-        </span>
-      )
+      render: (usuario) => {
+        const roleColors: Record<string, { bg: string; color: string }> = {
+          'SUPERADMIN': { bg: '#dc2626', color: '#dc2626' },
+          'ADMIN': { bg: '#2563eb', color: '#2563eb' },
+          'USER': { bg: '#059669', color: '#059669' }
+        };
+        const roleColor = roleColors[usuario.role] || { bg: '#6b7280', color: '#6b7280' };
+        return (
+          <span style={{
+            padding: '4px 8px',
+            borderRadius: '4px',
+            backgroundColor: `${roleColor.bg}20`,
+            color: roleColor.color,
+            fontSize: '12px',
+            fontWeight: 500
+          }}>
+            {usuario.role}
+          </span>
+        );
+      }
     },
     {
       key: 'is_active',

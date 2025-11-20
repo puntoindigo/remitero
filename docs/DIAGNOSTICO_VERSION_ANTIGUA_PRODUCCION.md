@@ -92,5 +92,5 @@ Si después de todos estos pasos sigues viendo la versión antigua, puede ser qu
 
 ---
 
-**Última actualización**: Diciembre 2024
+**Última actualización**: Enero 2025
 

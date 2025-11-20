@@ -22,6 +22,7 @@ export function UserActivityLogModal({
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
+  const [showSessionData, setShowSessionData] = useState(false);
   const pageSize = 50;
 
   useEffect(() => {
@@ -260,6 +261,17 @@ export function UserActivityLogModal({
               {userName}
             </p>
           </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.875rem', color: '#6b7280' }}>
+              <input
+                type="checkbox"
+                checked={showSessionData}
+                onChange={(e) => setShowSessionData(e.target.checked)}
+                style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+              />
+              <span>Datos de sesión</span>
+            </label>
+          </div>
           <button
             onClick={onClose}
             style={{
@@ -320,8 +332,16 @@ export function UserActivityLogModal({
               </div>
               
               {/* Cuerpo de tabla */}
-              <div style={{ maxHeight: 'calc(90vh - 200px)', overflowY: 'auto' }}>
-                {logs.map((log, index) => (
+              <div style={{ maxHeight: 'calc(90vh - 280px)', overflowY: 'auto' }}>
+                {logs
+                  .filter(log => {
+                    if (!showSessionData) {
+                      // Filtrar inicios y cierres de sesión si el check está deshabilitado
+                      return log.action !== 'LOGIN' && log.action !== 'LOGOUT';
+                    }
+                    return true;
+                  })
+                  .map((log, index) => (
                   <div
                     key={log.id}
                     style={{
@@ -362,9 +382,14 @@ export function UserActivityLogModal({
               {hasMore && (
                 <div style={{ 
                   marginTop: '0.75rem', 
-                  paddingTop: '0.75rem',
+                  paddingTop: '1rem',
+                  paddingBottom: '1rem',
                   borderTop: '1px solid #e5e7eb',
-                  textAlign: 'center' 
+                  textAlign: 'center',
+                  minHeight: '60px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
                 }}>
                   <button
                     onClick={loadMore}

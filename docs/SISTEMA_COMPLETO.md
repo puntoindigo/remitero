@@ -3,7 +3,7 @@
 **Repositorio**: https://github.com/puntoindigo/remitero  
 **Branch Principal**: `develop`  
 **Branch Producción**: `main`  
-**Última Actualización**: Diciembre 2024
+**Última Actualización**: Enero 2025
 
 ---
 
@@ -863,7 +863,7 @@ export function Component({ prop1, prop2 }: ComponentProps) {
 
 Este documento proporciona una visión completa del sistema Remitero. Para información más detallada sobre aspectos específicos, consultar los documentos individuales en la carpeta `docs/`.
 
-**Última actualización**: Diciembre 2024  
+**Última actualización**: Enero 2025  
 **Versión del documento**: 1.0  
 **Mantenido por**: Equipo de desarrollo
 

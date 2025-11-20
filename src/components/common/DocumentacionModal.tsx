@@ -16,6 +16,7 @@ interface DocumentInfo {
 }
 
 const DOCUMENTOS: DocumentInfo[] = [
+  { name: 'COMMITS', path: '/api/docs/commits', title: 'Commits' },
   { name: 'ESTADO_MVP_PRODUCCION.md', path: '/api/docs/estado-mvp', title: 'Estado del MVP para Producción' },
   { name: 'SISTEMA_COMPLETO.md', path: '/api/docs/sistema-completo', title: 'Sistema Completo' },
   { name: 'DIAGNOSTICO_VERSION_ANTIGUA_PRODUCCION.md', path: '/api/docs/diagnostico-version-antigua', title: 'Diagnóstico: Versión Antigua en Producción' },
@@ -28,10 +29,10 @@ export function DocumentacionModal({ isOpen, onClose }: DocumentacionModalProps)
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Cargar el último documento modificado al abrir
+  // Cargar el último documento modificado al abrir (Commits es el primero)
   useEffect(() => {
     if (isOpen) {
-      // El primer documento es el último modificado (ESTADO_MVP_PRODUCCION.md)
+      // El primer documento es Commits (último modificado)
       setCurrentDocIndex(0);
       loadDocument(0);
     }
@@ -44,12 +45,52 @@ export function DocumentacionModal({ isOpen, onClose }: DocumentacionModalProps)
     setError(null);
     
     try {
-      const response = await fetch(DOCUMENTOS[index].path);
-      if (!response.ok) {
-        throw new Error('No se pudo cargar el documento');
+      // Si es Commits, cargar como JSON y formatear
+      if (DOCUMENTOS[index].name === 'COMMITS') {
+        const response = await fetch(DOCUMENTOS[index].path);
+        if (!response.ok) {
+          throw new Error('No se pudo cargar los commits');
+        }
+        const data = await response.json();
+        const commits = data.commits || [];
+        
+        // Formatear commits como markdown
+        let markdown = '# Commits\n\n';
+        commits.forEach((commit: any, idx: number) => {
+          const date = new Date(commit.date);
+          const formattedDate = date.toLocaleString('es-AR', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+          });
+          
+          markdown += `## Commit ${commits.length - idx}\n\n`;
+          markdown += `**Fecha/Hora:** ${formattedDate}\n\n`;
+          markdown += `**Hash:** \`${commit.hash.substring(0, 7)}\`\n\n`;
+          markdown += `**Autor:** ${commit.author}\n\n`;
+          markdown += `**Mensaje:** ${commit.message}\n\n`;
+          
+          // Extraer "qué hay que probar" si existe en el mensaje
+          const probarMatch = commit.message.match(/probar[:\-]?\s*(.+)/i);
+          if (probarMatch) {
+            markdown += `**Qué probar:** ${probarMatch[1]}\n\n`;
+          }
+          
+          markdown += '---\n\n';
+        });
+        
+        setContent(markdown);
+      } else {
+        const response = await fetch(DOCUMENTOS[index].path);
+        if (!response.ok) {
+          throw new Error('No se pudo cargar el documento');
+        }
+        const text = await response.text();
+        setContent(text);
       }
-      const text = await response.text();
-      setContent(text);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error desconocido');
     } finally {
