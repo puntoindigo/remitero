@@ -498,6 +498,161 @@ EMAIL_PASSWORD=<app-password-16-chars>
 
 ---
 
+## 🔒 Seguridad y Autenticación
+
+### Contexto: Sistema MVP
+
+**Importante**: Este sistema está en etapa **MVP (Minimum Viable Product)**. Las medidas de seguridad implementadas son apropiadas para esta etapa, y las mejoras enterprise mencionadas son para etapas futuras cuando el sistema escale o requiera cumplimiento de estándares más estrictos.
+
+### ✅ Medidas de Seguridad Implementadas (MVP)
+
+#### Autenticación
+
+- ✅ **NextAuth.js** con JWT strategy
+- ✅ **Google OAuth 2.0** con PKCE (Proof Key for Code Exchange)
+- ✅ **Autenticación por credenciales** con bcrypt (hashing de contraseñas)
+- ✅ **Middleware de protección** de rutas (`src/middleware.ts`)
+- ✅ **Validación de sesión** en todos los endpoints API
+- ✅ **Verificación de roles** en rutas protegidas
+- ✅ **Tokens JWT** con renovación automática
+
+#### Autorización
+
+- ✅ **Sistema de roles** (SUPERADMIN, ADMIN, USER)
+- ✅ **Verificación de permisos** en cada endpoint API
+- ✅ **Aislamiento de datos** por empresa (`company_id`)
+- ✅ **Protección de rutas** según rol (middleware)
+
+#### Protección de Datos
+
+- ✅ **Aislamiento multi-empresa** a nivel de base de datos
+- ✅ **Validación de inputs** con Zod schemas
+- ✅ **Sanitización** de datos en formularios
+- ✅ **Variables de entorno** para secretos (no hardcodeados)
+- ✅ **Service Role Key** de Supabase solo en servidor
+
+#### Logging y Auditoría
+
+- ✅ **Sistema de logs de actividad** (`user_activity_logs`)
+- ✅ **Registro de acciones** (CREATE, UPDATE, DELETE, LOGIN)
+- ✅ **IP address y User Agent** en logs
+- ✅ **Error boundaries** para captura de errores
+
+#### Infraestructura
+
+- ✅ **HTTPS** obligatorio (Vercel)
+- ✅ **Variables de entorno** seguras en Vercel
+- ✅ **Base de datos** Supabase con RLS (Row Level Security) disponible
+- ✅ **Separación de schemas** por entorno (dev/production)
+
+### ⚠️ Limitaciones Actuales (Aceptables para MVP)
+
+Estas limitaciones son **intencionales para MVP** y pueden mejorarse en etapas futuras:
+
+#### Autenticación
+
+- ⚠️ **No hay MFA (Multi-Factor Authentication)**: Aceptable para MVP, usuarios internos
+- ⚠️ **No hay verificación de email**: Los usuarios son creados por administradores, no hay registro público
+- ⚠️ **Sesiones de 30 días**: Configuración por defecto de NextAuth, puede ajustarse según necesidad
+- ⚠️ **No hay rate limiting en login**: Aceptable para MVP con usuarios controlados
+
+#### Autorización
+
+- ⚠️ **Permisos básicos por rol**: Sistema simple de 3 roles, suficiente para MVP
+- ⚠️ **No hay permisos granulares**: No se requiere para el alcance actual del MVP
+
+#### Funcionalidades Enterprise
+
+- ⚠️ **No hay SSO entre aplicaciones**: No aplica, es una aplicación única
+- ⚠️ **No hay federación de identidad**: No requerido para MVP
+- ⚠️ **No hay SAML/OIDC empresarial**: No requerido para MVP
+- ⚠️ **No hay multi-tenant avanzado**: El sistema multi-empresa actual es suficiente
+
+### 🚀 Roadmap de Mejoras de Seguridad (Futuro)
+
+Estas mejoras son **opcionales** y se implementarán según necesidad real del negocio, no por cumplimiento teórico de "mejores prácticas enterprise".
+
+#### Prioridad Alta (Solo si hay necesidad real)
+
+**Rate Limiting y Bloqueo de Cuenta**
+- Implementar cuando haya registro público o ataques detectados
+- Middleware de rate limiting en `/api/auth/login`
+- Tabla `login_attempts` para tracking
+- Bloqueo temporal después de X intentos fallidos
+
+**Verificación de Email**
+- Solo necesario si se implementa registro público
+- Campo `email_verified` en tabla `users`
+- Endpoint `/api/auth/verify-email`
+- Requerir verificación para login con contraseña
+
+**Ajuste de Duración de Sesiones**
+- Configurar según política de negocio
+- En `src/lib/auth.ts`: `session.maxAge`, `jwt.maxAge`
+- Implementar logout por inactividad si se requiere
+
+#### Prioridad Media (Mejoras incrementales)
+
+**MFA (Multi-Factor Authentication)**
+- Implementar si hay requerimientos de compliance o clientes lo solicitan
+- TOTP (Time-based One-Time Password) como mínimo
+- Tabla `user_mfa` para almacenar secrets
+- Componentes UI: `MFASetup.tsx`, `MFAVerify.tsx`
+
+**Permisos Granulares**
+- Solo si el sistema de 3 roles se queda corto
+- Tablas `permissions`, `role_permissions`, `user_permissions`
+- Middleware de permisos en `src/lib/permissions.ts`
+- UI para gestión de permisos
+
+**Mejoras Multi-Tenant**
+- Solo si hay requerimientos de branding por empresa
+- Tabla `tenant_settings` para configuración por empresa
+- Custom domains por empresa (si aplica)
+
+#### Prioridad Baja (Mejoras estratégicas)
+
+**SSO / Federación IdP**
+- Solo si hay múltiples aplicaciones o integración con sistemas externos
+- Considerar Auth0, Okta, o múltiples providers en NextAuth
+- SAML/OIDC para integración empresarial
+
+**Políticas de Contraseña**
+- Solo si hay requerimientos de compliance
+- Tabla `password_policies`
+- UI para configuración de políticas
+- Expiración de contraseñas
+
+**Auditoría Extendida**
+- Mejorar logs con más detalles
+- Dashboard de seguridad para SUPERADMIN
+- Alertas de actividades sospechosas
+
+### 📝 Notas sobre Análisis de Seguridad
+
+**Sobre las "brechas" mencionadas en análisis externos:**
+
+Muchas de las "brechas de seguridad" identificadas en análisis automatizados son **expectativas de sistemas enterprise** que no aplican a un MVP:
+
+1. **MFA**: No es necesario para un MVP con usuarios controlados por administradores
+2. **Rate Limiting**: Aceptable omitir en MVP con usuarios internos
+3. **Verificación de Email**: No aplica cuando no hay registro público
+4. **Permisos Granulares**: El sistema de 3 roles es suficiente para MVP
+5. **SSO/Federación**: No aplica a una aplicación única
+6. **Multi-tenant avanzado**: El sistema actual es suficiente
+
+**Decisión de diseño**: Priorizar funcionalidad y velocidad de desarrollo en MVP, agregar seguridad avanzada solo cuando haya necesidad real del negocio.
+
+### 🔍 Archivos Clave de Seguridad
+
+- `src/lib/auth.ts` - Configuración NextAuth
+- `src/middleware.ts` - Middleware de protección de rutas
+- `src/app/api/auth/[...nextauth]/route.ts` - Handler de NextAuth
+- `src/app/api/**/route.ts` - Todos los endpoints verifican sesión
+- `src/lib/user-activity-logger.ts` - Sistema de logging
+
+---
+
 ## 🚀 Deployment
 
 ### Plataforma: Vercel

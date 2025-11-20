@@ -372,12 +372,14 @@ function ProductosContent() {
           backgroundColor: '#f3f4f6',
           color: '#374151',
           fontSize: '12px',
-          fontWeight: 500
+          fontWeight: 500,
+          display: 'inline-block',
+          textAlign: 'left'
         }}>
           {producto.category.name}
         </span>
       ) : (
-        <span style={{ color: '#9ca3af' }}>Sin categoría</span>
+        <span style={{ color: '#9ca3af', textAlign: 'left', display: 'block' }}>Sin categoría</span>
       )
     },
     {
@@ -395,8 +397,11 @@ function ProductosContent() {
         const isInStock = (producto.stock || 'OUT_OF_STOCK') === 'IN_STOCK';
         return (
           <span style={{
-            fontSize: '18px',
-            lineHeight: '1'
+            fontSize: '16px',
+            lineHeight: '1',
+            display: 'inline-block',
+            width: '24px',
+            textAlign: 'center'
           }}>
             {isInStock ? '✓' : '✗'}
           </span>

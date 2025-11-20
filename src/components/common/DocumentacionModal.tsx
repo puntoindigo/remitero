@@ -131,18 +131,46 @@ export function DocumentacionModal({ isOpen, onClose }: DocumentacionModalProps)
 
   const handlePrevious = () => {
     if (currentDocIndex > 0) {
-      setCurrentDocIndex(currentDocIndex - 1);
+      handleSelectDocument(currentDocIndex - 1);
     }
   };
 
   const handleNext = () => {
     if (currentDocIndex < documents.length - 1) {
-      setCurrentDocIndex(currentDocIndex + 1);
+      handleSelectDocument(currentDocIndex + 1);
     }
   };
 
   const handleSelectDocument = (index: number) => {
     setCurrentDocIndex(index);
+    // Scroll horizontal automático para mostrar el tab seleccionado
+    setTimeout(() => {
+      const tabsContainer = document.querySelector('.document-tabs-container');
+      const selectedTab = tabsContainer?.querySelector(`[data-tab-index="${index}"]`) as HTMLElement;
+      if (selectedTab && tabsContainer) {
+        const containerRect = tabsContainer.getBoundingClientRect();
+        const tabRect = selectedTab.getBoundingClientRect();
+        const scrollLeft = tabsContainer.scrollLeft;
+        const tabLeft = tabRect.left - containerRect.left + scrollLeft;
+        const tabRight = tabRect.right - containerRect.left + scrollLeft;
+        const containerWidth = tabsContainer.clientWidth;
+        
+        // Si el tab está fuera de la vista, hacer scroll
+        if (tabLeft < scrollLeft) {
+          // Tab está a la izquierda, scroll hacia la izquierda
+          tabsContainer.scrollTo({
+            left: tabLeft - 16, // 16px de padding
+            behavior: 'smooth'
+          });
+        } else if (tabRight > scrollLeft + containerWidth) {
+          // Tab está a la derecha, scroll hacia la derecha
+          tabsContainer.scrollTo({
+            left: tabRight - containerWidth + 16, // 16px de padding
+            behavior: 'smooth'
+          });
+        }
+      }
+    }, 100);
   };
 
   const handleCopyLink = async () => {
@@ -244,10 +272,11 @@ export function DocumentacionModal({ isOpen, onClose }: DocumentacionModalProps)
           {loadingDocs ? (
             <div className="text-sm text-gray-600 dark:text-gray-400">Cargando documentos...</div>
           ) : (
-            <div className="flex gap-2 overflow-x-auto pb-1">
+            <div className="flex gap-2 overflow-x-auto pb-1 document-tabs-container" style={{ scrollBehavior: 'smooth' }}>
               {documents.map((doc, index) => (
                 <button
                   key={index}
+                  data-tab-index={index}
                   onClick={() => handleSelectDocument(index)}
                   className={`px-3 py-1.5 rounded text-sm whitespace-nowrap transition-all ${
                     currentDocIndex === index

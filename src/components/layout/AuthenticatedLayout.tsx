@@ -478,9 +478,19 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
           /* Ajustar espaciado en productos mobile - reducir espacio entre stock y acciones */
           .data-table td[data-column="stock"] {
             padding-right: 4px !important;
-            width: 30px !important;
-            min-width: 30px !important;
-            max-width: 30px !important;
+            padding-left: 4px !important;
+            width: 32px !important;
+            min-width: 32px !important;
+            max-width: 32px !important;
+            text-align: center !important;
+          }
+          
+          .data-table th[data-column="stock"] {
+            width: 32px !important;
+            min-width: 32px !important;
+            max-width: 32px !important;
+            text-align: center !important;
+            padding: 10px 4px !important;
           }
 
           .data-table td[data-column="name"] {

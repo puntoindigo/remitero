@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { signOut } from 'next-auth/react';
 import { useCurrentUserSimple } from '@/hooks/useCurrentUserSimple';
@@ -23,9 +23,14 @@ export function MobileMenu({ onClose }: MobileMenuProps = { onClose: undefined }
   const router = useRouter();
   const currentUser = useCurrentUserSimple();
   const { colors } = useColorTheme();
+  const previousPathname = React.useRef(pathname);
 
+  // Solo cerrar el menú cuando cambia la ruta, no en el montaje inicial
   useEffect(() => {
-    onClose?.();
+    if (previousPathname.current !== pathname) {
+      previousPathname.current = pathname;
+      onClose?.();
+    }
   }, [pathname, onClose]);
 
   // Menú minimalista pero completo - solo lo esencial

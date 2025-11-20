@@ -3530,6 +3530,11 @@ body > .vercel-select-dropdown {
   .action-button.print-button {
     display: none !important;
   }
+  
+  /* Mostrar botón de ver PDF en mobile */
+  .action-button.view-pdf-button {
+    display: inline-flex !important;
+  }
 }
 
 .data-table tr:hover {
