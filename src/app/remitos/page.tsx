@@ -354,7 +354,7 @@ function RemitosContent() {
     },
     onDelete: handleDeleteRemito,
     onPrint: handlePrintRemito,
-    onViewPDF: handleViewPDF, // Disponible en mobile y desktop
+    onViewPDF: !isMobile ? handleViewPDF : undefined, // Solo en desktop
     onNew: handleNewRemito,
     getItemId: (remito) => remito?.id,
     emptyMessage: "No hay remitos",

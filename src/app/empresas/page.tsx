@@ -22,10 +22,12 @@ import { useShortcuts } from "@/hooks/useShortcuts";
 import { ShortcutText } from "@/components/common/ShortcutText";
 import { SearchInput } from "@/components/common/SearchInput";
 import { useColorTheme } from "@/contexts/ColorThemeContext";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 function EmpresasContent() {
   const { data: session } = useSession();
   const { colors } = useColorTheme();
+  const isMobile = useIsMobile();
   const router = useRouter();
   const {
     editingItem: editingCompany,
@@ -312,38 +314,40 @@ function EmpresasContent() {
                 placeholder="Buscar empresas..."
               />
             </div>
-            <button
-              onClick={handleNew}
-              className="btn-primary new-button"
-              data-shortcut="n"
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                padding: '8px 16px',
-                background: colors.gradient,
-                color: 'white',
-                border: 'none',
-                borderRadius: '6px',
-                cursor: 'pointer',
-                fontSize: '14px',
-                fontWeight: '500',
-                minWidth: '100px',
-                justifyContent: 'center',
-                transition: 'all 0.2s',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-1px)';
-                e.currentTarget.style.boxShadow = `0 4px 12px ${colors.primary}50`;
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = 'none';
-              }}
-            >
-              <Plus className="h-4 w-4" />
-              <ShortcutText text="Nueva Empresa" shortcutKey="n" />
-            </button>
+            {!isMobile && (
+              <button
+                onClick={handleNew}
+                className="btn-primary new-button"
+                data-shortcut="n"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  padding: '8px 16px',
+                  background: colors.gradient,
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  minWidth: '100px',
+                  justifyContent: 'center',
+                  transition: 'all 0.2s',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-1px)';
+                  e.currentTarget.style.boxShadow = `0 4px 12px ${colors.primary}50`;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = 'none';
+                }}
+              >
+                <Plus className="h-4 w-4" />
+                <ShortcutText text="Nueva Empresa" shortcutKey="n" />
+              </button>
+            )}
           </div>
           
           <DataTable

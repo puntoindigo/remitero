@@ -34,10 +34,12 @@ import { useShortcuts } from "@/hooks/useShortcuts";
 import { ShortcutText } from "@/components/common/ShortcutText";
 import { SearchInput } from "@/components/common/SearchInput";
 import { useColorTheme } from "@/contexts/ColorThemeContext";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 function UsuariosContent() {
   const currentUser = useCurrentUserSimple();
   const { colors } = useColorTheme();
+  const isMobile = useIsMobile();
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -322,7 +324,7 @@ function UsuariosContent() {
   // Solo mostrar columna Empresa si es SUPERADMIN Y no hay una empresa seleccionada (mostrando todas)
   const showCompanyColumn = isSuperAdmin && (!selectedCompanyId || selectedCompanyId === '');
   
-  // Definir columnas para el DataTable
+  // Definir columnas para el DataTable - ocultar email y última actividad en mobile
   const columns: DataTableColumn<Usuario>[] = [
     {
       key: 'name',
@@ -334,7 +336,8 @@ function UsuariosContent() {
         </div>
       )
     },
-    {
+    // Ocultar email en mobile
+    ...(isMobile ? [] : [{
       key: 'email',
       label: 'Email',
       render: (usuario) => (
@@ -347,7 +350,7 @@ function UsuariosContent() {
           <span className="text-muted">Sin email</span>
         )
       )
-    },
+    }]),
     {
       key: 'role',
       label: 'Rol',
@@ -416,7 +419,8 @@ function UsuariosContent() {
         )
       )
     }] : []),
-    {
+    // Ocultar última actividad en mobile
+    ...(isMobile ? [] : [{
       key: 'lastActivity',
       label: 'Última actividad',
       render: (usuario: Usuario) => {
@@ -653,7 +657,7 @@ function UsuariosContent() {
           </div>
         );
       }
-    }
+    }])
   ];
 
   if (isLoading) {
@@ -715,38 +719,40 @@ function UsuariosContent() {
                 placeholder="Buscar usuarios..."
               />
             </div>
-            <button
-              onClick={handleNew}
-              className="btn-primary new-button"
-              data-shortcut="n"
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                padding: '8px 16px',
-                background: colors.gradient,
-                color: 'white',
-                border: 'none',
-                borderRadius: '6px',
-                cursor: 'pointer',
-                fontSize: '14px',
-                fontWeight: '500',
-                minWidth: '100px',
-                justifyContent: 'center',
-                transition: 'all 0.2s',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-1px)';
-                e.currentTarget.style.boxShadow = `0 4px 12px ${colors.primary}50`;
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = 'none';
-              }}
-            >
-              <Plus className="h-4 w-4" />
-              <ShortcutText text="Nuevo Usuario" shortcutKey="n" />
-            </button>
+            {!isMobile && (
+              <button
+                onClick={handleNew}
+                className="btn-primary new-button"
+                data-shortcut="n"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  padding: '8px 16px',
+                  background: colors.gradient,
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  minWidth: '100px',
+                  justifyContent: 'center',
+                  transition: 'all 0.2s',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-1px)';
+                  e.currentTarget.style.boxShadow = `0 4px 12px ${colors.primary}50`;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = 'none';
+                }}
+              >
+                <Plus className="h-4 w-4" />
+                <ShortcutText text="Nuevo Usuario" shortcutKey="n" />
+              </button>
+            )}
           </div>
 
           {/* DataTable con paginación */}

@@ -26,10 +26,12 @@ import { useShortcuts } from "@/hooks/useShortcuts";
 import { ShortcutText } from "@/components/common/ShortcutText";
 import { SearchInput } from "@/components/common/SearchInput";
 import { useColorTheme } from "@/contexts/ColorThemeContext";
+import { useIsMobile } from "@/hooks/useIsMobile";
 
 function EstadosRemitosContent() {
   const currentUser = useCurrentUserSimple();
   const { colors } = useColorTheme();
+  const isMobile = useIsMobile();
 
   // Prevenir errores de client-side exception
   if (!currentUser) {

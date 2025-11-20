@@ -453,9 +453,8 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
             text-transform: uppercase;
             letter-spacing: 0.5px;
             background: #f8f9fa;
-            position: sticky;
-            top: 56px;
-            z-index: 10;
+            position: relative;
+            z-index: 1;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
@@ -464,6 +463,17 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
           /* Mostrar header en mobile con estilos ajustados */
           .data-table thead {
             display: table-header-group !important;
+            position: relative;
+          }
+          
+          /* Asegurar que el thead no pise el contenido */
+          .data-table-wrapper {
+            margin-top: 0;
+            padding-top: 0;
+          }
+          
+          .data-table tbody tr:first-child td {
+            padding-top: 12px;
           }
           
           .data-table td {
