@@ -100,23 +100,44 @@ function ResetPasswordContent() {
       // Si es invitación (usuario nuevo), iniciar sesión automáticamente
       if (data.isInvitation && !data.isGmail) {
         try {
+          // Limpiar y normalizar callbackUrl para evitar errores de URL
+          const callbackUrl = window.location.origin + '/';
+          console.log('🔍 [Reset Password] Intentando login automático:', {
+            email: data.email,
+            callbackUrl,
+            origin: window.location.origin,
+            href: window.location.href
+          });
+
           // Intentar iniciar sesión automáticamente
-          // Especificar callbackUrl explícitamente como ruta relativa para evitar errores de URL
+          // Usar ruta relativa simple para evitar problemas con URLs
           const signInResult = await signIn('credentials', {
             email: data.email,
             password: password,
             redirect: false,
-            callbackUrl: '/',
+            callbackUrl: '/', // Ruta relativa simple
+          });
+
+          console.log('🔍 [Reset Password] Resultado del login:', {
+            ok: signInResult?.ok,
+            error: signInResult?.error,
+            status: signInResult?.status,
+            url: signInResult?.url
           });
 
           if (signInResult?.ok) {
             // Sesión iniciada exitosamente, usar window.location para forzar recarga completa
             // Esto asegura que la sesión se establezca correctamente
+            console.log('✅ [Reset Password] Login exitoso, redirigiendo...');
             window.location.href = '/';
             return; // No mostrar pantalla de éxito, redirigir inmediatamente
           } else {
             // Si falla el login automático, mostrar error
-            console.error('Error en login automático:', signInResult?.error);
+            console.error('❌ [Reset Password] Error en login automático:', {
+              error: signInResult?.error,
+              status: signInResult?.status,
+              url: signInResult?.url
+            });
             setError('Contraseña establecida, pero hubo un error al iniciar sesión. Por favor, inicia sesión manualmente.');
             setSuccess(false);
             // Redirigir al login después de un momento
@@ -125,7 +146,42 @@ function ResetPasswordContent() {
             }, 3000);
           }
         } catch (signInError: any) {
-          console.error('Error al iniciar sesión automáticamente:', signInError);
+          console.error('❌ [Reset Password] Excepción al iniciar sesión automáticamente:', {
+            message: signInError?.message,
+            stack: signInError?.stack,
+            error: signInError
+          });
+          
+          // Si el error es de URL, intentar login alternativo usando fetch
+          if (signInError?.message?.includes('URL') || signInError?.message?.includes('Invalid')) {
+            console.log('🔄 [Reset Password] Intentando login alternativo vía API...');
+            try {
+              // Intentar login vía API directamente
+              const loginResponse = await fetch('/api/auth/callback/credentials', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams({
+                  email: data.email,
+                  password: password,
+                  redirect: 'false',
+                  callbackUrl: '/',
+                }),
+              });
+
+              if (loginResponse.ok) {
+                console.log('✅ [Reset Password] Login alternativo exitoso, redirigiendo...');
+                window.location.href = '/';
+                return;
+              } else {
+                throw new Error('Login alternativo falló');
+              }
+            } catch (altError) {
+              console.error('❌ [Reset Password] Login alternativo también falló:', altError);
+            }
+          }
+
           setError('Contraseña establecida, pero hubo un error al iniciar sesión. Por favor, inicia sesión manualmente.');
           setSuccess(false);
           setTimeout(() => {
