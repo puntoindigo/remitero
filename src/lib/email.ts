@@ -1,5 +1,6 @@
 import nodemailer from 'nodemailer';
 import { google } from 'googleapis';
+import { isDevelopment } from './env';
 
 // Configuración del transporter de Gmail con OAuth2
 export const createTransporter = async () => {
@@ -424,7 +425,7 @@ export async function sendInvitationEmail({
             <div class="content">
               <p>Hola <strong>${userName}</strong>,</p>
               
-              <p>Has sido invitado a formar parte del <strong>Sistema de Remitos</strong>.</p>
+              <p>Has sido invitado a formar parte del <strong>Sistema de Remitos</strong>${isDevelopment() ? ' <span style="color: #ef4444; font-weight: 600;">(entorno desarrollo)</span>' : ''}.</p>
               
               <div class="info-box">
                 <p><strong>Tu información de acceso:</strong></p>
@@ -462,7 +463,7 @@ export async function sendInvitationEmail({
 
 Hola ${userName},
 
-Has sido invitado a formar parte del Sistema de Remitos.
+Has sido invitado a formar parte del Sistema de Remitos${isDevelopment() ? ' (entorno desarrollo)' : ''}.
 
 Tu información de acceso:
 - Email: ${userEmail}

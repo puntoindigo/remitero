@@ -725,7 +725,8 @@ function LoginPageContent() {
                 height: '1px',
                 background: '#e5e7eb',
               }} />
-            </div>
+              </div>
+            )}
 
             {/* Botón Email */}
             <button
