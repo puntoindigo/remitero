@@ -10,18 +10,37 @@ const cleanEnv = (value: string | undefined): string | undefined => {
   return value?.trim().replace(/\n/g, '');
 };
 
+// Limpiar y normalizar URL (remover dobles slashes, espacios, etc.)
+const normalizeUrl = (url: string): string => {
+  if (!url) return url;
+  
+  // Remover espacios y newlines
+  let cleaned = url.trim().replace(/\n/g, '');
+  
+  // Remover dobles slashes (excepto después de http:// o https://)
+  cleaned = cleaned.replace(/([^:]\/)\/+/g, '$1');
+  
+  // Asegurar que termine sin slash (excepto si es solo el dominio)
+  if (cleaned.endsWith('/') && cleaned.split('/').length > 4) {
+    cleaned = cleaned.slice(0, -1);
+  }
+  
+  return cleaned;
+};
+
 // Usar VERCEL_URL si está disponible (para preview branches), sino usar NEXTAUTH_URL
 const getNextAuthUrl = (): string => {
   // PRIORIDAD 1: Si hay NEXTAUTH_URL explícito, usarlo (tiene prioridad)
   const explicitNextAuthUrl = cleanEnv(process.env.NEXTAUTH_URL);
   if (explicitNextAuthUrl) {
-    console.log('🔧 [NextAuth URL] Usando NEXTAUTH_URL explícito:', explicitNextAuthUrl);
-    return explicitNextAuthUrl;
+    const normalized = normalizeUrl(explicitNextAuthUrl);
+    console.log('🔧 [NextAuth URL] Usando NEXTAUTH_URL explícito:', normalized);
+    return normalized;
   }
   
   // PRIORIDAD 2: En Vercel, usar VERCEL_URL si está disponible
   if (process.env.VERCEL_URL) {
-    const vercelUrl = `https://${process.env.VERCEL_URL}`;
+    const vercelUrl = normalizeUrl(`https://${process.env.VERCEL_URL}`);
     console.log('🔧 [NextAuth URL] Usando VERCEL_URL:', vercelUrl);
     return vercelUrl;
   }
