@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { X, FileText, ChevronLeft, ChevronRight } from 'lucide-react';
+import { X, FileText, ChevronLeft, ChevronRight, Copy, Check } from 'lucide-react';
 import { MarkdownContent } from '@/components/docs/MarkdownContent';
 
 interface DocumentacionModalProps {
@@ -13,41 +13,65 @@ interface DocumentInfo {
   name: string;
   path: string;
   title: string;
+  modifiedAt?: string;
+  isInDocs?: boolean;
 }
 
-const DOCUMENTOS: DocumentInfo[] = [
-  { name: 'COMMITS', path: '/api/docs/commits', title: 'Commits' },
-  { name: 'ESTADO_MVP_PRODUCCION.md', path: '/api/docs/estado-mvp', title: 'Estado del MVP para Producción' },
-  { name: 'SISTEMA_COMPLETO.md', path: '/api/docs/sistema-completo', title: 'Sistema Completo' },
-  { name: 'DIAGNOSTICO_VERSION_ANTIGUA_PRODUCCION.md', path: '/api/docs/diagnostico-version-antigua', title: 'Diagnóstico: Versión Antigua en Producción' },
-  { name: 'CONFIGURAR_PRODUCTION_BRANCH.md', path: '/api/docs/configurar-production-branch', title: 'Configurar Production Branch' },
-];
-
 export function DocumentacionModal({ isOpen, onClose }: DocumentacionModalProps) {
+  const [documents, setDocuments] = useState<DocumentInfo[]>([]);
   const [currentDocIndex, setCurrentDocIndex] = useState(0);
   const [content, setContent] = useState<string>('');
   const [loading, setLoading] = useState(true);
+  const [loadingDocs, setLoadingDocs] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
 
-  // Cargar el último documento modificado al abrir (Commits es el primero)
+  // Cargar lista de documentos al abrir
   useEffect(() => {
     if (isOpen) {
-      // El primer documento es Commits (último modificado)
-      setCurrentDocIndex(0);
-      loadDocument(0);
+      loadDocumentsList();
     }
   }, [isOpen]);
 
+  // Cargar documento cuando cambia la lista o el índice
+  useEffect(() => {
+    if (documents.length > 0 && isOpen) {
+      loadDocument(currentDocIndex);
+    }
+  }, [documents, currentDocIndex, isOpen]);
+
+  const loadDocumentsList = async () => {
+    setLoadingDocs(true);
+    try {
+      const response = await fetch('/api/docs/list');
+      if (!response.ok) {
+        throw new Error('No se pudo cargar la lista de documentos');
+      }
+      const data = await response.json();
+      setDocuments(data.documents || []);
+      // El primer documento (índice 0) es siempre el más reciente
+      setCurrentDocIndex(0);
+    } catch (err) {
+      console.error('Error cargando lista de documentos:', err);
+      setError(err instanceof Error ? err.message : 'Error desconocido');
+    } finally {
+      setLoadingDocs(false);
+    }
+  };
+
   const loadDocument = async (index: number) => {
-    if (index < 0 || index >= DOCUMENTOS.length) return;
+    if (index < 0 || index >= documents.length) return;
     
     setLoading(true);
     setError(null);
     
     try {
+      const doc = documents[index];
+      if (!doc) return;
+
       // Si es Commits, cargar como JSON y formatear
-      if (DOCUMENTOS[index].name === 'COMMITS') {
-        const response = await fetch(DOCUMENTOS[index].path);
+      if (doc.name === 'COMMITS') {
+        const response = await fetch(doc.path);
         if (!response.ok) {
           throw new Error('No se pudo cargar los commits');
         }
@@ -84,7 +108,7 @@ export function DocumentacionModal({ isOpen, onClose }: DocumentacionModalProps)
         
         setContent(markdown);
       } else {
-        const response = await fetch(DOCUMENTOS[index].path);
+        const response = await fetch(doc.path);
         if (!response.ok) {
           throw new Error('No se pudo cargar el documento');
         }
@@ -100,89 +124,142 @@ export function DocumentacionModal({ isOpen, onClose }: DocumentacionModalProps)
 
   const handlePrevious = () => {
     if (currentDocIndex > 0) {
-      const newIndex = currentDocIndex - 1;
-      setCurrentDocIndex(newIndex);
-      loadDocument(newIndex);
+      setCurrentDocIndex(currentDocIndex - 1);
     }
   };
 
   const handleNext = () => {
-    if (currentDocIndex < DOCUMENTOS.length - 1) {
-      const newIndex = currentDocIndex + 1;
-      setCurrentDocIndex(newIndex);
-      loadDocument(newIndex);
+    if (currentDocIndex < documents.length - 1) {
+      setCurrentDocIndex(currentDocIndex + 1);
     }
   };
 
   const handleSelectDocument = (index: number) => {
     setCurrentDocIndex(index);
-    loadDocument(index);
+  };
+
+  const handleCopyLink = async () => {
+    const currentDoc = documents[currentDocIndex];
+    if (!currentDoc) return;
+
+    const url = `${window.location.origin}${currentDoc.path}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error('Error al copiar link:', err);
+    }
+  };
+
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('es-AR', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
   };
 
   if (!isOpen) return null;
+
+  const currentDoc = documents[currentDocIndex];
 
   return (
     <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black bg-opacity-50 p-4">
       <div className="bg-white dark:bg-gray-900 rounded-lg shadow-xl w-full max-w-6xl h-[90vh] flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-          <div className="flex items-center gap-4 flex-1">
+          <div className="flex items-center gap-4 flex-1 min-w-0">
             <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
               Documentación
             </h2>
+            {currentDoc && (
+              <div className="flex items-center gap-3 flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={handlePrevious}
+                    disabled={currentDocIndex === 0 || loadingDocs}
+                    className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    title="Documento anterior"
+                  >
+                    <ChevronLeft className="h-5 w-5" />
+                  </button>
+                  <span className="text-sm text-gray-600 dark:text-gray-400 whitespace-nowrap">
+                    {currentDocIndex + 1} / {documents.length}
+                  </span>
+                  <button
+                    onClick={handleNext}
+                    disabled={currentDocIndex === documents.length - 1 || loadingDocs}
+                    className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    title="Documento siguiente"
+                  >
+                    <ChevronRight className="h-5 w-5" />
+                  </button>
+                </div>
+                {currentDoc.modifiedAt && (
+                  <span className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                    Modificado: {formatDate(currentDoc.modifiedAt)}
+                  </span>
+                )}
+              </div>
+            )}
             <div className="flex items-center gap-2">
+              {currentDoc && (
+                <button
+                  onClick={handleCopyLink}
+                  className="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                  title="Copiar link al portapapeles"
+                >
+                  {copied ? (
+                    <Check className="h-5 w-5 text-green-600 dark:text-green-400" />
+                  ) : (
+                    <Copy className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+                  )}
+                </button>
+              )}
               <button
-                onClick={handlePrevious}
-                disabled={currentDocIndex === 0}
-                className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
-                title="Documento anterior"
+                onClick={onClose}
+                className="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                title="Cerrar"
               >
-                <ChevronLeft className="h-5 w-5" />
-              </button>
-              <span className="text-sm text-gray-600 dark:text-gray-400">
-                {currentDocIndex + 1} / {DOCUMENTOS.length}
-              </span>
-              <button
-                onClick={handleNext}
-                disabled={currentDocIndex === DOCUMENTOS.length - 1}
-                className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
-                title="Documento siguiente"
-              >
-                <ChevronRight className="h-5 w-5" />
+                <X className="h-5 w-5" />
               </button>
             </div>
           </div>
-          <button
-            onClick={onClose}
-            className="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-          >
-            <X className="h-5 w-5" />
-          </button>
         </div>
 
         {/* Document Selector */}
-        <div className="px-4 py-2 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
-          <div className="flex gap-2 overflow-x-auto">
-            {DOCUMENTOS.map((doc, index) => (
-              <button
-                key={index}
-                onClick={() => handleSelectDocument(index)}
-                className={`px-3 py-1 rounded text-sm whitespace-nowrap transition-colors ${
-                  currentDocIndex === index
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600'
-                }`}
-              >
-                <FileText className="h-4 w-4 inline mr-1" />
-                {doc.title}
-              </button>
-            ))}
-          </div>
+        <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+          {loadingDocs ? (
+            <div className="text-sm text-gray-600 dark:text-gray-400">Cargando documentos...</div>
+          ) : (
+            <div className="flex gap-2 overflow-x-auto pb-1">
+              {documents.map((doc, index) => (
+                <button
+                  key={index}
+                  onClick={() => handleSelectDocument(index)}
+                  className={`px-3 py-1.5 rounded text-sm whitespace-nowrap transition-all ${
+                    currentDocIndex === index
+                      ? 'bg-blue-600 text-white shadow-sm'
+                      : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600'
+                  }`}
+                  title={doc.modifiedAt ? `Modificado: ${formatDate(doc.modifiedAt)}` : doc.title}
+                >
+                  <FileText className="h-4 w-4 inline mr-1.5" />
+                  {doc.title}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-6">
-          {loading ? (
+        <div className="flex-1 overflow-y-auto p-6 bg-white dark:bg-gray-900">
+          {loading || loadingDocs ? (
             <div className="flex items-center justify-center h-full">
               <div className="text-gray-600 dark:text-gray-400">Cargando documento...</div>
             </div>
@@ -191,7 +268,7 @@ export function DocumentacionModal({ isOpen, onClose }: DocumentacionModalProps)
               <div className="text-red-600 dark:text-red-400">Error: {error}</div>
             </div>
           ) : (
-            <div className="max-w-none">
+            <div className="max-w-none prose prose-gray dark:prose-invert max-w-none">
               <MarkdownContent content={content} />
             </div>
           )}
