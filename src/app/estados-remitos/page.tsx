@@ -220,8 +220,6 @@ function EstadosRemitosContent() {
       showToastError(error.message || "Error al actualizar el estado por defecto");
     }
   }, [queryClient, showToastSuccess, showToastError]);
-
-  const isMobile = useIsMobile();
   
   // Definir columnas para el DataTable
   const columns: DataTableColumn<EstadoRemitoQ>[] = [

@@ -196,8 +196,6 @@ function CategoriasContent() {
   
   // Verificar si hay un problema con los datos del usuario
   const hasDataIssue = !companyId && currentUser?.role !== "SUPERADMIN";
-
-  const isMobile = useIsMobile();
   
   // Definir columnas para el DataTable - ocultar Registrado en mobile
   const columns: DataTableColumn<Categoria>[] = [
