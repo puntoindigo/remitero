@@ -152,34 +152,16 @@ function ResetPasswordContent() {
             error: signInError
           });
           
-          // Si el error es de URL, intentar login alternativo usando fetch
+          // Si el error es de URL, simplemente redirigir al login con email prellenado
+          // El usuario solo necesitará ingresar la contraseña que acaba de establecer
           if (signInError?.message?.includes('URL') || signInError?.message?.includes('Invalid')) {
-            console.log('🔄 [Reset Password] Intentando login alternativo vía API...');
-            try {
-              // Intentar login vía API directamente
-              const loginResponse = await fetch('/api/auth/callback/credentials', {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: new URLSearchParams({
-                  email: data.email,
-                  password: password,
-                  redirect: 'false',
-                  callbackUrl: '/',
-                }),
-              });
-
-              if (loginResponse.ok) {
-                console.log('✅ [Reset Password] Login alternativo exitoso, redirigiendo...');
-                window.location.href = '/';
-                return;
-              } else {
-                throw new Error('Login alternativo falló');
-              }
-            } catch (altError) {
-              console.error('❌ [Reset Password] Login alternativo también falló:', altError);
-            }
+            console.log('🔄 [Reset Password] Error de URL detectado, redirigiendo al login con email prellenado...');
+            setSuccess(true); // Mostrar mensaje de éxito
+            setTimeout(() => {
+              // Redirigir al login con email prellenado
+              window.location.href = `/auth/login?email=${encodeURIComponent(data.email)}&message=password-set-login-required`;
+            }, 2000);
+            return;
           }
 
           setError('Contraseña establecida, pero hubo un error al iniciar sesión. Por favor, inicia sesión manualmente.');

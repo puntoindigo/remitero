@@ -40,13 +40,19 @@ function LoginPageContent() {
     const messageParam = searchParams.get('message')
     const emailParam = searchParams.get('email')
     
-    if (messageParam === 'password-set-success') {
-      setSuccessMessage('Contraseña establecida exitosamente. Ya puedes iniciar sesión.');
-      // Si viene con email, verificar si es no-Gmail y ocultar botón Gmail
+    if (messageParam === 'password-set-success' || messageParam === 'password-set-login-required') {
+      setSuccessMessage(messageParam === 'password-set-login-required' 
+        ? 'Contraseña establecida exitosamente. Por favor, inicia sesión con tu nueva contraseña.'
+        : 'Contraseña establecida exitosamente. Ya puedes iniciar sesión.');
+      // Si viene con email, verificar si es no-Gmail y ocultar botón Gmail, y prellenar el email
       if (emailParam) {
         const isGmail = emailParam.toLowerCase().endsWith('@gmail.com') || 
                        emailParam.toLowerCase().endsWith('@googlemail.com');
         setHideGmailButton(!isGmail);
+        // Prellenar el email en el formulario
+        setValue('email', emailParam);
+        // Cambiar a método email automáticamente si hay email
+        setLoginMethod('email');
       } else {
         setHideGmailButton(true); // Por defecto ocultar si no sabemos
       }
