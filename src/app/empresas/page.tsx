@@ -2,7 +2,7 @@
 
 import React, { useState, Suspense, useCallback, useEffect } from "react";
 import { useSession } from "next-auth/react";
-import { Plus, Building2, Users, Edit, Trash2 } from "lucide-react";
+import { Plus, Building2, Users, Edit, Trash2, Copy } from "lucide-react";
 import { formatDate } from "@/lib/utils/formatters";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -40,6 +40,18 @@ function EmpresasContent() {
     handleCancelDelete
   } = useCRUDPage<Empresa>();
   const { modalState, showSuccess, showError, closeModal } = useMessageModal();
+  const [showDuplicateModal, setShowDuplicateModal] = useState(false);
+  const [empresaToDuplicate, setEmpresaToDuplicate] = useState<Empresa | null>(null);
+  const [duplicateName, setDuplicateName] = useState("");
+  const [duplicateOptions, setDuplicateOptions] = useState({
+    estados: false,
+    categorias: false,
+    productos: false,
+    clientes: false,
+    remitos: false,
+    usuarios: false
+  });
+  const [isDuplicating, setIsDuplicating] = useState(false);
   
   // Loading state management
   const { loading: loadingState, startLoading, stopLoading } = useLoading();
@@ -160,6 +172,23 @@ function EmpresasContent() {
             }}
           >
             <Users className="h-4 w-4" />
+          </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setEmpresaToDuplicate(empresa);
+              setDuplicateName(`${empresa.name} (copia)`);
+              setShowDuplicateModal(true);
+            }}
+            className="action-button"
+            title="Duplicar empresa"
+            style={{
+              background: '#f0f9ff',
+              color: '#0369a1',
+              borderColor: '#bae6fd'
+            }}
+          >
+            <Copy className="h-4 w-4" />
           </button>
           <button
             onClick={(e) => {
@@ -348,6 +377,189 @@ function EmpresasContent() {
         message="¿Estás seguro de que deseas eliminar esta empresa?"
         itemName={showDeleteConfirm?.name}
       />
+
+      {/* Modal para duplicar empresa */}
+      {showDuplicateModal && empresaToDuplicate && (
+        <div 
+          style={{
+            position: 'fixed',
+            inset: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 10000
+          }}
+          onClick={() => {
+            setShowDuplicateModal(false);
+            setEmpresaToDuplicate(null);
+            setDuplicateName("");
+            setDuplicateOptions({
+              estados: false,
+              categorias: false,
+              productos: false,
+              clientes: false,
+              remitos: false,
+              usuarios: false
+            });
+          }}
+        >
+          <div 
+            style={{
+              backgroundColor: 'white',
+              borderRadius: '8px',
+              padding: '24px',
+              maxWidth: '500px',
+              width: '90%',
+              maxHeight: '90vh',
+              overflowY: 'auto'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 style={{ marginBottom: '1rem', fontSize: '1.25rem', fontWeight: 600 }}>
+              Duplicar Empresa: {empresaToDuplicate.name}
+            </h2>
+            
+            <div style={{ marginBottom: '1.5rem' }}>
+              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>
+                Nombre de la nueva empresa *
+              </label>
+              <input
+                type="text"
+                value={duplicateName}
+                onChange={(e) => setDuplicateName(e.target.value)}
+                placeholder="Nombre de la empresa"
+                style={{
+                  width: '100%',
+                  padding: '8px 12px',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '6px',
+                  fontSize: '14px'
+                }}
+              />
+            </div>
+
+            <div style={{ marginBottom: '1.5rem' }}>
+              <label style={{ display: 'block', marginBottom: '0.75rem', fontWeight: 500 }}>
+                Seleccionar qué duplicar:
+              </label>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                {[
+                  { key: 'estados', label: 'Estados de Remitos' },
+                  { key: 'categorias', label: 'Categorías' },
+                  { key: 'productos', label: 'Productos' },
+                  { key: 'clientes', label: 'Clientes' },
+                  { key: 'remitos', label: 'Remitos' },
+                  { key: 'usuarios', label: 'Usuarios' }
+                ].map((option) => (
+                  <label key={option.key} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                    <input
+                      type="checkbox"
+                      checked={duplicateOptions[option.key as keyof typeof duplicateOptions]}
+                      onChange={(e) => setDuplicateOptions({
+                        ...duplicateOptions,
+                        [option.key]: e.target.checked
+                      })}
+                      style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+                    />
+                    <span>{option.label}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
+              <button
+                onClick={() => {
+                  setShowDuplicateModal(false);
+                  setEmpresaToDuplicate(null);
+                  setDuplicateName("");
+                  setDuplicateOptions({
+                    estados: false,
+                    categorias: false,
+                    productos: false,
+                    clientes: false,
+                    remitos: false,
+                    usuarios: false
+                  });
+                }}
+                disabled={isDuplicating}
+                style={{
+                  padding: '8px 16px',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '6px',
+                  background: 'white',
+                  cursor: isDuplicating ? 'not-allowed' : 'pointer',
+                  fontSize: '14px',
+                  fontWeight: 500
+                }}
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={async () => {
+                  if (!duplicateName.trim()) {
+                    showError("Error", "El nombre de la empresa es requerido");
+                    return;
+                  }
+                  
+                  setIsDuplicating(true);
+                  try {
+                    const response = await fetch(`/api/companies/${empresaToDuplicate.id}/duplicate`, {
+                      method: 'POST',
+                      headers: {
+                        'Content-Type': 'application/json',
+                      },
+                      body: JSON.stringify({
+                        name: duplicateName.trim(),
+                        ...duplicateOptions
+                      }),
+                    });
+
+                    const result = await response.json();
+
+                    if (!response.ok) {
+                      throw new Error(result.message || 'Error al duplicar la empresa');
+                    }
+
+                    showSuccess("Éxito", "Empresa duplicada correctamente");
+                    setShowDuplicateModal(false);
+                    setEmpresaToDuplicate(null);
+                    setDuplicateName("");
+                    setDuplicateOptions({
+                      estados: false,
+                      categorias: false,
+                      productos: false,
+                      clientes: false,
+                      remitos: false,
+                      usuarios: false
+                    });
+                    // Recargar empresas
+                    window.location.reload();
+                  } catch (error: any) {
+                    showError("Error", error.message || 'Error al duplicar la empresa');
+                  } finally {
+                    setIsDuplicating(false);
+                  }
+                }}
+                disabled={isDuplicating || !duplicateName.trim()}
+                style={{
+                  padding: '8px 16px',
+                  border: 'none',
+                  borderRadius: '6px',
+                  background: isDuplicating || !duplicateName.trim() ? '#9ca3af' : colors.gradient,
+                  color: 'white',
+                  cursor: isDuplicating || !duplicateName.trim() ? 'not-allowed' : 'pointer',
+                  fontSize: '14px',
+                  fontWeight: 500
+                }}
+              >
+                {isDuplicating ? 'Duplicando...' : 'Duplicar'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       </main>
     </>
   );
