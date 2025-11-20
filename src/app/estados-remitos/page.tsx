@@ -394,37 +394,39 @@ function EstadosRemitosContent() {
                   placeholder="Buscar estados..."
                 />
               </div>
-              <button
-                onClick={handleNewEstado}
-                className="btn-primary new-button"
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.5rem',
-                  padding: '8px 16px',
-                  background: colors.gradient,
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '6px',
-                  cursor: 'pointer',
-                  fontSize: '14px',
-                  fontWeight: '500',
-                  minWidth: '100px',
-                  justifyContent: 'center',
-                  transition: 'all 0.2s',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-1px)';
-                  e.currentTarget.style.boxShadow = `0 4px 12px ${colors.primary}50`;
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = 'none';
-                }}
-              >
-                <Plus className="h-4 w-4" />
-                <ShortcutText text="Nuevo Estado" shortcutKey="n" />
-              </button>
+              {!isMobile && (
+                <button
+                  onClick={handleNewEstado}
+                  className="btn-primary new-button"
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    padding: '8px 16px',
+                    background: colors.gradient,
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                    fontWeight: '500',
+                    minWidth: '100px',
+                    justifyContent: 'center',
+                    transition: 'all 0.2s',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-1px)';
+                    e.currentTarget.style.boxShadow = `0 4px 12px ${colors.primary}50`;
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = 'none';
+                  }}
+                >
+                  <Plus className="h-4 w-4" />
+                  <ShortcutText text="Nuevo Estado" shortcutKey="n" />
+                </button>
+              )}
             </div>
           )}
 
