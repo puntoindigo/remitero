@@ -60,15 +60,31 @@ export function PrintRemitoModal({ remitoId, remitoNumber, onClose }: PrintRemit
           </button>
         </div>
 
-        {/* Iframe - más pequeño */}
-        <div className="flex-1 overflow-auto p-4" style={{ minHeight: 0 }}>
-          <iframe
-            id="print-iframe"
-            src={`/remitos/${remitoId}/print?noAutoPrint=true`}
-            className="w-full h-full border border-gray-200 rounded"
-            title="Vista previa del remito"
-            style={{ minHeight: '400px' }}
-          />
+        {/* Iframe - con zoom al 80% */}
+        <div className="flex-1 overflow-auto p-4" style={{ minHeight: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ 
+            transform: 'scale(0.8)',
+            transformOrigin: 'top center',
+            width: '125%', // Compensar el scale (100% / 0.8 = 125%)
+            height: '125%',
+            display: 'flex',
+            alignItems: 'flex-start',
+            justifyContent: 'center'
+          }}>
+            <iframe
+              id="print-iframe"
+              src={`/remitos/${remitoId}/print?noAutoPrint=true`}
+              className="border border-gray-200 rounded"
+              title="Vista previa del remito"
+              style={{ 
+                width: '100%',
+                height: '100%',
+                minHeight: '500px',
+                border: '1px solid #e5e7eb',
+                borderRadius: '4px'
+              }}
+            />
+          </div>
         </div>
 
         {/* Footer con botones */}
