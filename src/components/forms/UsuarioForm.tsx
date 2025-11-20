@@ -469,13 +469,20 @@ export function UsuarioForm({
                 border: 'none',
                 padding: 0,
                 marginBottom: showChangePassword ? '1rem' : 0,
-                fontSize: '1rem',
-                fontWeight: 600,
-                color: colors.primary || '#3b82f6',
+                fontSize: '0.875rem',
+                fontWeight: 400,
+                color: colors.secondary || '#6b7280',
                 cursor: 'pointer',
-                textDecoration: 'underline',
+                textDecoration: 'none',
                 textAlign: 'left',
-                width: '100%'
+                width: '100%',
+                transition: 'color 0.2s'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = colors.primary || '#3b82f6';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = colors.secondary || '#6b7280';
               }}
             >
               {showChangePassword ? '▼' : '▶'} Cambiar contraseña
