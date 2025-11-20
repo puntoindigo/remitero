@@ -61,14 +61,14 @@ export function PrintRemitoModal({ remitoId, remitoNumber, onClose }: PrintRemit
         </div>
 
         {/* Iframe - con zoom al 80% */}
-        <div className="flex-1 overflow-auto" style={{ minHeight: 0, padding: '16px' }}>
+        <div className="flex-1 overflow-auto" style={{ minHeight: 0, padding: '16px', paddingTop: '16px' }}>
           <div style={{ 
             transform: 'scale(0.8)',
             transformOrigin: 'top left',
             width: '125%', // Compensar el scale (100% / 0.8 = 125%)
-            height: '125%',
-            paddingTop: '0',
-            marginTop: '0'
+            minHeight: '100%',
+            marginTop: '0',
+            paddingTop: '0'
           }}>
             <iframe
               id="print-iframe"
@@ -77,8 +77,8 @@ export function PrintRemitoModal({ remitoId, remitoNumber, onClose }: PrintRemit
               title="Vista previa del remito"
               style={{ 
                 width: '100%',
-                height: '100%',
-                minHeight: '500px',
+                height: 'auto',
+                minHeight: '600px',
                 border: '1px solid #e5e7eb',
                 borderRadius: '4px',
                 display: 'block'
