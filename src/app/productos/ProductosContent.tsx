@@ -412,20 +412,56 @@ function ProductosContent() {
     {
       key: 'image',
       label: '',
-      render: () => (
-        <div style={{ width: '40px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-          <img 
-            src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 24 24' fill='none' stroke='%23d1d5db' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='3' width='18' height='18' rx='2'/%3E%3Cpath d='M9 9h6v6H9z'/%3E%3C/svg%3E"
-            alt="Sin imagen"
-            style={{ 
-              width: '32px', 
-              height: '32px', 
-              flexShrink: 0,
-              opacity: 0.5
-            }}
-          />
-        </div>
-      )
+      render: (producto) => {
+        const placeholderSvg = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 24 24' fill='none' stroke='%23d1d5db' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='3' width='18' height='18' rx='2'/%3E%3Cpath d='M9 9h6v6H9z'/%3E%3C/svg%3E";
+        const imageUrl = producto.imageUrl;
+        
+        return (
+          <div style={{ width: '40px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            {imageUrl ? (
+              <img 
+                src={imageUrl}
+                alt={producto.name || 'Producto'}
+                style={{ 
+                  width: '40px', 
+                  height: '40px', 
+                  objectFit: 'cover',
+                  borderRadius: '4px',
+                  flexShrink: 0,
+                  border: '1px solid #e5e7eb'
+                }}
+                onError={(e) => {
+                  // Si la imagen falla al cargar, mostrar placeholder y loguear el error
+                  console.error('Error loading product image:', {
+                    imageUrl,
+                    productName: producto.name,
+                    productId: producto.id
+                  });
+                  const target = e.target as HTMLImageElement;
+                  target.src = placeholderSvg;
+                  target.style.opacity = '0.5';
+                }}
+                onLoad={() => {
+                  console.log('Image loaded successfully:', imageUrl);
+                }}
+                loading="lazy"
+                crossOrigin="anonymous"
+              />
+            ) : (
+              <img 
+                src={placeholderSvg}
+                alt="Sin imagen"
+                style={{ 
+                  width: '32px', 
+                  height: '32px', 
+                  flexShrink: 0,
+                  opacity: 0.5
+                }}
+              />
+            )}
+          </div>
+        );
+      }
     },
     {
       key: 'name',

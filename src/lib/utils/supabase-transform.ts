@@ -21,7 +21,8 @@ export function transformProduct(product: any) {
     updatedAt: product.updated_at,
     companyId: product.company_id,
     categoryId: product.category_id,
-    category: product.categories
+    category: product.categories,
+    imageUrl: product.image_url || product.imageUrl
   };
 }
 

@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { X, Check, Upload, Image as ImageIcon } from "lucide-react";
+import { X, Check, Upload, Image as ImageIcon, Trash2, Pencil } from "lucide-react";
 import FilterableSelect from "../common/FilterableSelect";
 import { ProductForm as ProductFormData, productSchema } from "@/lib/validations";
 import { FormModal } from "@/components/common/FormModal";
@@ -25,6 +25,7 @@ interface ProductoFormProps {
     price: number;
     stock?: string;
     categoryId?: string;
+    imageUrl?: string;
   } | null;
   categories: Category[];
 }
@@ -66,6 +67,11 @@ export function ProductoForm({
   // Estado para el precio sin formatear (mientras escribe) y formateado (para mostrar)
   const [priceDisplay, setPriceDisplay] = useState("");
   const [priceRaw, setPriceRaw] = useState(""); // Valor sin formatear mientras escribe
+  
+  // Estado para la imagen
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
 
   // Función para formatear número con separadores de miles
   const formatPriceForDisplay = (value: string): string => {
@@ -189,6 +195,7 @@ export function ProductoForm({
       setValue("price", editingProduct.price);
       setValue("stock", (editingProduct.stock || "OUT_OF_STOCK") as any);
       setValue("categoryId", editingProduct.categoryId || "");
+      setValue("imageUrl", (editingProduct as any).imageUrl || "");
       // Formatear precio para mostrar
       const priceStr = editingProduct.price.toString();
       // Si tiene decimales, usar coma como separador decimal
@@ -196,23 +203,120 @@ export function ProductoForm({
       const formattedPrice = formatPriceForDisplay(priceWithComma);
       setPriceDisplay(formattedPrice);
       setPriceRaw(priceWithComma);
+      // Cargar imagen existente si hay
+      if ((editingProduct as any).imageUrl) {
+        setImagePreview((editingProduct as any).imageUrl);
+      } else {
+        setImagePreview(null);
+      }
     } else {
       reset({
         name: "",
         description: "",
         price: 0,
         stock: "OUT_OF_STOCK",
-        categoryId: "" // Requerido, pero se inicia vacío para mostrar el error si no se selecciona
+        categoryId: "", // Requerido, pero se inicia vacío para mostrar el error si no se selecciona
+        imageUrl: ""
       });
       setPriceDisplay("");
       setPriceRaw("");
+      setImagePreview(null);
+      setImageFile(null);
     }
   }, [editingProduct, setValue, reset]);
 
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validar tipo de archivo - incluir WebP explícitamente
+    const validImageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
+    const validExtensions = ['.jpg', '.jpeg', '.png', '.webp', '.gif'];
+    const fileName = file.name.toLowerCase();
+    const fileExtension = fileName.substring(fileName.lastIndexOf('.'));
+    
+    // Validar por tipo MIME y por extensión (algunos navegadores no detectan bien WebP)
+    const isValidType = validImageTypes.includes(file.type) || 
+                        validExtensions.includes(fileExtension) ||
+                        file.type === ''; // Permitir si el tipo está vacío pero la extensión es válida
+    
+    if (!isValidType) {
+      alert('Solo se permiten imágenes (JPEG, PNG, WebP, GIF). Tipo detectado: ' + (file.type || 'desconocido'));
+      return;
+    }
+
+    // Validar tamaño (máximo 5MB)
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (file.size > maxSize) {
+      alert('El archivo no puede ser mayor a 5MB');
+      return;
+    }
+
+    // Mostrar vista previa
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImagePreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+    setImageFile(file);
+  };
+
+  const handleRemoveImage = () => {
+    setImagePreview(null);
+    setImageFile(null);
+    setValue("imageUrl", "");
+  };
+
   const handleFormSubmit = async (data: ProductFormData) => {
-    await onSubmit(data);
-    reset();
-    setPriceDisplay("");
+    try {
+      // Si hay una imagen nueva, subirla primero
+      if (imageFile) {
+        setIsUploadingImage(true);
+        const formData = new FormData();
+        formData.append('file', imageFile);
+        if (editingProduct?.id) {
+          formData.append('productId', editingProduct.id);
+        }
+
+        const uploadResponse = await fetch('/api/products/upload-image', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!uploadResponse.ok) {
+          const errorData = await uploadResponse.json();
+          throw new Error(errorData.message || 'Error al subir la imagen');
+        }
+
+        const { imageUrl } = await uploadResponse.json();
+        data.imageUrl = imageUrl;
+      }
+
+      // Si se está editando y se removió la imagen, eliminar la anterior
+      if (editingProduct && (editingProduct as any).imageUrl && !imagePreview && !imageFile) {
+        // Eliminar imagen anterior del storage
+        try {
+          await fetch(`/api/products/upload-image?imageUrl=${encodeURIComponent((editingProduct as any).imageUrl)}`, {
+            method: 'DELETE',
+          });
+        } catch (error) {
+          console.error('Error al eliminar imagen anterior:', error);
+          // Continuar aunque falle la eliminación
+        }
+        data.imageUrl = "";
+      }
+
+      await onSubmit(data);
+      reset();
+      setPriceDisplay("");
+      setImagePreview(null);
+      setImageFile(null);
+    } catch (error: any) {
+      console.error('Error al procesar formulario:', error);
+      alert(error.message || 'Error al guardar el producto');
+    } finally {
+      setIsUploadingImage(false);
+    }
   };
 
   // Manejar ENTER en los campos para activar el submit
@@ -239,7 +343,7 @@ export function ProductoForm({
       onClose={onClose}
       title={editingProduct ? "Editar Producto" : "Nuevo Producto"}
       onSubmit={handleSubmit(handleFormSubmit)}
-      isSubmitting={isSubmitting}
+      isSubmitting={isSubmitting || isUploadingImage}
       submitText={editingProduct ? "Actualizar" : "Guardar"}
       modalId={editingProduct ? `producto-${editingProduct.id}` : "nuevo-producto"}
       modalComponent="ProductoForm"
@@ -250,7 +354,7 @@ export function ProductoForm({
         categories
       }}
     >
-      {/* Upload de imagen (deshabilitado por ahora) */}
+      {/* Upload de imagen */}
       <div className="form-group">
         <label style={{ 
           fontSize: '14px', 
@@ -261,57 +365,206 @@ export function ProductoForm({
         }}>
           Imagen del producto
         </label>
-        <div
-          style={{
-            border: '2px dashed #d1d5db',
-            borderRadius: '0.5rem',
-            padding: '2rem',
-            textAlign: 'center',
-            backgroundColor: '#f9fafb',
-            cursor: 'not-allowed',
-            opacity: 0.6,
-            position: 'relative'
-          }}
-        >
-          <input
-            type="file"
-            accept="image/*"
-            disabled
-            style={{
-              position: 'absolute',
-              inset: 0,
-              width: '100%',
-              height: '100%',
-              opacity: 0,
-              cursor: 'not-allowed'
-            }}
-          />
-          <div style={{ pointerEvents: 'none' }}>
-            <ImageIcon 
-              className="h-12 w-12" 
-              style={{ 
-                color: '#9ca3af', 
-                margin: '0 auto 0.75rem',
-                display: 'block'
-              }} 
-            />
-            <p style={{ 
-              margin: 0, 
-              fontSize: '14px', 
-              color: '#6b7280',
-              fontWeight: 500
-            }}>
-              Subir imagen
-            </p>
-            <p style={{ 
-              margin: '0.25rem 0 0 0', 
-              fontSize: '12px', 
-              color: '#9ca3af'
-            }}>
-              Próximamente
-            </p>
+        {imagePreview ? (
+          <div style={{ position: 'relative', width: '100%' }}>
+            <div
+              style={{
+                border: '2px solid #d1d5db',
+                borderRadius: '0.5rem',
+                padding: '0.5rem',
+                backgroundColor: '#f9fafb',
+                position: 'relative',
+                minHeight: '120px',
+                maxHeight: '150px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer'
+              }}
+              onClick={() => {
+                const input = document.getElementById('change-image-input') as HTMLInputElement;
+                if (input && !isUploadingImage) {
+                  input.click();
+                }
+              }}
+              title="Haz clic para cambiar la imagen"
+            >
+              <img
+                src={imagePreview}
+                alt="Vista previa"
+                style={{
+                  maxWidth: '100%',
+                  maxHeight: '130px',
+                  objectFit: 'contain',
+                  borderRadius: '0.25rem',
+                  pointerEvents: 'none'
+                }}
+              />
+              {/* Botón para cambiar imagen */}
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const input = document.getElementById('change-image-input') as HTMLInputElement;
+                  if (input && !isUploadingImage) {
+                    input.click();
+                  }
+                }}
+                style={{
+                  position: 'absolute',
+                  top: '0.5rem',
+                  left: '0.5rem',
+                  background: '#3b82f6',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '50%',
+                  width: '32px',
+                  height: '32px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                  zIndex: 10
+                }}
+                title="Cambiar imagen"
+              >
+                <Pencil className="h-4 w-4" />
+              </button>
+              {/* Botón para eliminar imagen */}
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleRemoveImage();
+                }}
+                style={{
+                  position: 'absolute',
+                  top: '0.5rem',
+                  right: '0.5rem',
+                  background: '#ef4444',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '50%',
+                  width: '32px',
+                  height: '32px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                  zIndex: 10
+                }}
+                title="Eliminar imagen"
+              >
+                <Trash2 className="h-4 w-4" />
+              </button>
+              {/* Input oculto para cambiar imagen */}
+              <input
+                id="change-image-input"
+                type="file"
+                accept="image/jpeg,image/jpg,image/png,image/webp,image/gif,.jpg,.jpeg,.png,.webp,.gif"
+                onChange={handleImageChange}
+                style={{ display: 'none' }}
+                disabled={isUploadingImage}
+              />
+            </div>
           </div>
-        </div>
+        ) : (
+          <div
+            style={{
+              border: '2px dashed #d1d5db',
+              borderRadius: '0.5rem',
+              padding: '1rem',
+              textAlign: 'center',
+              backgroundColor: '#f9fafb',
+              cursor: isUploadingImage ? 'not-allowed' : 'pointer',
+              opacity: isUploadingImage ? 0.6 : 1,
+              position: 'relative',
+              transition: 'all 0.2s',
+              minHeight: '100px',
+              maxHeight: '120px',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+            onDragOver={(e) => {
+              e.preventDefault();
+              e.currentTarget.style.borderColor = '#3b82f6';
+              e.currentTarget.style.backgroundColor = '#eff6ff';
+            }}
+            onDragLeave={(e) => {
+              e.preventDefault();
+              e.currentTarget.style.borderColor = '#d1d5db';
+              e.currentTarget.style.backgroundColor = '#f9fafb';
+            }}
+            onDrop={(e) => {
+              e.preventDefault();
+              e.currentTarget.style.borderColor = '#d1d5db';
+              e.currentTarget.style.backgroundColor = '#f9fafb';
+              const file = e.dataTransfer.files[0];
+              if (file) {
+                // Validar que sea una imagen (incluyendo WebP)
+                const validImageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
+                const validExtensions = ['.jpg', '.jpeg', '.png', '.webp', '.gif'];
+                const fileName = file.name.toLowerCase();
+                const fileExtension = fileName.substring(fileName.lastIndexOf('.'));
+                const isValidImage = file.type.startsWith('image/') || 
+                                     validImageTypes.includes(file.type) ||
+                                     validExtensions.includes(fileExtension);
+                
+                if (isValidImage) {
+                  const fakeEvent = {
+                    target: { files: [file] }
+                  } as any;
+                  handleImageChange(fakeEvent);
+                } else {
+                  alert('Solo se permiten imágenes (JPEG, PNG, WebP, GIF)');
+                }
+              }
+            }}
+          >
+            <input
+              type="file"
+              accept="image/jpeg,image/jpg,image/png,image/webp,image/gif,.jpg,.jpeg,.png,.webp,.gif"
+              onChange={handleImageChange}
+              style={{
+                position: 'absolute',
+                inset: 0,
+                width: '100%',
+                height: '100%',
+                opacity: 0,
+                cursor: isUploadingImage ? 'not-allowed' : 'pointer'
+              }}
+              disabled={isUploadingImage}
+            />
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.25rem' }}>
+              <ImageIcon 
+                className="h-8 w-8" 
+                style={{ 
+                  color: '#9ca3af', 
+                  display: 'block'
+                }} 
+              />
+              <p style={{ 
+                margin: 0, 
+                fontSize: '13px', 
+                color: '#6b7280',
+                fontWeight: 500
+              }}>
+                {isUploadingImage ? 'Subiendo imagen...' : 'Haz clic para subir'}
+              </p>
+              <p style={{ 
+                margin: 0, 
+                fontSize: '11px', 
+                color: '#9ca3af'
+              }}>
+                JPEG, PNG, WebP, GIF (máx. 5MB)
+              </p>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="form-group">

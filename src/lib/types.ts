@@ -14,6 +14,7 @@ export interface Producto {
   medida?: string;
   capacidad?: string;
   descripcion?: string;
+  imageUrl?: string;
   createdAt: string;
 }
 

@@ -13,6 +13,7 @@ export interface Producto {
   stock: number;
   categoryId?: string;
   category?: { id: string; name: string };
+  imageUrl?: string;
   createdAt: Date;
 }
 
@@ -22,6 +23,7 @@ export interface ProductoFormData {
   price: number;
   stock: number;
   categoryId?: string;
+  imageUrl?: string;
 }
 
 export function useProductos(companyId?: string) {

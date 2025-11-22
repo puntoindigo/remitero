@@ -34,7 +34,8 @@ export async function GET(request: NextRequest) {
         created_at,
         updated_at,
         company_id,
-        category_id
+        category_id,
+        image_url
       `)
       .order('created_at', { ascending: false });
 
@@ -164,7 +165,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { name, description, price, stock, categoryId, companyId } = body;
+    const { name, description, price, stock, categoryId, companyId, imageUrl } = body;
     
     console.log('Creating product with:', { name, description, price, stock, categoryId, companyId });
 
@@ -201,7 +202,8 @@ export async function POST(request: NextRequest) {
         price: price || 0,
         stock: stock || 'OUT_OF_STOCK',
         category_id: categoryId || null,
-        company_id: finalCompanyId
+        company_id: finalCompanyId,
+        image_url: imageUrl || null
       }])
       .select(`
         id,
@@ -212,7 +214,8 @@ export async function POST(request: NextRequest) {
         created_at,
         updated_at,
         company_id,
-        category_id
+        category_id,
+        image_url
       `)
       .single();
 

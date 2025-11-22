@@ -28,7 +28,7 @@ export async function PUT(
 
     const { id: productId } = await params;
     const body = await request.json();
-    const { name, description, price, stock, categoryId } = body;
+    const { name, description, price, stock, categoryId, imageUrl } = body;
 
     // Verificar que el producto existe y el usuario tiene acceso
     const { data: existingProduct, error: fetchError } = await supabaseAdmin
@@ -75,6 +75,7 @@ export async function PUT(
       updateData.stock = stock;
     }
     if (categoryId !== undefined) updateData.category_id = categoryId || null;
+    if (imageUrl !== undefined) updateData.image_url = imageUrl || null;
 
     // Verificar que el nombre no esté en uso por otro producto de la misma empresa
     if (name && name !== existingProduct?.name) {
@@ -108,7 +109,8 @@ export async function PUT(
         created_at,
         updated_at,
         company_id,
-        category_id
+        category_id,
+        image_url
       `)
       .single();
 

@@ -23,7 +23,8 @@ export const productSchema = z.object({
   description: z.string().optional(),
   price: z.number().min(0.01, "Precio requerido"),
   categoryId: z.string().min(1, "Categoría requerida"),
-  stock: z.enum(["IN_STOCK", "OUT_OF_STOCK"]).optional()
+  stock: z.enum(["IN_STOCK", "OUT_OF_STOCK"]).optional(),
+  imageUrl: z.string().url("URL de imagen inválida").optional().or(z.literal(""))
 })
 
 export const clientSchema = z.object({
