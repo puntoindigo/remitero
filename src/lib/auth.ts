@@ -10,18 +10,37 @@ const cleanEnv = (value: string | undefined): string | undefined => {
   return value?.trim().replace(/\n/g, '');
 };
 
+// Limpiar y normalizar URL (remover dobles slashes, espacios, etc.)
+const normalizeUrl = (url: string): string => {
+  if (!url) return url;
+  
+  // Remover espacios y newlines
+  let cleaned = url.trim().replace(/\n/g, '');
+  
+  // Remover dobles slashes (excepto después de http:// o https://)
+  cleaned = cleaned.replace(/([^:]\/)\/+/g, '$1');
+  
+  // Asegurar que termine sin slash (excepto si es solo el dominio)
+  if (cleaned.endsWith('/') && cleaned.split('/').length > 4) {
+    cleaned = cleaned.slice(0, -1);
+  }
+  
+  return cleaned;
+};
+
 // Usar VERCEL_URL si está disponible (para preview branches), sino usar NEXTAUTH_URL
 const getNextAuthUrl = (): string => {
   // PRIORIDAD 1: Si hay NEXTAUTH_URL explícito, usarlo (tiene prioridad)
   const explicitNextAuthUrl = cleanEnv(process.env.NEXTAUTH_URL);
   if (explicitNextAuthUrl) {
-    console.log('🔧 [NextAuth URL] Usando NEXTAUTH_URL explícito:', explicitNextAuthUrl);
-    return explicitNextAuthUrl;
+    const normalized = normalizeUrl(explicitNextAuthUrl);
+    console.log('🔧 [NextAuth URL] Usando NEXTAUTH_URL explícito:', normalized);
+    return normalized;
   }
   
   // PRIORIDAD 2: En Vercel, usar VERCEL_URL si está disponible
   if (process.env.VERCEL_URL) {
-    const vercelUrl = `https://${process.env.VERCEL_URL}`;
+    const vercelUrl = normalizeUrl(`https://${process.env.VERCEL_URL}`);
     console.log('🔧 [NextAuth URL] Usando VERCEL_URL:', vercelUrl);
     return vercelUrl;
   }
@@ -150,15 +169,28 @@ export const authOptions: NextAuthOptions = {
 
           // Verificar que el usuario tenga contraseña (no es Gmail OAuth)
           if (!user.password) {
+            console.warn('⚠️ [Credentials authorize] Usuario sin contraseña (probablemente Gmail):', credentials.email);
             return null
           }
+
+          console.log('🔐 [Credentials authorize] Verificando contraseña...', {
+            hasStoredPassword: !!user.password,
+            passwordLength: user.password?.length,
+            email: credentials.email
+          });
 
           const isPasswordValid = await bcrypt.compare(
             credentials.password,
             user.password
           )
 
+          console.log('🔐 [Credentials authorize] Resultado de comparación de contraseña:', {
+            isValid: isPasswordValid,
+            email: credentials.email
+          });
+
           if (!isPasswordValid) {
+            console.warn('⚠️ [Credentials authorize] Contraseña incorrecta para:', credentials.email);
             return null
           }
 
@@ -180,18 +212,27 @@ export const authOptions: NextAuthOptions = {
           // Registrar login
           await logUserActivity(user.id, 'LOGIN', 'Inició sesión con credenciales');
 
-                return {
-                  id: user.id,
-                  email: user.email,
-                  name: user.name,
-                  role: user.role,
-                  companyId: user.company_id,
+          const userObject = {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            role: user.role,
+            companyId: user.company_id,
             companyName: companyName,
             impersonatingUserId: null,
             hasTemporaryPassword: user.has_temporary_password || false,
             enable_botonera: user.enable_botonera ?? false,
             enable_pinned_modals: user.enable_pinned_modals ?? false
-                } as any
+          } as any;
+
+          console.log('✅ [Credentials authorize] Login exitoso, retornando user object:', {
+            id: userObject.id,
+            email: userObject.email,
+            role: userObject.role,
+            companyId: userObject.companyId
+          });
+
+          return userObject;
         } catch (error) {
           return null
         }

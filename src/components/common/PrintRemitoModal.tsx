@@ -88,20 +88,27 @@ export function PrintRemitoModal({ remitoId, remitoNumber, onClose }: PrintRemit
         </div>
 
         {/* Footer con botones */}
-        <div className="p-3 border-t bg-gray-50 rounded-b-lg flex justify-between items-center gap-3">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors flex items-center gap-2 text-sm font-medium"
-          >
-            <X className="h-4 w-4" />
-            Cerrar
-          </button>
+        <div className="p-3 border-t bg-gray-50 rounded-b-lg flex items-center gap-3" style={{ position: 'relative' }}>
+          {/* Botón Imprimir centrado */}
           <button
             onClick={handlePrint}
             className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center gap-2 text-sm font-medium"
+            style={{ 
+              position: 'absolute',
+              left: '50%',
+              transform: 'translateX(-50%)'
+            }}
           >
             <Printer className="h-4 w-4" />
             Imprimir
+          </button>
+          {/* Botón Cerrar en el extremo derecho */}
+          <button
+            onClick={onClose}
+            className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors flex items-center gap-2 text-sm font-medium ml-auto"
+          >
+            <X className="h-4 w-4" />
+            Cerrar
           </button>
         </div>
       </div>

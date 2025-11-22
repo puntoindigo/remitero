@@ -2,6 +2,7 @@
 
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
 import { Eye, EyeOff, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
 import { useColorTheme } from "@/contexts/ColorThemeContext";
 
@@ -20,6 +21,9 @@ function ResetPasswordContent() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [userEmail, setUserEmail] = useState("");
+  const [userName, setUserName] = useState("");
+  const [isInvitation, setIsInvitation] = useState(false);
+  const [isGmail, setIsGmail] = useState(false);
 
   useEffect(() => {
     const tokenParam = searchParams.get('token');
@@ -41,6 +45,9 @@ function ResetPasswordContent() {
       if (data.valid) {
         setIsValid(true);
         setUserEmail(data.email || "");
+        setUserName(data.name || "");
+        setIsInvitation(data.isInvitation || false);
+        setIsGmail(data.isGmail || false);
       } else {
         setIsValid(false);
         setError(data.message || "El enlace no es válido o ha expirado.");
@@ -90,12 +97,108 @@ function ResetPasswordContent() {
         throw new Error(data.message || 'Error al restablecer la contraseña');
       }
 
-      setSuccess(true);
-      
-      // Redirigir al login después de 3 segundos
-      setTimeout(() => {
-        router.push('/auth/login?message=password-reset-success');
-      }, 3000);
+      // Si es invitación (usuario nuevo), iniciar sesión automáticamente
+      if (data.isInvitation && !data.isGmail) {
+        try {
+          // Limpiar y normalizar callbackUrl para evitar errores de URL
+          const callbackUrl = window.location.origin + '/';
+          console.log('🔍 [Reset Password] Intentando login automático:', {
+            email: data.email,
+            callbackUrl,
+            origin: window.location.origin,
+            href: window.location.href
+          });
+
+          // Esperar un momento para asegurar que la contraseña se haya actualizado en la BD
+          console.log('⏳ [Reset Password] Esperando 500ms para asegurar persistencia de contraseña...');
+          await new Promise(resolve => setTimeout(resolve, 500));
+
+          // Intentar iniciar sesión automáticamente
+          // Usar ruta relativa simple para evitar problemas con URLs
+          console.log('🔐 [Reset Password] Llamando a signIn...');
+          const signInResult = await signIn('credentials', {
+            email: data.email,
+            password: password,
+            redirect: false,
+            callbackUrl: '/', // Ruta relativa simple
+          });
+
+          console.log('🔍 [Reset Password] Resultado completo del signIn:', {
+            ok: signInResult?.ok,
+            error: signInResult?.error,
+            status: signInResult?.status,
+            url: signInResult?.url,
+            resultType: typeof signInResult,
+            resultKeys: signInResult ? Object.keys(signInResult) : 'null',
+            fullResult: JSON.stringify(signInResult, null, 2)
+          });
+
+          // Verificar sesión después del signIn
+          console.log('🔍 [Reset Password] Verificando sesión después del signIn...');
+          const { getSession } = await import('next-auth/react');
+          const session = await getSession();
+          console.log('🔍 [Reset Password] Sesión obtenida:', {
+            hasSession: !!session,
+            userId: session?.user?.id,
+            email: session?.user?.email,
+            role: session?.user?.role
+          });
+
+          if (signInResult?.ok || session) {
+            // Sesión iniciada exitosamente, usar window.location para forzar recarga completa
+            // Esto asegura que la sesión se establezca correctamente
+            console.log('✅ [Reset Password] Login exitoso, redirigiendo...');
+            // Pequeño delay para asegurar que la cookie se establezca
+            await new Promise(resolve => setTimeout(resolve, 200));
+            window.location.href = '/';
+            return; // No mostrar pantalla de éxito, redirigir inmediatamente
+          } else {
+            // Si falla el login automático, mostrar error
+            console.error('❌ [Reset Password] Error en login automático:', {
+              error: signInResult?.error,
+              status: signInResult?.status,
+              url: signInResult?.url,
+              hasSession: !!session
+            });
+            setError('Contraseña establecida, pero hubo un error al iniciar sesión. Por favor, inicia sesión manualmente.');
+            setSuccess(false);
+            // Redirigir al login después de un momento
+            setTimeout(() => {
+              router.push(`/auth/login?message=password-set-success&email=${encodeURIComponent(data.email)}`);
+            }, 3000);
+          }
+        } catch (signInError: any) {
+          console.error('❌ [Reset Password] Excepción al iniciar sesión automáticamente:', {
+            message: signInError?.message,
+            stack: signInError?.stack,
+            error: signInError
+          });
+          
+          // Si el error es de URL, simplemente redirigir al login con email prellenado
+          // El usuario solo necesitará ingresar la contraseña que acaba de establecer
+          if (signInError?.message?.includes('URL') || signInError?.message?.includes('Invalid')) {
+            console.log('🔄 [Reset Password] Error de URL detectado, redirigiendo al login con email prellenado...');
+            setSuccess(true); // Mostrar mensaje de éxito
+            setTimeout(() => {
+              // Redirigir al login con email prellenado
+              window.location.href = `/auth/login?email=${encodeURIComponent(data.email)}&message=password-set-login-required`;
+            }, 2000);
+            return;
+          }
+
+          setError('Contraseña establecida, pero hubo un error al iniciar sesión. Por favor, inicia sesión manualmente.');
+          setSuccess(false);
+          setTimeout(() => {
+            router.push(`/auth/login?message=password-set-success&email=${encodeURIComponent(data.email)}`);
+          }, 3000);
+        }
+      } else {
+        // Si es recuperación, mostrar pantalla de éxito y redirigir al login
+        setSuccess(true);
+        setTimeout(() => {
+          router.push(`/auth/login?message=password-reset-success&email=${encodeURIComponent(data.email || userEmail)}`);
+        }, 3000);
+      }
     } catch (error: any) {
       setError(error.message || 'Error al restablecer la contraseña');
     } finally {
@@ -163,6 +266,7 @@ function ResetPasswordContent() {
   }
 
   if (success) {
+    const isInvitationFlow = isInvitation && !isGmail;
     return (
       <div className="min-h-screen flex items-center justify-center p-6" style={{ backgroundColor: '#f9fafb' }}>
         <div style={{ 
@@ -176,10 +280,12 @@ function ResetPasswordContent() {
         }}>
           <CheckCircle className="h-12 w-12 mx-auto mb-4" style={{ color: '#10b981' }} />
           <h1 style={{ fontSize: '1.5rem', fontWeight: 600, marginBottom: '1rem', color: '#111827' }}>
-            ¡Contraseña restablecida!
+            {isInvitationFlow ? '¡Bienvenido!' : '¡Contraseña restablecida!'}
           </h1>
           <p style={{ color: '#6b7280', marginBottom: '1.5rem' }}>
-            Tu contraseña ha sido restablecida exitosamente. Serás redirigido al inicio de sesión en unos segundos.
+            {isInvitationFlow 
+              ? 'Tu contraseña ha sido establecida exitosamente. Serás redirigido a la aplicación en unos segundos.'
+              : 'Tu contraseña ha sido restablecida exitosamente. Serás redirigido al inicio de sesión en unos segundos.'}
           </p>
           <div style={{ 
             width: '100%', 
@@ -193,7 +299,7 @@ function ResetPasswordContent() {
               width: '100%',
               height: '100%',
               backgroundColor: colors.primary,
-              animation: 'shrink 3s linear forwards'
+              animation: isInvitationFlow ? 'shrink 1.5s linear forwards' : 'shrink 3s linear forwards'
             }} />
           </div>
         </div>
@@ -211,13 +317,41 @@ function ResetPasswordContent() {
         maxWidth: '400px',
         width: '100%'
       }}>
-        <h1 style={{ fontSize: '1.5rem', fontWeight: 600, marginBottom: '0.5rem', color: '#111827' }}>
-          Restablecer contraseña
-        </h1>
-        {userEmail && (
-          <p style={{ color: '#6b7280', marginBottom: '1.5rem', fontSize: '0.875rem' }}>
-            Para: {userEmail}
-          </p>
+        {/* Marca/Bienvenido para invitaciones */}
+        {isInvitation && userName && (
+          <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+            <h1 style={{ 
+              fontSize: '1.75rem', 
+              fontWeight: 700, 
+              marginBottom: '0.5rem', 
+              color: colors.primary,
+              background: colors.gradient,
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text'
+            }}>
+              Sistema de Gestión
+            </h1>
+            <p style={{ fontSize: '1rem', color: '#6b7280', marginBottom: '0.25rem' }}>
+              ¡Bienvenido, {userName}!
+            </p>
+            <p style={{ fontSize: '0.875rem', color: '#9ca3af' }}>
+              Establece tu contraseña para comenzar
+            </p>
+          </div>
+        )}
+        
+        {!isInvitation && (
+          <>
+            <h1 style={{ fontSize: '1.5rem', fontWeight: 600, marginBottom: '0.5rem', color: '#111827' }}>
+              Restablecer contraseña
+            </h1>
+            {userEmail && (
+              <p style={{ color: '#6b7280', marginBottom: '1.5rem', fontSize: '0.875rem' }}>
+                Para: {userEmail}
+              </p>
+            )}
+          </>
         )}
         
         <form onSubmit={handleSubmit}>
@@ -351,10 +485,10 @@ function ResetPasswordContent() {
             {isLoading ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
-                Restableciendo...
+                {isInvitation ? 'Estableciendo...' : 'Restableciendo...'}
               </>
             ) : (
-              'Restablecer contraseña'
+              isInvitation ? 'Establecer contraseña' : 'Restablecer contraseña'
             )}
           </button>
         </form>

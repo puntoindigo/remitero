@@ -28,10 +28,44 @@ function LoginPageContent() {
   const [isSendingPassword, setIsSendingPassword] = useState(false)
   const [loginMethod, setLoginMethod] = useState<"select" | "email" | "gmail">("select")
   const [showPassword, setShowPassword] = useState(false)
+  const [successMessage, setSuccessMessage] = useState("")
+  const [hideGmailButton, setHideGmailButton] = useState(false)
   const { theme, colors, setTheme } = useColorTheme()
   const router = useRouter()
   const searchParams = useSearchParams()
   const isDev = useIsDevelopment()
+
+  // Verificar mensajes de éxito y ocultar Gmail si es necesario
+  useEffect(() => {
+    const messageParam = searchParams.get('message')
+    const emailParam = searchParams.get('email')
+    
+    if (messageParam === 'password-set-success' || messageParam === 'password-set-login-required') {
+      setSuccessMessage(messageParam === 'password-set-login-required' 
+        ? 'Contraseña establecida exitosamente. Por favor, inicia sesión con tu nueva contraseña.'
+        : 'Contraseña establecida exitosamente. Ya puedes iniciar sesión.');
+      // Si viene con email, verificar si es no-Gmail y ocultar botón Gmail, y prellenar el email
+      if (emailParam) {
+        const isGmail = emailParam.toLowerCase().endsWith('@gmail.com') || 
+                       emailParam.toLowerCase().endsWith('@googlemail.com');
+        setHideGmailButton(!isGmail);
+        // Prellenar el email en el formulario
+        setValue('email', emailParam);
+        // Cambiar a método email automáticamente si hay email
+        setLoginMethod('email');
+      } else {
+        setHideGmailButton(true); // Por defecto ocultar si no sabemos
+      }
+    } else if (messageParam === 'password-reset-success') {
+      setSuccessMessage('Contraseña restablecida exitosamente. Ya puedes iniciar sesión.');
+      // Si viene con email, verificar si es no-Gmail y ocultar botón Gmail
+      if (emailParam) {
+        const isGmail = emailParam.toLowerCase().endsWith('@gmail.com') || 
+                       emailParam.toLowerCase().endsWith('@googlemail.com');
+        setHideGmailButton(!isGmail);
+      }
+    }
+  }, [searchParams]);
 
   // Verificar si hay errores en la URL
   useEffect(() => {
@@ -543,10 +577,43 @@ function LoginPageContent() {
               </div>
             )}
 
-            {/* Botón Gmail */}
-            <button
-              type="button"
-              onClick={async () => {
+            {/* Mensaje de éxito */}
+            {successMessage && (
+              <div style={{
+                backgroundColor: '#d1fae5',
+                border: '1px solid #10b981',
+                borderRadius: '6px',
+                padding: '0.75rem',
+                marginBottom: '1rem',
+                color: '#065f46',
+                fontSize: '0.875rem',
+                textAlign: 'center'
+              }}>
+                {successMessage}
+              </div>
+            )}
+
+            {/* Mensaje de éxito */}
+            {successMessage && (
+              <div style={{
+                backgroundColor: '#d1fae5',
+                border: '1px solid #10b981',
+                borderRadius: '6px',
+                padding: '0.75rem',
+                marginBottom: '1rem',
+                color: '#065f46',
+                fontSize: '0.875rem',
+                textAlign: 'center'
+              }}>
+                {successMessage}
+              </div>
+            )}
+
+            {/* Botón Gmail - ocultar si hideGmailButton es true */}
+            {!hideGmailButton && (
+              <button
+                type="button"
+                onClick={async () => {
                 setIsLoading(true);
                 setError("");
                 
@@ -636,14 +703,18 @@ function LoginPageContent() {
               </svg>
               {isLoading ? "Accediendo..." : "Acceder con Gmail"}
             </button>
+            )}
 
-            {/* Divider */}
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              margin: '0.5rem 0',
-              gap: '1rem',
-            }}>
+            {/* Divider - solo mostrar si hay botón Gmail */}
+            {!hideGmailButton && (
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                margin: '1.5rem 0',
+                gap: '1rem',
+                color: '#6b7280',
+                fontSize: '0.875rem'
+              }}>
               <div style={{
                 flex: 1,
                 height: '1px',
@@ -660,7 +731,8 @@ function LoginPageContent() {
                 height: '1px',
                 background: '#e5e7eb',
               }} />
-            </div>
+              </div>
+            )}
 
             {/* Botón Email */}
             <button

@@ -598,11 +598,8 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
           }
           
           /* Prevenir que los campos abran el teclado automáticamente */
-          input[autofocus],
-          textarea[autofocus],
-          select[autofocus] {
-            autofocus: false;
-          }
+          /* Nota: autofocus es un atributo HTML, no una propiedad CSS */
+          /* Se debe manejar con JavaScript si es necesario */
         }
       `}</style>
 
