@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useEffect, Suspense } from 'react';
+import React, { useEffect, Suspense, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useTheme } from '@/hooks/useTheme';
 import { ThemeSelector } from '@/components/common/ThemeSelector';
-import { User, Palette, Settings, Bell, Shield, Globe } from 'lucide-react';
+import { User, Palette, Settings, Bell, Shield, Globe, ChevronDown, ChevronUp } from 'lucide-react';
 import { NotificationPreferences } from '@/components/common/NotificationPreferences';
 import { useSearchParams } from 'next/navigation';
 import { useToast } from '@/hooks/useToast';
@@ -14,6 +14,7 @@ function ConfiguracionContent() {
   const { currentTheme, themeConfig, availableThemes, setTheme } = useTheme();
   const searchParams = useSearchParams();
   const { showSuccess } = useToast();
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
   
   const isSuperAdmin = session?.user?.role === 'SUPERADMIN';
   
@@ -34,15 +35,16 @@ function ConfiguracionContent() {
   // Debug: verificar por qué no aparece el panel
   useEffect(() => {
     if (status === 'authenticated') {
-      console.log('🔍 [Configuración] Session status:', {
+      console.log('[Configuración] Session status:', {
         status,
         role: session?.user?.role,
         isSuperAdmin,
         userId: session?.user?.id,
-        userName: session?.user?.name
+        userName: session?.user?.name,
+        notificationsOpen
       });
     }
-  }, [status, session, isSuperAdmin]);
+  }, [status, session, isSuperAdmin, notificationsOpen]);
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -161,8 +163,27 @@ function ConfiguracionContent() {
 
             {/* Notificaciones de Actividad - Solo para SUPERADMIN */}
             {status === 'authenticated' && isSuperAdmin && (
-              <div className="bg-white rounded-lg shadow-md p-6">
-                <NotificationPreferences />
+              <div className="bg-white rounded-lg shadow-md overflow-hidden">
+                <button
+                  type="button"
+                  onClick={() => setNotificationsOpen(!notificationsOpen)}
+                  className="w-full flex items-center justify-between p-6 hover:bg-gray-50 transition-colors text-left"
+                >
+                  <div className="flex items-center gap-3">
+                    <Bell className="h-5 w-5 text-blue-600" />
+                    <h3 className="text-lg font-semibold text-gray-900">Notificaciones de Actividad</h3>
+                  </div>
+                  {notificationsOpen ? (
+                    <ChevronUp className="h-5 w-5 text-gray-600 flex-shrink-0" />
+                  ) : (
+                    <ChevronDown className="h-5 w-5 text-gray-600 flex-shrink-0" />
+                  )}
+                </button>
+                {notificationsOpen && (
+                  <div className="px-6 pb-6 border-t border-gray-200">
+                    <NotificationPreferences />
+                  </div>
+                )}
               </div>
             )}
 
