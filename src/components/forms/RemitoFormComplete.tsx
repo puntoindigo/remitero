@@ -446,19 +446,19 @@ export function RemitoFormComplete({
 
       {/* Tabla de productos */}
       <div>
-        <table>
+        <table style={{ borderCollapse: 'collapse', width: '100%' }}>
           <thead>
             <tr>
-              <th style={{ width: '50%', fontWeight: 400, fontSize: '15px' }}>Producto</th>
-              <th style={{ width: '80px', fontWeight: 400, fontSize: '15px' }}>Cant.</th>
-              <th style={{ width: '140px', fontWeight: 400, fontSize: '15px' }}>Precio</th>
-              <th style={{ width: '140px', fontWeight: 400, fontSize: '15px' }}>Total</th>
+              <th style={{ width: '50%', fontWeight: 400, fontSize: '15px', padding: '12px 8px', textAlign: 'left' }}>Producto</th>
+              <th style={{ width: '80px', fontWeight: 400, fontSize: '15px', padding: '12px 8px', textAlign: 'left' }}>Cant.</th>
+              <th style={{ width: '140px', fontWeight: 400, fontSize: '15px', padding: '12px 8px', textAlign: 'left' }}>Precio</th>
+              <th style={{ width: '140px', fontWeight: 400, fontSize: '15px', padding: '12px 8px', textAlign: 'left' }}>Total</th>
             </tr>
           </thead>
           <tbody>
             {items.map((item, index) => (
               <tr key={index}>
-                <td>
+                <td style={{ padding: '12px 8px', verticalAlign: 'middle' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     {!isMobile && (
                       item.product_imageUrl ? (
@@ -471,25 +471,29 @@ export function RemitoFormComplete({
                             objectFit: 'cover',
                             borderRadius: '4px',
                             flexShrink: 0,
-                            border: '1px solid #e5e7eb'
+                            border: '1px solid #e5e7eb',
+                            display: 'block'
                           }}
                           onError={(e) => {
                             // Si la imagen falla al cargar, mostrar placeholder
                             const target = e.target as HTMLImageElement;
-                            target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 24 24' fill='none' stroke='%23d1d5db' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='3' width='18' height='18' rx='2'/%3E%3Cpath d='M9 9h6v6H9z'/%3E%3C/svg%3E";
+                            target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 24 24' fill='none' stroke='%23d1d5db' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='3' width='18' height='18' rx='2'/%3E%3Cpath d='M9 9h6v6H9z'/%3E%3C/svg%3E";
+                            target.style.width = '40px';
+                            target.style.height = '40px';
                             target.style.opacity = '0.5';
                           }}
                           loading="lazy"
                         />
                       ) : (
                         <img 
-                          src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 24 24' fill='none' stroke='%23d1d5db' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='3' width='18' height='18' rx='2'/%3E%3Cpath d='M9 9h6v6H9z'/%3E%3C/svg%3E"
+                          src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 24 24' fill='none' stroke='%23d1d5db' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='3' width='18' height='18' rx='2'/%3E%3Cpath d='M9 9h6v6H9z'/%3E%3C/svg%3E"
                           alt="Sin imagen"
                           style={{ 
-                            width: '32px', 
-                            height: '32px', 
+                            width: '40px', 
+                            height: '40px', 
                             flexShrink: 0,
-                            opacity: 0.5
+                            opacity: 0.5,
+                            display: 'block'
                           }}
                         />
                       )
@@ -502,7 +506,7 @@ export function RemitoFormComplete({
                     </div>
                   </div>
                 </td>
-                <td>
+                <td style={{ padding: '12px 8px', verticalAlign: 'middle' }}>
                   <input
                     type="number"
                     min="1"
@@ -511,7 +515,7 @@ export function RemitoFormComplete({
                     style={{ width: '60px', fontSize: '14px', padding: '4px 8px' }}
                   />
                 </td>
-                <td style={{ fontSize: '14px' }}>
+                <td style={{ fontSize: '14px', padding: '12px 8px', verticalAlign: 'middle' }}>
                   {(Number(item.unit_price) || 0).toLocaleString('es-AR', { 
                     style: 'currency', 
                     currency: 'ARS' 
@@ -519,33 +523,32 @@ export function RemitoFormComplete({
                 </td>
                 <td style={{ 
                   fontSize: '14px', 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  justifyContent: 'space-between',
                   padding: '12px 8px',
                   verticalAlign: 'middle'
                 }}>
-                  <span>
-                    {(Number(item.line_total) || 0).toLocaleString('es-AR', { 
-                      style: 'currency', 
-                      currency: 'ARS' 
-                    })}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveItem(index)}
-                    className="small danger"
-                    style={{ marginLeft: '0.5rem' }}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem' }}>
+                    <span>
+                      {(Number(item.line_total) || 0).toLocaleString('es-AR', { 
+                        style: 'currency', 
+                        currency: 'ARS' 
+                      })}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveItem(index)}
+                      className="small danger"
+                      style={{ flexShrink: 0 }}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
             
             {/* Fila para agregar nuevo producto */}
             <tr style={{ backgroundColor: '#f9fafb' }}>
-              <td>
+              <td style={{ padding: '12px 8px', verticalAlign: 'middle' }}>
                 <FilterableSelect
                   options={availableProducts.map(product => ({ 
                     id: product?.id, 
@@ -579,7 +582,7 @@ export function RemitoFormComplete({
                   searchFields={["name"]}
                 />
               </td>
-              <td>
+              <td style={{ padding: '12px 8px', verticalAlign: 'middle' }}>
                 <input
                   type="number"
                   min="1"
@@ -588,7 +591,7 @@ export function RemitoFormComplete({
                   style={{ width: '60px', fontSize: '14px', padding: '4px 8px' }}
                 />
               </td>
-              <td style={{ fontSize: '14px' }}>
+              <td style={{ fontSize: '14px', padding: '12px 8px', verticalAlign: 'middle' }}>
                 {selectedProduct && (
                   (() => {
                     const product = products.find(p => p?.id === selectedProduct);
@@ -601,7 +604,7 @@ export function RemitoFormComplete({
                   })()
                 )}
               </td>
-              <td style={{ fontSize: '14px' }}>
+              <td style={{ fontSize: '14px', padding: '12px 8px', verticalAlign: 'middle' }}>
                 {selectedProduct && (
                   (() => {
                     const product = products.find(p => p?.id === selectedProduct);
