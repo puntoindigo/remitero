@@ -34,29 +34,44 @@ export function isDevelopment(): boolean {
       return true;
     }
     
-    // Verificar URL de Vercel
-    const vercelUrl = process.env.VERCEL_URL || '';
+    // Verificar URL de Vercel (múltiples variables posibles)
+    const vercelUrl = process.env.VERCEL_URL || process.env.NEXT_PUBLIC_VERCEL_URL || '';
+    
+    // Verificar VERCEL_ENV primero (más confiable)
+    const vercelEnv = process.env.VERCEL_ENV;
+    
+    // Si VERCEL_ENV es 'production', es producción (definitivo)
+    if (vercelEnv === 'production') {
+      return false;
+    }
+    
+    // Si VERCEL_ENV es 'preview' o 'development', es desarrollo
+    if (vercelEnv === 'preview' || vercelEnv === 'development') {
+      return true;
+    }
+    
+    // Si la URL contiene 'remitero-dev', es desarrollo
     if (vercelUrl.includes('remitero-dev')) {
       return true;
     }
+    
     // Si la URL es de producción (v0-remitero.vercel.app), es producción
     if (vercelUrl.includes('v0-remitero.vercel.app')) {
       return false;
     }
+    
+    // Si estamos en Vercel (process.env.VERCEL existe) pero no hay VERCEL_ENV configurado,
+    // y la URL no contiene 'remitero-dev', asumir producción por defecto
+    // (más seguro que asumir desarrollo - en producción no queremos mostrar "entorno desarrollo")
+    if (process.env.VERCEL) {
+      // Si estamos en Vercel y no es explícitamente desarrollo, asumir producción
+      return false;
+    }
   }
 
-  // En Vercel, usar VERCEL_ENV para determinar el entorno
-  // VERCEL_ENV === 'production' → producción
-  // VERCEL_ENV no existe, es 'preview', 'development', o cualquier otro valor → desarrollo
-  const vercelEnv = process.env.VERCEL_ENV;
-  
-  // Solo es producción si VERCEL_ENV está explícitamente configurado como 'production'
-  if (vercelEnv === 'production') {
-    return false;
-  }
-  
-  // Cualquier otro caso (no existe, preview, development, etc.) es desarrollo
-  return true;
+  // Por defecto, si no podemos determinar, asumir desarrollo solo en localhost
+  // En cualquier otro caso (Vercel sin configuración clara), asumir producción
+  return false;
 }
 
 /**
