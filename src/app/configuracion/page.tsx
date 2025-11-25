@@ -32,19 +32,6 @@ function ConfiguracionContent() {
     }
   }, [searchParams, showSuccess]);
   
-  // Debug: verificar por qué no aparece el panel
-  useEffect(() => {
-    if (status === 'authenticated') {
-      console.log('[Configuración] Session status:', {
-        status,
-        role: session?.user?.role,
-        isSuperAdmin,
-        userId: session?.user?.id,
-        userName: session?.user?.name,
-        notificationsOpen
-      });
-    }
-  }, [status, session, isSuperAdmin, notificationsOpen]);
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -167,7 +154,7 @@ function ConfiguracionContent() {
                 <button
                   type="button"
                   onClick={() => setNotificationsOpen(!notificationsOpen)}
-                  className="w-full flex items-center justify-between p-6 hover:bg-gray-50 transition-colors text-left"
+                  className="w-full flex items-center justify-between p-6 hover:bg-gray-50 transition-colors text-left border-b border-gray-200"
                 >
                   <div className="flex items-center gap-3">
                     <Bell className="h-5 w-5 text-blue-600" />
