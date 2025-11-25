@@ -479,6 +479,17 @@ Este es un email automático, por favor no respondas a este mensaje.
       `
     };
 
+    // Debug: verificar detección de entorno
+    const isDev = isDevelopment();
+    console.log('📤 [Email] Detección de entorno:', {
+      isDevelopment: isDev,
+      VERCEL_ENV: process.env.VERCEL_ENV || 'not-set',
+      VERCEL_URL: process.env.VERCEL_URL || 'not-set',
+      NEXT_PUBLIC_VERCEL_URL: process.env.NEXT_PUBLIC_VERCEL_URL || 'not-set',
+      VERCEL: process.env.VERCEL || 'not-set',
+      willShowDevMessage: isDev
+    });
+    
     console.log('📤 [Email] Enviando email...');
     console.log('📤 [Email] Mail options:', {
       from: mailOptions.from,
@@ -490,7 +501,8 @@ Este es un email automático, por favor no respondas a este mensaje.
       hasResetUrl: !!resetUrl,
       passwordSectionHtmlLength: passwordSectionHtml.length,
       environment: process.env.VERCEL_ENV || 'local',
-      vercelUrl: process.env.VERCEL_URL || 'local'
+      vercelUrl: process.env.VERCEL_URL || 'local',
+      isDevelopment: isDev
     });
     
     const info = await transporter.sendMail(mailOptions);
