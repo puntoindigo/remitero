@@ -15,6 +15,7 @@ interface RemitoItem {
   product_id?: string;
   product_name: string;
   product_desc?: string;
+  product_imageUrl?: string;
   quantity: number;
   unit_price: number;
   line_total: number;
@@ -122,6 +123,7 @@ export function RemitoFormComplete({
                 product_id: String(item.product_id || item.productId || item.product?.id || item.products?.id || ''),
                 product_name: String(item.product_name || item.productName || item.product?.name || item.products?.name || ""),
                 product_desc: String(item.product_desc || item.productDesc || item.product?.description || item.products?.description || ""),
+                product_imageUrl: String(item.product?.imageUrl || item.product?.image_url || item.products?.imageUrl || item.products?.image_url || ""),
                 quantity: Number(item.quantity) || 1,
                 unit_price: Number(item.unit_price || item.unitPrice || item.product?.price || item.products?.price) || 0,
                 line_total: Number(item.line_total || item.lineTotal || (item.quantity * (item.unit_price || item.unitPrice))) || 0
@@ -146,6 +148,7 @@ export function RemitoFormComplete({
                 product_id: String(item.product_id || item.productId || item.product?.id || item.products?.id || ''),
                 product_name: String(item.product_name || item.productName || item.product?.name || item.products?.name || ""),
                 product_desc: String(item.product_desc || item.productDesc || item.product?.description || item.products?.description || ""),
+                product_imageUrl: String(item.product?.imageUrl || item.product?.image_url || item.products?.imageUrl || item.products?.image_url || ""),
                 quantity: Number(item.quantity) || 1,
                 unit_price: Number(item.unit_price || item.unitPrice || item.product?.price || item.products?.price) || 0,
                 line_total: Number(item.line_total || item.lineTotal || (item.quantity * (item.unit_price || item.unitPrice))) || 0
@@ -199,6 +202,7 @@ export function RemitoFormComplete({
       product_id: String(product?.id || ''),
       product_name: String(product?.name || ''),
       product_desc: String(product?.description || ''),
+      product_imageUrl: String(product?.imageUrl || product?.image_url || ''),
       quantity,
       unit_price: unitPrice,
       line_total: lineTotal
@@ -457,16 +461,38 @@ export function RemitoFormComplete({
                 <td>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     {!isMobile && (
-                      <img 
-                        src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 24 24' fill='none' stroke='%23d1d5db' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='3' width='18' height='18' rx='2'/%3E%3Cpath d='M9 9h6v6H9z'/%3E%3C/svg%3E"
-                        alt="Sin imagen"
-                        style={{ 
-                          width: '32px', 
-                          height: '32px', 
-                          flexShrink: 0,
-                          opacity: 0.5
-                        }}
-                      />
+                      item.product_imageUrl ? (
+                        <img 
+                          src={item.product_imageUrl}
+                          alt={item.product_name || 'Producto'}
+                          style={{ 
+                            width: '40px', 
+                            height: '40px', 
+                            objectFit: 'cover',
+                            borderRadius: '4px',
+                            flexShrink: 0,
+                            border: '1px solid #e5e7eb'
+                          }}
+                          onError={(e) => {
+                            // Si la imagen falla al cargar, mostrar placeholder
+                            const target = e.target as HTMLImageElement;
+                            target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 24 24' fill='none' stroke='%23d1d5db' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='3' width='18' height='18' rx='2'/%3E%3Cpath d='M9 9h6v6H9z'/%3E%3C/svg%3E";
+                            target.style.opacity = '0.5';
+                          }}
+                          loading="lazy"
+                        />
+                      ) : (
+                        <img 
+                          src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 24 24' fill='none' stroke='%23d1d5db' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='3' width='18' height='18' rx='2'/%3E%3Cpath d='M9 9h6v6H9z'/%3E%3C/svg%3E"
+                          alt="Sin imagen"
+                          style={{ 
+                            width: '32px', 
+                            height: '32px', 
+                            flexShrink: 0,
+                            opacity: 0.5
+                          }}
+                        />
+                      )
                     )}
                     <div>
                       <div style={{ fontSize: '14px', fontWeight: 500 }}>{item.product_name}</div>
@@ -538,6 +564,7 @@ export function RemitoFormComplete({
                           product_id: String(product?.id || ''),
                           product_name: String(product?.name || ''),
                           product_desc: String(product?.description || ''),
+                          product_imageUrl: String(product?.imageUrl || product?.image_url || ''),
                           quantity,
                           unit_price: unitPrice,
                           line_total: lineTotal

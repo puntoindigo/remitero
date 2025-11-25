@@ -137,18 +137,22 @@ export async function GET(
       if (itemsData) {
         // Obtener productos si hay product_id
         const productIds = [...new Set(itemsData.filter((i: any) => i.product_id).map((i: any) => i.product_id))];
-        const productsMap = new Map<string, { id: string; name: string }>();
+        const productsMap = new Map<string, { id: string; name: string; imageUrl: string | null }>();
         
         if (productIds.length > 0) {
           try {
             const { data: products } = await supabaseAdmin
               .from('products')
-              .select('id, name')
+              .select('id, name, image_url')
               .in('id', productIds);
             
             if (products) {
               products.forEach((product: any) => {
-                productsMap.set(product.id, { id: product.id, name: product.name });
+                productsMap.set(product.id, { 
+                  id: product.id, 
+                  name: product.name,
+                  imageUrl: product.image_url || product.imageUrl || null
+                });
               });
             }
           } catch (productsError) {
@@ -158,7 +162,7 @@ export async function GET(
         
         remitoItems = itemsData.map((item: any) => ({
           ...item,
-          products: item.product_id ? productsMap.get(item.product_id) || { id: item.product_id, name: '' } : null
+          products: item.product_id ? productsMap.get(item.product_id) || { id: item.product_id, name: '', imageUrl: null } : null
         }));
       }
     } catch (itemsError) {
@@ -445,18 +449,22 @@ export async function PUT(
       if (itemsData) {
         // Obtener productos si hay product_id
         const productIds = [...new Set(itemsData.filter((i: any) => i.product_id).map((i: any) => i.product_id))];
-        const productsMap = new Map<string, { id: string; name: string }>();
+        const productsMap = new Map<string, { id: string; name: string; imageUrl: string | null }>();
         
         if (productIds.length > 0) {
           try {
             const { data: products } = await supabaseAdmin
               .from('products')
-              .select('id, name')
+              .select('id, name, image_url')
               .in('id', productIds);
             
             if (products) {
               products.forEach((product: any) => {
-                productsMap.set(product.id, { id: product.id, name: product.name });
+                productsMap.set(product.id, { 
+                  id: product.id, 
+                  name: product.name,
+                  imageUrl: product.image_url || product.imageUrl || null
+                });
               });
             }
           } catch (productsError) {
@@ -466,7 +474,7 @@ export async function PUT(
         
         remitoItems = itemsData.map((item: any) => ({
           ...item,
-          products: item.product_id ? productsMap.get(item.product_id) || { id: item.product_id, name: '' } : null
+          products: item.product_id ? productsMap.get(item.product_id) || { id: item.product_id, name: '', imageUrl: null } : null
         }));
       }
     } catch (itemsError) {
