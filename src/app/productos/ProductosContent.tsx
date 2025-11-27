@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, Suspense, useCallback } from "react";
+import React, { useState, useEffect, Suspense, useCallback, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { ProductForm } from "@/lib/validations";
@@ -74,6 +74,10 @@ function ProductosContent() {
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
   const [selectedStock, setSelectedStock] = useState<string>("");
   const { empresas, isLoading: empresasLoading } = useEmpresas();
+  
+  // Refs para rastrear valores anteriores de filtros y evitar resetear cuando cambia la página manualmente
+  const prevSelectedCategoryId = useRef<string>("");
+  const prevSelectedStock = useRef<string>("");
   
   // Sincronizar estado inicial con searchParams
   useEffect(() => {
@@ -251,12 +255,24 @@ function ProductosContent() {
     searchPlaceholder: "Buscar productos..."
   });
 
-  // Resetear a página 1 cuando cambian los filtros
+  // Resetear a página 1 cuando cambian los filtros (solo cuando realmente cambian, no cuando cambia la página)
   useEffect(() => {
-    if (paginationConfig.currentPage > 1) {
-      handlePageChange(1);
+    // Solo resetear si los filtros realmente cambiaron (no si solo cambió la página)
+    const categoryChanged = prevSelectedCategoryId.current !== selectedCategoryId;
+    const stockChanged = prevSelectedStock.current !== selectedStock;
+    
+    if (categoryChanged || stockChanged) {
+      // Solo resetear si no estamos ya en la página 1
+      if (paginationConfig.currentPage > 1) {
+        handlePageChange(1);
+      }
     }
-  }, [selectedStock, selectedCategoryId, handlePageChange, paginationConfig.currentPage]);
+    
+    // Actualizar refs con los valores actuales
+    prevSelectedCategoryId.current = selectedCategoryId;
+    prevSelectedStock.current = selectedStock;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedStock, selectedCategoryId]); // Solo dependemos de los filtros, no de la página
 
   // Limpiar campo de búsqueda cuando cambie la empresa
   useEffect(() => {
