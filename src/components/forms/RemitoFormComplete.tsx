@@ -624,9 +624,9 @@ export function RemitoFormComplete({
 
       {/* Observaciones */}
       <div style={{ 
-        marginTop: '0.25rem',
-        marginBottom: '0.25rem',
-        padding: '0.25rem 0'
+        marginTop: '0.125rem',
+        marginBottom: showNotes ? '0' : '0.125rem',
+        padding: '0'
       }}>
         <button
           type="button"
@@ -634,7 +634,7 @@ export function RemitoFormComplete({
           className="small"
           style={{ 
             fontSize: '12px', 
-            padding: '0.25rem 0', 
+            padding: '0', 
             color: '#3b82f6',
             backgroundColor: 'transparent',
             border: 'none',
@@ -649,7 +649,7 @@ export function RemitoFormComplete({
 
       {/* Notas (opcional) */}
       {showNotes && (
-        <div className="form-group" style={{ marginTop: '0.25rem', marginBottom: '0.25rem' }}>
+        <div className="form-group" style={{ marginTop: '0', marginBottom: '0.25rem' }}>
           <textarea
             {...register("notes")}
             placeholder="Observaciones del remito..."
