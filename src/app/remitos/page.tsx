@@ -173,6 +173,13 @@ function RemitosContent() {
     }
   }, [estadosActivos]); // Solo cuando cambian los estados, no cuando cambia selectedStatusFilter
 
+  // Resetear a página 1 cuando cambian los filtros
+  useEffect(() => {
+    if (page > 1 && !isUpdatingFromUrl.current && !isInitialStatusLoad.current && !isInitialClientLoad.current) {
+      setPage(1);
+    }
+  }, [selectedStatusFilter, selectedClientFilter]);
+
   // Empujar cambios del filtro de estado a la URL usando el NOMBRE (con guiones bajos)
   // Solo cuando el usuario cambia el filtro manualmente, no cuando viene de la URL
   useEffect(() => {

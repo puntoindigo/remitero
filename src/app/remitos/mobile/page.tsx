@@ -38,6 +38,13 @@ export default function MobileRemitosPage() {
   const [selectedStatusFilter, setSelectedStatusFilter] = useState<string>("all");
   const [showFilters, setShowFilters] = useState(false);
   
+  // Resetear a página 1 cuando cambian los filtros
+  useEffect(() => {
+    if (page > 1) {
+      setPage(1);
+    }
+  }, [selectedStatusFilter, searchTerm]);
+
   // Inicializar filtro desde URL
   useEffect(() => {
     const urlStatus = searchParams?.get('status');

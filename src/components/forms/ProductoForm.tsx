@@ -51,12 +51,12 @@ export function ProductoForm({
       name: "",
       description: "",
       price: 0,
-      stock: "OUT_OF_STOCK",
+      stock: "IN_STOCK",
       categoryId: "" // Será requerido, pero iniciamos vacío
     }
   });
 
-  const currentStock = watch("stock") || "OUT_OF_STOCK";
+  const currentStock = watch("stock") || "IN_STOCK";
   const isInStock = currentStock === "IN_STOCK";
 
   const toggleStock = () => {
@@ -193,7 +193,7 @@ export function ProductoForm({
       setValue("name", editingProduct?.name);
       setValue("description", editingProduct.description || "");
       setValue("price", editingProduct.price);
-      setValue("stock", (editingProduct.stock || "OUT_OF_STOCK") as any);
+      setValue("stock", (editingProduct.stock || "IN_STOCK") as any);
       setValue("categoryId", editingProduct.categoryId || "");
       setValue("imageUrl", (editingProduct as any).imageUrl || "");
       // Formatear precio para mostrar
@@ -214,7 +214,7 @@ export function ProductoForm({
         name: "",
         description: "",
         price: 0,
-        stock: "OUT_OF_STOCK",
+        stock: "IN_STOCK",
         categoryId: "", // Requerido, pero se inicia vacío para mostrar el error si no se selecciona
         imageUrl: ""
       });
