@@ -155,6 +155,13 @@ function ProductosContent() {
   // 🚀 REACT QUERY: Ya no necesita loadData ni useEffect
   // React Query se encarga automáticamente del fetching y caching
 
+  // Resetear a página 1 cuando cambian los filtros
+  useEffect(() => {
+    if (paginationConfig.currentPage > 1) {
+      handlePageChange(1);
+    }
+  }, [selectedStock, selectedCategoryId, handlePageChange, paginationConfig.currentPage]);
+
   // Empujar cambios de stock a la URL sin hacer scroll ni recargar
   useEffect(() => {
     const currentParam = searchParams.get('stock') || "";
@@ -233,7 +240,8 @@ function ProductosContent() {
     tableConfig,
     paginationConfig,
     searchTerm,
-    setSearchTerm
+    setSearchTerm,
+    handlePageChange
   } = useCRUDTable({
     data: filteredProductos,
     loading: isLoading,

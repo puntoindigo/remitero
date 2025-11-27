@@ -200,7 +200,7 @@ export async function POST(request: NextRequest) {
         name,
         description: description || null,
         price: price || 0,
-        stock: stock || 'OUT_OF_STOCK',
+        stock: stock || 'IN_STOCK',
         category_id: categoryId || null,
         company_id: finalCompanyId,
         image_url: imageUrl || null
