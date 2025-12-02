@@ -233,17 +233,60 @@ export default function PrintRemito() {
                   </td>
                 </tr>
               ))}
-              {/* Mostrar total solo en la última página */}
+              {/* Mostrar subtotales y total solo en la última página */}
               {isLastPage && (
-                <tr>
-                  <td style={{ textAlign: 'center' }}></td>
-                  <td></td>
-                  <td colSpan={2} style={{ textAlign: 'right' }}>
-                    <div className="print-total-inline">
-                      <p><strong>TOTAL: ${total.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong></p>
-                    </div>
-                  </td>
-                </tr>
+                <>
+                  {/* Subtotal de productos */}
+                  <tr>
+                    <td style={{ textAlign: 'center' }}></td>
+                    <td></td>
+                    <td style={{ textAlign: 'right', paddingTop: '8px' }}>
+                      <strong>Subtotal:</strong>
+                    </td>
+                    <td style={{ textAlign: 'right', paddingTop: '8px' }}>
+                      <strong>${productsTotal.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
+                    </td>
+                  </tr>
+                  
+                  {/* Saldo Anterior */}
+                  {previousBalance > 0 && (
+                    <tr>
+                      <td style={{ textAlign: 'center' }}></td>
+                      <td></td>
+                      <td style={{ textAlign: 'right' }}>
+                        Saldo Anterior:
+                      </td>
+                      <td style={{ textAlign: 'right' }}>
+                        ${previousBalance.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </td>
+                    </tr>
+                  )}
+                  
+                  {/* Costo de Envío */}
+                  {shippingCost > 0 && (
+                    <tr>
+                      <td style={{ textAlign: 'center' }}></td>
+                      <td></td>
+                      <td style={{ textAlign: 'right' }}>
+                        Costo de Envío:
+                      </td>
+                      <td style={{ textAlign: 'right' }}>
+                        ${shippingCost.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </td>
+                    </tr>
+                  )}
+                  
+                  {/* Total */}
+                  <tr>
+                    <td style={{ textAlign: 'center' }}></td>
+                    <td></td>
+                    <td colSpan={2} style={{ textAlign: 'right', paddingTop: '8px', borderTop: '1px solid #ccc' }}>
+                      <div className="print-total-inline">
+                        <p><strong>TOTAL: ${total.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong></p>
+                      </div>
+                    </td>
+                  </tr>
+                </>
               )}
             </tbody>
           </table>
