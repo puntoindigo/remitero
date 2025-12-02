@@ -90,7 +90,7 @@ export function RemitoFormComplete({
     }
   }, [clients, newClientId, setValue]);
 
-  // Cargar datos del remito en edición
+  // Cargar datos del remito en edición o resetear para nuevo remito
   useEffect(() => {
     if (editingRemito) {
       // Activar loading y resetear valores para evitar mostrar datos incorrectos
@@ -180,9 +180,13 @@ export function RemitoFormComplete({
         setItems([]);
         setShowNotes(false);
         setIsLoadingRemito(false);
+        // Asegurar reset de valores de envío
+        setShippingCost(0);
+        setPreviousBalance(0);
+        setIsShippingEnabled(false);
       }
     } else {
-      // Reset para nuevo remito
+      // Reset para nuevo remito - asegurar que todos los valores estén en 0
       setItems([]);
       setSelectedProduct("");
       setQuantity(1);
@@ -190,6 +194,7 @@ export function RemitoFormComplete({
       setPreviousBalance(0);
       setShippingCost(0);
       setIsShippingEnabled(false);
+      setIsLoadingRemito(false);
       // Set default status: buscar "Pendiente" o el que tenga is_default: true
       const defaultStatus = estados.find(e => 
         e.is_default || 
@@ -204,31 +209,8 @@ export function RemitoFormComplete({
     }
   }, [editingRemito, setValue, reset, estados]);
 
-  // Cargar último costo de envío desde la base de datos (solo para nuevos remitos)
-  useEffect(() => {
-    const fetchLastShippingCost = async () => {
-      if (!companyId) return;
-      // Solo cargar si NO estamos editando un remito y NO está cargando
-      if (editingRemito || isLoadingRemito) return;
-      
-      try {
-        const response = await fetch(`/api/remitos?lastShippingCost=true&companyId=${companyId}`);
-        if (response.ok) {
-          const data = await response.json();
-          if (data.lastShippingCost && data.lastShippingCost > 0) {
-            setShippingCost(data.lastShippingCost);
-          }
-        }
-      } catch (error) {
-        console.error('Error fetching last shipping cost:', error);
-      }
-    };
-    
-    // Solo ejecutar si no hay remito en edición
-    if (!editingRemito && !isLoadingRemito) {
-      fetchLastShippingCost();
-    }
-  }, [companyId, editingRemito, isLoadingRemito]);
+  // No cargar automáticamente el último costo de envío
+  // Solo se cargará cuando el usuario marque el checkbox
 
   // Calcular total: productos + saldo anterior + costo de envío (si shippingCost > 0)
   const productsTotal = items.reduce((sum, item) => sum + (item.line_total || 0), 0);
@@ -360,6 +342,7 @@ export function RemitoFormComplete({
   };
 
   const handleCancel = () => {
+    // Resetear todos los valores antes de cerrar
     reset({
       clientId: "",
       status: "",
@@ -372,6 +355,7 @@ export function RemitoFormComplete({
     setShippingCost(0);
     setPreviousBalance(0);
     setIsShippingEnabled(false);
+    setIsLoadingRemito(false);
     onClose();
   };
   
@@ -382,7 +366,8 @@ export function RemitoFormComplete({
       setShippingCost(0);
     } else {
       // Si se marca y shippingCost es 0, cargar último costo de envío desde la base de datos
-      if (companyId && shippingCost === 0) {
+      // Solo para nuevos remitos (no cuando se está editando)
+      if (companyId && shippingCost === 0 && !editingRemito) {
         try {
           const response = await fetch(`/api/remitos?lastShippingCost=true&companyId=${companyId}`);
           if (response.ok) {
