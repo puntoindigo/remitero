@@ -56,9 +56,9 @@ export function RemitoFormComplete({
   const [isSubmittingClient, setIsSubmittingClient] = useState<boolean>(false);
   const [newClientId, setNewClientId] = useState<string | null>(null);
   const [isLoadingRemito, setIsLoadingRemito] = useState<boolean>(false);
-  const [hasShipping, setHasShipping] = useState<boolean>(false);
   const [shippingCost, setShippingCost] = useState<number>(0);
   const [previousBalance, setPreviousBalance] = useState<number>(0);
+  const [isShippingEnabled, setIsShippingEnabled] = useState<boolean>(false); // Solo para controlar el checkbox, no se envía a la API
 
   const {
     register,
@@ -93,8 +93,12 @@ export function RemitoFormComplete({
   // Cargar datos del remito en edición
   useEffect(() => {
     if (editingRemito) {
-      // Activar loading
+      // Activar loading y resetear valores para evitar mostrar datos incorrectos
       setIsLoadingRemito(true);
+      setItems([]);
+      setShippingCost(0);
+      setPreviousBalance(0);
+      setIsShippingEnabled(false);
       
       // SIEMPRE hacer fetch completo del remito para asegurar que los items se carguen correctamente
       if (editingRemito.id) {
@@ -122,10 +126,9 @@ export function RemitoFormComplete({
             const shippingCostValue = fullRemito.shipping_cost || fullRemito.shippingCost || 0;
             const previousBalanceValue = fullRemito.previous_balance || fullRemito.previousBalance || 0;
             
-            // Si tiene shipping_cost > 0, entonces tiene envío
-            setHasShipping(shippingCostValue > 0);
             setShippingCost(shippingCostValue);
             setPreviousBalance(previousBalanceValue);
+            setIsShippingEnabled(shippingCostValue > 0);
             
             // Cargar items del remito (pueden venir como 'items', 'remitoItems' o 'remito_items')
             const fetchedItems = fullRemito.items || fullRemito.remitoItems || fullRemito.remito_items || [];
@@ -184,9 +187,9 @@ export function RemitoFormComplete({
       setSelectedProduct("");
       setQuantity(1);
       setShowNotes(false);
-      setHasShipping(false);
       setPreviousBalance(0);
       setShippingCost(0);
+      setIsShippingEnabled(false);
       // Set default status: buscar "Pendiente" o el que tenga is_default: true
       const defaultStatus = estados.find(e => 
         e.is_default || 
@@ -201,10 +204,12 @@ export function RemitoFormComplete({
     }
   }, [editingRemito, setValue, reset, estados]);
 
-  // Cargar último costo de envío desde la base de datos
+  // Cargar último costo de envío desde la base de datos (solo para nuevos remitos)
   useEffect(() => {
     const fetchLastShippingCost = async () => {
       if (!companyId) return;
+      // Solo cargar si NO estamos editando un remito y NO está cargando
+      if (editingRemito || isLoadingRemito) return;
       
       try {
         const response = await fetch(`/api/remitos?lastShippingCost=true&companyId=${companyId}`);
@@ -219,10 +224,11 @@ export function RemitoFormComplete({
       }
     };
     
-    if (!editingRemito) {
+    // Solo ejecutar si no hay remito en edición
+    if (!editingRemito && !isLoadingRemito) {
       fetchLastShippingCost();
     }
-  }, [companyId, editingRemito]);
+  }, [companyId, editingRemito, isLoadingRemito]);
 
   // Calcular total: productos + saldo anterior + costo de envío (si shippingCost > 0)
   const productsTotal = items.reduce((sum, item) => sum + (item.line_total || 0), 0);
@@ -293,7 +299,7 @@ export function RemitoFormComplete({
         unit_price: Number(item.unit_price || 0),
         line_total: Number(item.line_total || 0)
       })),
-      shippingCost: hasShipping ? shippingCost : 0,
+      shippingCost: shippingCost || 0, // Si el checkbox no está marcado, shippingCost ya es 0
       previousBalance,
       total
     };
@@ -363,19 +369,20 @@ export function RemitoFormComplete({
     setSelectedProduct("");
     setQuantity(1);
     setShowNotes(false);
-    setHasShipping(false);
     setShippingCost(0);
     setPreviousBalance(0);
+    setIsShippingEnabled(false);
     onClose();
   };
   
   const handleShippingToggle = async (checked: boolean) => {
-    setHasShipping(checked);
+    setIsShippingEnabled(checked);
     if (!checked) {
+      // Si se desmarca, poner shippingCost en 0
       setShippingCost(0);
     } else {
-      // Cargar último costo de envío desde la base de datos
-      if (companyId) {
+      // Si se marca y shippingCost es 0, cargar último costo de envío desde la base de datos
+      if (companyId && shippingCost === 0) {
         try {
           const response = await fetch(`/api/remitos?lastShippingCost=true&companyId=${companyId}`);
           if (response.ok) {
@@ -412,10 +419,14 @@ export function RemitoFormComplete({
       modalComponent="RemitoFormComplete"
       footerLeftContent={
         <div style={{ fontSize: '18px', fontWeight: 500 }}>
-          Total: {total.toLocaleString('es-AR', { 
-            style: 'currency', 
-            currency: 'ARS' 
-          })}
+          {isLoadingRemito ? (
+            <span style={{ color: '#6b7280' }}>Cargando...</span>
+          ) : (
+            <>Total: {total.toLocaleString('es-AR', { 
+              style: 'currency', 
+              currency: 'ARS' 
+            })}</>
+          )}
         </div>
       }
       modalType="form"
@@ -764,7 +775,7 @@ export function RemitoFormComplete({
           <label className="form-label-large" style={{ marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <input
               type="checkbox"
-              checked={hasShipping}
+              checked={isShippingEnabled}
               onChange={(e) => handleShippingToggle(e.target.checked)}
               style={{ width: '18px', height: '18px', cursor: 'pointer', flexShrink: 0, margin: 0 }}
             />
@@ -774,12 +785,16 @@ export function RemitoFormComplete({
             type="number"
             min="0"
             step="0.01"
-            value={shippingCost}
+            value={shippingCost || ''}
             onChange={(e) => {
               const value = parseFloat(e.target.value) || 0;
               setShippingCost(value);
+              // Si el usuario ingresa un valor > 0, marcar el checkbox automáticamente
+              if (value > 0 && !isShippingEnabled) {
+                setIsShippingEnabled(true);
+              }
             }}
-            disabled={!hasShipping}
+            disabled={!isShippingEnabled}
             placeholder="0.00"
             style={{ 
               width: '100%', 
@@ -787,8 +802,8 @@ export function RemitoFormComplete({
               padding: '8px 12px',
               border: '1px solid #d1d5db',
               borderRadius: '6px',
-              backgroundColor: hasShipping ? 'white' : '#f3f4f6',
-              cursor: hasShipping ? 'text' : 'not-allowed',
+              backgroundColor: isShippingEnabled ? 'white' : '#f3f4f6',
+              cursor: isShippingEnabled ? 'text' : 'not-allowed',
               marginTop: 0
             }}
           />
