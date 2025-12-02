@@ -19,10 +19,47 @@ export async function GET(request: NextRequest) {
     // Obtener companyId y paginación opcional desde querystring
     const { searchParams } = new URL(request.url);
     const companyId = searchParams.get('companyId');
+    const lastShippingCost = searchParams.get('lastShippingCost') === 'true';
     const limitParam = searchParams.get('limit');
     const offsetParam = searchParams.get('offset');
     const limit = limitParam ? Math.max(1, Math.min(500, parseInt(limitParam))) : null;
     const offset = offsetParam ? Math.max(0, parseInt(offsetParam)) : null;
+    
+    // Si se solicita el último costo de envío
+    if (lastShippingCost) {
+      const effectiveCompanyId = companyId || session.user.companyId;
+      
+      if (session.user.role !== 'SUPERADMIN' && !effectiveCompanyId) {
+        return NextResponse.json({ 
+          error: "No autorizado", 
+          message: "Usuario no asociado a una empresa." 
+        }, { status: 401 });
+      }
+      
+      let query = supabaseAdmin
+        .from('remitos')
+        .select('shipping_cost')
+        .gt('shipping_cost', 0)
+        .order('created_at', { ascending: false })
+        .limit(1);
+      
+      if (session.user.role !== 'SUPERADMIN') {
+        query = query.eq('company_id', effectiveCompanyId);
+      }
+      
+      const { data: remitos, error } = await query;
+      
+      if (error) {
+        console.error('Error fetching last shipping cost:', error);
+        return NextResponse.json({ lastShippingCost: 0 });
+      }
+      
+      const lastCost = remitos && remitos.length > 0 && remitos[0].shipping_cost 
+        ? parseFloat(remitos[0].shipping_cost) 
+        : 0;
+      
+      return NextResponse.json({ lastShippingCost: lastCost > 0 ? lastCost : 0 });
+    }
     
 
     // Optimización: Sin JOINs automáticos (evita problemas con foreign keys en schema dev)
@@ -34,6 +71,8 @@ export async function GET(request: NextRequest) {
         status,
         status_at,
         notes,
+        shipping_cost,
+        previous_balance,
         created_at,
         updated_at,
         company_id,
@@ -194,7 +233,7 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
     console.log('POST /api/remitos - Request body:', JSON.stringify(body, null, 2));
-    const { clientId, status, notes, items, companyId } = body;
+    const { clientId, status, notes, items, companyId, shippingCost, previousBalance } = body;
 
     // Validaciones básicas
     console.log('Validating clientId:', clientId);
@@ -277,11 +316,14 @@ export async function POST(request: NextRequest) {
     const estadoId = defaultEstado?.id || status;
 
     // Crear el remito con el estado del ABM
+    const shippingCostValue = parseFloat(shippingCost) || 0;
     console.log('Creating remito with data:', {
       number: nextNumber,
       client_id: clientId,
       status: estadoId, // Usar UUID del estado del ABM
       notes,
+      shipping_cost: shippingCostValue,
+      previous_balance: parseFloat(previousBalance) || 0,
       created_by_id: session.user.id,
       company_id: finalCompanyId
     });
@@ -293,6 +335,8 @@ export async function POST(request: NextRequest) {
         client_id: clientId,
         status: estadoId, // Usar UUID del estado del ABM
         notes,
+        shipping_cost: shippingCostValue,
+        previous_balance: parseFloat(previousBalance) || 0,
         created_by_id: session.user.id,
         company_id: finalCompanyId
       }])

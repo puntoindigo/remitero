@@ -143,7 +143,12 @@ export default function PrintRemito() {
     );
   }
 
-  const total = (remito.remitoItems || remito.items || []).reduce((sum, item) => sum + (Number(item.line_total) || 0), 0);
+  // Calcular total: usar el total del remito (ya incluye shipping_cost y previous_balance)
+  // o calcularlo si no está disponible
+  const productsTotal = (remito.remitoItems || remito.items || []).reduce((sum, item) => sum + (Number(item.line_total) || 0), 0);
+  const shippingCost = (remito as any)?.shippingCost || (remito as any)?.shipping_cost || 0;
+  const previousBalance = (remito as any)?.previousBalance || (remito as any)?.previous_balance || 0;
+  const total = remito.total || (productsTotal + previousBalance + shippingCost);
   
   // Dividir items en páginas de máximo 17 líneas
   const items = remito.remitoItems || remito.items || [];

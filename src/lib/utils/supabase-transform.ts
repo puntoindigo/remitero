@@ -72,14 +72,20 @@ export function transformCompany(company: any) {
 export function transformRemito(remito: any) {
   if (!remito) return null;
   
-  // Calcular el total de manera segura
-  let total = 0;
+  // Calcular el total de manera segura: productos + saldo anterior + costo de envío
+  let productsTotal = 0;
   if (remito.remito_items && Array.isArray(remito.remito_items)) {
-    total = remito.remito_items.reduce((sum: number, item: any) => {
+    productsTotal = remito.remito_items.reduce((sum: number, item: any) => {
       const lineTotal = item.line_total || item.lineTotal || 0;
       return sum + (typeof lineTotal === 'number' ? lineTotal : 0);
     }, 0);
   }
+  
+  const shippingCost = remito.shipping_cost || remito.shippingCost || 0;
+  const previousBalance = remito.previous_balance || remito.previousBalance || 0;
+  
+  // Si shipping_cost > 0, entonces tiene envío
+  const total = productsTotal + previousBalance + shippingCost;
   
   // Asegurar que los items tengan product_id
   const remitoItems = (remito.remito_items || []).map((item: any) => ({
@@ -100,6 +106,8 @@ export function transformRemito(remito: any) {
     client: remito.clients,
     user: remito.users,
     status: remito.estados_remitos, // Ahora es un objeto con los datos del estado
+    shippingCost: shippingCost,
+    previousBalance: previousBalance,
     total: total,
     remitoItems: remitoItems,
     items: remitoItems, // También como 'items' para compatibilidad

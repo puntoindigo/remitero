@@ -31,7 +31,7 @@ export function PrintRemitoModal({ remitoId, remitoNumber, onClose }: PrintRemit
 
   return (
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm"
+      className="fixed inset-0 z-[10002] flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm"
       onClick={onClose}
       style={{ padding: '16px' }}
     >
