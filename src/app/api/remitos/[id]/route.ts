@@ -41,6 +41,8 @@ export async function GET(
         status,
         status_at,
         notes,
+        shipping_cost,
+        previous_balance,
         created_at,
         updated_at,
         company_id,
@@ -223,7 +225,7 @@ export async function PUT(
     const { id: remitoId } = await params;
     const body = await request.json();
     console.log('PUT /api/remitos/[id] - Request body:', JSON.stringify(body, null, 2));
-    const { clientId, status, notes, items, companyId } = body;
+    const { clientId, status, notes, items, companyId, shippingCost, previousBalance } = body;
 
     // Validaciones básicas
     console.log('Validating clientId:', clientId);
@@ -291,12 +293,15 @@ export async function PUT(
     }
 
     // Actualizar el remito
+    const shippingCostValue = parseFloat(shippingCost) || 0;
     const { data: updatedRemito, error: updateError } = await supabaseAdmin
       .from('remitos')
       .update({
         client_id: clientId,
         status: status || 'PENDIENTE',
         notes: notes || null,
+        shipping_cost: shippingCostValue,
+        previous_balance: parseFloat(previousBalance) || 0,
         updated_at: new Date().toISOString()
       })
       .eq('id', remitoId)

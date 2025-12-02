@@ -37,7 +37,9 @@ export const clientSchema = z.object({
 export const remitoSchema = z.object({
   clientId: z.string().min(1, "Cliente requerido"),
   status: z.string().min(1, "Estado requerido"),
-  notes: z.string().optional().or(z.literal(""))
+  notes: z.string().optional().or(z.literal("")),
+  shippingCost: z.number().min(0).optional().default(0),
+  previousBalance: z.number().min(0).optional().default(0)
   // items se maneja separadamente en el estado del componente
 })
 

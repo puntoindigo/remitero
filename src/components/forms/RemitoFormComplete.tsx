@@ -56,6 +56,9 @@ export function RemitoFormComplete({
   const [isSubmittingClient, setIsSubmittingClient] = useState<boolean>(false);
   const [newClientId, setNewClientId] = useState<string | null>(null);
   const [isLoadingRemito, setIsLoadingRemito] = useState<boolean>(false);
+  const [hasShipping, setHasShipping] = useState<boolean>(false);
+  const [shippingCost, setShippingCost] = useState<number>(0);
+  const [previousBalance, setPreviousBalance] = useState<number>(0);
 
   const {
     register,
@@ -115,6 +118,15 @@ export function RemitoFormComplete({
             setValue("status", statusId);
             setValue("notes", String(fullRemito.notes || ""));
             
+            // Cargar campos de envío y saldo anterior
+            const shippingCostValue = fullRemito.shipping_cost || fullRemito.shippingCost || 0;
+            const previousBalanceValue = fullRemito.previous_balance || fullRemito.previousBalance || 0;
+            
+            // Si tiene shipping_cost > 0, entonces tiene envío
+            setHasShipping(shippingCostValue > 0);
+            setShippingCost(shippingCostValue);
+            setPreviousBalance(previousBalanceValue);
+            
             // Cargar items del remito (pueden venir como 'items', 'remitoItems' o 'remito_items')
             const fetchedItems = fullRemito.items || fullRemito.remitoItems || fullRemito.remito_items || [];
             
@@ -172,6 +184,9 @@ export function RemitoFormComplete({
       setSelectedProduct("");
       setQuantity(1);
       setShowNotes(false);
+      setHasShipping(false);
+      setPreviousBalance(0);
+      setShippingCost(0);
       // Set default status: buscar "Pendiente" o el que tenga is_default: true
       const defaultStatus = estados.find(e => 
         e.is_default || 
@@ -186,8 +201,32 @@ export function RemitoFormComplete({
     }
   }, [editingRemito, setValue, reset, estados]);
 
-  // Calcular total
-  const total = items.reduce((sum, item) => sum + (item.line_total || 0), 0);
+  // Cargar último costo de envío desde la base de datos
+  useEffect(() => {
+    const fetchLastShippingCost = async () => {
+      if (!companyId) return;
+      
+      try {
+        const response = await fetch(`/api/remitos?lastShippingCost=true&companyId=${companyId}`);
+        if (response.ok) {
+          const data = await response.json();
+          if (data.lastShippingCost && data.lastShippingCost > 0) {
+            setShippingCost(data.lastShippingCost);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching last shipping cost:', error);
+      }
+    };
+    
+    if (!editingRemito) {
+      fetchLastShippingCost();
+    }
+  }, [companyId, editingRemito]);
+
+  // Calcular total: productos + saldo anterior + costo de envío (si shippingCost > 0)
+  const productsTotal = items.reduce((sum, item) => sum + (item.line_total || 0), 0);
+  const total = productsTotal + previousBalance + shippingCost;
 
   const handleAddProduct = () => {
     if (!selectedProduct || quantity <= 0) return;
@@ -254,6 +293,8 @@ export function RemitoFormComplete({
         unit_price: Number(item.unit_price || 0),
         line_total: Number(item.line_total || 0)
       })),
+      shippingCost: hasShipping ? shippingCost : 0,
+      previousBalance,
       total
     };
 
@@ -322,7 +363,32 @@ export function RemitoFormComplete({
     setSelectedProduct("");
     setQuantity(1);
     setShowNotes(false);
+    setHasShipping(false);
+    setShippingCost(0);
+    setPreviousBalance(0);
     onClose();
+  };
+  
+  const handleShippingToggle = async (checked: boolean) => {
+    setHasShipping(checked);
+    if (!checked) {
+      setShippingCost(0);
+    } else {
+      // Cargar último costo de envío desde la base de datos
+      if (companyId) {
+        try {
+          const response = await fetch(`/api/remitos?lastShippingCost=true&companyId=${companyId}`);
+          if (response.ok) {
+            const data = await response.json();
+            if (data.lastShippingCost && data.lastShippingCost > 0) {
+              setShippingCost(data.lastShippingCost);
+            }
+          }
+        } catch (error) {
+          console.error('Error fetching last shipping cost:', error);
+        }
+      }
+    }
   };
 
   // Filtrar productos que ya están en el remito
@@ -658,29 +724,95 @@ export function RemitoFormComplete({
         </div>
       )}
 
-      {/* Estado - al final del formulario, en una línea */}
-      <div className="form-group" style={{ marginTop: '0.25rem', marginBottom: '0.75rem' }}>
-        <label className="form-label-large" style={{ marginBottom: '0.5rem', display: 'block' }}>
-          Estado *
-          {errors?.status && (
-            <span style={{ color: '#ef4444', marginLeft: '8px', fontSize: '0.875rem', fontWeight: 'normal' }}>
-              {errors.status.message}
-            </span>
-          )}
-        </label>
-        <div style={{ width: 'fit-content', minWidth: '200px', maxWidth: '300px' }}>
-          <FilterableSelect
-            options={estados.map(estado => ({ 
-              id: String(estado?.id || ''), 
-              name: String(estado?.name || ''),
-              color: estado?.color 
-            }))}
-            value={String(watch("status") || "")}
-            onChange={(value) => setValue("status", String(value || ""), { shouldValidate: true })}
-            placeholder="Seleccionar estado"
-            searchFields={["name"]}
-            showColors={true}
-            searchable={false}
+      {/* Estado, Envío y Saldo Anterior - en una fila */}
+      <div style={{ 
+        display: 'grid', 
+        gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', 
+        gap: '1rem', 
+        marginTop: '0.25rem', 
+        marginBottom: '0.75rem' 
+      }}>
+        {/* Estado */}
+        <div className="form-group" style={{ marginBottom: '0' }}>
+          <label className="form-label-large" style={{ marginBottom: '0.5rem', display: 'block' }}>
+            Estado *
+            {errors?.status && (
+              <span style={{ color: '#ef4444', marginLeft: '8px', fontSize: '0.875rem', fontWeight: 'normal' }}>
+                {errors.status.message}
+              </span>
+            )}
+          </label>
+          <div style={{ width: '100%', minWidth: '200px' }}>
+            <FilterableSelect
+              options={estados.map(estado => ({ 
+                id: String(estado?.id || ''), 
+                name: String(estado?.name || ''),
+                color: estado?.color 
+              }))}
+              value={String(watch("status") || "")}
+              onChange={(value) => setValue("status", String(value || ""), { shouldValidate: true })}
+              placeholder="Seleccionar estado"
+              searchFields={["name"]}
+              showColors={true}
+              searchable={false}
+            />
+          </div>
+        </div>
+
+        {/* Envío */}
+        <div className="form-group" style={{ marginBottom: '0' }}>
+          <label className="form-label-large" style={{ marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <input
+              type="checkbox"
+              checked={hasShipping}
+              onChange={(e) => handleShippingToggle(e.target.checked)}
+              style={{ width: '18px', height: '18px', cursor: 'pointer', flexShrink: 0, margin: 0 }}
+            />
+            <span>Envío</span>
+          </label>
+          <input
+            type="number"
+            min="0"
+            step="0.01"
+            value={shippingCost}
+            onChange={(e) => {
+              const value = parseFloat(e.target.value) || 0;
+              setShippingCost(value);
+            }}
+            disabled={!hasShipping}
+            placeholder="0.00"
+            style={{ 
+              width: '100%', 
+              fontSize: '14px', 
+              padding: '8px 12px',
+              border: '1px solid #d1d5db',
+              borderRadius: '6px',
+              backgroundColor: hasShipping ? 'white' : '#f3f4f6',
+              cursor: hasShipping ? 'text' : 'not-allowed',
+              marginTop: 0
+            }}
+          />
+        </div>
+
+        {/* Saldo Anterior */}
+        <div className="form-group" style={{ marginBottom: '0' }}>
+          <label className="form-label-large" style={{ marginBottom: '0.5rem', display: 'block' }}>
+            Saldo Anterior
+          </label>
+          <input
+            type="number"
+            min="0"
+            step="0.01"
+            value={previousBalance}
+            onChange={(e) => setPreviousBalance(parseFloat(e.target.value) || 0)}
+            placeholder="0.00"
+            style={{ 
+              width: '100%', 
+              fontSize: '14px', 
+              padding: '8px 12px',
+              border: '1px solid #d1d5db',
+              borderRadius: '6px'
+            }}
           />
         </div>
       </div>
