@@ -5,9 +5,12 @@ import { useSession } from 'next-auth/react';
 import { useTheme } from '@/hooks/useTheme';
 import { ThemeSelector } from '@/components/common/ThemeSelector';
 import { useColorTheme } from '@/contexts/ColorThemeContext';
-import { User, Palette, Settings, Shield, X, Pin, Bell } from 'lucide-react';
+import { User, Palette, Settings, Shield, X, Pin, Bell, List } from 'lucide-react';
 import { NotificationPreferences } from '@/components/common/NotificationPreferences';
 import { useIsDevelopment } from '@/hooks/useIsDevelopment';
+import { usePaginationPreference } from '@/hooks/usePaginationPreference';
+import FilterableSelect from '@/components/common/FilterableSelect';
+import { useToast } from '@/hooks/useToast';
 
 interface ConfiguracionModalProps {
   isOpen: boolean;
@@ -22,6 +25,8 @@ export function ConfiguracionModal({ isOpen, onClose }: ConfiguracionModalProps)
   const isDevelopment = useIsDevelopment();
   const [enablePinnedModals, setEnablePinnedModals] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const { itemsPerPage, updatePaginationPreference } = usePaginationPreference();
+  const { showSuccess } = useToast();
 
   // Cargar estado de preferencias desde la sesión
   useEffect(() => {
@@ -283,6 +288,51 @@ export function ConfiguracionModal({ isOpen, onClose }: ConfiguracionModalProps)
             </div>
           </div>
           */}
+
+          {/* Paginación - Solo para ADMIN y SUPERADMIN */}
+          {(session?.user?.role === 'ADMIN' || session?.user?.role === 'SUPERADMIN') && (
+            <div style={{ marginBottom: '1.25rem', paddingBottom: '1rem', borderBottom: '1px solid #e5e7eb' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
+                <List className="h-4 w-4" style={{ color: colors.primary }} />
+                <h3 style={{ fontSize: '0.9375rem', fontWeight: 600, color: '#1f2937', margin: 0 }}>
+                  Paginación
+                </h3>
+              </div>
+              
+              <div style={{ marginBottom: '0.75rem' }}>
+                <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 500, color: '#374151', marginBottom: '0.375rem' }}>
+                  Registros por página
+                </label>
+                <p style={{ fontSize: '0.6875rem', color: '#6b7280', marginBottom: '0.5rem' }}>
+                  Selecciona cuántos registros quieres ver por página en las tablas del sistema.
+                </p>
+                <div style={{ width: '100%' }}>
+                  <FilterableSelect
+                    options={[
+                      { id: '10', name: '10 registros' },
+                      { id: '25', name: '25 registros' },
+                      { id: '50', name: '50 registros' },
+                      { id: '100', name: '100 registros' }
+                    ]}
+                    value={itemsPerPage.toString()}
+                    onChange={async (value) => {
+                      if (value) {
+                        const newValue = parseInt(value) as 10 | 25 | 50 | 100;
+                        const success = await updatePaginationPreference(newValue);
+                        if (success) {
+                          showSuccess('Preferencia de paginación actualizada');
+                        }
+                      }
+                    }}
+                    placeholder="Seleccionar cantidad"
+                    searchable={false}
+                    className="w-full"
+                    useThemeColors={true}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Notificaciones de Actividad - Solo para SUPERADMIN */}
           {session?.user?.role === 'SUPERADMIN' && (
