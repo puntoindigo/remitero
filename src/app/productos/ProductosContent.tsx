@@ -561,6 +561,7 @@ function ProductosContent() {
           isSubmitting={isSubmitting}
           editingProduct={editingProduct}
           categories={categorias}
+          companyId={companyId || undefined}
         />
 
         <div className="form-section">

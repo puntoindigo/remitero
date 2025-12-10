@@ -4,9 +4,12 @@ import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { X, Check, Upload, Image as ImageIcon, Trash2, Pencil } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
 import FilterableSelect from "../common/FilterableSelect";
 import { ProductForm as ProductFormData, productSchema } from "@/lib/validations";
 import { FormModal } from "@/components/common/FormModal";
+import { ConfirmationModal } from "@/components/common/ConfirmationModal";
+import { productKeys } from "@/hooks/queries/useProductosQuery";
 
 interface Category {
   id: string;
@@ -28,6 +31,7 @@ interface ProductoFormProps {
     imageUrl?: string;
   } | null;
   categories: Category[];
+  companyId?: string | null;
 }
 
 export function ProductoForm({
@@ -36,8 +40,10 @@ export function ProductoForm({
   onSubmit,
   isSubmitting,
   editingProduct,
-  categories
+  categories,
+  companyId
 }: ProductoFormProps) {
+  const queryClient = useQueryClient();
   const {
     register,
     handleSubmit,
@@ -71,7 +77,10 @@ export function ProductoForm({
   // Estado para la imagen
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [showMultipleProductsModal, setShowMultipleProductsModal] = useState(false);
+  const [pendingMultipleFiles, setPendingMultipleFiles] = useState<File[]>([]);
 
   // Función para formatear número con separadores de miles
   const formatPriceForDisplay = (value: string): string => {
@@ -222,49 +231,222 @@ export function ProductoForm({
       setPriceRaw("");
       setImagePreview(null);
       setImageFile(null);
+      setImageFiles([]);
     }
   }, [editingProduct, setValue, reset]);
 
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
 
-    // Validar tipo de archivo - incluir WebP explícitamente
     const validImageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
     const validExtensions = ['.jpg', '.jpeg', '.png', '.webp', '.gif'];
-    const fileName = file.name.toLowerCase();
-    const fileExtension = fileName.substring(fileName.lastIndexOf('.'));
-    
-    // Validar por tipo MIME y por extensión (algunos navegadores no detectan bien WebP)
-    const isValidType = validImageTypes.includes(file.type) || 
-                        validExtensions.includes(fileExtension) ||
-                        file.type === ''; // Permitir si el tipo está vacío pero la extensión es válida
-    
-    if (!isValidType) {
-      alert('Solo se permiten imágenes (JPEG, PNG, WebP, GIF). Tipo detectado: ' + (file.type || 'desconocido'));
-      return;
-    }
-
-    // Validar tamaño (máximo 5MB)
     const maxSize = 5 * 1024 * 1024; // 5MB
-    if (file.size > maxSize) {
-      alert('El archivo no puede ser mayor a 5MB');
+
+    // Validar todos los archivos
+    const validFiles: File[] = [];
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const fileName = file.name.toLowerCase();
+      const fileExtension = fileName.substring(fileName.lastIndexOf('.'));
+      
+      const isValidType = validImageTypes.includes(file.type) || 
+                          validExtensions.includes(fileExtension) ||
+                          file.type === '';
+      
+      if (!isValidType) {
+        alert(`El archivo "${file.name}" no es una imagen válida (JPEG, PNG, WebP, GIF)`);
+        continue;
+      }
+
+      if (file.size > maxSize) {
+        alert(`El archivo "${file.name}" es mayor a 5MB`);
+        continue;
+      }
+
+      validFiles.push(file);
+    }
+
+    if (validFiles.length === 0) return;
+
+    // Si hay múltiples archivos y no estamos editando, mostrar modal de confirmación
+    if (validFiles.length > 1 && !editingProduct) {
+      setPendingMultipleFiles(validFiles);
+      setShowMultipleProductsModal(true);
+      // Limpiar el input
+      if (e.target) {
+        e.target.value = '';
+      }
       return;
     }
 
-    // Mostrar vista previa
+    // Si es un solo archivo o estamos editando, comportamiento normal
+    const file = validFiles[0];
     const reader = new FileReader();
     reader.onloadend = () => {
       setImagePreview(reader.result as string);
     };
     reader.readAsDataURL(file);
     setImageFile(file);
+    setImageFiles([file]);
   };
 
   const handleRemoveImage = () => {
     setImagePreview(null);
     setImageFile(null);
+    setImageFiles([]);
     setValue("imageUrl", "");
+  };
+
+  // Función para parsear nombre y precio desde el nombre del archivo
+  const parseFileName = (fileName: string): { name: string; price: number } => {
+    // Remover la extensión del archivo
+    const nameWithoutExt = fileName.substring(0, fileName.lastIndexOf('.'));
+    
+    // Hacer split por guion bajo
+    const parts = nameWithoutExt.split('_');
+    
+    if (parts.length >= 2) {
+      // Si hay al menos dos partes, la primera es el nombre y la segunda es el precio
+      const name = parts[0].trim();
+      const priceStr = parts[1].trim();
+      const price = parseFloat(priceStr.replace(',', '.')) || 0;
+      return { name, price };
+    } else {
+      // Si no hay guion bajo, usar el nombre completo como nombre y precio 0
+      return { name: nameWithoutExt.trim(), price: 0 };
+    }
+  };
+
+  // Confirmar creación de múltiples productos
+  const handleConfirmMultipleProducts = async () => {
+    setShowMultipleProductsModal(false);
+    
+    if (pendingMultipleFiles.length === 0) return;
+
+    if (!companyId) {
+      alert('No se puede crear productos: CompanyId no disponible');
+      setPendingMultipleFiles([]);
+      return;
+    }
+
+    setIsUploadingImage(true);
+    try {
+      const categoryId = watch("categoryId");
+      const stock = watch("stock") || "IN_STOCK";
+      const description = watch("description") || "";
+
+      if (!categoryId) {
+        alert('Debes seleccionar una categoría para crear los productos');
+        setIsUploadingImage(false);
+        return;
+      }
+
+      let successCount = 0;
+      let errorCount = 0;
+      const errors: string[] = [];
+
+      // Procesar cada archivo
+      for (const file of pendingMultipleFiles) {
+        try {
+          const { name: productName, price } = parseFileName(file.name);
+
+          // Subir la imagen
+          const formData = new FormData();
+          formData.append('file', file);
+
+          const uploadResponse = await fetch('/api/products/upload-image', {
+            method: 'POST',
+            body: formData,
+          });
+
+          if (!uploadResponse.ok) {
+            const errorData = await uploadResponse.json();
+            throw new Error(errorData.message || `Error al subir la imagen ${file.name}`);
+          }
+
+          const { imageUrl } = await uploadResponse.json();
+
+          // Crear el producto directamente llamando a la API
+          const productResponse = await fetch('/api/products', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              name: productName,
+              description,
+              price,
+              stock,
+              categoryId,
+              companyId,
+              imageUrl
+            }),
+          });
+
+          if (!productResponse.ok) {
+            const errorData = await productResponse.json();
+            throw new Error(errorData.message || `Error al crear el producto ${productName}`);
+          }
+
+          successCount++;
+        } catch (error: any) {
+          errorCount++;
+          errors.push(`${file.name}: ${error.message}`);
+          console.error(`Error al procesar ${file.name}:`, error);
+        }
+      }
+
+      // Mostrar resultado
+      if (successCount > 0) {
+        if (errorCount > 0) {
+          alert(`Se crearon ${successCount} producto(s) correctamente. ${errorCount} producto(s) fallaron:\n${errors.join('\n')}`);
+        } else {
+          alert(`Se crearon ${successCount} producto(s) correctamente.`);
+        }
+      } else {
+        alert(`Error al crear los productos:\n${errors.join('\n')}`);
+      }
+
+      // Limpiar estado y cerrar formulario solo si hubo al menos un éxito
+      if (successCount > 0) {
+        setPendingMultipleFiles([]);
+        reset();
+        setPriceDisplay("");
+        setImagePreview(null);
+        setImageFile(null);
+        setImageFiles([]);
+        // Cerrar el formulario después de crear los productos
+        onClose();
+      } else {
+        setPendingMultipleFiles([]);
+      }
+
+      // Invalidar queries para refrescar la lista
+      if (successCount > 0) {
+        await queryClient.invalidateQueries({ 
+          queryKey: productKeys.lists(),
+          refetchType: 'active'
+        });
+      }
+    } catch (error: any) {
+      console.error('Error al procesar múltiples productos:', error);
+      alert(error.message || 'Error al crear los productos');
+      setPendingMultipleFiles([]);
+    } finally {
+      setIsUploadingImage(false);
+    }
+  };
+
+  // Cancelar creación de múltiples productos
+  const handleCancelMultipleProducts = () => {
+    setShowMultipleProductsModal(false);
+    setPendingMultipleFiles([]);
+    // Limpiar el input de archivo
+    const inputs = document.querySelectorAll('input[type="file"]');
+    inputs.forEach((input: any) => {
+      if (input) input.value = '';
+    });
   };
 
   const handleFormSubmit = async (data: ProductFormData) => {
@@ -311,6 +493,7 @@ export function ProductoForm({
       setPriceDisplay("");
       setImagePreview(null);
       setImageFile(null);
+      setImageFiles([]);
     } catch (error: any) {
       console.error('Error al procesar formulario:', error);
       alert(error.message || 'Error al guardar el producto');
@@ -467,6 +650,7 @@ export function ProductoForm({
                 onChange={handleImageChange}
                 style={{ display: 'none' }}
                 disabled={isUploadingImage}
+                multiple={!editingProduct}
               />
             </div>
           </div>
@@ -529,6 +713,7 @@ export function ProductoForm({
               type="file"
               accept="image/jpeg,image/jpg,image/png,image/webp,image/gif,.jpg,.jpeg,.png,.webp,.gif"
               onChange={handleImageChange}
+              multiple={!editingProduct}
               style={{
                 position: 'absolute',
                 inset: 0,
@@ -560,7 +745,7 @@ export function ProductoForm({
                 fontSize: '11px', 
                 color: '#9ca3af'
               }}>
-                JPEG, PNG, WebP, GIF (máx. 5MB)
+                {editingProduct ? 'JPEG, PNG, WebP, GIF (máx. 5MB)' : 'JPEG, PNG, WebP, GIF (máx. 5MB) - Puedes subir múltiples imágenes'}
               </p>
             </div>
           </div>
@@ -682,6 +867,19 @@ export function ProductoForm({
           onKeyDown={handleKeyDown}
         />
       </div>
+
+      {/* Modal de confirmación para múltiples productos */}
+      <ConfirmationModal
+        isOpen={showMultipleProductsModal}
+        onCancel={handleCancelMultipleProducts}
+        onConfirm={handleConfirmMultipleProducts}
+        title="Crear múltiples productos"
+        message={`Has seleccionado ${pendingMultipleFiles.length} imagen${pendingMultipleFiles.length > 1 ? 'es' : ''}. ¿Deseas crear ${pendingMultipleFiles.length} producto${pendingMultipleFiles.length > 1 ? 's' : ''}?\n\nCada producto se creará con el nombre y precio extraídos del nombre del archivo usando el formato: NOMBRE_PRECIO\n\nEjemplo: Si el archivo se llama "PAN_10.jpg", se creará un producto llamado "PAN" con precio 10.\n\nLos productos usarán la categoría y descripción que hayas seleccionado en el formulario.`}
+        type="info"
+        confirmText="Sí, crear productos"
+        cancelText="Cancelar"
+        isLoading={isUploadingImage}
+      />
     </FormModal>
   );
 }
