@@ -242,7 +242,17 @@ export function ProductoForm({
 
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
-    if (!files || files.length === 0) return;
+    console.log('📁 handleImageChange llamado - Archivos recibidos:', files?.length || 0);
+    
+    if (!files || files.length === 0) {
+      console.log('⚠️ No hay archivos');
+      return;
+    }
+
+    console.log('📋 Archivos detectados:', files.length);
+    for (let i = 0; i < files.length; i++) {
+      console.log(`  - Archivo ${i + 1}: ${files[i].name}`);
+    }
 
     const validImageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
     const validExtensions = ['.jpg', '.jpeg', '.png', '.webp', '.gif'];
@@ -272,11 +282,17 @@ export function ProductoForm({
       validFiles.push(file);
     }
 
-    if (validFiles.length === 0) return;
+    console.log('✅ Archivos válidos después de validación:', validFiles.length);
+    
+    if (validFiles.length === 0) {
+      console.log('⚠️ No hay archivos válidos después de la validación');
+      return;
+    }
 
     // Si hay múltiples archivos y no estamos editando, cambiar a modo múltiples productos
     if (validFiles.length > 1 && !editingProduct) {
-      console.log('🔄 Activando modo múltiples productos con', validFiles.length, 'archivos');
+      console.log('🔄 ACTIVANDO MODO MÚLTIPLES PRODUCTOS con', validFiles.length, 'archivos');
+      console.log('📦 Archivos:', validFiles.map(f => f.name));
       
       // Limpiar vista previa de imagen única si existe
       setImagePreview(null);
@@ -864,6 +880,7 @@ export function ProductoForm({
               accept="image/jpeg,image/jpg,image/png,image/webp,image/gif,.jpg,.jpeg,.png,.webp,.gif"
               onChange={handleImageChange}
               multiple={!editingProduct}
+              id="product-image-input"
               style={{
                 position: 'absolute',
                 inset: 0,
