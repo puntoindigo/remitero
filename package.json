@@ -15,7 +15,8 @@
     "verify": "node scripts/verify-urls.js",
     "verify:urls": "node scripts/verify-urls.js",
     "preload": "node scripts/preload-routes.js",
-    "deploy:prod": "git checkout main && vercel --prod --yes && git checkout develop"
+    "deploy:prod": "git checkout main && vercel --prod --yes && git checkout develop",
+    "deploy:dev": "git push origin develop && vercel --yes"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
