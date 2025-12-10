@@ -56,13 +56,13 @@ export async function GET(request: NextRequest) {
     // Obtener nombre de la empresa si existe
     let companyName: string | undefined = undefined;
     if (user.company_id) {
-      const { data: company } = await supabaseAdmin
+      const { data: company, error: companyError } = await supabaseAdmin
         .from('companies')
         .select('name')
         .eq('id', user.company_id)
         .single();
       
-      if (company) {
+      if (!companyError && company) {
         companyName = company.name;
       }
     }
@@ -80,9 +80,7 @@ export async function GET(request: NextRequest) {
       enable_botonera: user.enable_botonera ?? false,
       enable_pinned_modals: user.enable_pinned_modals ?? false,
       hasTemporaryPassword: user.has_temporary_password === true,
-      user: {
-        paginationItemsPerPage: user.pagination_items_per_page || 10
-      }
+      paginationItemsPerPage: user.pagination_items_per_page || 10
     });
   } catch (error: any) {
     console.error('Error in profile GET:', error);
@@ -317,13 +315,13 @@ export async function PUT(request: NextRequest) {
     // Obtener nombre de la empresa si existe
     let companyName: string | undefined = undefined;
     if (updatedUser.company_id) {
-      const { data: company } = await supabaseAdmin
+      const { data: company, error: companyError } = await supabaseAdmin
         .from('companies')
         .select('name')
         .eq('id', updatedUser.company_id)
         .single();
       
-      if (company) {
+      if (!companyError && company) {
         companyName = company.name;
       }
     }
@@ -341,9 +339,7 @@ export async function PUT(request: NextRequest) {
       enable_botonera: updatedUser.enable_botonera ?? false,
       enable_pinned_modals: updatedUser.enable_pinned_modals ?? false,
       hasTemporaryPassword: updatedUser.has_temporary_password === true,
-      user: {
-        paginationItemsPerPage: updatedUser.pagination_items_per_page || 10
-      }
+      paginationItemsPerPage: updatedUser.pagination_items_per_page || 10
     };
 
     console.log('📤 [API Profile] Enviando respuesta exitosa', {
