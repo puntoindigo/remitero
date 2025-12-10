@@ -20,7 +20,7 @@ function ConfiguracionContent() {
   const { itemsPerPage, updatePaginationPreference, isAdmin } = usePaginationPreference();
   
   const isSuperAdmin = session?.user?.role === 'SUPERADMIN';
-  const isAdminOrSuperAdmin = session?.user?.role === 'ADMIN' || session?.user?.role === 'SUPERADMIN';
+  const isAdminOrSuperAdmin = isAdmin || isSuperAdmin;
   
   // Mostrar mensaje si se desactivó desde el email
   useEffect(() => {
