@@ -53,7 +53,6 @@ function RemitosContent() {
   const queryClient = useQueryClient();
   const isMobile = useIsMobile();
   const { itemsPerPage } = usePaginationPreference();
-  const { itemsPerPage } = usePaginationPreference();
   
   // Hook centralizado para manejo de companyId
   const {
