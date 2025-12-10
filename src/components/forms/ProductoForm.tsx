@@ -276,6 +276,13 @@ export function ProductoForm({
 
     // Si hay múltiples archivos y no estamos editando, cambiar a modo múltiples productos
     if (validFiles.length > 1 && !editingProduct) {
+      console.log('🔄 Activando modo múltiples productos con', validFiles.length, 'archivos');
+      
+      // Limpiar vista previa de imagen única si existe
+      setImagePreview(null);
+      setImageFile(null);
+      setImageFiles([]);
+      
       setPendingMultipleFiles(validFiles);
       setIsMultipleProductsMode(true);
       
@@ -299,22 +306,22 @@ export function ProductoForm({
       return;
     }
     
-    // Si es un solo archivo, salir del modo múltiples
+    // Si es un solo archivo, salir del modo múltiples y usar comportamiento normal
     if (validFiles.length === 1) {
       setIsMultipleProductsMode(false);
       setPendingMultipleFiles([]);
       setParsedProducts([]);
+      
+      // Comportamiento normal para un solo archivo
+      const file = validFiles[0];
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+      setImageFile(file);
+      setImageFiles([file]);
     }
-
-    // Si es un solo archivo o estamos editando, comportamiento normal
-    const file = validFiles[0];
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setImagePreview(reader.result as string);
-    };
-    reader.readAsDataURL(file);
-    setImageFile(file);
-    setImageFiles([file]);
   };
 
   const handleRemoveImage = () => {
@@ -624,8 +631,8 @@ export function ProductoForm({
           </div>
         )}
         
-        {/* Mostrar múltiples imágenes en modo múltiples */}
-        {isMultipleProductsMode && pendingMultipleFiles.length > 0 ? (
+        {/* Mostrar múltiples imágenes en modo múltiples - NO mostrar vista previa de una sola imagen */}
+        {isMultipleProductsMode && pendingMultipleFiles.length > 0 && (
           <div style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))',
@@ -674,7 +681,10 @@ export function ProductoForm({
               );
             })}
           </div>
-        ) : imagePreview ? (
+        )}
+        
+        {/* Vista previa de una sola imagen - solo si NO estamos en modo múltiples */}
+        {!isMultipleProductsMode && imagePreview && (
           <div style={{ position: 'relative', width: '100%' }}>
             <div
               style={{
@@ -813,20 +823,34 @@ export function ProductoForm({
               e.preventDefault();
               e.currentTarget.style.borderColor = '#d1d5db';
               e.currentTarget.style.backgroundColor = '#f9fafb';
-              const file = e.dataTransfer.files[0];
-              if (file) {
-                // Validar que sea una imagen (incluyendo WebP)
+              
+              // Obtener TODOS los archivos, no solo el primero
+              const files = Array.from(e.dataTransfer.files);
+              if (files.length > 0) {
+                // Validar que sean imágenes (incluyendo WebP)
                 const validImageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
                 const validExtensions = ['.jpg', '.jpeg', '.png', '.webp', '.gif'];
-                const fileName = file.name.toLowerCase();
-                const fileExtension = fileName.substring(fileName.lastIndexOf('.'));
-                const isValidImage = file.type.startsWith('image/') || 
-                                     validImageTypes.includes(file.type) ||
-                                     validExtensions.includes(fileExtension);
                 
-                if (isValidImage) {
+                const validFiles: File[] = [];
+                for (const file of files) {
+                  const fileName = file.name.toLowerCase();
+                  const fileExtension = fileName.substring(fileName.lastIndexOf('.'));
+                  const isValidImage = file.type.startsWith('image/') || 
+                                       validImageTypes.includes(file.type) ||
+                                       validExtensions.includes(fileExtension);
+                  
+                  if (isValidImage) {
+                    validFiles.push(file);
+                  }
+                }
+                
+                if (validFiles.length > 0) {
+                  // Crear un objeto FileList simulado
+                  const dataTransfer = new DataTransfer();
+                  validFiles.forEach(file => dataTransfer.items.add(file));
+                  
                   const fakeEvent = {
-                    target: { files: [file] }
+                    target: { files: dataTransfer.files }
                   } as any;
                   handleImageChange(fakeEvent);
                 } else {
