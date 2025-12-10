@@ -18,6 +18,7 @@ import {
   type Cliente 
 } from "@/hooks/queries/useClientesQuery";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import { usePaginationPreference } from "@/hooks/usePaginationPreference";
 import { useOptimizedPageData } from "@/hooks/useOptimizedPageData";
 import { useDataWithCompanySimple } from "@/hooks/useDataWithCompanySimple";
 import { useCurrentUserSimple } from "@/hooks/useCurrentUserSimple";
@@ -35,6 +36,7 @@ import { useColorTheme } from "@/contexts/ColorThemeContext";
 function ClientesContent() {
   const { colors } = useColorTheme();
   const isMobile = useIsMobile();
+  const { itemsPerPage } = usePaginationPreference();
   const currentUser = useCurrentUserSimple();
   // Hook centralizado para manejo de companyId
   const {
@@ -166,7 +168,7 @@ function ClientesContent() {
     data: clientes,
     loading: isLoading,
     searchFields: ['name', 'email'],
-    itemsPerPage: 10,
+    itemsPerPage: itemsPerPage,
     onEdit: handleEdit,
     onDelete: handleDeleteCliente,
     onNew: handleNew,

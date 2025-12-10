@@ -23,11 +23,13 @@ import { ShortcutText } from "@/components/common/ShortcutText";
 import { SearchInput } from "@/components/common/SearchInput";
 import { useColorTheme } from "@/contexts/ColorThemeContext";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import { usePaginationPreference } from "@/hooks/usePaginationPreference";
 
 function EmpresasContent() {
   const { data: session } = useSession();
   const { colors } = useColorTheme();
   const isMobile = useIsMobile();
+  const { itemsPerPage } = usePaginationPreference();
   const router = useRouter();
   const {
     editingItem: editingCompany,
@@ -102,7 +104,7 @@ function EmpresasContent() {
     data: empresas,
     loading: isLoading,
     searchFields: ['name'],
-    itemsPerPage: 10,
+    itemsPerPage: itemsPerPage,
     onEdit: handleEdit,
     onDelete: handleDeleteEmpresa,
     onNew: handleNew,

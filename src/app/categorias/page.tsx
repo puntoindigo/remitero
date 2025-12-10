@@ -35,11 +35,13 @@ import { useCurrentUserSimple } from "@/hooks/useCurrentUserSimple";
 import { useShortcuts } from "@/hooks/useShortcuts";
 import { useColorTheme } from "@/contexts/ColorThemeContext";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import { usePaginationPreference } from "@/hooks/usePaginationPreference";
 
 function CategoriasContent() {
   const currentUser = useCurrentUserSimple();
   const { colors } = useColorTheme();
   const isMobile = useIsMobile();
+  const { itemsPerPage } = usePaginationPreference();
   
   // Verificar permisos - solo ADMIN y SUPERADMIN pueden acceder
   if (currentUser?.role === 'USER') {
@@ -144,7 +146,7 @@ function CategoriasContent() {
     data: categorias || [],
     loading: isLoading,
     searchFields: ['name', 'description'],
-    itemsPerPage: 10,
+    itemsPerPage: itemsPerPage,
     onEdit: handleEdit,
     onDelete: handleDeleteCategoria,
     onNew: handleNew,

@@ -42,6 +42,7 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 import { useColorTheme } from "@/contexts/ColorThemeContext";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import { usePaginationPreference } from "@/hooks/usePaginationPreference";
 
 function RemitosContent() {
   const currentUser = useCurrentUserSimple();
@@ -51,6 +52,8 @@ function RemitosContent() {
   const pathname = usePathname();
   const queryClient = useQueryClient();
   const isMobile = useIsMobile();
+  const { itemsPerPage } = usePaginationPreference();
+  const { itemsPerPage } = usePaginationPreference();
   
   // Hook centralizado para manejo de companyId
   const {
@@ -63,7 +66,7 @@ function RemitosContent() {
   // 🚀 REACT QUERY: Reemplaza state y fetch
   // Paginación server-side
   const [page, setPage] = React.useState(1);
-  const pageSize = 10;
+  const pageSize = itemsPerPage;
   const { data: remitosPage, isLoading } = useRemitosQuery(companyId || undefined, page, pageSize);
   const remitos = (remitosPage?.items as any) || [];
   const totalRemitos = remitosPage?.total || remitos?.length || 0;
@@ -347,7 +350,7 @@ function RemitosContent() {
     data: filteredRemitos,
     loading: isLoading,
     searchFields: ['number', 'client?.name'],
-    itemsPerPage: 10,
+    itemsPerPage: itemsPerPage,
     onEdit: async (remito) => {
       try {
         if (!remito?.id) return;
