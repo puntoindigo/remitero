@@ -81,6 +81,8 @@ export function ProductoForm({
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [showMultipleProductsModal, setShowMultipleProductsModal] = useState(false);
   const [pendingMultipleFiles, setPendingMultipleFiles] = useState<File[]>([]);
+  const [isMultipleProductsMode, setIsMultipleProductsMode] = useState(false);
+  const [parsedProducts, setParsedProducts] = useState<Array<{ name: string; price: number; fileName: string }>>([]);
 
   // Función para formatear número con separadores de miles
   const formatPriceForDisplay = (value: string): string => {
@@ -232,6 +234,9 @@ export function ProductoForm({
       setImagePreview(null);
       setImageFile(null);
       setImageFiles([]);
+      setIsMultipleProductsMode(false);
+      setPendingMultipleFiles([]);
+      setParsedProducts([]);
     }
   }, [editingProduct, setValue, reset]);
 
@@ -269,15 +274,36 @@ export function ProductoForm({
 
     if (validFiles.length === 0) return;
 
-    // Si hay múltiples archivos y no estamos editando, mostrar modal de confirmación
+    // Si hay múltiples archivos y no estamos editando, cambiar a modo múltiples productos
     if (validFiles.length > 1 && !editingProduct) {
       setPendingMultipleFiles(validFiles);
-      setShowMultipleProductsModal(true);
+      setIsMultipleProductsMode(true);
+      
+      // Parsear todos los archivos para mostrar preview
+      const parsed = validFiles.map(file => {
+        const { name, price } = parseFileName(file.name);
+        return { name, price, fileName: file.name };
+      });
+      setParsedProducts(parsed);
+      
+      // Limpiar campos que no se usan en modo múltiples
+      setValue("name", "");
+      setValue("price", 0);
+      setPriceDisplay("");
+      setPriceRaw("");
+      
       // Limpiar el input
       if (e.target) {
         e.target.value = '';
       }
       return;
+    }
+    
+    // Si es un solo archivo, salir del modo múltiples
+    if (validFiles.length === 1) {
+      setIsMultipleProductsMode(false);
+      setPendingMultipleFiles([]);
+      setParsedProducts([]);
     }
 
     // Si es un solo archivo o estamos editando, comportamiento normal
@@ -296,6 +322,12 @@ export function ProductoForm({
     setImageFile(null);
     setImageFiles([]);
     setValue("imageUrl", "");
+    // Si estaba en modo múltiples, salir de ese modo
+    if (isMultipleProductsMode) {
+      setIsMultipleProductsMode(false);
+      setPendingMultipleFiles([]);
+      setParsedProducts([]);
+    }
   };
 
   // Función para parsear nombre y precio desde el nombre del archivo
@@ -318,10 +350,8 @@ export function ProductoForm({
     }
   };
 
-  // Confirmar creación de múltiples productos
-  const handleConfirmMultipleProducts = async () => {
-    setShowMultipleProductsModal(false);
-    
+  // Confirmar creación de múltiples productos (ahora se llama desde el submit del formulario)
+  const handleCreateMultipleProducts = async () => {
     if (pendingMultipleFiles.length === 0) return;
 
     if (!companyId) {
@@ -411,6 +441,8 @@ export function ProductoForm({
       // Limpiar estado y cerrar formulario solo si hubo al menos un éxito
       if (successCount > 0) {
         setPendingMultipleFiles([]);
+        setIsMultipleProductsMode(false);
+        setParsedProducts([]);
         reset();
         setPriceDisplay("");
         setImagePreview(null);
@@ -442,6 +474,8 @@ export function ProductoForm({
   const handleCancelMultipleProducts = () => {
     setShowMultipleProductsModal(false);
     setPendingMultipleFiles([]);
+    setIsMultipleProductsMode(false);
+    setParsedProducts([]);
     // Limpiar el input de archivo
     const inputs = document.querySelectorAll('input[type="file"]');
     inputs.forEach((input: any) => {
@@ -451,6 +485,12 @@ export function ProductoForm({
 
   const handleFormSubmit = async (data: ProductFormData) => {
     try {
+      // Si estamos en modo múltiples productos, usar esa lógica
+      if (isMultipleProductsMode && pendingMultipleFiles.length > 0) {
+        await handleCreateMultipleProducts();
+        return;
+      }
+      
       // Si hay una imagen nueva, subirla primero
       if (imageFile) {
         setIsUploadingImage(true);
@@ -527,7 +567,7 @@ export function ProductoForm({
       title={editingProduct ? "Editar Producto" : "Nuevo Producto"}
       onSubmit={handleSubmit(handleFormSubmit)}
       isSubmitting={isSubmitting || isUploadingImage}
-      submitText={editingProduct ? "Actualizar" : "Guardar"}
+      submitText={editingProduct ? "Actualizar" : (isMultipleProductsMode ? `Crear ${pendingMultipleFiles.length} productos` : "Guardar")}
       modalId={editingProduct ? `producto-${editingProduct.id}` : "nuevo-producto"}
       modalComponent="ProductoForm"
       modalType="form"
@@ -546,9 +586,95 @@ export function ProductoForm({
           display: 'block',
           color: '#6b7280'
         }}>
-          Imagen del producto
+          {isMultipleProductsMode ? `Imágenes de productos (${pendingMultipleFiles.length} archivos)` : 'Imagen del producto'}
         </label>
-        {imagePreview ? (
+        
+        {/* Mensaje cuando hay múltiples productos */}
+        {isMultipleProductsMode && (
+          <div style={{
+            padding: '12px',
+            backgroundColor: '#eff6ff',
+            border: '1px solid #3b82f6',
+            borderRadius: '6px',
+            marginBottom: '12px',
+            fontSize: '14px',
+            color: '#1e40af'
+          }}>
+            <strong>Modo: Creación múltiple</strong>
+            <p style={{ margin: '4px 0 0 0', fontSize: '13px' }}>
+              Se crearán {pendingMultipleFiles.length} productos. El nombre y precio se extraerán del nombre de cada archivo (formato: NOMBRE_PRECIO).
+            </p>
+            <button
+              type="button"
+              onClick={handleRemoveImage}
+              style={{
+                marginTop: '8px',
+                padding: '6px 12px',
+                backgroundColor: '#ef4444',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontSize: '12px',
+                fontWeight: 500
+              }}
+            >
+              Limpiar archivos
+            </button>
+          </div>
+        )}
+        
+        {/* Mostrar múltiples imágenes en modo múltiples */}
+        {isMultipleProductsMode && pendingMultipleFiles.length > 0 ? (
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))',
+            gap: '12px',
+            marginTop: '8px'
+          }}>
+            {pendingMultipleFiles.map((file, index) => {
+              const preview = URL.createObjectURL(file);
+              // Limpiar URL cuando el componente se desmonte
+              return (
+                <div key={index} style={{
+                  position: 'relative',
+                  border: '2px solid #d1d5db',
+                  borderRadius: '6px',
+                  padding: '8px',
+                  backgroundColor: '#f9fafb',
+                  aspectRatio: '1'
+                }}>
+                  <img
+                    src={preview}
+                    alt={file.name}
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'contain',
+                      borderRadius: '4px'
+                    }}
+                    onLoad={() => {
+                      // El navegador manejará la limpieza automáticamente
+                    }}
+                  />
+                  <div style={{
+                    position: 'absolute',
+                    top: '4px',
+                    right: '4px',
+                    backgroundColor: 'rgba(0,0,0,0.7)',
+                    color: 'white',
+                    fontSize: '10px',
+                    padding: '2px 6px',
+                    borderRadius: '4px',
+                    fontWeight: 500
+                  }}>
+                    {index + 1}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ) : imagePreview ? (
           <div style={{ position: 'relative', width: '100%' }}>
             <div
               style={{
@@ -771,115 +897,151 @@ export function ProductoForm({
         />
       </div>
 
-      <div className="form-row" style={{ display: 'flex', justifyContent: 'space-between', gap: '16px' }}>
-        <div className="form-group" style={{ flex: 1 }}>
-          <label className="form-label-large">
-            Nombre *
-            {errors?.name && (
-              <span style={{ color: '#ef4444', marginLeft: '8px', fontSize: '0.875rem', fontWeight: 'normal' }}>
-                {errors?.name.message}
-              </span>
-            )}
+      {/* Preview de productos cuando hay múltiples */}
+      {isMultipleProductsMode && parsedProducts.length > 0 && (
+        <div className="form-group">
+          <label className="form-label-large" style={{ marginBottom: '8px' }}>
+            Productos que se crearán ({parsedProducts.length})
           </label>
-          <input
-            {...register("name")}
-            type="text"
-            placeholder="Nombre"
-            className="form-input-standard"
-            onKeyDown={handleKeyDown}
-          />
-        </div>
-
-        <div className="form-group" style={{ flex: 1 }}>
-          <label className="form-label-large">
-            Precio *
-            {errors?.price && (
-              <span style={{ color: '#ef4444', marginLeft: '8px', fontSize: '0.875rem', fontWeight: 'normal' }}>
-                {errors.price.message}
-              </span>
-            )}
-          </label>
-          <div className="price-input-standard">
-            <span className="price-symbol-standard">$</span>
-            <input
-              type="text"
-              value={priceDisplay}
-              onChange={handlePriceChange}
-              onBlur={handlePriceBlur}
-              onKeyDown={handleKeyDown}
-              placeholder="Precio"
-              className="form-input-standard"
-              inputMode="decimal"
-            />
+          <div style={{
+            border: '1px solid #e5e7eb',
+            borderRadius: '6px',
+            maxHeight: '200px',
+            overflowY: 'auto',
+            backgroundColor: '#f9fafb'
+          }}>
+            {parsedProducts.map((product, index) => (
+              <div key={index} style={{
+                padding: '10px 12px',
+                borderBottom: index < parsedProducts.length - 1 ? '1px solid #e5e7eb' : 'none',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center'
+              }}>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontWeight: 500, color: '#111827', fontSize: '14px' }}>
+                    {product.name || product.fileName}
+                  </div>
+                  <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '2px' }}>
+                    {product.fileName}
+                  </div>
+                </div>
+                <div style={{ 
+                  fontSize: '14px', 
+                  fontWeight: 600, 
+                  color: '#059669',
+                  marginLeft: '12px'
+                }}>
+                  ${product.price.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
-      </div>
+      )}
 
-      {/* Stock primero */}
-      <div style={{ 
-        display: 'flex', 
-        alignItems: 'center', 
-        gap: '0.5rem',
-        marginTop: '0.5rem'
-      }}>
-        <span style={{ fontSize: '14px', fontWeight: 500 }}>Stock:</span>
-        <button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-            toggleStock();
-          }}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: '24px',
-            height: '24px',
-            border: 'none',
-            background: 'transparent',
-            cursor: 'pointer',
-            padding: 0,
-          }}
-          title="Modificar stock"
-        >
-          {isInStock ? (
-            <Check className="h-5 w-5" style={{ color: '#16a34a' }} />
-          ) : (
-            <X className="h-5 w-5" style={{ color: '#ef4444' }} />
-          )}
-        </button>
-      </div>
+      {/* Campos normales solo si NO estamos en modo múltiples */}
+      {!isMultipleProductsMode && (
+        <>
+          <div className="form-row" style={{ display: 'flex', justifyContent: 'space-between', gap: '16px' }}>
+            <div className="form-group" style={{ flex: 1 }}>
+              <label className="form-label-large">
+                Nombre *
+                {errors?.name && (
+                  <span style={{ color: '#ef4444', marginLeft: '8px', fontSize: '0.875rem', fontWeight: 'normal' }}>
+                    {errors?.name.message}
+                  </span>
+                )}
+              </label>
+              <input
+                {...register("name")}
+                type="text"
+                placeholder="Nombre"
+                className="form-input-standard"
+                onKeyDown={handleKeyDown}
+              />
+            </div>
 
-      <div className="form-group">
-        <label className="form-label-large">
-          Descripción
-          {errors?.description && (
-            <span style={{ color: '#ef4444', marginLeft: '8px', fontSize: '0.875rem', fontWeight: 'normal' }}>
-              {errors.description.message}
-            </span>
-          )}
-        </label>
-        <textarea
-          {...register("description")}
-          placeholder="Descripción (opcional)"
-          rows={3}
-          className="form-textarea-standard"
-          onKeyDown={handleKeyDown}
-        />
-      </div>
+            <div className="form-group" style={{ flex: 1 }}>
+              <label className="form-label-large">
+                Precio *
+                {errors?.price && (
+                  <span style={{ color: '#ef4444', marginLeft: '8px', fontSize: '0.875rem', fontWeight: 'normal' }}>
+                    {errors.price.message}
+                  </span>
+                )}
+              </label>
+              <div className="price-input-standard">
+                <span className="price-symbol-standard">$</span>
+                <input
+                  type="text"
+                  value={priceDisplay}
+                  onChange={handlePriceChange}
+                  onBlur={handlePriceBlur}
+                  onKeyDown={handleKeyDown}
+                  placeholder="Precio"
+                  className="form-input-standard"
+                  inputMode="decimal"
+                />
+              </div>
+            </div>
+          </div>
 
-      {/* Modal de confirmación para múltiples productos */}
-      <ConfirmationModal
-        isOpen={showMultipleProductsModal}
-        onCancel={handleCancelMultipleProducts}
-        onConfirm={handleConfirmMultipleProducts}
-        title="Crear múltiples productos"
-        message={`Has seleccionado ${pendingMultipleFiles.length} imagen${pendingMultipleFiles.length > 1 ? 'es' : ''}. ¿Deseas crear ${pendingMultipleFiles.length} producto${pendingMultipleFiles.length > 1 ? 's' : ''}?\n\nCada producto se creará con el nombre y precio extraídos del nombre del archivo usando el formato: NOMBRE_PRECIO\n\nEjemplo: Si el archivo se llama "PAN_10.jpg", se creará un producto llamado "PAN" con precio 10.\n\nLos productos usarán la categoría y descripción que hayas seleccionado en el formulario.`}
-        type="info"
-        confirmText="Sí, crear productos"
-        cancelText="Cancelar"
-        isLoading={isUploadingImage}
-      />
+          {/* Stock primero */}
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '0.5rem',
+            marginTop: '0.5rem'
+          }}>
+            <span style={{ fontSize: '14px', fontWeight: 500 }}>Stock:</span>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleStock();
+              }}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '24px',
+                height: '24px',
+                border: 'none',
+                background: 'transparent',
+                cursor: 'pointer',
+                padding: 0,
+              }}
+              title="Modificar stock"
+            >
+              {isInStock ? (
+                <Check className="h-5 w-5" style={{ color: '#16a34a' }} />
+              ) : (
+                <X className="h-5 w-5" style={{ color: '#ef4444' }} />
+              )}
+            </button>
+          </div>
+
+          <div className="form-group">
+            <label className="form-label-large">
+              Descripción
+              {errors?.description && (
+                <span style={{ color: '#ef4444', marginLeft: '8px', fontSize: '0.875rem', fontWeight: 'normal' }}>
+                  {errors.description.message}
+                </span>
+              )}
+            </label>
+            <textarea
+              {...register("description")}
+              placeholder="Descripción (opcional)"
+              rows={3}
+              className="form-textarea-standard"
+              onKeyDown={handleKeyDown}
+            />
+          </div>
+        </>
+      )}
+
     </FormModal>
   );
 }
