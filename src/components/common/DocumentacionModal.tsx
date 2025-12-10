@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { X, FileText, ChevronLeft, ChevronRight, Link as LinkIcon, Check, Trash2 } from 'lucide-react';
+import { X, FileText, ChevronLeft, ChevronRight, Link as LinkIcon, Check, Trash2, Code, ExternalLink } from 'lucide-react';
 import { MarkdownContent } from '@/components/docs/MarkdownContent';
 import DeleteConfirmModal from '@/components/common/DeleteConfirmModal';
 import { useToast } from '@/hooks/useToast.js';
@@ -214,7 +214,7 @@ export function DocumentacionModal({ isOpen, onClose }: DocumentacionModalProps)
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center gap-4 flex-1 min-w-0">
             <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-              Documentación
+              Desarrollo y Documentación
             </h2>
             {currentDoc && (
               <div className="flex items-center gap-3 flex-1 min-w-0">
@@ -255,6 +255,36 @@ export function DocumentacionModal({ isOpen, onClose }: DocumentacionModalProps)
                 <X className="h-5 w-5" />
               </button>
             </div>
+          </div>
+        </div>
+
+        {/* Módulo de Desarrollo */}
+        <div className="px-4 py-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20">
+          <div className="flex items-center gap-3 mb-3">
+            <Code className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+              Módulo de Desarrollo
+            </h3>
+          </div>
+          <div className="flex gap-3">
+            <a
+              href="/web"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-blue-200 dark:border-blue-700 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors text-gray-900 dark:text-gray-100 font-medium shadow-sm"
+            >
+              <ExternalLink className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+              <span>Web</span>
+            </a>
+            <a
+              href="/web2"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-indigo-200 dark:border-indigo-700 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-900/30 transition-colors text-gray-900 dark:text-gray-100 font-medium shadow-sm"
+            >
+              <ExternalLink className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+              <span>Web2</span>
+            </a>
           </div>
         </div>
 

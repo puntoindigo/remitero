@@ -31,6 +31,7 @@ import { useShortcuts } from "@/hooks/useShortcuts";
 import { useColorTheme } from "@/contexts/ColorThemeContext";
 import { StatusToggle } from "@/components/common/StatusToggle";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import { usePaginationPreference } from "@/hooks/usePaginationPreference";
 
 import { 
   useProductosQuery,
@@ -74,6 +75,7 @@ function ProductosContent() {
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
   const [selectedStock, setSelectedStock] = useState<string>("");
   const { empresas, isLoading: empresasLoading } = useEmpresas();
+  const { itemsPerPage } = usePaginationPreference();
   
   // Refs para rastrear valores anteriores de filtros y evitar resetear cuando cambia la página manualmente
   const prevSelectedCategoryId = useRef<string>("");
@@ -243,7 +245,7 @@ function ProductosContent() {
     data: filteredProductos,
     loading: isLoading,
     searchFields: ['name', 'description'],
-    itemsPerPage: 10,
+    itemsPerPage: itemsPerPage,
     onEdit: handleEditProduct,
     onDelete: handleDeleteProduct,
     onNew: handleNewProduct,
