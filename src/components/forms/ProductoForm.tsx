@@ -375,9 +375,19 @@ export function ProductoForm({
 
   // Confirmar creación de múltiples productos (ahora se llama desde el submit del formulario)
   const handleCreateMultipleProducts = async () => {
-    if (pendingMultipleFiles.length === 0) return;
+    console.log('🔄 handleCreateMultipleProducts iniciado', { 
+      pendingFiles: pendingMultipleFiles.length,
+      companyId,
+      isMultipleProductsMode 
+    });
+    
+    if (pendingMultipleFiles.length === 0) {
+      console.log('⚠️ No hay archivos pendientes');
+      return;
+    }
 
     if (!companyId) {
+      console.error('❌ CompanyId no disponible');
       alert('No se puede crear productos: CompanyId no disponible');
       setPendingMultipleFiles([]);
       return;
@@ -388,6 +398,8 @@ export function ProductoForm({
       const categoryId = watch("categoryId");
       const stock = watch("stock") || "IN_STOCK";
       const description = watch("description") || "";
+      
+      console.log('📋 Datos del formulario:', { categoryId, stock, description });
 
       if (!categoryId) {
         alert('Debes seleccionar una categoría para crear los productos');
@@ -507,9 +519,12 @@ export function ProductoForm({
   };
 
   const handleFormSubmit = async (data: ProductFormData) => {
+    console.log('🚀 handleFormSubmit llamado', { isMultipleProductsMode, pendingMultipleFiles: pendingMultipleFiles.length, data });
+    
     try {
       // Si estamos en modo múltiples productos, usar esa lógica
       if (isMultipleProductsMode && pendingMultipleFiles.length > 0) {
+        console.log('📦 Ejecutando handleCreateMultipleProducts');
         await handleCreateMultipleProducts();
         return;
       }
@@ -588,7 +603,14 @@ export function ProductoForm({
       isOpen={isOpen}
       onClose={onClose}
       title={editingProduct ? "Editar Producto" : "Nuevo Producto"}
-      onSubmit={handleSubmit(handleFormSubmit)}
+      onSubmit={handleSubmit(handleFormSubmit, (errors) => {
+        console.log('❌ Errores de validación:', errors);
+        // En modo múltiples, bypass la validación y ejecutar directamente
+        if (isMultipleProductsMode && pendingMultipleFiles.length > 0) {
+          console.log('🔄 Bypass validación - ejecutando handleFormSubmit directamente');
+          handleFormSubmit({} as ProductFormData);
+        }
+      })}
       isSubmitting={isSubmitting || isUploadingImage}
       submitText={editingProduct ? "Actualizar" : (isMultipleProductsMode ? `Crear ${pendingMultipleFiles.length} productos` : "Guardar")}
       modalId={editingProduct ? `producto-${editingProduct.id}` : "nuevo-producto"}
