@@ -33,14 +33,35 @@ export default function TopBar() {
   const { toasts, showSuccess: showToastSuccess, removeToast } = useToast();
   // Obtener perfil del usuario actual usando la nueva API /api/profile
   const [profileUser, setProfileUser] = useState<any>(null);
+  const [profileLoading, setProfileLoading] = useState(false);
   
   useEffect(() => {
     if (session?.user?.id && sessionStatus === 'authenticated') {
+      setProfileLoading(true);
       // Usar la nueva API /api/profile que no requiere permisos especiales
       fetch('/api/profile')
-        .then(res => res.ok ? res.json() : null)
-        .then(data => setProfileUser(data))
-        .catch(() => setProfileUser(null));
+        .then(res => {
+          if (!res.ok) {
+            console.error('Error fetching profile:', res.status, res.statusText);
+            return null;
+          }
+          return res.json();
+        })
+        .then(data => {
+          if (data) {
+            setProfileUser(data);
+          } else {
+            console.error('No profile data received');
+            setProfileUser(null);
+          }
+        })
+        .catch((error) => {
+          console.error('Error fetching profile:', error);
+          setProfileUser(null);
+        })
+        .finally(() => {
+          setProfileLoading(false);
+        });
     }
   }, [session?.user?.id, sessionStatus]);
 
@@ -70,8 +91,27 @@ export default function TopBar() {
     };
   }, [showUserMenu]);
 
-  const handleProfileClick = () => {
+  const handleProfileClick = async () => {
     setShowUserMenu(false);
+    
+    // Si no tenemos el perfil cargado, intentar cargarlo ahora
+    if (!profileUser && !profileLoading && session?.user?.id) {
+      setProfileLoading(true);
+      try {
+        const response = await fetch('/api/profile');
+        if (response.ok) {
+          const data = await response.json();
+          setProfileUser(data);
+        } else {
+          console.error('Error fetching profile on click:', response.status);
+        }
+      } catch (error) {
+        console.error('Error fetching profile on click:', error);
+      } finally {
+        setProfileLoading(false);
+      }
+    }
+    
     setShowProfileModal(true);
   };
 
@@ -408,26 +448,24 @@ export default function TopBar() {
         onClose={() => setShowDocumentacionModal(false)}
       />
 
-      {profileUser && (
-        <UsuarioForm
-          isOpen={showProfileModal}
-          onClose={() => setShowProfileModal(false)}
-          onSubmit={handleProfileSubmit}
-          isSubmitting={isSubmittingProfile}
-          isCurrentUser={true}
-          editingUser={{
-            id: profileUser.id,
-            name: profileUser.name,
-            email: profileUser.email,
-            role: profileUser.role,
-            phone: profileUser.phone,
-            address: profileUser.address,
-            companyId: profileUser.company?.id,
-            enableBotonera: (profileUser as any).enable_botonera ?? false
-          }}
-          companies={[]}
-        />
-      )}
+      <UsuarioForm
+        isOpen={showProfileModal}
+        onClose={() => setShowProfileModal(false)}
+        onSubmit={handleProfileSubmit}
+        isSubmitting={isSubmittingProfile}
+        isCurrentUser={true}
+        editingUser={profileUser ? {
+          id: profileUser.id,
+          name: profileUser.name,
+          email: profileUser.email,
+          role: profileUser.role,
+          phone: profileUser.phone,
+          address: profileUser.address,
+          companyId: profileUser.company?.id,
+          enableBotonera: (profileUser as any).enable_botonera ?? false
+        } : undefined}
+        companies={[]}
+      />
 
       <ToastContainer toasts={toasts} onRemove={removeToast} />
     </>

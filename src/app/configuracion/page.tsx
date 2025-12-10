@@ -22,6 +22,17 @@ function ConfiguracionContent() {
   const isSuperAdmin = session?.user?.role === 'SUPERADMIN';
   const isAdminOrSuperAdmin = isAdmin || isSuperAdmin;
   
+  // Debug: verificar valores
+  useEffect(() => {
+    console.log('🔍 [Configuracion] Debug paginación:', {
+      sessionRole: session?.user?.role,
+      isAdmin,
+      isSuperAdmin,
+      isAdminOrSuperAdmin,
+      itemsPerPage
+    });
+  }, [session?.user?.role, isAdmin, isSuperAdmin, isAdminOrSuperAdmin, itemsPerPage]);
+  
   // Mostrar mensaje si se desactivó desde el email
   useEffect(() => {
     const disabled = searchParams.get('disabled');
