@@ -806,7 +806,10 @@ export function ProductoForm({
               />
             </div>
           </div>
-        ) : (
+        )}
+        
+        {/* Área de upload cuando no hay imágenes */}
+        {!isMultipleProductsMode && !imagePreview && (
           <div
             style={{
               border: '2px dashed #d1d5db',
