@@ -164,7 +164,7 @@ function ConfiguracionContent() {
             </div>
 
             {/* Paginación - Solo para ADMIN y SUPERADMIN */}
-            {isAdminOrSuperAdmin && (
+            {(isAdminOrSuperAdmin || session?.user?.role === 'ADMIN' || session?.user?.role === 'SUPERADMIN') && (
               <div className="bg-white rounded-lg shadow-md p-6">
                 <div className="flex items-center gap-3 mb-4">
                   <List className="h-5 w-5 text-blue-600" />
