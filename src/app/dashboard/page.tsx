@@ -344,8 +344,10 @@ export default function DashboardPage() {
     })
   }
 
-  // Agregar tarjeta de empresas solo si el usuario es SUPERADMIN
-  if (currentUser?.role === 'SUPERADMIN') {
+  // Agregar tarjeta de empresas solo si el usuario es SUPERADMIN y NO hay una empresa seleccionada
+  // Solo mostrar cuando selectedCompanyId está vacío (""), null o undefined
+  const hasCompanySelected = selectedCompanyId && selectedCompanyId !== "";
+  if (currentUser?.role === 'SUPERADMIN' && !hasCompanySelected) {
     cards.push({
       title: "Empresas",
       icon: Building,
