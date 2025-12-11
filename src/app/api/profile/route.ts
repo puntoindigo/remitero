@@ -17,7 +17,8 @@ export async function GET(request: NextRequest) {
       }, { status: 401 });
     }
 
-    const { data: user, error } = await supabaseAdmin
+    // Intentar obtener el perfil con pagination_items_per_page, si falla intentar sin esa columna
+    let { data: user, error } = await supabaseAdmin
       .from('users')
       .select(`
         id,
@@ -32,16 +33,44 @@ export async function GET(request: NextRequest) {
         is_active,
         enable_botonera,
         enable_pinned_modals,
-        has_temporary_password
+        has_temporary_password,
+        pagination_items_per_page
       `)
       .eq('id', session.user.id)
       .single();
 
+    // Si falla porque la columna no existe, intentar sin ella
+    if (error && error.message?.includes('pagination_items_per_page')) {
+      console.warn('⚠️ [API Profile] Columna pagination_items_per_page no existe, intentando sin ella');
+      const result = await supabaseAdmin
+        .from('users')
+        .select(`
+          id,
+          name,
+          email,
+          role,
+          address,
+          phone,
+          company_id,
+          created_at,
+          updated_at,
+          is_active,
+          enable_botonera,
+          enable_pinned_modals,
+          has_temporary_password
+        `)
+        .eq('id', session.user.id)
+        .single();
+      user = result.data;
+      error = result.error;
+    }
+
     if (error) {
-      console.error('Error fetching user profile:', error);
+      console.error('❌ [API Profile] Error fetching user profile:', error);
       return NextResponse.json({ 
         error: "Error interno del servidor",
-        message: "No se pudo obtener el perfil del usuario."
+        message: "No se pudo obtener el perfil del usuario.",
+        details: process.env.NODE_ENV === 'development' ? error.message : undefined
       }, { status: 500 });
     }
 
@@ -55,13 +84,13 @@ export async function GET(request: NextRequest) {
     // Obtener nombre de la empresa si existe
     let companyName: string | undefined = undefined;
     if (user.company_id) {
-      const { data: company } = await supabaseAdmin
+      const { data: company, error: companyError } = await supabaseAdmin
         .from('companies')
         .select('name')
         .eq('id', user.company_id)
         .single();
       
-      if (company) {
+      if (!companyError && company) {
         companyName = company.name;
       }
     }
@@ -79,6 +108,7 @@ export async function GET(request: NextRequest) {
       enable_botonera: user.enable_botonera ?? false,
       enable_pinned_modals: user.enable_pinned_modals ?? false,
       hasTemporaryPassword: user.has_temporary_password === true,
+      paginationItemsPerPage: (user as any).pagination_items_per_page || 10
     });
   } catch (error: any) {
     console.error('Error in profile GET:', error);
@@ -109,7 +139,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { name, email, phone, address, oldPassword, password, confirmPassword, enableBotonera, enablePinnedModals } = body;
+    const { name, email, phone, address, oldPassword, password, confirmPassword, enableBotonera, enablePinnedModals, paginationItemsPerPage } = body;
     console.log('📥 [API Profile] Body recibido', {
       hasName: !!name,
       hasEmail: !!email,
@@ -170,6 +200,27 @@ export async function PUT(request: NextRequest) {
     // Actualizar enablePinnedModals si se proporciona
     if (enablePinnedModals !== undefined) {
       updateData.enable_pinned_modals = enablePinnedModals === true;
+    }
+
+    // Actualizar preferencia de paginación (solo para ADMIN y SUPERADMIN)
+    if (paginationItemsPerPage !== undefined) {
+      const validValues = [10, 25, 50, 100];
+      if (validValues.includes(paginationItemsPerPage)) {
+        // Solo permitir a ADMIN y SUPERADMIN
+        if (session.user.role === 'ADMIN' || session.user.role === 'SUPERADMIN') {
+          updateData.pagination_items_per_page = paginationItemsPerPage;
+        } else {
+          return NextResponse.json({ 
+            error: "No autorizado", 
+            message: "Solo los administradores pueden cambiar la preferencia de paginación." 
+          }, { status: 403 });
+        }
+      } else {
+        return NextResponse.json({ 
+          error: "Valor inválido", 
+          message: "La preferencia de paginación debe ser 10, 25, 50 o 100." 
+        }, { status: 400 });
+      }
     }
 
     // Actualizar contraseña si se proporciona
@@ -257,7 +308,8 @@ export async function PUT(request: NextRequest) {
         is_active,
         enable_botonera,
         enable_pinned_modals,
-        has_temporary_password
+        has_temporary_password,
+        pagination_items_per_page
       `)
       .single();
 
@@ -291,13 +343,13 @@ export async function PUT(request: NextRequest) {
     // Obtener nombre de la empresa si existe
     let companyName: string | undefined = undefined;
     if (updatedUser.company_id) {
-      const { data: company } = await supabaseAdmin
+      const { data: company, error: companyError } = await supabaseAdmin
         .from('companies')
         .select('name')
         .eq('id', updatedUser.company_id)
         .single();
       
-      if (company) {
+      if (!companyError && company) {
         companyName = company.name;
       }
     }
@@ -315,6 +367,7 @@ export async function PUT(request: NextRequest) {
       enable_botonera: updatedUser.enable_botonera ?? false,
       enable_pinned_modals: updatedUser.enable_pinned_modals ?? false,
       hasTemporaryPassword: updatedUser.has_temporary_password === true,
+      paginationItemsPerPage: updatedUser.pagination_items_per_page || 10
     };
 
     console.log('📤 [API Profile] Enviando respuesta exitosa', {

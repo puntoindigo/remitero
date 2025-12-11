@@ -4,10 +4,12 @@ import React, { useEffect, Suspense, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useTheme } from '@/hooks/useTheme';
 import { ThemeSelector } from '@/components/common/ThemeSelector';
-import { User, Palette, Settings, Bell, Shield, Globe, ChevronDown, ChevronUp } from 'lucide-react';
+import { User, Palette, Settings, Bell, Shield, Globe, ChevronDown, ChevronUp, List } from 'lucide-react';
 import { NotificationPreferences } from '@/components/common/NotificationPreferences';
 import { useSearchParams } from 'next/navigation';
 import { useToast } from '@/hooks/useToast';
+import { usePaginationPreference } from '@/hooks/usePaginationPreference';
+import FilterableSelect from '@/components/common/FilterableSelect';
 
 function ConfiguracionContent() {
   const { data: session, status } = useSession();
@@ -15,8 +17,21 @@ function ConfiguracionContent() {
   const searchParams = useSearchParams();
   const { showSuccess } = useToast();
   const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const { itemsPerPage, updatePaginationPreference, isAdmin } = usePaginationPreference();
   
   const isSuperAdmin = session?.user?.role === 'SUPERADMIN';
+  const isAdminOrSuperAdmin = isAdmin || isSuperAdmin;
+  
+  // Debug: verificar valores
+  useEffect(() => {
+    console.log('🔍 [Configuracion] Debug paginación:', {
+      sessionRole: session?.user?.role,
+      isAdmin,
+      isSuperAdmin,
+      isAdminOrSuperAdmin,
+      itemsPerPage
+    });
+  }, [session?.user?.role, isAdmin, isSuperAdmin, isAdminOrSuperAdmin, itemsPerPage]);
   
   // Mostrar mensaje si se desactivó desde el email
   useEffect(() => {
@@ -147,6 +162,63 @@ function ConfiguracionContent() {
                 </div>
               </div>
             </div>
+
+            {/* Paginación - Solo para ADMIN y SUPERADMIN */}
+            {(() => {
+              const shouldShow = session?.user?.role === 'ADMIN' || session?.user?.role === 'SUPERADMIN';
+              console.log('🔍 [Configuracion] Renderizando sección paginación:', {
+                sessionRole: session?.user?.role,
+                shouldShow,
+                sessionStatus: status,
+                hasSession: !!session
+              });
+              
+              if (!shouldShow) {
+                return null;
+              }
+              
+              return (
+                <div className="bg-white rounded-lg shadow-md p-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <List className="h-5 w-5 text-blue-600" />
+                    <h3 className="text-lg font-semibold text-gray-900">Paginación</h3>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Registros por página
+                      </label>
+                      <p className="text-sm text-gray-600 mb-3">
+                        Selecciona cuántos registros quieres ver por página en las tablas del sistema.
+                      </p>
+                      <FilterableSelect
+                        options={[
+                          { id: '10', name: '10 registros' },
+                          { id: '25', name: '25 registros' },
+                          { id: '50', name: '50 registros' },
+                          { id: '100', name: '100 registros' }
+                        ]}
+                        value={itemsPerPage.toString()}
+                        onChange={async (value) => {
+                          if (value) {
+                            const newValue = parseInt(value) as 10 | 25 | 50 | 100;
+                            const success = await updatePaginationPreference(newValue);
+                            if (success) {
+                              showSuccess('Preferencia de paginación actualizada');
+                            }
+                          }
+                        }}
+                        placeholder="Seleccionar cantidad"
+                        searchable={false}
+                        className="w-full"
+                        useThemeColors={true}
+                      />
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
 
             {/* Notificaciones de Actividad - Solo para SUPERADMIN */}
             {status === 'authenticated' && isSuperAdmin && (

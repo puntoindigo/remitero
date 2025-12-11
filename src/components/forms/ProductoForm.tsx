@@ -4,9 +4,12 @@ import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { X, Check, Upload, Image as ImageIcon, Trash2, Pencil } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
 import FilterableSelect from "../common/FilterableSelect";
 import { ProductForm as ProductFormData, productSchema } from "@/lib/validations";
 import { FormModal } from "@/components/common/FormModal";
+import { ConfirmationModal } from "@/components/common/ConfirmationModal";
+import { productKeys } from "@/hooks/queries/useProductosQuery";
 
 interface Category {
   id: string;
@@ -28,6 +31,7 @@ interface ProductoFormProps {
     imageUrl?: string;
   } | null;
   categories: Category[];
+  companyId?: string | null;
 }
 
 export function ProductoForm({
@@ -36,8 +40,10 @@ export function ProductoForm({
   onSubmit,
   isSubmitting,
   editingProduct,
-  categories
+  categories,
+  companyId
 }: ProductoFormProps) {
+  const queryClient = useQueryClient();
   const {
     register,
     handleSubmit,
@@ -71,7 +77,12 @@ export function ProductoForm({
   // Estado para la imagen
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [showMultipleProductsModal, setShowMultipleProductsModal] = useState(false);
+  const [pendingMultipleFiles, setPendingMultipleFiles] = useState<File[]>([]);
+  const [isMultipleProductsMode, setIsMultipleProductsMode] = useState(false);
+  const [parsedProducts, setParsedProducts] = useState<Array<{ name: string; price: number; fileName: string }>>([]);
 
   // Función para formatear número con separadores de miles
   const formatPriceForDisplay = (value: string): string => {
@@ -222,53 +233,302 @@ export function ProductoForm({
       setPriceRaw("");
       setImagePreview(null);
       setImageFile(null);
+      setImageFiles([]);
+      setIsMultipleProductsMode(false);
+      setPendingMultipleFiles([]);
+      setParsedProducts([]);
     }
   }, [editingProduct, setValue, reset]);
 
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = e.target.files;
+    console.log('📁 handleImageChange llamado - Archivos recibidos:', files?.length || 0);
+    
+    if (!files || files.length === 0) {
+      console.log('⚠️ No hay archivos');
+      return;
+    }
 
-    // Validar tipo de archivo - incluir WebP explícitamente
+    console.log('📋 Archivos detectados:', files.length);
+    for (let i = 0; i < files.length; i++) {
+      console.log(`  - Archivo ${i + 1}: ${files[i].name}`);
+    }
+
     const validImageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
     const validExtensions = ['.jpg', '.jpeg', '.png', '.webp', '.gif'];
-    const fileName = file.name.toLowerCase();
-    const fileExtension = fileName.substring(fileName.lastIndexOf('.'));
-    
-    // Validar por tipo MIME y por extensión (algunos navegadores no detectan bien WebP)
-    const isValidType = validImageTypes.includes(file.type) || 
-                        validExtensions.includes(fileExtension) ||
-                        file.type === ''; // Permitir si el tipo está vacío pero la extensión es válida
-    
-    if (!isValidType) {
-      alert('Solo se permiten imágenes (JPEG, PNG, WebP, GIF). Tipo detectado: ' + (file.type || 'desconocido'));
-      return;
-    }
-
-    // Validar tamaño (máximo 5MB)
     const maxSize = 5 * 1024 * 1024; // 5MB
-    if (file.size > maxSize) {
-      alert('El archivo no puede ser mayor a 5MB');
+
+    // Validar todos los archivos
+    const validFiles: File[] = [];
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const fileName = file.name.toLowerCase();
+      const fileExtension = fileName.substring(fileName.lastIndexOf('.'));
+      
+      const isValidType = validImageTypes.includes(file.type) || 
+                          validExtensions.includes(fileExtension) ||
+                          file.type === '';
+      
+      if (!isValidType) {
+        alert(`El archivo "${file.name}" no es una imagen válida (JPEG, PNG, WebP, GIF)`);
+        continue;
+      }
+
+      if (file.size > maxSize) {
+        alert(`El archivo "${file.name}" es mayor a 5MB`);
+        continue;
+      }
+
+      validFiles.push(file);
+    }
+
+    console.log('✅ Archivos válidos después de validación:', validFiles.length);
+    
+    if (validFiles.length === 0) {
+      console.log('⚠️ No hay archivos válidos después de la validación');
       return;
     }
 
-    // Mostrar vista previa
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setImagePreview(reader.result as string);
-    };
-    reader.readAsDataURL(file);
-    setImageFile(file);
+    // Si hay múltiples archivos y no estamos editando, cambiar a modo múltiples productos
+    if (validFiles.length > 1 && !editingProduct) {
+      console.log('🔄 ACTIVANDO MODO MÚLTIPLES PRODUCTOS con', validFiles.length, 'archivos');
+      console.log('📦 Archivos:', validFiles.map(f => f.name));
+      
+      // Limpiar vista previa de imagen única si existe
+      setImagePreview(null);
+      setImageFile(null);
+      setImageFiles([]);
+      
+      setPendingMultipleFiles(validFiles);
+      setIsMultipleProductsMode(true);
+      
+      // Parsear todos los archivos para mostrar preview
+      const parsed = validFiles.map(file => {
+        const { name, price } = parseFileName(file.name);
+        return { name, price, fileName: file.name };
+      });
+      setParsedProducts(parsed);
+      
+      // Limpiar campos que no se usan en modo múltiples
+      setValue("name", "");
+      setValue("price", 0);
+      setPriceDisplay("");
+      setPriceRaw("");
+      
+      // Limpiar el input
+      if (e.target) {
+        e.target.value = '';
+      }
+      return;
+    }
+    
+    // Si es un solo archivo, salir del modo múltiples y usar comportamiento normal
+    if (validFiles.length === 1) {
+      setIsMultipleProductsMode(false);
+      setPendingMultipleFiles([]);
+      setParsedProducts([]);
+      
+      // Comportamiento normal para un solo archivo
+      const file = validFiles[0];
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+      setImageFile(file);
+      setImageFiles([file]);
+    }
   };
 
   const handleRemoveImage = () => {
     setImagePreview(null);
     setImageFile(null);
+    setImageFiles([]);
     setValue("imageUrl", "");
+    // Si estaba en modo múltiples, salir de ese modo
+    if (isMultipleProductsMode) {
+      setIsMultipleProductsMode(false);
+      setPendingMultipleFiles([]);
+      setParsedProducts([]);
+    }
+  };
+
+  // Función para parsear nombre y precio desde el nombre del archivo
+  const parseFileName = (fileName: string): { name: string; price: number } => {
+    // Remover la extensión del archivo
+    const nameWithoutExt = fileName.substring(0, fileName.lastIndexOf('.'));
+    
+    // Hacer split por guion bajo
+    const parts = nameWithoutExt.split('_');
+    
+    if (parts.length >= 2) {
+      // Si hay al menos dos partes, la primera es el nombre y la segunda es el precio
+      const name = parts[0].trim();
+      const priceStr = parts[1].trim();
+      const price = parseFloat(priceStr.replace(',', '.')) || 0;
+      return { name, price };
+    } else {
+      // Si no hay guion bajo, usar el nombre completo como nombre y precio 0
+      return { name: nameWithoutExt.trim(), price: 0 };
+    }
+  };
+
+  // Confirmar creación de múltiples productos (ahora se llama desde el submit del formulario)
+  const handleCreateMultipleProducts = async () => {
+    console.log('🔄 handleCreateMultipleProducts iniciado', { 
+      pendingFiles: pendingMultipleFiles.length,
+      companyId,
+      isMultipleProductsMode 
+    });
+    
+    if (pendingMultipleFiles.length === 0) {
+      console.log('⚠️ No hay archivos pendientes');
+      return;
+    }
+
+    if (!companyId) {
+      console.error('❌ CompanyId no disponible');
+      alert('No se puede crear productos: CompanyId no disponible');
+      setPendingMultipleFiles([]);
+      return;
+    }
+
+    setIsUploadingImage(true);
+    try {
+      const categoryId = watch("categoryId");
+      const stock = watch("stock") || "IN_STOCK";
+      const description = watch("description") || "";
+      
+      console.log('📋 Datos del formulario:', { categoryId, stock, description });
+
+      if (!categoryId) {
+        alert('Debes seleccionar una categoría para crear los productos');
+        setIsUploadingImage(false);
+        return;
+      }
+
+      let successCount = 0;
+      let errorCount = 0;
+      const errors: string[] = [];
+
+      // Procesar cada archivo
+      for (const file of pendingMultipleFiles) {
+        try {
+          const { name: productName, price } = parseFileName(file.name);
+
+          // Subir la imagen
+          const formData = new FormData();
+          formData.append('file', file);
+
+          const uploadResponse = await fetch('/api/products/upload-image', {
+            method: 'POST',
+            body: formData,
+          });
+
+          if (!uploadResponse.ok) {
+            const errorData = await uploadResponse.json();
+            throw new Error(errorData.message || `Error al subir la imagen ${file.name}`);
+          }
+
+          const { imageUrl } = await uploadResponse.json();
+
+          // Crear el producto directamente llamando a la API
+          const productResponse = await fetch('/api/products', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              name: productName,
+              description,
+              price,
+              stock,
+              categoryId,
+              companyId,
+              imageUrl
+            }),
+          });
+
+          if (!productResponse.ok) {
+            const errorData = await productResponse.json();
+            throw new Error(errorData.message || `Error al crear el producto ${productName}`);
+          }
+
+          successCount++;
+        } catch (error: any) {
+          errorCount++;
+          errors.push(`${file.name}: ${error.message}`);
+          console.error(`Error al procesar ${file.name}:`, error);
+        }
+      }
+
+      // Mostrar resultado
+      if (successCount > 0) {
+        if (errorCount > 0) {
+          alert(`Se crearon ${successCount} producto(s) correctamente. ${errorCount} producto(s) fallaron:\n${errors.join('\n')}`);
+        } else {
+          alert(`Se crearon ${successCount} producto(s) correctamente.`);
+        }
+      } else {
+        alert(`Error al crear los productos:\n${errors.join('\n')}`);
+      }
+
+      // Limpiar estado y cerrar formulario solo si hubo al menos un éxito
+      if (successCount > 0) {
+        setPendingMultipleFiles([]);
+        setIsMultipleProductsMode(false);
+        setParsedProducts([]);
+        reset();
+        setPriceDisplay("");
+        setImagePreview(null);
+        setImageFile(null);
+        setImageFiles([]);
+        // Cerrar el formulario después de crear los productos
+        onClose();
+      } else {
+        setPendingMultipleFiles([]);
+      }
+
+      // Invalidar queries para refrescar la lista
+      if (successCount > 0) {
+        await queryClient.invalidateQueries({ 
+          queryKey: productKeys.lists(),
+          refetchType: 'active'
+        });
+      }
+    } catch (error: any) {
+      console.error('Error al procesar múltiples productos:', error);
+      alert(error.message || 'Error al crear los productos');
+      setPendingMultipleFiles([]);
+    } finally {
+      setIsUploadingImage(false);
+    }
+  };
+
+  // Cancelar creación de múltiples productos
+  const handleCancelMultipleProducts = () => {
+    setShowMultipleProductsModal(false);
+    setPendingMultipleFiles([]);
+    setIsMultipleProductsMode(false);
+    setParsedProducts([]);
+    // Limpiar el input de archivo
+    const inputs = document.querySelectorAll('input[type="file"]');
+    inputs.forEach((input: any) => {
+      if (input) input.value = '';
+    });
   };
 
   const handleFormSubmit = async (data: ProductFormData) => {
+    console.log('🚀 handleFormSubmit llamado', { isMultipleProductsMode, pendingMultipleFiles: pendingMultipleFiles.length, data });
+    
     try {
+      // Si estamos en modo múltiples productos, usar esa lógica
+      if (isMultipleProductsMode && pendingMultipleFiles.length > 0) {
+        console.log('📦 Ejecutando handleCreateMultipleProducts');
+        await handleCreateMultipleProducts();
+        return;
+      }
+      
       // Si hay una imagen nueva, subirla primero
       if (imageFile) {
         setIsUploadingImage(true);
@@ -311,6 +571,7 @@ export function ProductoForm({
       setPriceDisplay("");
       setImagePreview(null);
       setImageFile(null);
+      setImageFiles([]);
     } catch (error: any) {
       console.error('Error al procesar formulario:', error);
       alert(error.message || 'Error al guardar el producto');
@@ -342,9 +603,16 @@ export function ProductoForm({
       isOpen={isOpen}
       onClose={onClose}
       title={editingProduct ? "Editar Producto" : "Nuevo Producto"}
-      onSubmit={handleSubmit(handleFormSubmit)}
+      onSubmit={handleSubmit(handleFormSubmit, (errors) => {
+        console.log('❌ Errores de validación:', errors);
+        // En modo múltiples, bypass la validación y ejecutar directamente
+        if (isMultipleProductsMode && pendingMultipleFiles.length > 0) {
+          console.log('🔄 Bypass validación - ejecutando handleFormSubmit directamente');
+          handleFormSubmit({} as ProductFormData);
+        }
+      })}
       isSubmitting={isSubmitting || isUploadingImage}
-      submitText={editingProduct ? "Actualizar" : "Guardar"}
+      submitText={editingProduct ? "Actualizar" : (isMultipleProductsMode ? `Crear ${pendingMultipleFiles.length} productos` : "Guardar")}
       modalId={editingProduct ? `producto-${editingProduct.id}` : "nuevo-producto"}
       modalComponent="ProductoForm"
       modalType="form"
@@ -363,9 +631,98 @@ export function ProductoForm({
           display: 'block',
           color: '#6b7280'
         }}>
-          Imagen del producto
+          {isMultipleProductsMode ? `Imágenes de productos (${pendingMultipleFiles.length} archivos)` : 'Imagen del producto'}
         </label>
-        {imagePreview ? (
+        
+        {/* Mensaje cuando hay múltiples productos */}
+        {isMultipleProductsMode && (
+          <div style={{
+            padding: '12px',
+            backgroundColor: '#eff6ff',
+            border: '1px solid #3b82f6',
+            borderRadius: '6px',
+            marginBottom: '12px',
+            fontSize: '14px',
+            color: '#1e40af'
+          }}>
+            <strong>Modo: Creación múltiple</strong>
+            <p style={{ margin: '4px 0 0 0', fontSize: '13px' }}>
+              Se crearán {pendingMultipleFiles.length} productos. El nombre y precio se extraerán del nombre de cada archivo (formato: NOMBRE_PRECIO).
+            </p>
+            <button
+              type="button"
+              onClick={handleRemoveImage}
+              style={{
+                marginTop: '8px',
+                padding: '6px 12px',
+                backgroundColor: '#ef4444',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontSize: '12px',
+                fontWeight: 500
+              }}
+            >
+              Limpiar archivos
+            </button>
+          </div>
+        )}
+        
+        {/* Mostrar múltiples imágenes en modo múltiples - NO mostrar vista previa de una sola imagen */}
+        {isMultipleProductsMode && pendingMultipleFiles.length > 0 && (
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))',
+            gap: '12px',
+            marginTop: '8px'
+          }}>
+            {pendingMultipleFiles.map((file, index) => {
+              const preview = URL.createObjectURL(file);
+              // Limpiar URL cuando el componente se desmonte
+              return (
+                <div key={index} style={{
+                  position: 'relative',
+                  border: '2px solid #d1d5db',
+                  borderRadius: '6px',
+                  padding: '8px',
+                  backgroundColor: '#f9fafb',
+                  aspectRatio: '1'
+                }}>
+                  <img
+                    src={preview}
+                    alt={file.name}
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'contain',
+                      borderRadius: '4px'
+                    }}
+                    onLoad={() => {
+                      // El navegador manejará la limpieza automáticamente
+                    }}
+                  />
+                  <div style={{
+                    position: 'absolute',
+                    top: '4px',
+                    right: '4px',
+                    backgroundColor: 'rgba(0,0,0,0.7)',
+                    color: 'white',
+                    fontSize: '10px',
+                    padding: '2px 6px',
+                    borderRadius: '4px',
+                    fontWeight: 500
+                  }}>
+                    {index + 1}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+        
+        {/* Vista previa de una sola imagen - solo si NO estamos en modo múltiples */}
+        {!isMultipleProductsMode && imagePreview && (
           <div style={{ position: 'relative', width: '100%' }}>
             <div
               style={{
@@ -467,10 +824,14 @@ export function ProductoForm({
                 onChange={handleImageChange}
                 style={{ display: 'none' }}
                 disabled={isUploadingImage}
+                multiple={!editingProduct}
               />
             </div>
           </div>
-        ) : (
+        )}
+        
+        {/* Área de upload cuando no hay imágenes */}
+        {!isMultipleProductsMode && !imagePreview && (
           <div
             style={{
               border: '2px dashed #d1d5db',
@@ -503,20 +864,34 @@ export function ProductoForm({
               e.preventDefault();
               e.currentTarget.style.borderColor = '#d1d5db';
               e.currentTarget.style.backgroundColor = '#f9fafb';
-              const file = e.dataTransfer.files[0];
-              if (file) {
-                // Validar que sea una imagen (incluyendo WebP)
+              
+              // Obtener TODOS los archivos, no solo el primero
+              const files = Array.from(e.dataTransfer.files);
+              if (files.length > 0) {
+                // Validar que sean imágenes (incluyendo WebP)
                 const validImageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
                 const validExtensions = ['.jpg', '.jpeg', '.png', '.webp', '.gif'];
-                const fileName = file.name.toLowerCase();
-                const fileExtension = fileName.substring(fileName.lastIndexOf('.'));
-                const isValidImage = file.type.startsWith('image/') || 
-                                     validImageTypes.includes(file.type) ||
-                                     validExtensions.includes(fileExtension);
                 
-                if (isValidImage) {
+                const validFiles: File[] = [];
+                for (const file of files) {
+                  const fileName = file.name.toLowerCase();
+                  const fileExtension = fileName.substring(fileName.lastIndexOf('.'));
+                  const isValidImage = file.type.startsWith('image/') || 
+                                       validImageTypes.includes(file.type) ||
+                                       validExtensions.includes(fileExtension);
+                  
+                  if (isValidImage) {
+                    validFiles.push(file);
+                  }
+                }
+                
+                if (validFiles.length > 0) {
+                  // Crear un objeto FileList simulado
+                  const dataTransfer = new DataTransfer();
+                  validFiles.forEach(file => dataTransfer.items.add(file));
+                  
                   const fakeEvent = {
-                    target: { files: [file] }
+                    target: { files: dataTransfer.files }
                   } as any;
                   handleImageChange(fakeEvent);
                 } else {
@@ -529,6 +904,8 @@ export function ProductoForm({
               type="file"
               accept="image/jpeg,image/jpg,image/png,image/webp,image/gif,.jpg,.jpeg,.png,.webp,.gif"
               onChange={handleImageChange}
+              multiple={!editingProduct}
+              id="product-image-input"
               style={{
                 position: 'absolute',
                 inset: 0,
@@ -560,7 +937,7 @@ export function ProductoForm({
                 fontSize: '11px', 
                 color: '#9ca3af'
               }}>
-                JPEG, PNG, WebP, GIF (máx. 5MB)
+                {editingProduct ? 'JPEG, PNG, WebP, GIF (máx. 5MB)' : 'JPEG, PNG, WebP, GIF (máx. 5MB) - Puedes subir múltiples imágenes'}
               </p>
             </div>
           </div>
@@ -586,102 +963,151 @@ export function ProductoForm({
         />
       </div>
 
-      <div className="form-row" style={{ display: 'flex', justifyContent: 'space-between', gap: '16px' }}>
-        <div className="form-group" style={{ flex: 1 }}>
-          <label className="form-label-large">
-            Nombre *
-            {errors?.name && (
-              <span style={{ color: '#ef4444', marginLeft: '8px', fontSize: '0.875rem', fontWeight: 'normal' }}>
-                {errors?.name.message}
-              </span>
-            )}
+      {/* Preview de productos cuando hay múltiples */}
+      {isMultipleProductsMode && parsedProducts.length > 0 && (
+        <div className="form-group">
+          <label className="form-label-large" style={{ marginBottom: '8px' }}>
+            Productos que se crearán ({parsedProducts.length})
           </label>
-          <input
-            {...register("name")}
-            type="text"
-            placeholder="Nombre"
-            className="form-input-standard"
-            onKeyDown={handleKeyDown}
-          />
-        </div>
-
-        <div className="form-group" style={{ flex: 1 }}>
-          <label className="form-label-large">
-            Precio *
-            {errors?.price && (
-              <span style={{ color: '#ef4444', marginLeft: '8px', fontSize: '0.875rem', fontWeight: 'normal' }}>
-                {errors.price.message}
-              </span>
-            )}
-          </label>
-          <div className="price-input-standard">
-            <span className="price-symbol-standard">$</span>
-            <input
-              type="text"
-              value={priceDisplay}
-              onChange={handlePriceChange}
-              onBlur={handlePriceBlur}
-              onKeyDown={handleKeyDown}
-              placeholder="Precio"
-              className="form-input-standard"
-              inputMode="decimal"
-            />
+          <div style={{
+            border: '1px solid #e5e7eb',
+            borderRadius: '6px',
+            maxHeight: '200px',
+            overflowY: 'auto',
+            backgroundColor: '#f9fafb'
+          }}>
+            {parsedProducts.map((product, index) => (
+              <div key={index} style={{
+                padding: '10px 12px',
+                borderBottom: index < parsedProducts.length - 1 ? '1px solid #e5e7eb' : 'none',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center'
+              }}>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontWeight: 500, color: '#111827', fontSize: '14px' }}>
+                    {product.name || product.fileName}
+                  </div>
+                  <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '2px' }}>
+                    {product.fileName}
+                  </div>
+                </div>
+                <div style={{ 
+                  fontSize: '14px', 
+                  fontWeight: 600, 
+                  color: '#059669',
+                  marginLeft: '12px'
+                }}>
+                  ${product.price.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
-      </div>
+      )}
 
-      {/* Stock primero */}
-      <div style={{ 
-        display: 'flex', 
-        alignItems: 'center', 
-        gap: '0.5rem',
-        marginTop: '0.5rem'
-      }}>
-        <span style={{ fontSize: '14px', fontWeight: 500 }}>Stock:</span>
-        <button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-            toggleStock();
-          }}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: '24px',
-            height: '24px',
-            border: 'none',
-            background: 'transparent',
-            cursor: 'pointer',
-            padding: 0,
-          }}
-          title="Modificar stock"
-        >
-          {isInStock ? (
-            <Check className="h-5 w-5" style={{ color: '#16a34a' }} />
-          ) : (
-            <X className="h-5 w-5" style={{ color: '#ef4444' }} />
-          )}
-        </button>
-      </div>
+      {/* Campos normales solo si NO estamos en modo múltiples */}
+      {!isMultipleProductsMode && (
+        <>
+          <div className="form-row" style={{ display: 'flex', justifyContent: 'space-between', gap: '16px' }}>
+            <div className="form-group" style={{ flex: 1 }}>
+              <label className="form-label-large">
+                Nombre *
+                {errors?.name && (
+                  <span style={{ color: '#ef4444', marginLeft: '8px', fontSize: '0.875rem', fontWeight: 'normal' }}>
+                    {errors?.name.message}
+                  </span>
+                )}
+              </label>
+              <input
+                {...register("name")}
+                type="text"
+                placeholder="Nombre"
+                className="form-input-standard"
+                onKeyDown={handleKeyDown}
+              />
+            </div>
 
-      <div className="form-group">
-        <label className="form-label-large">
-          Descripción
-          {errors?.description && (
-            <span style={{ color: '#ef4444', marginLeft: '8px', fontSize: '0.875rem', fontWeight: 'normal' }}>
-              {errors.description.message}
-            </span>
-          )}
-        </label>
-        <textarea
-          {...register("description")}
-          placeholder="Descripción (opcional)"
-          rows={3}
-          className="form-textarea-standard"
-          onKeyDown={handleKeyDown}
-        />
-      </div>
+            <div className="form-group" style={{ flex: 1 }}>
+              <label className="form-label-large">
+                Precio *
+                {errors?.price && (
+                  <span style={{ color: '#ef4444', marginLeft: '8px', fontSize: '0.875rem', fontWeight: 'normal' }}>
+                    {errors.price.message}
+                  </span>
+                )}
+              </label>
+              <div className="price-input-standard">
+                <span className="price-symbol-standard">$</span>
+                <input
+                  type="text"
+                  value={priceDisplay}
+                  onChange={handlePriceChange}
+                  onBlur={handlePriceBlur}
+                  onKeyDown={handleKeyDown}
+                  placeholder="Precio"
+                  className="form-input-standard"
+                  inputMode="decimal"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Stock primero */}
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '0.5rem',
+            marginTop: '0.5rem'
+          }}>
+            <span style={{ fontSize: '14px', fontWeight: 500 }}>Stock:</span>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleStock();
+              }}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '24px',
+                height: '24px',
+                border: 'none',
+                background: 'transparent',
+                cursor: 'pointer',
+                padding: 0,
+              }}
+              title="Modificar stock"
+            >
+              {isInStock ? (
+                <Check className="h-5 w-5" style={{ color: '#16a34a' }} />
+              ) : (
+                <X className="h-5 w-5" style={{ color: '#ef4444' }} />
+              )}
+            </button>
+          </div>
+
+          <div className="form-group">
+            <label className="form-label-large">
+              Descripción
+              {errors?.description && (
+                <span style={{ color: '#ef4444', marginLeft: '8px', fontSize: '0.875rem', fontWeight: 'normal' }}>
+                  {errors.description.message}
+                </span>
+              )}
+            </label>
+            <textarea
+              {...register("description")}
+              placeholder="Descripción (opcional)"
+              rows={3}
+              className="form-textarea-standard"
+              onKeyDown={handleKeyDown}
+            />
+          </div>
+        </>
+      )}
+
     </FormModal>
   );
 }

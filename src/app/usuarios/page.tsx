@@ -35,11 +35,13 @@ import { ShortcutText } from "@/components/common/ShortcutText";
 import { SearchInput } from "@/components/common/SearchInput";
 import { useColorTheme } from "@/contexts/ColorThemeContext";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import { usePaginationPreference } from "@/hooks/usePaginationPreference";
 
 function UsuariosContent() {
   const currentUser = useCurrentUserSimple();
   const { colors } = useColorTheme();
   const isMobile = useIsMobile();
+  const { itemsPerPage } = usePaginationPreference();
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -175,7 +177,7 @@ function UsuariosContent() {
     data: usuarios || [],
     loading: isLoading,
     searchFields: ['name', 'email', 'role'],
-    itemsPerPage: 10,
+    itemsPerPage: itemsPerPage,
     onEdit: handleEdit,
     onDelete: handleDeleteUsuario,
     onNew: handleNew,

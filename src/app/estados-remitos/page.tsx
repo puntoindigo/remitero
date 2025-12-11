@@ -27,11 +27,13 @@ import { ShortcutText } from "@/components/common/ShortcutText";
 import { SearchInput } from "@/components/common/SearchInput";
 import { useColorTheme } from "@/contexts/ColorThemeContext";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import { usePaginationPreference } from "@/hooks/usePaginationPreference";
 
 function EstadosRemitosContent() {
   const currentUser = useCurrentUserSimple();
   const { colors } = useColorTheme();
   const isMobile = useIsMobile();
+  const { itemsPerPage } = usePaginationPreference();
 
   // Prevenir errores de client-side exception
   if (!currentUser) {
@@ -144,7 +146,7 @@ function EstadosRemitosContent() {
     data: estados || [],
     loading: estadosLoading,
     searchFields: ['name', 'description'],
-    itemsPerPage: 10,
+    itemsPerPage: itemsPerPage,
     onEdit: handleEditEstado,
     onDelete: handleDeleteEstado,
     onNew: handleNewEstado,
