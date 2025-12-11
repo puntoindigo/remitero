@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import { createPortal } from "react-dom";
 import { ChevronDown, X, Search } from "lucide-react";
 import { useColorTheme } from "@/contexts/ColorThemeContext";
@@ -70,15 +70,45 @@ export default function FilterableSelect({
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0, width: 0 });
   const rafRef = useRef<number | null>(null);
   
+  // Calcular ancho mínimo basado en el contenido más largo (memoizado)
+  const minDropdownWidth = useMemo(() => {
+    if (typeof window === 'undefined' || !options || options.length === 0) return 200;
+    
+    // Crear un elemento temporal para medir el texto
+    const tempElement = document.createElement('span');
+    tempElement.style.visibility = 'hidden';
+    tempElement.style.position = 'absolute';
+    tempElement.style.whiteSpace = 'nowrap';
+    tempElement.style.fontSize = '14px';
+    tempElement.style.padding = '0 12px';
+    tempElement.style.fontFamily = 'inherit';
+    document.body.appendChild(tempElement);
+    
+    let maxWidth = 0;
+    options.forEach(option => {
+      tempElement.textContent = option?.name || '';
+      const width = tempElement.offsetWidth;
+      if (width > maxWidth) maxWidth = width;
+    });
+    
+    document.body.removeChild(tempElement);
+    // Agregar padding y espacio para iconos (aprox 60px)
+    return Math.max(maxWidth + 60, 200);
+  }, [options]);
+  
   const updateDropdownPosition = () => {
     if (triggerRef.current) {
       const rect = triggerRef.current.getBoundingClientRect();
+      const triggerWidth = rect.width;
+      // Usar el mayor entre el ancho del trigger y el ancho mínimo calculado
+      const dropdownWidth = Math.max(triggerWidth, minDropdownWidth);
+      
       // getBoundingClientRect devuelve coordenadas relativas al viewport
       // Como usamos position: fixed, estas coordenadas son perfectas
       setDropdownPosition({
         top: rect.bottom + 4, // 4px de espacio entre trigger y dropdown
         left: rect.left,
-        width: rect.width
+        width: dropdownWidth
       });
     }
   };
