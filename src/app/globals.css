@@ -516,6 +516,9 @@ form, .form-section {
   cursor: pointer;
   transition: background-color 0.15s ease;
   font-weight: normal;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .vercel-select-option:hover {

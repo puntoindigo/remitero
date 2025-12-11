@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import { createPortal } from "react-dom";
 import { ChevronDown, X, Search } from "lucide-react";
 import { useColorTheme } from "@/contexts/ColorThemeContext";
@@ -70,15 +70,62 @@ export default function FilterableSelect({
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0, width: 0 });
   const rafRef = useRef<number | null>(null);
   
+  // Calcular ancho mínimo basado en el contenido más largo (memoizado)
+  const minDropdownWidth = useMemo(() => {
+    if (typeof window === 'undefined' || !options || options.length === 0) return 250;
+    
+    // Crear un elemento temporal para medir el texto
+    const tempElement = document.createElement('span');
+    tempElement.style.visibility = 'hidden';
+    tempElement.style.position = 'absolute';
+    tempElement.style.whiteSpace = 'nowrap';
+    tempElement.style.fontSize = '14px';
+    tempElement.style.padding = '0 12px';
+    tempElement.style.fontFamily = 'inherit';
+    tempElement.style.fontWeight = '400';
+    document.body.appendChild(tempElement);
+    
+    let maxWidth = 0;
+    options.forEach(option => {
+      tempElement.textContent = option?.name || '';
+      const width = tempElement.offsetWidth;
+      if (width > maxWidth) maxWidth = width;
+    });
+    
+    document.body.removeChild(tempElement);
+    // Agregar padding lateral (24px cada lado = 48px) y espacio para iconos/acciones (aprox 80px)
+    // Total: padding + contenido + iconos
+    const calculatedWidth = maxWidth + 48 + 80;
+    // Asegurar un mínimo razonable pero permitir que crezca según el contenido
+    return Math.max(calculatedWidth, 250);
+  }, [options]);
+  
   const updateDropdownPosition = () => {
     if (triggerRef.current) {
       const rect = triggerRef.current.getBoundingClientRect();
+      const triggerWidth = rect.width;
+      
+      // Calcular el ancho ideal del dropdown basado en el contenido
+      // Usar el mayor entre el ancho del trigger y el ancho mínimo calculado
+      let idealWidth = Math.max(triggerWidth, minDropdownWidth);
+      
+      // Asegurarse de que el dropdown no se salga de la pantalla
+      // Dejar al menos 16px de margen en cada lado
+      const viewportWidth = window.innerWidth;
+      const maxAllowedWidth = viewportWidth - rect.left - 16;
+      
+      // El ancho final será el menor entre el ideal y el máximo permitido
+      const dropdownWidth = Math.min(idealWidth, maxAllowedWidth);
+      
+      // Asegurar un ancho mínimo razonable
+      const finalWidth = Math.max(dropdownWidth, 250);
+      
       // getBoundingClientRect devuelve coordenadas relativas al viewport
       // Como usamos position: fixed, estas coordenadas son perfectas
       setDropdownPosition({
         top: rect.bottom + 4, // 4px de espacio entre trigger y dropdown
         left: rect.left,
-        width: rect.width
+        width: finalWidth
       });
     }
   };
@@ -257,19 +304,28 @@ export default function FilterableSelect({
                   paddingLeft: '8px'
                 } : {}}
               >
-                {showColors && option.color && (
-                  <span 
-                    style={{ 
-                      display: 'inline-block',
-                      width: '10px',
-                      height: '10px',
-                      borderRadius: '50%',
-                      backgroundColor: option.color,
-                      marginRight: '8px'
-                    }}
-                  />
-                )}
-                {option?.name}
+                <span style={{ 
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  flex: 1,
+                  minWidth: 0
+                }}>
+                  {showColors && option.color && (
+                    <span 
+                      style={{ 
+                        display: 'inline-block',
+                        width: '10px',
+                        height: '10px',
+                        borderRadius: '50%',
+                        backgroundColor: option.color,
+                        marginRight: '8px',
+                        flexShrink: 0
+                      }}
+                    />
+                  )}
+                  {option?.name}
+                </span>
               </button>
             ))
           )}

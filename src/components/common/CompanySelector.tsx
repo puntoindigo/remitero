@@ -36,7 +36,7 @@ export function CompanySelector({
         placeholder="Seleccionar empresa"
         className=""
         useThemeColors={true}
-        style={{ width: 'fit-content', minWidth: '150px', maxWidth: '250px' }}
+        style={{ width: 'fit-content', minWidth: '250px', maxWidth: '600px' }}
       />
     </div>
   );
