@@ -468,7 +468,6 @@ function ProductosContent() {
                   target.style.opacity = '0.5';
                 }}
                 onLoad={() => {
-                  console.log('Image loaded successfully:', imageUrl);
                 }}
                 loading="lazy"
                 crossOrigin="anonymous"
