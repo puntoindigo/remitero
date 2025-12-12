@@ -638,13 +638,15 @@ export default function PublicCatalogPage({ params }: { params: Promise<{ id: st
                           <div className="public-catalog-card-price">
                             ${product.price.toLocaleString('es-AR')}
                           </div>
-                          <button
-                            className="public-catalog-buy-btn"
-                            onClick={() => handleBuyClick(product)}
-                          >
-                            <ShoppingCart className="icon" />
-                            Comprar
-                          </button>
+                          {catalog?.showBuyButton !== false && (
+                            <button
+                              className="public-catalog-buy-btn"
+                              onClick={() => handleBuyClick(product)}
+                            >
+                              <ShoppingCart className="icon" />
+                              Comprar
+                            </button>
+                          )}
                         </>
                       )}
                     </div>
