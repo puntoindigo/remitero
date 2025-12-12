@@ -344,7 +344,17 @@ export default function PublicCatalogPage({ params }: { params: Promise<{ id: st
 
               <div className="edit-sidebar-section">
                 <h3 className="edit-sidebar-title">Vista</h3>
-                <label className="edit-sidebar-item" style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                <label 
+                  className="edit-sidebar-item" 
+                  style={{ 
+                    cursor: "pointer", 
+                    display: "flex", 
+                    alignItems: "center", 
+                    gap: "0.75rem",
+                    margin: 0,
+                    padding: "0.75rem 1rem"
+                  }}
+                >
                   <input
                     type="checkbox"
                     checked={catalog?.showCategoryTag !== false}
@@ -363,12 +373,28 @@ export default function PublicCatalogPage({ params }: { params: Promise<{ id: st
                         }
                       }
                     }}
-                    style={{ cursor: "pointer" }}
+                    style={{ 
+                      cursor: "pointer",
+                      width: "18px",
+                      height: "18px",
+                      margin: 0,
+                      flexShrink: 0
+                    }}
                   />
-                  <Tag className="icon" />
+                  <Tag className="icon" style={{ width: "20px", height: "20px", flexShrink: 0 }} />
                   <span>Mostrar Categoría</span>
                 </label>
-                <label className="edit-sidebar-item" style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                <label 
+                  className="edit-sidebar-item" 
+                  style={{ 
+                    cursor: "pointer", 
+                    display: "flex", 
+                    alignItems: "center", 
+                    gap: "0.75rem",
+                    margin: 0,
+                    padding: "0.75rem 1rem"
+                  }}
+                >
                   <input
                     type="checkbox"
                     checked={catalog?.showBuyButton !== false}
@@ -387,9 +413,15 @@ export default function PublicCatalogPage({ params }: { params: Promise<{ id: st
                         }
                       }
                     }}
-                    style={{ cursor: "pointer" }}
+                    style={{ 
+                      cursor: "pointer",
+                      width: "18px",
+                      height: "18px",
+                      margin: 0,
+                      flexShrink: 0
+                    }}
                   />
-                  <ShoppingCart className="icon" />
+                  <ShoppingCart className="icon" style={{ width: "20px", height: "20px", flexShrink: 0 }} />
                   <span>Mostrar Comprar</span>
                 </label>
                 <button
