@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Lock, Plus, Edit2, Trash2, Save, X, User, Settings, FileText, Grid, Menu, X as CloseIcon, Share2, Copy, MessageCircle } from "lucide-react";
+import { Lock, Plus, Edit2, Trash2, Save, X, User, Settings, FileText, Grid, Menu, X as CloseIcon, Share2, Copy, MessageCircle, Filter, ShoppingCart, Tag } from "lucide-react";
 import { ServiceCard } from "@/components/web2/ServiceCard";
 import { CardModal } from "@/components/web2/CardModal";
 import { CatalogModule } from "@/components/web2/CatalogModule";
@@ -9,10 +9,14 @@ import { UserProfile } from "@/components/web2/UserProfile";
 import { ToastContainer, showToast } from "@/components/web2/Toast";
 import { ConfirmDialog } from "@/components/web2/ConfirmDialog";
 import { ResizeModal } from "@/components/web2/ResizeModal";
-import type { ServiceCardData, CardSize } from "@/types/web2";
+import type { ServiceCardData, CardSize, CatalogData } from "@/types/web2";
 
 export default function Web2Page() {
   const [cards, setCards] = useState<ServiceCardData[]>([]);
+  const [catalogs, setCatalogs] = useState<CatalogData[]>([]);
+  const [selectedCatalogId, setSelectedCatalogId] = useState<string>("");
+  const [showBuyButton, setShowBuyButton] = useState<boolean>(true);
+  const [showCategoryTag, setShowCategoryTag] = useState<boolean>(true);
   const [editingCard, setEditingCard] = useState<ServiceCardData | null>(null);
   const [isCardModalOpen, setIsCardModalOpen] = useState(false);
   const [isCatalogOpen, setIsCatalogOpen] = useState(false);
@@ -179,6 +183,18 @@ export default function Web2Page() {
         overlayIntensity: 0.6
       }
     ];
+
+  // Cargar catálogos desde localStorage
+  useEffect(() => {
+    const savedCatalogs = localStorage.getItem("web2-catalogs");
+    if (savedCatalogs) {
+      try {
+        setCatalogs(JSON.parse(savedCatalogs));
+      } catch (e) {
+        console.error("Error loading catalogs:", e);
+      }
+    }
+  }, []);
 
   // Cargar datos desde localStorage
   useEffect(() => {
@@ -688,6 +704,15 @@ export default function Web2Page() {
     setResizingCard(null);
   };
 
+  // Filtrar cards según el catálogo seleccionado
+  const filteredCards = selectedCatalogId
+    ? (() => {
+        const selectedCatalog = catalogs.find(c => c.id === selectedCatalogId);
+        if (!selectedCatalog) return cards;
+        return cards.filter(card => selectedCatalog.products.includes(card.id));
+      })()
+    : cards;
+
   return (
     <div className="web2-container">
       {/* Header con llave/candado apenas visible */}
@@ -728,8 +753,72 @@ export default function Web2Page() {
       <main className="web2-main">
         {activeView === "cards" && (
           <div className="web2-cards-section">
+            {/* Filtros y controles */}
+            <div className="web2-filters-bar" style={{
+              display: "flex",
+              gap: "1rem",
+              alignItems: "center",
+              padding: "1rem",
+              backgroundColor: "#f9fafb",
+              borderRadius: "8px",
+              marginBottom: "1.5rem",
+              flexWrap: "wrap"
+            }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                <Filter className="web2-icon" style={{ width: "18px", height: "18px" }} />
+                <label htmlFor="catalog-filter" style={{ fontSize: "0.875rem", fontWeight: 500 }}>
+                  Filtrar por catálogo:
+                </label>
+                <select
+                  id="catalog-filter"
+                  value={selectedCatalogId}
+                  onChange={(e) => setSelectedCatalogId(e.target.value)}
+                  style={{
+                    padding: "0.5rem 1rem",
+                    borderRadius: "6px",
+                    border: "1px solid #d1d5db",
+                    fontSize: "0.875rem",
+                    backgroundColor: "white",
+                    cursor: "pointer",
+                    minWidth: "200px"
+                  }}
+                >
+                  <option value="">Todos los productos</option>
+                  {catalogs.map(catalog => (
+                    <option key={catalog.id} value={catalog.id}>
+                      {catalog.title}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div style={{ display: "flex", gap: "1rem", alignItems: "center", marginLeft: "auto" }}>
+                <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", cursor: "pointer", fontSize: "0.875rem" }}>
+                  <input
+                    type="checkbox"
+                    checked={showCategoryTag}
+                    onChange={(e) => setShowCategoryTag(e.target.checked)}
+                    style={{ cursor: "pointer" }}
+                  />
+                  <Tag className="web2-icon" style={{ width: "16px", height: "16px" }} />
+                  <span>Mostrar categoría</span>
+                </label>
+
+                <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", cursor: "pointer", fontSize: "0.875rem" }}>
+                  <input
+                    type="checkbox"
+                    checked={showBuyButton}
+                    onChange={(e) => setShowBuyButton(e.target.checked)}
+                    style={{ cursor: "pointer" }}
+                  />
+                  <ShoppingCart className="web2-icon" style={{ width: "16px", height: "16px" }} />
+                  <span>Mostrar comprar</span>
+                </label>
+              </div>
+            </div>
+
             <div className="web2-cards-grid">
-              {cards.map((card, index) => (
+              {filteredCards.map((card, index) => (
                 <ServiceCard
                   key={card.id}
                   card={card}
@@ -738,9 +827,11 @@ export default function Web2Page() {
                   onDelete={handleDeleteCard}
                   onDragEnd={handleDragEnd}
                   onResize={handleResize}
+                  showBuyButton={showBuyButton}
+                  showCategoryTag={showCategoryTag}
                 />
               ))}
-              {cards.length === 0 && (
+              {filteredCards.length === 0 && (
                 <div className="web2-empty-state">
                   <FileText className="web2-empty-icon" />
                   <h3>No hay servicios aún</h3>

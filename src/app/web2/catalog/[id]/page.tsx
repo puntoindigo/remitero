@@ -51,7 +51,13 @@ export default function PublicCatalogPage({ params }: { params: Promise<{ id: st
           const foundCatalog = catalogsList.find(c => c.id === catalogId);
           
           if (foundCatalog) {
-            setCatalog(foundCatalog);
+            // Asegurar valores por defecto para opciones de visualización
+            const catalogWithDefaults = {
+              ...foundCatalog,
+              showCategoryTag: foundCatalog.showCategoryTag !== undefined ? foundCatalog.showCategoryTag : true,
+              showBuyButton: foundCatalog.showBuyButton !== undefined ? foundCatalog.showBuyButton : true
+            };
+            setCatalog(catalogWithDefaults);
             setEditedTitle(foundCatalog.title);
             const catalogProducts = cardsList.filter(card => 
               foundCatalog.products.includes(card.id)
@@ -338,6 +344,86 @@ export default function PublicCatalogPage({ params }: { params: Promise<{ id: st
 
               <div className="edit-sidebar-section">
                 <h3 className="edit-sidebar-title">Vista</h3>
+                <label 
+                  className="edit-sidebar-item" 
+                  style={{ 
+                    cursor: "pointer", 
+                    display: "flex", 
+                    alignItems: "center", 
+                    gap: "0.75rem",
+                    margin: 0,
+                    padding: "0.75rem 1rem"
+                  }}
+                >
+                  <input
+                    type="checkbox"
+                    checked={catalog?.showCategoryTag !== false}
+                    onChange={(e) => {
+                      if (catalog) {
+                        const updated = { ...catalog, showCategoryTag: e.target.checked };
+                        setCatalog(updated);
+                        // Guardar en localStorage
+                        const catalogs = localStorage.getItem("web2-catalogs");
+                        if (catalogs) {
+                          const catalogsList: CatalogData[] = JSON.parse(catalogs);
+                          const updatedCatalogs = catalogsList.map(c => 
+                            c.id === catalog.id ? updated : c
+                          );
+                          localStorage.setItem("web2-catalogs", JSON.stringify(updatedCatalogs));
+                        }
+                      }
+                    }}
+                    style={{ 
+                      cursor: "pointer",
+                      width: "18px",
+                      height: "18px",
+                      margin: 0,
+                      flexShrink: 0
+                    }}
+                  />
+                  <Tag className="icon" style={{ width: "20px", height: "20px", flexShrink: 0 }} />
+                  <span>Mostrar Categoría</span>
+                </label>
+                <label 
+                  className="edit-sidebar-item" 
+                  style={{ 
+                    cursor: "pointer", 
+                    display: "flex", 
+                    alignItems: "center", 
+                    gap: "0.75rem",
+                    margin: 0,
+                    padding: "0.75rem 1rem"
+                  }}
+                >
+                  <input
+                    type="checkbox"
+                    checked={catalog?.showBuyButton !== false}
+                    onChange={(e) => {
+                      if (catalog) {
+                        const updated = { ...catalog, showBuyButton: e.target.checked };
+                        setCatalog(updated);
+                        // Guardar en localStorage
+                        const catalogs = localStorage.getItem("web2-catalogs");
+                        if (catalogs) {
+                          const catalogsList: CatalogData[] = JSON.parse(catalogs);
+                          const updatedCatalogs = catalogsList.map(c => 
+                            c.id === catalog.id ? updated : c
+                          );
+                          localStorage.setItem("web2-catalogs", JSON.stringify(updatedCatalogs));
+                        }
+                      }
+                    }}
+                    style={{ 
+                      cursor: "pointer",
+                      width: "18px",
+                      height: "18px",
+                      margin: 0,
+                      flexShrink: 0
+                    }}
+                  />
+                  <ShoppingCart className="icon" style={{ width: "20px", height: "20px", flexShrink: 0 }} />
+                  <span>Mostrar Comprar</span>
+                </label>
                 <button
                   className="edit-sidebar-item"
                   onClick={() => {
@@ -468,7 +554,7 @@ export default function PublicCatalogPage({ params }: { params: Promise<{ id: st
                 <img src={product.image} alt={product.title} />
               </div>
               <div className="public-catalog-card-content">
-                {product.category && (
+                {catalog?.showCategoryTag !== false && product.category && (
                   <span 
                     className="public-catalog-card-category"
                     style={{ 
@@ -486,7 +572,7 @@ export default function PublicCatalogPage({ params }: { params: Promise<{ id: st
                     <div className="public-catalog-card-price">
                       ${product.price.toLocaleString('es-AR')}
                     </div>
-                    {!editMode && (
+                    {!editMode && catalog?.showBuyButton !== false && (
                       <button
                         className="public-catalog-buy-btn"
                         onClick={() => handleBuyClick(product)}
@@ -566,7 +652,7 @@ export default function PublicCatalogPage({ params }: { params: Promise<{ id: st
                       <img src={product.image} alt={product.title} />
                     </div>
                     <div className="public-catalog-card-content">
-                      {product.category && (
+                      {catalog?.showCategoryTag !== false && product.category && (
                         <span 
                           className="public-catalog-card-category"
                           style={{ 
@@ -584,13 +670,15 @@ export default function PublicCatalogPage({ params }: { params: Promise<{ id: st
                           <div className="public-catalog-card-price">
                             ${product.price.toLocaleString('es-AR')}
                           </div>
-                          <button
-                            className="public-catalog-buy-btn"
-                            onClick={() => handleBuyClick(product)}
-                          >
-                            <ShoppingCart className="icon" />
-                            Comprar
-                          </button>
+                          {catalog?.showBuyButton !== false && (
+                            <button
+                              className="public-catalog-buy-btn"
+                              onClick={() => handleBuyClick(product)}
+                            >
+                              <ShoppingCart className="icon" />
+                              Comprar
+                            </button>
+                          )}
                         </>
                       )}
                     </div>
