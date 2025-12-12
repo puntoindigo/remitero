@@ -26,6 +26,8 @@ export interface CatalogData {
   textColor: string;
   products: string[]; // IDs de las cards
   createdAt: string;
+  showCategoryTag?: boolean; // Mostrar tag de categoría
+  showBuyButton?: boolean; // Mostrar botón de comprar
 }
 
 export interface UserProfileData {
