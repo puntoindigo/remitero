@@ -2,7 +2,7 @@
 
 import { useEffect, useState, use } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { Share2, Copy, MessageCircle, Download, Edit2, Save, X, ShoppingCart, Maximize2, Trash2, ArrowLeft, Eye, Settings, Palette, Image, Layout, Plus, Grid } from "lucide-react";
+import { Share2, Copy, MessageCircle, Download, Edit2, Save, X, ShoppingCart, Maximize2, Trash2, ArrowLeft, Eye, Settings, Palette, Image, Layout, Plus, Grid, Tag } from "lucide-react";
 import { ToastContainer, showToast } from "@/components/web2/Toast";
 import { PaymentModal } from "@/components/web2/PaymentModal";
 import { CardModal } from "@/components/web2/CardModal";
