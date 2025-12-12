@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Edit2, Trash2, GripVertical, Maximize2 } from "lucide-react";
+import { Edit2, Trash2, GripVertical, Maximize2, ShoppingCart } from "lucide-react";
 import type { ServiceCardData } from "@/types/web2";
 
 interface ServiceCardProps {
@@ -11,9 +11,11 @@ interface ServiceCardProps {
   onDelete: (id: string) => void;
   onDragEnd: (draggedId: string, targetId: string) => void;
   onResize: (card: ServiceCardData) => void;
+  showBuyButton?: boolean;
+  showCategoryTag?: boolean;
 }
 
-export function ServiceCard({ card, index, onEdit, onDelete, onDragEnd, onResize }: ServiceCardProps) {
+export function ServiceCard({ card, index, onEdit, onDelete, onDragEnd, onResize, showBuyButton = true, showCategoryTag = true }: ServiceCardProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [dragOver, setDragOver] = useState(false);
 
@@ -90,7 +92,7 @@ export function ServiceCard({ card, index, onEdit, onDelete, onDragEnd, onResize
           }} 
         />
         <div className="card-content-overlay">
-          {card.category && (
+          {showCategoryTag && card.category && (
             <span 
               className="card-category" 
               style={{ 
@@ -121,15 +123,47 @@ export function ServiceCard({ card, index, onEdit, onDelete, onDragEnd, onResize
             {card.description}
           </p>
           {card.price !== undefined && (
-            <div 
-              className="card-price"
-              style={{ 
-                color: card.textColor || "#ffffff",
-                textShadow: `2px 2px 4px rgba(0, 0, 0, 0.8), 0 0 8px rgba(0, 0, 0, 0.5)`
-              }}
-            >
-              ${card.price.toLocaleString('es-AR')}
-            </div>
+            <>
+              <div 
+                className="card-price"
+                style={{ 
+                  color: card.textColor || "#ffffff",
+                  textShadow: `2px 2px 4px rgba(0, 0, 0, 0.8), 0 0 8px rgba(0, 0, 0, 0.5)`
+                }}
+              >
+                ${card.price.toLocaleString('es-AR')}
+              </div>
+              {showBuyButton && (
+                <button
+                  className="card-buy-button"
+                  style={{
+                    marginTop: "0.75rem",
+                    padding: "0.5rem 1rem",
+                    backgroundColor: card.color || "#3b82f6",
+                    color: card.textColor || "#ffffff",
+                    border: "none",
+                    borderRadius: "6px",
+                    fontSize: "0.875rem",
+                    fontWeight: 600,
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.5rem",
+                    transition: "opacity 0.2s",
+                    textShadow: "none"
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.opacity = "0.9";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.opacity = "1";
+                  }}
+                >
+                  <ShoppingCart style={{ width: "16px", height: "16px" }} />
+                  Comprar
+                </button>
+              )}
+            </>
           )}
         </div>
       </div>
