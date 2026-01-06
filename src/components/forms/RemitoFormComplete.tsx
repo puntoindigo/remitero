@@ -672,10 +672,10 @@ export function RemitoFormComplete({
                     )}
                     <div style={{ flex: 1 }}>
                       <div style={{ fontSize: '14px', fontWeight: 500 }}>{item.product_name}</div>
-                      {item.isUnit && (
+                      {item.isUnit === true && (
                         <div style={{ fontSize: '12px', color: '#6b7280', fontStyle: 'italic' }}>por unidad</div>
                       )}
-                      {item.product_desc && !item.isUnit && (
+                      {item.product_desc && item.isUnit !== true && (
                         <div style={{ fontSize: '12px', color: '#6b7280' }}>{item.product_desc}</div>
                       )}
                     </div>
