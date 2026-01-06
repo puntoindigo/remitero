@@ -334,26 +334,28 @@ export async function PUT(
 
     // Crear nuevos items
     console.log('Items received:', JSON.stringify(items, null, 2));
-    const itemsToInsert = items.map((item: any) => ({
-      remito_id: remitoId,
-      product_id: item.product_id || item.productId || null,
-      quantity: Number(item.quantity) || 0,
-      unit_price: Number(item.unit_price || item.unitPrice) || 0,
-      product_name: item.product_name || item.productName || '',
-      product_desc: item.product_desc || item.productDesc || '',
-      line_total: (Number(item.quantity) || 0) * (Number(item.unit_price || item.unitPrice) || 0),
-      is_unit: Boolean(item.is_unit || item.isUnit || false)
-    }));
+    const itemsToInsert = items.map((item: any) => {
+      // Asegurar que is_unit sea un booleano explícito
+      const isUnitValue = item.is_unit === true || item.isUnit === true || item.is_unit === 1 || item.isUnit === 1;
+      console.log(`💾 [API PUT] Procesando item:`, {
+        product_name: item.product_name || item.productName,
+        'item.is_unit': item.is_unit,
+        'item.isUnit': item.isUnit,
+        'isUnitValue calculado': isUnitValue
+      });
+      return {
+        remito_id: remitoId,
+        product_id: item.product_id || item.productId || null,
+        quantity: Number(item.quantity) || 0,
+        unit_price: Number(item.unit_price || item.unitPrice) || 0,
+        product_name: item.product_name || item.productName || '',
+        product_desc: item.product_desc || item.productDesc || '',
+        line_total: (Number(item.quantity) || 0) * (Number(item.unit_price || item.unitPrice) || 0),
+        is_unit: isUnitValue
+      };
+    });
 
     console.log('Items to insert:', JSON.stringify(itemsToInsert, null, 2));
-    // Log detallado de is_unit
-    itemsToInsert.forEach((item: any, index: number) => {
-      console.log(`💾 [API] Item ${index} a insertar:`, {
-        product_name: item.product_name,
-        is_unit: item.is_unit,
-        'typeof is_unit': typeof item.is_unit
-      });
-    });
 
     const { error: insertItemsError } = await supabaseAdmin
       .from('remito_items')

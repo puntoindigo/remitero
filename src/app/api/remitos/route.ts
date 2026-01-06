@@ -358,26 +358,28 @@ export async function POST(request: NextRequest) {
 
     // Crear los items del remito
     console.log('Creating remito items:', items);
-    const remitoItems = items.map((item: any) => ({
-      remito_id: newRemito?.id,
-      product_id: item.product_id || null,
-      quantity: parseInt(item.quantity) || 1,
-      product_name: item.product_name || '',
-      product_desc: item.product_desc || null,
-      unit_price: parseFloat(item.unit_price) || 0,
-      line_total: parseFloat(item.line_total) || 0,
-      is_unit: Boolean(item.is_unit || item.isUnit || false)
-    }));
+    const remitoItems = items.map((item: any) => {
+      // Asegurar que is_unit sea un booleano explícito
+      const isUnitValue = item.is_unit === true || item.isUnit === true || item.is_unit === 1 || item.isUnit === 1;
+      console.log(`💾 [API POST] Procesando item:`, {
+        product_name: item.product_name,
+        'item.is_unit': item.is_unit,
+        'item.isUnit': item.isUnit,
+        'isUnitValue calculado': isUnitValue
+      });
+      return {
+        remito_id: newRemito?.id,
+        product_id: item.product_id || null,
+        quantity: parseInt(item.quantity) || 1,
+        product_name: item.product_name || '',
+        product_desc: item.product_desc || null,
+        unit_price: parseFloat(item.unit_price) || 0,
+        line_total: parseFloat(item.line_total) || 0,
+        is_unit: isUnitValue
+      };
+    });
 
     console.log('Mapped remito items:', remitoItems);
-    // Log detallado de is_unit
-    remitoItems.forEach((item: any, index: number) => {
-      console.log(`💾 [API] Item ${index} a insertar (POST):`, {
-        product_name: item.product_name,
-        is_unit: item.is_unit,
-        'typeof is_unit': typeof item.is_unit
-      });
-    });
 
     const { error: itemsError } = await supabaseAdmin
       .from('remito_items')
