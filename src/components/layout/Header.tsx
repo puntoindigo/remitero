@@ -21,17 +21,22 @@ import { useImpersonation } from "@/hooks/useImpersonation";
 import DeleteConfirmModal from "@/components/common/DeleteConfirmModal";
 import { useShortcuts } from "@/hooks/useShortcuts";
 import { ShortcutText } from "@/components/common/ShortcutText";
+import { useDataWithCompanySimple } from "@/hooks/useDataWithCompanySimple";
 
 export default function Header() {
   const { data: session } = useSession();
   const currentUser = useCurrentUserSimple();
   const { stopImpersonation, isImpersonating } = useImpersonation();
+  const { selectedCompanyId } = useDataWithCompanySimple();
   const pathname = usePathname();
   const router = useRouter();
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const { colors } = useColorTheme();
   const headerRef = useRef<HTMLElement>(null);
+  
+  // Ocultar módulo Empresas si hay una empresa seleccionada
+  const shouldHideEmpresas = !!selectedCompanyId;
 
   // Aplicar tema al header
   useEffect(() => {
@@ -153,7 +158,7 @@ export default function Header() {
     { key: 't', action: () => safeNavigate('/categorias', ['SUPERADMIN', 'ADMIN']), description: 'Categorías' },
     { key: 'e', action: () => safeNavigate('/estados-remitos', ['SUPERADMIN', 'ADMIN']), description: 'Estados' },
     { key: 'u', action: () => safeNavigate('/usuarios', ['SUPERADMIN', 'ADMIN']), description: 'Usuarios' },
-    { key: 'm', action: () => safeNavigate('/empresas', ['SUPERADMIN']), description: 'Empresas' },
+    ...(!shouldHideEmpresas ? [{ key: 'm', action: () => safeNavigate('/empresas', ['SUPERADMIN']), description: 'Empresas' }] : []),
     { key: 's', action: handleLogoutRequest, description: 'Salir' }
   ], !!session && !showLogoutConfirm);
 
@@ -219,10 +224,12 @@ export default function Header() {
           <Users className="h-4 w-4" />
           <ShortcutText text="Usuarios" shortcutKey="u" />
         </NavLink>
-        <NavLink href="/empresas" roles={['SUPERADMIN']}>
-          <Building2 className="h-4 w-4" />
-          <ShortcutText text="Empresas" shortcutKey="m" />
-        </NavLink>
+        {!shouldHideEmpresas && (
+          <NavLink href="/empresas" roles={['SUPERADMIN']}>
+            <Building2 className="h-4 w-4" />
+            <ShortcutText text="Empresas" shortcutKey="m" />
+          </NavLink>
+        )}
       </nav>
       
       <div className="header-right">

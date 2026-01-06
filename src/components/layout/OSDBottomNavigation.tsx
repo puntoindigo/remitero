@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useCurrentUserSimple } from "@/hooks/useCurrentUserSimple";
 import { useColorTheme } from "@/contexts/ColorThemeContext";
+import { useDataWithCompanySimple } from "@/hooks/useDataWithCompanySimple";
 import {
   LayoutDashboard,
   ReceiptText,
@@ -39,11 +40,15 @@ export function OSDBottomNavigation() {
   const router = useRouter();
   const { data: session } = useSession();
   const currentUser = useCurrentUserSimple();
+  const { selectedCompanyId } = useDataWithCompanySimple();
   const { colors } = useColorTheme();
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const [submenuPosition, setSubmenuPosition] = useState<{ left: number; width: number } | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const buttonRefs = useRef<{ [key: string]: HTMLButtonElement | null }>({});
+  
+  // Ocultar módulo Empresas si hay una empresa seleccionada
+  const shouldHideEmpresas = !!selectedCompanyId;
 
   // Estado local para enableBotonera que se sincroniza con la sesión
   const [enableBotonera, setEnableBotonera] = useState<boolean>(
@@ -136,13 +141,13 @@ export function OSDBottomNavigation() {
         { id: "usuarios", label: "Usuarios", path: "/usuarios", roles: ["SUPERADMIN", "ADMIN"] },
       ],
     },
-    {
+    ...(!shouldHideEmpresas ? [{
       id: "administration",
       label: "Administración",
       icon: Building2,
       path: "/empresas",
       roles: ["SUPERADMIN"],
-    },
+    }] : []),
   ];
 
   // Filtrar items según roles

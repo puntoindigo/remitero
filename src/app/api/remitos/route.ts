@@ -233,7 +233,7 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
     console.log('POST /api/remitos - Request body:', JSON.stringify(body, null, 2));
-    const { clientId, status, notes, items, companyId, shippingCost, previousBalance } = body;
+    const { clientId, status, notes, items, companyId, shippingCost, previousBalance, accountPayment } = body;
 
     // Validaciones básicas
     console.log('Validating clientId:', clientId);
@@ -324,6 +324,7 @@ export async function POST(request: NextRequest) {
       notes,
       shipping_cost: shippingCostValue,
       previous_balance: parseFloat(previousBalance) || 0,
+      account_payment: parseFloat(accountPayment) || 0,
       created_by_id: session.user.id,
       company_id: finalCompanyId
     });
@@ -337,6 +338,7 @@ export async function POST(request: NextRequest) {
         notes,
         shipping_cost: shippingCostValue,
         previous_balance: parseFloat(previousBalance) || 0,
+        account_payment: parseFloat(accountPayment) || 0,
         created_by_id: session.user.id,
         company_id: finalCompanyId
       }])

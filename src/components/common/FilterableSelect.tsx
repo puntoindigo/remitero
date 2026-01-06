@@ -311,20 +311,20 @@ export default function FilterableSelect({
                   flex: 1,
                   minWidth: 0
                 }}>
-                  {showColors && option.color && (
-                    <span 
-                      style={{ 
-                        display: 'inline-block',
-                        width: '10px',
-                        height: '10px',
-                        borderRadius: '50%',
-                        backgroundColor: option.color,
+                {showColors && option.color && (
+                  <span 
+                    style={{ 
+                      display: 'inline-block',
+                      width: '10px',
+                      height: '10px',
+                      borderRadius: '50%',
+                      backgroundColor: option.color,
                         marginRight: '8px',
                         flexShrink: 0
-                      }}
-                    />
-                  )}
-                  {option?.name}
+                    }}
+                  />
+                )}
+                {option?.name}
                 </span>
               </button>
             ))

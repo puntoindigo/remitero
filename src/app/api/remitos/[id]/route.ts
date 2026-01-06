@@ -43,6 +43,7 @@ export async function GET(
         notes,
         shipping_cost,
         previous_balance,
+        account_payment,
         created_at,
         updated_at,
         company_id,
@@ -225,7 +226,7 @@ export async function PUT(
     const { id: remitoId } = await params;
     const body = await request.json();
     console.log('PUT /api/remitos/[id] - Request body:', JSON.stringify(body, null, 2));
-    const { clientId, status, notes, items, companyId, shippingCost, previousBalance } = body;
+    const { clientId, status, notes, items, companyId, shippingCost, previousBalance, accountPayment } = body;
 
     // Validaciones básicas
     console.log('Validating clientId:', clientId);
@@ -302,6 +303,7 @@ export async function PUT(
         notes: notes || null,
         shipping_cost: shippingCostValue,
         previous_balance: parseFloat(previousBalance) || 0,
+        account_payment: parseFloat(accountPayment) || 0,
         updated_at: new Date().toISOString()
       })
       .eq('id', remitoId)

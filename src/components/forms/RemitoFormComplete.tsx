@@ -58,6 +58,7 @@ export function RemitoFormComplete({
   const [isLoadingRemito, setIsLoadingRemito] = useState<boolean>(false);
   const [shippingCost, setShippingCost] = useState<number>(0);
   const [previousBalance, setPreviousBalance] = useState<number>(0);
+  const [accountPayment, setAccountPayment] = useState<number>(0);
   const [isShippingEnabled, setIsShippingEnabled] = useState<boolean>(false); // Solo para controlar el checkbox, no se envía a la API
 
   const {
@@ -98,6 +99,7 @@ export function RemitoFormComplete({
       setItems([]);
       setShippingCost(0);
       setPreviousBalance(0);
+      setAccountPayment(0);
       setIsShippingEnabled(false);
       
       // SIEMPRE hacer fetch completo del remito para asegurar que los items se carguen correctamente
@@ -122,12 +124,14 @@ export function RemitoFormComplete({
             setValue("status", statusId);
             setValue("notes", String(fullRemito.notes || ""));
             
-            // Cargar campos de envío y saldo anterior
+            // Cargar campos de envío, saldo anterior y pago a cuenta
             const shippingCostValue = fullRemito.shipping_cost || fullRemito.shippingCost || 0;
             const previousBalanceValue = fullRemito.previous_balance || fullRemito.previousBalance || 0;
+            const accountPaymentValue = fullRemito.account_payment || fullRemito.accountPayment || 0;
             
             setShippingCost(shippingCostValue);
             setPreviousBalance(previousBalanceValue);
+            setAccountPayment(accountPaymentValue);
             setIsShippingEnabled(shippingCostValue > 0);
             
             // Cargar items del remito (pueden venir como 'items', 'remitoItems' o 'remito_items')
@@ -183,6 +187,7 @@ export function RemitoFormComplete({
         // Asegurar reset de valores de envío
         setShippingCost(0);
         setPreviousBalance(0);
+        setAccountPayment(0);
         setIsShippingEnabled(false);
       }
     } else {
@@ -193,6 +198,7 @@ export function RemitoFormComplete({
       setShowNotes(false);
       setPreviousBalance(0);
       setShippingCost(0);
+      setAccountPayment(0);
       setIsShippingEnabled(false);
       setIsLoadingRemito(false);
       // Set default status: buscar "Pendiente" o el que tenga is_default: true
@@ -212,9 +218,9 @@ export function RemitoFormComplete({
   // No cargar automáticamente el último costo de envío
   // Solo se cargará cuando el usuario marque el checkbox
 
-  // Calcular total: productos + saldo anterior + costo de envío (si shippingCost > 0)
+  // Calcular total: productos + saldo anterior + costo de envío - pago a cuenta
   const productsTotal = items.reduce((sum, item) => sum + (item.line_total || 0), 0);
-  const total = productsTotal + previousBalance + shippingCost;
+  const total = productsTotal + previousBalance + shippingCost - accountPayment;
 
   const handleAddProduct = () => {
     if (!selectedProduct || quantity <= 0) return;
@@ -283,6 +289,7 @@ export function RemitoFormComplete({
       })),
       shippingCost: shippingCost || 0, // Si el checkbox no está marcado, shippingCost ya es 0
       previousBalance,
+      accountPayment,
       total
     };
 
@@ -354,6 +361,7 @@ export function RemitoFormComplete({
     setShowNotes(false);
     setShippingCost(0);
     setPreviousBalance(0);
+    setAccountPayment(0);
     setIsShippingEnabled(false);
     setIsLoadingRemito(false);
     onClose();
@@ -720,10 +728,10 @@ export function RemitoFormComplete({
         </div>
       )}
 
-      {/* Estado, Envío y Saldo Anterior - en una fila */}
+      {/* Estado, Envío, Saldo Anterior y Pago a cuenta - en una fila */}
       <div style={{ 
         display: 'grid', 
-        gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', 
+        gridTemplateColumns: isMobile ? '1fr' : 'repeat(4, 1fr)', 
         gap: '1rem', 
         marginTop: '0.25rem', 
         marginBottom: '0.75rem' 
@@ -814,6 +822,40 @@ export function RemitoFormComplete({
               borderRadius: '6px'
             }}
           />
+        </div>
+
+        {/* Pago a cuenta */}
+        <div className="form-group" style={{ marginBottom: '0' }}>
+          <label className="form-label-large" style={{ marginBottom: '0.5rem', display: 'block' }}>
+            Pago a cuenta
+          </label>
+          <div style={{ position: 'relative' }}>
+            <span style={{
+              position: 'absolute',
+              left: '12px',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              fontSize: '14px',
+              fontWeight: 500,
+              color: '#6b7280',
+              pointerEvents: 'none'
+            }}>-</span>
+            <input
+              type="number"
+              min="0"
+              step="0.01"
+              value={accountPayment}
+              onChange={(e) => setAccountPayment(parseFloat(e.target.value) || 0)}
+              placeholder="0.00"
+              style={{ 
+                width: '100%', 
+                fontSize: '14px', 
+                padding: '8px 12px 8px 24px',
+                border: '1px solid #d1d5db',
+                borderRadius: '6px'
+              }}
+            />
+          </div>
         </div>
       </div>
         </>
