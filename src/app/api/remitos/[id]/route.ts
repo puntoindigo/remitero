@@ -134,7 +134,7 @@ export async function GET(
     try {
       const { data: itemsData } = await supabaseAdmin
         .from('remito_items')
-        .select('id, product_id, quantity, product_name, product_desc, unit_price, line_total')
+        .select('id, product_id, quantity, product_name, product_desc, unit_price, line_total, is_unit')
         .eq('remito_id', remito.id);
       
       if (itemsData) {
@@ -163,10 +163,19 @@ export async function GET(
           }
         }
         
-        remitoItems = itemsData.map((item: any) => ({
-          ...item,
-          products: item.product_id ? productsMap.get(item.product_id) || { id: item.product_id, name: '', imageUrl: null } : null
-        }));
+        remitoItems = itemsData.map((item: any) => {
+          console.log('🔍 [API GET] Item desde BD:', {
+            product_name: item.product_name,
+            is_unit: item.is_unit,
+            'typeof is_unit': typeof item.is_unit,
+            'is_unit === true': item.is_unit === true,
+            'is_unit === false': item.is_unit === false
+          });
+          return {
+            ...item,
+            products: item.product_id ? productsMap.get(item.product_id) || { id: item.product_id, name: '', imageUrl: null } : null
+          };
+        });
       }
     } catch (itemsError) {
       console.warn('⚠️ [Remitos] Error obteniendo items (no crítico):', itemsError);
@@ -465,6 +474,14 @@ export async function PUT(
         .eq('remito_id', remitoData.id);
       
       if (itemsData) {
+        console.log('🔍 [API PUT] ItemsData desde BD (raw):', itemsData.map((item: any) => ({
+          product_name: item.product_name,
+          is_unit: item.is_unit,
+          'typeof is_unit': typeof item.is_unit,
+          'is_unit === true': item.is_unit === true,
+          'is_unit === false': item.is_unit === false
+        })));
+        
         // Obtener productos si hay product_id
         const productIds = [...new Set(itemsData.filter((i: any) => i.product_id).map((i: any) => i.product_id))];
         const productsMap = new Map<string, { id: string; name: string; imageUrl: string | null }>();
@@ -490,10 +507,23 @@ export async function PUT(
           }
         }
         
-        remitoItems = itemsData.map((item: any) => ({
-          ...item,
-          products: item.product_id ? productsMap.get(item.product_id) || { id: item.product_id, name: '', imageUrl: null } : null
-        }));
+        remitoItems = itemsData.map((item: any) => {
+          console.log('🔍 [API PUT] Item antes de mapear:', {
+            product_name: item.product_name,
+            is_unit: item.is_unit,
+            'typeof is_unit': typeof item.is_unit
+          });
+          const mapped = {
+            ...item,
+            products: item.product_id ? productsMap.get(item.product_id) || { id: item.product_id, name: '', imageUrl: null } : null
+          };
+          console.log('🔍 [API PUT] Item después de mapear:', {
+            product_name: mapped.product_name,
+            is_unit: mapped.is_unit,
+            'typeof is_unit': typeof mapped.is_unit
+          });
+          return mapped;
+        });
       }
     } catch (itemsError) {
       console.warn('⚠️ [Remitos] Error obteniendo items (no crítico):', itemsError);
