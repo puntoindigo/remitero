@@ -253,13 +253,10 @@ export default function PrintRemito() {
                   {previousBalance > 0 && (
                     <tr>
                       <td style={{ textAlign: 'center' }}></td>
+                      <td colSpan={2} style={{ textAlign: 'right' }}>
+                        Saldo Anterior: ${previousBalance.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </td>
                       <td></td>
-                      <td style={{ textAlign: 'right' }}>
-                        Saldo Anterior:
-                      </td>
-                      <td style={{ textAlign: 'right' }}>
-                        ${previousBalance.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                      </td>
                     </tr>
                   )}
                   
@@ -267,13 +264,10 @@ export default function PrintRemito() {
                   {shippingCost > 0 && (
                     <tr>
                       <td style={{ textAlign: 'center' }}></td>
+                      <td colSpan={2} style={{ textAlign: 'right' }}>
+                        Costo de Envío: ${shippingCost.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </td>
                       <td></td>
-                      <td style={{ textAlign: 'right' }}>
-                        Costo de Envío:
-                      </td>
-                      <td style={{ textAlign: 'right' }}>
-                        ${shippingCost.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                      </td>
                     </tr>
                   )}
                   
@@ -281,13 +275,10 @@ export default function PrintRemito() {
                   {accountPayment > 0 && (
                     <tr>
                       <td style={{ textAlign: 'center' }}></td>
+                      <td colSpan={2} style={{ textAlign: 'right' }}>
+                        Pago a cuenta: -${accountPayment.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </td>
                       <td></td>
-                      <td style={{ textAlign: 'right' }}>
-                        Pago a cuenta:
-                      </td>
-                      <td style={{ textAlign: 'right' }}>
-                        -${accountPayment.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                      </td>
                     </tr>
                   )}
                   
