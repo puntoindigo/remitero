@@ -2,7 +2,7 @@
 
 import { useEffect, useState, use } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { Share2, Copy, MessageCircle, Download, Edit2, Save, X, ShoppingCart, Maximize2, Trash2, ArrowLeft, Eye, Settings, Palette, Image, Layout, Plus, Grid, Tag } from "lucide-react";
+import { Share2, Copy, MessageCircle, Download, Edit2, Save, X, ShoppingCart, Maximize2, Trash2, ArrowLeft, Eye, Settings, Palette, Image, Layout, Plus, Grid, Tag, Type } from "lucide-react";
 import { ToastContainer, showToast } from "@/components/web2/Toast";
 import { PaymentModal } from "@/components/web2/PaymentModal";
 import { CardModal } from "@/components/web2/CardModal";
@@ -55,7 +55,16 @@ export default function PublicCatalogPage({ params }: { params: Promise<{ id: st
             const catalogWithDefaults = {
               ...foundCatalog,
               showCategoryTag: foundCatalog.showCategoryTag !== undefined ? foundCatalog.showCategoryTag : true,
-              showBuyButton: foundCatalog.showBuyButton !== undefined ? foundCatalog.showBuyButton : true
+              titleStyle: foundCatalog.titleStyle || {
+                fontFamily: 'inherit',
+                fontSize: '1.25rem',
+                color: '#111827'
+              },
+              priceStyle: foundCatalog.priceStyle || {
+                fontFamily: 'inherit',
+                fontSize: '1.5rem',
+                color: '#111827'
+              }
             };
             setCatalog(catalogWithDefaults);
             setEditedTitle(foundCatalog.title);
@@ -384,46 +393,251 @@ export default function PublicCatalogPage({ params }: { params: Promise<{ id: st
                   <Tag className="icon" style={{ width: "20px", height: "20px", flexShrink: 0 }} />
                   <span>Mostrar Categoría</span>
                 </label>
-                <label 
-                  className="edit-sidebar-item" 
-                  style={{ 
-                    cursor: "pointer", 
-                    display: "flex", 
-                    alignItems: "center", 
-                    gap: "0.75rem",
-                    margin: 0,
-                    padding: "0.75rem 1rem"
-                  }}
-                >
-                  <input
-                    type="checkbox"
-                    checked={catalog?.showBuyButton !== false}
-                    onChange={(e) => {
-                      if (catalog) {
-                        const updated = { ...catalog, showBuyButton: e.target.checked };
-                        setCatalog(updated);
-                        // Guardar en localStorage
-                        const catalogs = localStorage.getItem("web2-catalogs");
-                        if (catalogs) {
-                          const catalogsList: CatalogData[] = JSON.parse(catalogs);
-                          const updatedCatalogs = catalogsList.map(c => 
-                            c.id === catalog.id ? updated : c
-                          );
-                          localStorage.setItem("web2-catalogs", JSON.stringify(updatedCatalogs));
+                
+                {/* Estilos del Título */}
+                <div style={{ padding: "0.75rem 1rem", borderTop: "1px solid rgba(255, 255, 255, 0.1)", marginTop: "0.5rem" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.75rem" }}>
+                    <Type className="icon" style={{ width: "18px", height: "18px", flexShrink: 0 }} />
+                    <span style={{ fontSize: "0.85rem", fontWeight: 600, color: "rgba(255, 255, 255, 0.7)" }}>Estilo del Título</span>
+                  </div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                    <select
+                      value={catalog?.titleStyle?.fontFamily || 'inherit'}
+                      onChange={(e) => {
+                        if (catalog) {
+                          const updated = {
+                            ...catalog,
+                            titleStyle: {
+                              ...catalog.titleStyle,
+                              fontFamily: e.target.value
+                            }
+                          };
+                          setCatalog(updated);
+                          const catalogs = localStorage.getItem("web2-catalogs");
+                          if (catalogs) {
+                            const catalogsList: CatalogData[] = JSON.parse(catalogs);
+                            const updatedCatalogs = catalogsList.map(c => 
+                              c.id === catalog.id ? updated : c
+                            );
+                            localStorage.setItem("web2-catalogs", JSON.stringify(updatedCatalogs));
+                          }
                         }
-                      }
-                    }}
-                    style={{ 
-                      cursor: "pointer",
-                      width: "18px",
-                      height: "18px",
-                      margin: 0,
-                      flexShrink: 0
-                    }}
-                  />
-                  <ShoppingCart className="icon" style={{ width: "20px", height: "20px", flexShrink: 0 }} />
-                  <span>Mostrar Comprar</span>
-                </label>
+                      }}
+                      style={{
+                        padding: "0.5rem",
+                        borderRadius: "6px",
+                        border: "1px solid rgba(255, 255, 255, 0.2)",
+                        backgroundColor: "rgba(255, 255, 255, 0.1)",
+                        color: "white",
+                        fontSize: "0.85rem",
+                        cursor: "pointer"
+                      }}
+                    >
+                      <option value="inherit">Fuente por defecto</option>
+                      <option value="Arial, sans-serif">Arial</option>
+                      <option value="'Helvetica Neue', Helvetica, sans-serif">Helvetica</option>
+                      <option value="'Times New Roman', serif">Times New Roman</option>
+                      <option value="Georgia, serif">Georgia</option>
+                      <option value="'Courier New', monospace">Courier New</option>
+                      <option value="Verdana, sans-serif">Verdana</option>
+                      <option value="'Trebuchet MS', sans-serif">Trebuchet MS</option>
+                    </select>
+                    <select
+                      value={catalog?.titleStyle?.fontSize || '1.25rem'}
+                      onChange={(e) => {
+                        if (catalog) {
+                          const updated = {
+                            ...catalog,
+                            titleStyle: {
+                              ...catalog.titleStyle,
+                              fontSize: e.target.value
+                            }
+                          };
+                          setCatalog(updated);
+                          const catalogs = localStorage.getItem("web2-catalogs");
+                          if (catalogs) {
+                            const catalogsList: CatalogData[] = JSON.parse(catalogs);
+                            const updatedCatalogs = catalogsList.map(c => 
+                              c.id === catalog.id ? updated : c
+                            );
+                            localStorage.setItem("web2-catalogs", JSON.stringify(updatedCatalogs));
+                          }
+                        }
+                      }}
+                      style={{
+                        padding: "0.5rem",
+                        borderRadius: "6px",
+                        border: "1px solid rgba(255, 255, 255, 0.2)",
+                        backgroundColor: "rgba(255, 255, 255, 0.1)",
+                        color: "white",
+                        fontSize: "0.85rem",
+                        cursor: "pointer"
+                      }}
+                    >
+                      <option value="0.875rem">Pequeño (14px)</option>
+                      <option value="1rem">Normal (16px)</option>
+                      <option value="1.125rem">Mediano (18px)</option>
+                      <option value="1.25rem">Grande (20px)</option>
+                      <option value="1.5rem">Muy Grande (24px)</option>
+                      <option value="1.75rem">Extra Grande (28px)</option>
+                      <option value="2rem">Enorme (32px)</option>
+                    </select>
+                    <input
+                      type="color"
+                      value={catalog?.titleStyle?.color || '#111827'}
+                      onChange={(e) => {
+                        if (catalog) {
+                          const updated = {
+                            ...catalog,
+                            titleStyle: {
+                              ...catalog.titleStyle,
+                              color: e.target.value
+                            }
+                          };
+                          setCatalog(updated);
+                          const catalogs = localStorage.getItem("web2-catalogs");
+                          if (catalogs) {
+                            const catalogsList: CatalogData[] = JSON.parse(catalogs);
+                            const updatedCatalogs = catalogsList.map(c => 
+                              c.id === catalog.id ? updated : c
+                            );
+                            localStorage.setItem("web2-catalogs", JSON.stringify(updatedCatalogs));
+                          }
+                        }
+                      }}
+                      style={{
+                        width: "100%",
+                        height: "36px",
+                        borderRadius: "6px",
+                        border: "1px solid rgba(255, 255, 255, 0.2)",
+                        cursor: "pointer"
+                      }}
+                    />
+                  </div>
+                </div>
+
+                {/* Estilos del Precio */}
+                <div style={{ padding: "0.75rem 1rem", borderTop: "1px solid rgba(255, 255, 255, 0.1)", marginTop: "0.5rem" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.75rem" }}>
+                    <ShoppingCart className="icon" style={{ width: "18px", height: "18px", flexShrink: 0 }} />
+                    <span style={{ fontSize: "0.85rem", fontWeight: 600, color: "rgba(255, 255, 255, 0.7)" }}>Estilo del Precio</span>
+                  </div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                    <select
+                      value={catalog?.priceStyle?.fontFamily || 'inherit'}
+                      onChange={(e) => {
+                        if (catalog) {
+                          const updated = {
+                            ...catalog,
+                            priceStyle: {
+                              ...catalog.priceStyle,
+                              fontFamily: e.target.value
+                            }
+                          };
+                          setCatalog(updated);
+                          const catalogs = localStorage.getItem("web2-catalogs");
+                          if (catalogs) {
+                            const catalogsList: CatalogData[] = JSON.parse(catalogs);
+                            const updatedCatalogs = catalogsList.map(c => 
+                              c.id === catalog.id ? updated : c
+                            );
+                            localStorage.setItem("web2-catalogs", JSON.stringify(updatedCatalogs));
+                          }
+                        }
+                      }}
+                      style={{
+                        padding: "0.5rem",
+                        borderRadius: "6px",
+                        border: "1px solid rgba(255, 255, 255, 0.2)",
+                        backgroundColor: "rgba(255, 255, 255, 0.1)",
+                        color: "white",
+                        fontSize: "0.85rem",
+                        cursor: "pointer"
+                      }}
+                    >
+                      <option value="inherit">Fuente por defecto</option>
+                      <option value="Arial, sans-serif">Arial</option>
+                      <option value="'Helvetica Neue', Helvetica, sans-serif">Helvetica</option>
+                      <option value="'Times New Roman', serif">Times New Roman</option>
+                      <option value="Georgia, serif">Georgia</option>
+                      <option value="'Courier New', monospace">Courier New</option>
+                      <option value="Verdana, sans-serif">Verdana</option>
+                      <option value="'Trebuchet MS', sans-serif">Trebuchet MS</option>
+                    </select>
+                    <select
+                      value={catalog?.priceStyle?.fontSize || '1.5rem'}
+                      onChange={(e) => {
+                        if (catalog) {
+                          const updated = {
+                            ...catalog,
+                            priceStyle: {
+                              ...catalog.priceStyle,
+                              fontSize: e.target.value
+                            }
+                          };
+                          setCatalog(updated);
+                          const catalogs = localStorage.getItem("web2-catalogs");
+                          if (catalogs) {
+                            const catalogsList: CatalogData[] = JSON.parse(catalogs);
+                            const updatedCatalogs = catalogsList.map(c => 
+                              c.id === catalog.id ? updated : c
+                            );
+                            localStorage.setItem("web2-catalogs", JSON.stringify(updatedCatalogs));
+                          }
+                        }
+                      }}
+                      style={{
+                        padding: "0.5rem",
+                        borderRadius: "6px",
+                        border: "1px solid rgba(255, 255, 255, 0.2)",
+                        backgroundColor: "rgba(255, 255, 255, 0.1)",
+                        color: "white",
+                        fontSize: "0.85rem",
+                        cursor: "pointer"
+                      }}
+                    >
+                      <option value="0.875rem">Pequeño (14px)</option>
+                      <option value="1rem">Normal (16px)</option>
+                      <option value="1.125rem">Mediano (18px)</option>
+                      <option value="1.25rem">Grande (20px)</option>
+                      <option value="1.5rem">Muy Grande (24px)</option>
+                      <option value="1.75rem">Extra Grande (28px)</option>
+                      <option value="2rem">Enorme (32px)</option>
+                      <option value="2.5rem">Gigante (40px)</option>
+                    </select>
+                    <input
+                      type="color"
+                      value={catalog?.priceStyle?.color || '#111827'}
+                      onChange={(e) => {
+                        if (catalog) {
+                          const updated = {
+                            ...catalog,
+                            priceStyle: {
+                              ...catalog.priceStyle,
+                              color: e.target.value
+                            }
+                          };
+                          setCatalog(updated);
+                          const catalogs = localStorage.getItem("web2-catalogs");
+                          if (catalogs) {
+                            const catalogsList: CatalogData[] = JSON.parse(catalogs);
+                            const updatedCatalogs = catalogsList.map(c => 
+                              c.id === catalog.id ? updated : c
+                            );
+                            localStorage.setItem("web2-catalogs", JSON.stringify(updatedCatalogs));
+                          }
+                        }
+                      }}
+                      style={{
+                        width: "100%",
+                        height: "36px",
+                        borderRadius: "6px",
+                        border: "1px solid rgba(255, 255, 255, 0.2)",
+                        cursor: "pointer"
+                      }}
+                    />
+                  </div>
+                </div>
                 <button
                   className="edit-sidebar-item"
                   onClick={() => {
@@ -565,14 +779,30 @@ export default function PublicCatalogPage({ params }: { params: Promise<{ id: st
                     {product.category}
                   </span>
                 )}
-                <h3 className="public-catalog-card-title">{product.title}</h3>
+                <h3 
+                  className="public-catalog-card-title"
+                  style={{
+                    fontFamily: catalog?.titleStyle?.fontFamily || 'inherit',
+                    fontSize: catalog?.titleStyle?.fontSize || '1.25rem',
+                    color: catalog?.titleStyle?.color || '#111827'
+                  }}
+                >
+                  {product.title}
+                </h3>
                 <p className="public-catalog-card-description">{product.description}</p>
                 {product.price !== undefined && (
                   <>
-                    <div className="public-catalog-card-price">
+                    <div 
+                      className="public-catalog-card-price"
+                      style={{
+                        fontFamily: catalog?.priceStyle?.fontFamily || 'inherit',
+                        fontSize: catalog?.priceStyle?.fontSize || '1.5rem',
+                        color: catalog?.priceStyle?.color || '#111827'
+                      }}
+                    >
                       ${product.price.toLocaleString('es-AR')}
                     </div>
-                    {!editMode && catalog?.showBuyButton !== false && (
+                    {!editMode && (
                       <button
                         className="public-catalog-buy-btn"
                         onClick={() => handleBuyClick(product)}
@@ -663,22 +893,36 @@ export default function PublicCatalogPage({ params }: { params: Promise<{ id: st
                           {product.category}
                         </span>
                       )}
-                      <h3 className="public-catalog-card-title">{product.title}</h3>
+                      <h3 
+                        className="public-catalog-card-title"
+                        style={{
+                          fontFamily: catalog?.titleStyle?.fontFamily || 'inherit',
+                          fontSize: catalog?.titleStyle?.fontSize || '1.25rem',
+                          color: catalog?.titleStyle?.color || '#111827'
+                        }}
+                      >
+                        {product.title}
+                      </h3>
                       <p className="public-catalog-card-description">{product.description}</p>
                       {product.price !== undefined && (
                         <>
-                          <div className="public-catalog-card-price">
+                          <div 
+                            className="public-catalog-card-price"
+                            style={{
+                              fontFamily: catalog?.priceStyle?.fontFamily || 'inherit',
+                              fontSize: catalog?.priceStyle?.fontSize || '1.5rem',
+                              color: catalog?.priceStyle?.color || '#111827'
+                            }}
+                          >
                             ${product.price.toLocaleString('es-AR')}
                           </div>
-                          {catalog?.showBuyButton !== false && (
-                            <button
-                              className="public-catalog-buy-btn"
-                              onClick={() => handleBuyClick(product)}
-                            >
-                              <ShoppingCart className="icon" />
-                              Comprar
-                            </button>
-                          )}
+                          <button
+                            className="public-catalog-buy-btn"
+                            onClick={() => handleBuyClick(product)}
+                          >
+                            <ShoppingCart className="icon" />
+                            Comprar
+                          </button>
                         </>
                       )}
                     </div>

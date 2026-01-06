@@ -143,12 +143,13 @@ export default function PrintRemito() {
     );
   }
 
-  // Calcular total: usar el total del remito (ya incluye shipping_cost y previous_balance)
+  // Calcular total: usar el total del remito (ya incluye shipping_cost, previous_balance y account_payment)
   // o calcularlo si no está disponible
   const productsTotal = (remito.remitoItems || remito.items || []).reduce((sum, item) => sum + (Number(item.line_total) || 0), 0);
   const shippingCost = (remito as any)?.shippingCost || (remito as any)?.shipping_cost || 0;
   const previousBalance = (remito as any)?.previousBalance || (remito as any)?.previous_balance || 0;
-  const total = remito.total || (productsTotal + previousBalance + shippingCost);
+  const accountPayment = (remito as any)?.accountPayment || (remito as any)?.account_payment || 0;
+  const total = remito.total || (productsTotal + previousBalance + shippingCost - accountPayment);
   
   // Dividir items en páginas de máximo 17 líneas
   const items = remito.remitoItems || remito.items || [];
@@ -252,8 +253,7 @@ export default function PrintRemito() {
                   {previousBalance > 0 && (
                     <tr>
                       <td style={{ textAlign: 'center' }}></td>
-                      <td></td>
-                      <td style={{ textAlign: 'right' }}>
+                      <td colSpan={2} style={{ textAlign: 'right' }}>
                         Saldo Anterior:
                       </td>
                       <td style={{ textAlign: 'right' }}>
@@ -266,12 +266,24 @@ export default function PrintRemito() {
                   {shippingCost > 0 && (
                     <tr>
                       <td style={{ textAlign: 'center' }}></td>
-                      <td></td>
-                      <td style={{ textAlign: 'right' }}>
+                      <td colSpan={2} style={{ textAlign: 'right' }}>
                         Costo de Envío:
                       </td>
                       <td style={{ textAlign: 'right' }}>
                         ${shippingCost.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </td>
+                    </tr>
+                  )}
+                  
+                  {/* Pago a cuenta */}
+                  {accountPayment > 0 && (
+                    <tr>
+                      <td style={{ textAlign: 'center' }}></td>
+                      <td colSpan={2} style={{ textAlign: 'right' }}>
+                        Pago a cuenta:
+                      </td>
+                      <td style={{ textAlign: 'right' }}>
+                        -${accountPayment.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </td>
                     </tr>
                   )}

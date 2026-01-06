@@ -73,6 +73,7 @@ export async function GET(request: NextRequest) {
         notes,
         shipping_cost,
         previous_balance,
+        account_payment,
         created_at,
         updated_at,
         company_id,
@@ -233,7 +234,7 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
     console.log('POST /api/remitos - Request body:', JSON.stringify(body, null, 2));
-    const { clientId, status, notes, items, companyId, shippingCost, previousBalance } = body;
+    const { clientId, status, notes, items, companyId, shippingCost, previousBalance, accountPayment } = body;
 
     // Validaciones básicas
     console.log('Validating clientId:', clientId);
@@ -324,6 +325,7 @@ export async function POST(request: NextRequest) {
       notes,
       shipping_cost: shippingCostValue,
       previous_balance: parseFloat(previousBalance) || 0,
+      account_payment: parseFloat(accountPayment) || 0,
       created_by_id: session.user.id,
       company_id: finalCompanyId
     });
@@ -337,6 +339,7 @@ export async function POST(request: NextRequest) {
         notes,
         shipping_cost: shippingCostValue,
         previous_balance: parseFloat(previousBalance) || 0,
+        account_payment: parseFloat(accountPayment) || 0,
         created_by_id: session.user.id,
         company_id: finalCompanyId
       }])
@@ -355,15 +358,26 @@ export async function POST(request: NextRequest) {
 
     // Crear los items del remito
     console.log('Creating remito items:', items);
-    const remitoItems = items.map((item: any) => ({
-      remito_id: newRemito?.id,
-      product_id: item.product_id || null,
-      quantity: parseInt(item.quantity) || 1,
-      product_name: item.product_name || '',
-      product_desc: item.product_desc || null,
-      unit_price: parseFloat(item.unit_price) || 0,
-      line_total: parseFloat(item.line_total) || 0
-    }));
+    const remitoItems = items.map((item: any) => {
+      // Asegurar que is_unit sea un booleano explícito
+      const isUnitValue = item.is_unit === true || item.isUnit === true || item.is_unit === 1 || item.isUnit === 1;
+      console.log(`💾 [API POST] Procesando item:`, {
+        product_name: item.product_name,
+        'item.is_unit': item.is_unit,
+        'item.isUnit': item.isUnit,
+        'isUnitValue calculado': isUnitValue
+      });
+      return {
+        remito_id: newRemito?.id,
+        product_id: item.product_id || null,
+        quantity: parseInt(item.quantity) || 1,
+        product_name: item.product_name || '',
+        product_desc: item.product_desc || null,
+        unit_price: parseFloat(item.unit_price) || 0,
+        line_total: parseFloat(item.line_total) || 0,
+        is_unit: isUnitValue
+      };
+    });
 
     console.log('Mapped remito items:', remitoItems);
 
@@ -464,7 +478,7 @@ export async function POST(request: NextRequest) {
     try {
       const { data: itemsData } = await supabaseAdmin
         .from('remito_items')
-        .select('id, quantity, product_name, product_desc, unit_price, line_total, product_id')
+        .select('id, quantity, product_name, product_desc, unit_price, line_total, product_id, is_unit')
         .eq('remito_id', remitoData.id);
       
       if (itemsData) {

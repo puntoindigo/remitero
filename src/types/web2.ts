@@ -28,6 +28,16 @@ export interface CatalogData {
   createdAt: string;
   showCategoryTag?: boolean; // Mostrar tag de categoría
   showBuyButton?: boolean; // Mostrar botón de comprar
+  titleStyle?: {
+    fontFamily?: string;
+    fontSize?: string;
+    color?: string;
+  };
+  priceStyle?: {
+    fontFamily?: string;
+    fontSize?: string;
+    color?: string;
+  };
 }
 
 export interface UserProfileData {

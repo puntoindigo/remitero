@@ -83,14 +83,18 @@ export function transformRemito(remito: any) {
   
   const shippingCost = remito.shipping_cost || remito.shippingCost || 0;
   const previousBalance = remito.previous_balance || remito.previousBalance || 0;
+  const accountPayment = remito.account_payment || remito.accountPayment || 0;
   
   // Si shipping_cost > 0, entonces tiene envío
-  const total = productsTotal + previousBalance + shippingCost;
+  // El accountPayment se RESTA del total
+  const total = productsTotal + previousBalance + shippingCost - accountPayment;
   
-  // Asegurar que los items tengan product_id
+  // Asegurar que los items tengan product_id y preservar is_unit
   const remitoItems = (remito.remito_items || []).map((item: any) => ({
     ...item,
-    product_id: item.product_id || item.products?.id || null
+    product_id: item.product_id || item.products?.id || null,
+    is_unit: item.is_unit !== undefined ? item.is_unit : false,
+    isUnit: item.is_unit !== undefined ? item.is_unit : false
   }));
 
   return {
@@ -108,6 +112,7 @@ export function transformRemito(remito: any) {
     status: remito.estados_remitos, // Ahora es un objeto con los datos del estado
     shippingCost: shippingCost,
     previousBalance: previousBalance,
+    accountPayment: accountPayment,
     total: total,
     remitoItems: remitoItems,
     items: remitoItems, // También como 'items' para compatibilidad

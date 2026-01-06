@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Trash2, Plus } from "lucide-react";
+import { Trash2, Plus, Pencil } from "lucide-react";
 import FilterableSelect from "@/components/common/FilterableSelect";
 import { FormModal } from "@/components/common/FormModal";
 import { ClienteForm } from "@/components/forms/ClienteForm";
@@ -19,6 +19,8 @@ interface RemitoItem {
   quantity: number;
   unit_price: number;
   line_total: number;
+  isUnit?: boolean; // Indica si el producto se vende por unidad en lugar de por presentación
+  parentIndex?: number; // Índice del item padre si este es una versión "unidad" de otro item
 }
 
 interface RemitoFormCompleteProps {
@@ -58,7 +60,11 @@ export function RemitoFormComplete({
   const [isLoadingRemito, setIsLoadingRemito] = useState<boolean>(false);
   const [shippingCost, setShippingCost] = useState<number>(0);
   const [previousBalance, setPreviousBalance] = useState<number>(0);
+  const [accountPayment, setAccountPayment] = useState<number>(0);
   const [isShippingEnabled, setIsShippingEnabled] = useState<boolean>(false); // Solo para controlar el checkbox, no se envía a la API
+  const [editingPriceIndex, setEditingPriceIndex] = useState<number | null>(null); // Índice del item cuyo precio se está editando
+  const [editingPriceValue, setEditingPriceValue] = useState<string>(''); // Valor temporal mientras se edita
+  const [editingPresentationIndex, setEditingPresentationIndex] = useState<number | null>(null); // Índice del item cuya presentación se está editando
 
   const {
     register,
@@ -98,6 +104,7 @@ export function RemitoFormComplete({
       setItems([]);
       setShippingCost(0);
       setPreviousBalance(0);
+      setAccountPayment(0);
       setIsShippingEnabled(false);
       
       // SIEMPRE hacer fetch completo del remito para asegurar que los items se carguen correctamente
@@ -122,27 +129,49 @@ export function RemitoFormComplete({
             setValue("status", statusId);
             setValue("notes", String(fullRemito.notes || ""));
             
-            // Cargar campos de envío y saldo anterior
+            // Cargar campos de envío, saldo anterior y pago a cuenta
             const shippingCostValue = fullRemito.shipping_cost || fullRemito.shippingCost || 0;
             const previousBalanceValue = fullRemito.previous_balance || fullRemito.previousBalance || 0;
+            const accountPaymentValue = fullRemito.account_payment || fullRemito.accountPayment || 0;
             
             setShippingCost(shippingCostValue);
             setPreviousBalance(previousBalanceValue);
+            setAccountPayment(accountPaymentValue);
             setIsShippingEnabled(shippingCostValue > 0);
             
             // Cargar items del remito (pueden venir como 'items', 'remitoItems' o 'remito_items')
             const fetchedItems = fullRemito.items || fullRemito.remitoItems || fullRemito.remito_items || [];
             
             if (Array.isArray(fetchedItems) && fetchedItems.length > 0) {
-              const loadedItems = fetchedItems.map((item: any) => ({
-                product_id: String(item.product_id || item.productId || item.product?.id || item.products?.id || ''),
-                product_name: String(item.product_name || item.productName || item.product?.name || item.products?.name || ""),
-                product_desc: String(item.product_desc || item.productDesc || item.product?.description || item.products?.description || ""),
-                product_imageUrl: String(item.product?.imageUrl || item.product?.image_url || item.products?.imageUrl || item.products?.image_url || ""),
-                quantity: Number(item.quantity) || 1,
-                unit_price: Number(item.unit_price || item.unitPrice || item.product?.price || item.products?.price) || 0,
-                line_total: Number(item.line_total || item.lineTotal || (item.quantity * (item.unit_price || item.unitPrice))) || 0
-              }));
+              const loadedItems = fetchedItems.map((item: any) => {
+                // Verificar explícitamente si is_unit es true (puede venir como boolean, 1, o string "true")
+                const isUnitValue = item.is_unit === true || 
+                                   item.is_unit === 1 || 
+                                   item.is_unit === 'true' ||
+                                   item.isUnit === true || 
+                                   item.isUnit === 1 ||
+                                   item.isUnit === 'true';
+                console.log('🔍 Item cargado:', {
+                  product_name: item.product_name,
+                  'item.is_unit': item.is_unit,
+                  'item.isUnit': item.isUnit,
+                  'typeof is_unit': typeof item.is_unit,
+                  'typeof isUnit': typeof item.isUnit,
+                  isUnitValue: isUnitValue,
+                  'raw item keys': Object.keys(item),
+                  'raw item.is_unit value': item.is_unit
+                });
+                return {
+                  product_id: String(item.product_id || item.productId || item.product?.id || item.products?.id || ''),
+                  product_name: String(item.product_name || item.productName || item.product?.name || item.products?.name || ""),
+                  product_desc: String(item.product_desc || item.productDesc || item.product?.description || item.products?.description || ""),
+                  product_imageUrl: String(item.product?.imageUrl || item.product?.image_url || item.products?.imageUrl || item.products?.image_url || ""),
+                  quantity: Number(item.quantity) || 1,
+                  unit_price: Number(item.unit_price || item.unitPrice || item.product?.price || item.products?.price) || 0,
+                  line_total: Number(item.line_total || item.lineTotal || (item.quantity * (item.unit_price || item.unitPrice))) || 0,
+                  isUnit: isUnitValue
+                };
+              });
               console.log('✅ Items cargados desde fetch:', loadedItems);
               setItems(loadedItems);
             } else {
@@ -166,7 +195,8 @@ export function RemitoFormComplete({
                 product_imageUrl: String(item.product?.imageUrl || item.product?.image_url || item.products?.imageUrl || item.products?.image_url || ""),
                 quantity: Number(item.quantity) || 1,
                 unit_price: Number(item.unit_price || item.unitPrice || item.product?.price || item.products?.price) || 0,
-                line_total: Number(item.line_total || item.lineTotal || (item.quantity * (item.unit_price || item.unitPrice))) || 0
+                line_total: Number(item.line_total || item.lineTotal || (item.quantity * (item.unit_price || item.unitPrice))) || 0,
+                isUnit: Boolean(item.is_unit || item.isUnit || false)
               }));
               setItems(loadedItems);
             } else {
@@ -183,6 +213,7 @@ export function RemitoFormComplete({
         // Asegurar reset de valores de envío
         setShippingCost(0);
         setPreviousBalance(0);
+        setAccountPayment(0);
         setIsShippingEnabled(false);
       }
     } else {
@@ -193,6 +224,7 @@ export function RemitoFormComplete({
       setShowNotes(false);
       setPreviousBalance(0);
       setShippingCost(0);
+      setAccountPayment(0);
       setIsShippingEnabled(false);
       setIsLoadingRemito(false);
       // Set default status: buscar "Pendiente" o el que tenga is_default: true
@@ -212,9 +244,9 @@ export function RemitoFormComplete({
   // No cargar automáticamente el último costo de envío
   // Solo se cargará cuando el usuario marque el checkbox
 
-  // Calcular total: productos + saldo anterior + costo de envío (si shippingCost > 0)
+  // Calcular total: productos + saldo anterior + costo de envío - pago a cuenta
   const productsTotal = items.reduce((sum, item) => sum + (item.line_total || 0), 0);
-  const total = productsTotal + previousBalance + shippingCost;
+  const total = productsTotal + previousBalance + shippingCost - accountPayment;
 
   const handleAddProduct = () => {
     if (!selectedProduct || quantity <= 0) return;
@@ -251,10 +283,120 @@ export function RemitoFormComplete({
     setItems(prev => prev.map((item, i) => {
       if (i === index) {
         const lineTotal = item.unit_price * newQuantity;
-        return { ...item, quantity: newQuantity, line_total: lineTotal };
+        return { ...item, quantity: newQuantity, line_total: lineTotal, isUnit: item.isUnit };
       }
       return item;
     }));
+  };
+
+  const handleUpdateUnitPrice = (index: number, newPrice: number) => {
+    if (newPrice < 0) return;
+
+    setItems(prev => prev.map((item, i) => {
+      if (i === index) {
+        const lineTotal = newPrice * item.quantity;
+        return { ...item, unit_price: newPrice, line_total: lineTotal, isUnit: item.isUnit };
+      }
+      return item;
+    }));
+    setEditingPriceIndex(null);
+    setEditingPriceValue('');
+  };
+
+  const handleStartEditingPrice = (index: number) => {
+    const item = items[index];
+    setEditingPriceIndex(index);
+    // Formatear a 2 decimales máximo
+    const price = Number(item.unit_price) || 0;
+    setEditingPriceValue(price.toFixed(2));
+  };
+
+  const handleCancelEditingPrice = () => {
+    setEditingPriceIndex(null);
+    setEditingPriceValue('');
+  };
+
+  const handleConfirmEditingPrice = () => {
+    if (editingPriceIndex === null) return;
+    const newPrice = parseFloat(editingPriceValue) || 0;
+    // Redondear a máximo 2 decimales
+    const roundedPrice = Math.round(newPrice * 100) / 100;
+    if (roundedPrice >= 0) {
+      handleUpdateUnitPrice(editingPriceIndex, roundedPrice);
+    } else {
+      handleCancelEditingPrice();
+    }
+  };
+
+  // Validar y limitar a 2 decimales mientras se escribe
+  const handlePriceInputChange = (value: string) => {
+    // Permitir borrar completamente
+    if (value === '') {
+      setEditingPriceValue('');
+      return;
+    }
+    
+    // Validar formato numérico con máximo 2 decimales
+    const decimalRegex = /^\d+(\.\d{0,2})?$/;
+    if (decimalRegex.test(value)) {
+      setEditingPriceValue(value);
+    } else {
+      // Si no coincide, intentar extraer solo los primeros 2 decimales
+      const match = value.match(/^(\d+\.?\d{0,2})/);
+      if (match) {
+        setEditingPriceValue(match[1]);
+      }
+    }
+  };
+
+  // Extraer el número de la presentación del nombre del producto (ej: "Power x6" -> 6)
+  const extractPresentationNumber = (productName: string): number | null => {
+    const match = productName.match(/x(\d+)$/i);
+    return match ? parseInt(match[1], 10) : null;
+  };
+
+  // Extraer el nombre base del producto sin la presentación (ej: "Power x6" -> "Power")
+  const extractBaseProductName = (productName: string): string => {
+    return productName.replace(/\s*x\d+$/i, '').trim();
+  };
+
+  const handleToggleUnitPresentation = (index: number, isUnit: boolean) => {
+    if (isUnit) {
+      // Crear una nueva línea con el producto por unidad
+      const parentItem = items[index];
+      const presentationNumber = extractPresentationNumber(parentItem.product_name);
+      const baseName = extractBaseProductName(parentItem.product_name);
+      let newPrice = 0;
+      
+      if (presentationNumber && presentationNumber > 0) {
+        // Dividir el precio por la cantidad de la presentación
+        newPrice = parentItem.unit_price / presentationNumber;
+      }
+      
+      // Crear nuevo item para unidad
+      const unitItem: RemitoItem = {
+        product_id: parentItem.product_id,
+        product_name: baseName,
+        product_desc: parentItem.product_desc,
+        product_imageUrl: parentItem.product_imageUrl,
+        quantity: 1, // Cantidad inicial por defecto
+        unit_price: newPrice,
+        line_total: newPrice,
+        isUnit: true,
+        parentIndex: index
+      };
+      
+      // Insertar el nuevo item después del item padre
+      setItems(prev => {
+        const newItems = [...prev];
+        newItems.splice(index + 1, 0, unitItem);
+        return newItems;
+      });
+    } else {
+      // Si se desmarca en un item que es unidad, eliminar esa línea
+      setItems(prev => prev.filter((_, i) => i !== index));
+    }
+    setEditingPresentationIndex(null);
   };
 
   const handleRemoveItem = (index: number) => {
@@ -273,16 +415,28 @@ export function RemitoFormComplete({
 
     const formData = {
       ...data,
-      items: items.map(item => ({
-        product_id: String(item.product_id || ''),
-        product_name: String(item.product_name || ''),
-        product_desc: String(item.product_desc || ''),
-        quantity: Number(item.quantity || 0),
-        unit_price: Number(item.unit_price || 0),
-        line_total: Number(item.line_total || 0)
-      })),
+      items: items.map(item => {
+        const isUnitValue = item.isUnit === true;
+        console.log('💾 Item a guardar:', {
+          product_name: item.product_name,
+          isUnit: item.isUnit,
+          isUnitValue: isUnitValue,
+          'typeof isUnit': typeof item.isUnit
+        });
+        return {
+          product_id: String(item.product_id || ''),
+          product_name: String(item.product_name || ''),
+          product_desc: String(item.product_desc || ''),
+          quantity: Number(item.quantity || 0),
+          unit_price: Number(item.unit_price || 0),
+          line_total: Number(item.line_total || 0),
+          is_unit: isUnitValue,
+          isUnit: isUnitValue // Enviar ambos por si acaso
+        };
+      }),
       shippingCost: shippingCost || 0, // Si el checkbox no está marcado, shippingCost ya es 0
       previousBalance,
+      accountPayment,
       total
     };
 
@@ -354,6 +508,7 @@ export function RemitoFormComplete({
     setShowNotes(false);
     setShippingCost(0);
     setPreviousBalance(0);
+    setAccountPayment(0);
     setIsShippingEnabled(false);
     setIsLoadingRemito(false);
     onClose();
@@ -560,12 +715,78 @@ export function RemitoFormComplete({
                         />
                       )
                     )}
-                    <div>
+                    <div style={{ flex: 1 }}>
                       <div style={{ fontSize: '14px', fontWeight: 500 }}>{item.product_name}</div>
-                      {item.product_desc && (
+                      {item.isUnit === true && (
+                        <div style={{ fontSize: '12px', color: '#6b7280', fontStyle: 'italic' }}>por unidad</div>
+                      )}
+                      {item.product_desc && item.isUnit !== true && (
                         <div style={{ fontSize: '12px', color: '#6b7280' }}>{item.product_desc}</div>
                       )}
                     </div>
+                    {!item.isUnit && editingPresentationIndex === index ? (
+                      // Solo mostrar modo edición si NO es unidad
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', alignItems: 'flex-end' }}>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '12px', cursor: 'pointer' }}>
+                          <input
+                            type="checkbox"
+                            checked={false}
+                            onChange={(e) => handleToggleUnitPresentation(index, e.target.checked)}
+                            style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+                          />
+                          <span>Agregar por unidad</span>
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() => setEditingPresentationIndex(null)}
+                          style={{
+                            padding: '2px 6px',
+                            fontSize: '11px',
+                            backgroundColor: '#ef4444',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '4px',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ) : !item.isUnit && extractPresentationNumber(item.product_name) !== null ? (
+                      // Solo mostrar el lápiz si el producto tiene presentación (x6, x12, etc.) y NO es unidad
+                      <button
+                        type="button"
+                        onClick={() => setEditingPresentationIndex(index)}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          padding: '4px',
+                          backgroundColor: 'transparent',
+                          border: 'none',
+                          borderRadius: '4px',
+                          cursor: 'pointer',
+                          opacity: 0.6,
+                          transition: 'opacity 0.2s',
+                          flexShrink: 0
+                        }}
+                        onMouseEnter={(e) => {
+                          if (!isMobile) {
+                            e.currentTarget.style.opacity = '1';
+                            e.currentTarget.style.backgroundColor = '#e5e7eb';
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (!isMobile) {
+                            e.currentTarget.style.opacity = '0.6';
+                            e.currentTarget.style.backgroundColor = 'transparent';
+                          }
+                        }}
+                        title="Agregar versión por unidad"
+                      >
+                        <Pencil className="h-3.5 w-3.5" style={{ color: '#6b7280' }} />
+                      </button>
+                    ) : null}
                   </div>
                 </td>
                 <td style={{ padding: '12px 8px', verticalAlign: 'middle' }}>
@@ -578,10 +799,156 @@ export function RemitoFormComplete({
                   />
                 </td>
                 <td style={{ fontSize: '14px', padding: '12px 8px', verticalAlign: 'middle' }}>
-                  {(Number(item.unit_price) || 0).toLocaleString('es-AR', { 
-                    style: 'currency', 
-                    currency: 'ARS' 
-                  })}
+                  <div 
+                    style={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      gap: '0.5rem',
+                      position: 'relative'
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!isMobile && editingPriceIndex !== index) {
+                        e.currentTarget.style.backgroundColor = '#f9fafb';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (editingPriceIndex !== index) {
+                        e.currentTarget.style.backgroundColor = 'transparent';
+                      }
+                    }}
+                  >
+                    {editingPriceIndex === index ? (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                        <input
+                          type="text"
+                          inputMode="decimal"
+                          min="0"
+                          value={editingPriceValue}
+                          onChange={(e) => {
+                            handlePriceInputChange(e.target.value);
+                          }}
+                          onBlur={handleConfirmEditingPrice}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault();
+                              handleConfirmEditingPrice();
+                            } else if (e.key === 'Escape') {
+                              e.preventDefault();
+                              handleCancelEditingPrice();
+                            }
+                          }}
+                          autoFocus
+                          style={{ 
+                            width: '100px', 
+                            fontSize: '14px', 
+                            padding: '4px 8px',
+                            border: '1px solid #3b82f6',
+                            borderRadius: '4px',
+                            textAlign: 'right'
+                          }}
+                        />
+                        <button
+                          type="button"
+                          onClick={handleConfirmEditingPrice}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            padding: '4px 6px',
+                            backgroundColor: '#3b82f6',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '4px',
+                            cursor: 'pointer',
+                            fontSize: '12px',
+                            flexShrink: 0
+                          }}
+                          title="Confirmar"
+                        >
+                          ✓
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleCancelEditingPrice}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            padding: '4px 6px',
+                            backgroundColor: '#ef4444',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '4px',
+                            cursor: 'pointer',
+                            fontSize: '12px',
+                            flexShrink: 0
+                          }}
+                          title="Cancelar"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ) : (
+                      <>
+                        <span>
+                          {(Number(item.unit_price) || 0).toLocaleString('es-AR', { 
+                            style: 'currency', 
+                            currency: 'ARS' 
+                          })}
+                        </span>
+                        {!isMobile && (
+                          <button
+                            type="button"
+                            onClick={() => handleStartEditingPrice(index)}
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              padding: '4px',
+                              backgroundColor: 'transparent',
+                              border: 'none',
+                              borderRadius: '4px',
+                              cursor: 'pointer',
+                              opacity: 0.6,
+                              transition: 'opacity 0.2s',
+                              flexShrink: 0
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.opacity = '1';
+                              e.currentTarget.style.backgroundColor = '#e5e7eb';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.opacity = '0.6';
+                              e.currentTarget.style.backgroundColor = 'transparent';
+                            }}
+                            title="Editar precio unitario"
+                          >
+                            <Pencil className="h-3.5 w-3.5" style={{ color: '#6b7280' }} />
+                          </button>
+                        )}
+                        {isMobile && (
+                          <button
+                            type="button"
+                            onClick={() => handleStartEditingPrice(index)}
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              padding: '4px',
+                              backgroundColor: 'transparent',
+                              border: 'none',
+                              borderRadius: '4px',
+                              cursor: 'pointer',
+                              flexShrink: 0
+                            }}
+                            title="Editar precio unitario"
+                          >
+                            <Pencil className="h-3.5 w-3.5" style={{ color: '#6b7280' }} />
+                          </button>
+                        )}
+                      </>
+                    )}
+                  </div>
                 </td>
                 <td style={{ 
                   fontSize: '14px', 
@@ -720,10 +1087,10 @@ export function RemitoFormComplete({
         </div>
       )}
 
-      {/* Estado, Envío y Saldo Anterior - en una fila */}
+      {/* Estado, Envío, Saldo Anterior y Pago a cuenta - en una fila */}
       <div style={{ 
         display: 'grid', 
-        gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', 
+        gridTemplateColumns: isMobile ? '1fr' : 'repeat(4, 1fr)', 
         gap: '1rem', 
         marginTop: '0.25rem', 
         marginBottom: '0.75rem' 
@@ -814,6 +1181,40 @@ export function RemitoFormComplete({
               borderRadius: '6px'
             }}
           />
+        </div>
+
+        {/* Pago a cuenta */}
+        <div className="form-group" style={{ marginBottom: '0' }}>
+          <label className="form-label-large" style={{ marginBottom: '0.5rem', display: 'block' }}>
+            Pago a cuenta
+          </label>
+          <div style={{ position: 'relative' }}>
+            <span style={{
+              position: 'absolute',
+              left: '12px',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              fontSize: '14px',
+              fontWeight: 500,
+              color: '#6b7280',
+              pointerEvents: 'none'
+            }}>-</span>
+            <input
+              type="number"
+              min="0"
+              step="0.01"
+              value={accountPayment}
+              onChange={(e) => setAccountPayment(parseFloat(e.target.value) || 0)}
+              placeholder="0.00"
+              style={{ 
+                width: '100%', 
+                fontSize: '14px', 
+                padding: '8px 12px 8px 24px',
+                border: '1px solid #d1d5db',
+                borderRadius: '6px'
+              }}
+            />
+          </div>
         </div>
       </div>
         </>
