@@ -144,12 +144,16 @@ export function RemitoFormComplete({
             
             if (Array.isArray(fetchedItems) && fetchedItems.length > 0) {
               const loadedItems = fetchedItems.map((item: any) => {
-                const isUnitValue = Boolean(item.is_unit || item.isUnit || false);
+                // Verificar todos los posibles nombres del campo
+                const isUnitValue = item.is_unit === true || item.isUnit === true || item.is_unit === 1 || item.isUnit === 1;
                 console.log('🔍 Item cargado:', {
                   product_name: item.product_name,
-                  is_unit: item.is_unit,
-                  isUnit: item.isUnit,
-                  isUnitValue: isUnitValue
+                  'item.is_unit': item.is_unit,
+                  'item.isUnit': item.isUnit,
+                  'typeof is_unit': typeof item.is_unit,
+                  'typeof isUnit': typeof item.isUnit,
+                  isUnitValue: isUnitValue,
+                  'raw item': item
                 });
                 return {
                   product_id: String(item.product_id || item.productId || item.product?.id || item.products?.id || ''),
