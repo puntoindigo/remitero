@@ -73,6 +73,7 @@ export async function GET(request: NextRequest) {
         notes,
         shipping_cost,
         previous_balance,
+        account_payment,
         created_at,
         updated_at,
         company_id,
