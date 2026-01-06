@@ -254,9 +254,11 @@ export default function PrintRemito() {
                     <tr>
                       <td style={{ textAlign: 'center' }}></td>
                       <td colSpan={2} style={{ textAlign: 'right' }}>
-                        Saldo Anterior: ${previousBalance.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        Saldo Anterior:
                       </td>
-                      <td></td>
+                      <td style={{ textAlign: 'right' }}>
+                        ${previousBalance.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </td>
                     </tr>
                   )}
                   
@@ -265,9 +267,11 @@ export default function PrintRemito() {
                     <tr>
                       <td style={{ textAlign: 'center' }}></td>
                       <td colSpan={2} style={{ textAlign: 'right' }}>
-                        Costo de Envío: ${shippingCost.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        Costo de Envío:
                       </td>
-                      <td></td>
+                      <td style={{ textAlign: 'right' }}>
+                        ${shippingCost.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </td>
                     </tr>
                   )}
                   
@@ -276,9 +280,11 @@ export default function PrintRemito() {
                     <tr>
                       <td style={{ textAlign: 'center' }}></td>
                       <td colSpan={2} style={{ textAlign: 'right' }}>
-                        Pago a cuenta: -${accountPayment.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        Pago a cuenta:
                       </td>
-                      <td></td>
+                      <td style={{ textAlign: 'right' }}>
+                        -${accountPayment.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </td>
                     </tr>
                   )}
                   
