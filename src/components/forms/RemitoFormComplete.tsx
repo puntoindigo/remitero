@@ -306,7 +306,9 @@ export function RemitoFormComplete({
   const handleStartEditingPrice = (index: number) => {
     const item = items[index];
     setEditingPriceIndex(index);
-    setEditingPriceValue(item.unit_price.toString());
+    // Formatear a 2 decimales máximo
+    const price = Number(item.unit_price) || 0;
+    setEditingPriceValue(price.toFixed(2));
   };
 
   const handleCancelEditingPrice = () => {
@@ -317,10 +319,33 @@ export function RemitoFormComplete({
   const handleConfirmEditingPrice = () => {
     if (editingPriceIndex === null) return;
     const newPrice = parseFloat(editingPriceValue) || 0;
-    if (newPrice >= 0) {
-      handleUpdateUnitPrice(editingPriceIndex, newPrice);
+    // Redondear a máximo 2 decimales
+    const roundedPrice = Math.round(newPrice * 100) / 100;
+    if (roundedPrice >= 0) {
+      handleUpdateUnitPrice(editingPriceIndex, roundedPrice);
     } else {
       handleCancelEditingPrice();
+    }
+  };
+
+  // Validar y limitar a 2 decimales mientras se escribe
+  const handlePriceInputChange = (value: string) => {
+    // Permitir borrar completamente
+    if (value === '') {
+      setEditingPriceValue('');
+      return;
+    }
+    
+    // Validar formato numérico con máximo 2 decimales
+    const decimalRegex = /^\d+(\.\d{0,2})?$/;
+    if (decimalRegex.test(value)) {
+      setEditingPriceValue(value);
+    } else {
+      // Si no coincide, intentar extraer solo los primeros 2 decimales
+      const match = value.match(/^(\d+\.?\d{0,2})/);
+      if (match) {
+        setEditingPriceValue(match[1]);
+      }
     }
   };
 
@@ -795,12 +820,12 @@ export function RemitoFormComplete({
                     {editingPriceIndex === index ? (
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
                         <input
-                          type="number"
+                          type="text"
+                          inputMode="decimal"
                           min="0"
-                          step="0.01"
                           value={editingPriceValue}
                           onChange={(e) => {
-                            setEditingPriceValue(e.target.value);
+                            handlePriceInputChange(e.target.value);
                           }}
                           onBlur={handleConfirmEditingPrice}
                           onKeyDown={(e) => {
