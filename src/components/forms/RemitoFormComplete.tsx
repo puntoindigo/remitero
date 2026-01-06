@@ -143,16 +143,25 @@ export function RemitoFormComplete({
             const fetchedItems = fullRemito.items || fullRemito.remitoItems || fullRemito.remito_items || [];
             
             if (Array.isArray(fetchedItems) && fetchedItems.length > 0) {
-              const loadedItems = fetchedItems.map((item: any) => ({
-                product_id: String(item.product_id || item.productId || item.product?.id || item.products?.id || ''),
-                product_name: String(item.product_name || item.productName || item.product?.name || item.products?.name || ""),
-                product_desc: String(item.product_desc || item.productDesc || item.product?.description || item.products?.description || ""),
-                product_imageUrl: String(item.product?.imageUrl || item.product?.image_url || item.products?.imageUrl || item.products?.image_url || ""),
-                quantity: Number(item.quantity) || 1,
-                unit_price: Number(item.unit_price || item.unitPrice || item.product?.price || item.products?.price) || 0,
-                line_total: Number(item.line_total || item.lineTotal || (item.quantity * (item.unit_price || item.unitPrice))) || 0,
-                isUnit: Boolean(item.is_unit || item.isUnit || false)
-              }));
+              const loadedItems = fetchedItems.map((item: any) => {
+                const isUnitValue = Boolean(item.is_unit || item.isUnit || false);
+                console.log('🔍 Item cargado:', {
+                  product_name: item.product_name,
+                  is_unit: item.is_unit,
+                  isUnit: item.isUnit,
+                  isUnitValue: isUnitValue
+                });
+                return {
+                  product_id: String(item.product_id || item.productId || item.product?.id || item.products?.id || ''),
+                  product_name: String(item.product_name || item.productName || item.product?.name || item.products?.name || ""),
+                  product_desc: String(item.product_desc || item.productDesc || item.product?.description || item.products?.description || ""),
+                  product_imageUrl: String(item.product?.imageUrl || item.product?.image_url || item.products?.imageUrl || item.products?.image_url || ""),
+                  quantity: Number(item.quantity) || 1,
+                  unit_price: Number(item.unit_price || item.unitPrice || item.product?.price || item.products?.price) || 0,
+                  line_total: Number(item.line_total || item.lineTotal || (item.quantity * (item.unit_price || item.unitPrice))) || 0,
+                  isUnit: isUnitValue
+                };
+              });
               console.log('✅ Items cargados desde fetch:', loadedItems);
               setItems(loadedItems);
             } else {
