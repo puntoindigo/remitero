@@ -699,103 +699,69 @@ export function RemitoFormComplete({
                         <div style={{ fontSize: '12px', color: '#6b7280' }}>{item.product_desc}</div>
                       )}
                     </div>
-                    {editingPresentationIndex === index ? (
+                    {!item.isUnit && editingPresentationIndex === index ? (
+                      // Solo mostrar modo edición si NO es unidad
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', alignItems: 'flex-end' }}>
-                        {item.isUnit ? (
-                          // Si ya es unidad, mostrar checkbox desmarcado para eliminar
-                          <>
-                            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '12px', cursor: 'pointer' }}>
-                              <input
-                                type="checkbox"
-                                checked={true}
-                                onChange={(e) => handleToggleUnitPresentation(index, !e.target.checked)}
-                                style={{ width: '16px', height: '16px', cursor: 'pointer' }}
-                              />
-                              <span>Unidad (desmarcar para eliminar)</span>
-                            </label>
-                            <button
-                              type="button"
-                              onClick={() => setEditingPresentationIndex(null)}
-                              style={{
-                                padding: '2px 6px',
-                                fontSize: '11px',
-                                backgroundColor: '#ef4444',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '4px',
-                                cursor: 'pointer'
-                              }}
-                            >
-                              ✕
-                            </button>
-                          </>
-                        ) : (
-                          // Si no es unidad, mostrar checkbox para crear línea de unidad
-                          <>
-                            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '12px', cursor: 'pointer' }}>
-                              <input
-                                type="checkbox"
-                                checked={false}
-                                onChange={(e) => handleToggleUnitPresentation(index, e.target.checked)}
-                                style={{ width: '16px', height: '16px', cursor: 'pointer' }}
-                              />
-                              <span>Agregar por unidad</span>
-                            </label>
-                            <button
-                              type="button"
-                              onClick={() => setEditingPresentationIndex(null)}
-                              style={{
-                                padding: '2px 6px',
-                                fontSize: '11px',
-                                backgroundColor: '#ef4444',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '4px',
-                                cursor: 'pointer'
-                              }}
-                            >
-                              ✕
-                            </button>
-                          </>
-                        )}
-                      </div>
-                    ) : (
-                      // Solo mostrar el lápiz si el producto tiene presentación (x6, x12, etc.) o si es unidad
-                      (extractPresentationNumber(item.product_name) !== null || item.isUnit) ? (
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '12px', cursor: 'pointer' }}>
+                          <input
+                            type="checkbox"
+                            checked={false}
+                            onChange={(e) => handleToggleUnitPresentation(index, e.target.checked)}
+                            style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+                          />
+                          <span>Agregar por unidad</span>
+                        </label>
                         <button
                           type="button"
-                          onClick={() => setEditingPresentationIndex(index)}
+                          onClick={() => setEditingPresentationIndex(null)}
                           style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            padding: '4px',
-                            backgroundColor: 'transparent',
+                            padding: '2px 6px',
+                            fontSize: '11px',
+                            backgroundColor: '#ef4444',
+                            color: 'white',
                             border: 'none',
                             borderRadius: '4px',
-                            cursor: 'pointer',
-                            opacity: 0.6,
-                            transition: 'opacity 0.2s',
-                            flexShrink: 0
+                            cursor: 'pointer'
                           }}
-                          onMouseEnter={(e) => {
-                            if (!isMobile) {
-                              e.currentTarget.style.opacity = '1';
-                              e.currentTarget.style.backgroundColor = '#e5e7eb';
-                            }
-                          }}
-                          onMouseLeave={(e) => {
-                            if (!isMobile) {
-                              e.currentTarget.style.opacity = '0.6';
-                              e.currentTarget.style.backgroundColor = 'transparent';
-                            }
-                          }}
-                          title={item.isUnit ? "Eliminar línea de unidad" : "Agregar versión por unidad"}
                         >
-                          <Pencil className="h-3.5 w-3.5" style={{ color: '#6b7280' }} />
+                          ✕
                         </button>
-                      ) : null
-                    )}
+                      </div>
+                    ) : !item.isUnit && extractPresentationNumber(item.product_name) !== null ? (
+                      // Solo mostrar el lápiz si el producto tiene presentación (x6, x12, etc.) y NO es unidad
+                      <button
+                        type="button"
+                        onClick={() => setEditingPresentationIndex(index)}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          padding: '4px',
+                          backgroundColor: 'transparent',
+                          border: 'none',
+                          borderRadius: '4px',
+                          cursor: 'pointer',
+                          opacity: 0.6,
+                          transition: 'opacity 0.2s',
+                          flexShrink: 0
+                        }}
+                        onMouseEnter={(e) => {
+                          if (!isMobile) {
+                            e.currentTarget.style.opacity = '1';
+                            e.currentTarget.style.backgroundColor = '#e5e7eb';
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (!isMobile) {
+                            e.currentTarget.style.opacity = '0.6';
+                            e.currentTarget.style.backgroundColor = 'transparent';
+                          }
+                        }}
+                        title="Agregar versión por unidad"
+                      >
+                        <Pencil className="h-3.5 w-3.5" style={{ color: '#6b7280' }} />
+                      </button>
+                    ) : null}
                   </div>
                 </td>
                 <td style={{ padding: '12px 8px', verticalAlign: 'middle' }}>
