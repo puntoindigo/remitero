@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Trash2, Plus } from "lucide-react";
+import { Trash2, Plus, Pencil } from "lucide-react";
 import FilterableSelect from "@/components/common/FilterableSelect";
 import { FormModal } from "@/components/common/FormModal";
 import { ClienteForm } from "@/components/forms/ClienteForm";
@@ -60,6 +60,7 @@ export function RemitoFormComplete({
   const [previousBalance, setPreviousBalance] = useState<number>(0);
   const [accountPayment, setAccountPayment] = useState<number>(0);
   const [isShippingEnabled, setIsShippingEnabled] = useState<boolean>(false); // Solo para controlar el checkbox, no se envía a la API
+  const [editingPriceIndex, setEditingPriceIndex] = useState<number | null>(null); // Índice del item cuyo precio se está editando
 
   const {
     register,
@@ -261,6 +262,19 @@ export function RemitoFormComplete({
       }
       return item;
     }));
+  };
+
+  const handleUpdateUnitPrice = (index: number, newPrice: number) => {
+    if (newPrice < 0) return;
+
+    setItems(prev => prev.map((item, i) => {
+      if (i === index) {
+        const lineTotal = newPrice * item.quantity;
+        return { ...item, unit_price: newPrice, line_total: lineTotal };
+      }
+      return item;
+    }));
+    setEditingPriceIndex(null);
   };
 
   const handleRemoveItem = (index: number) => {
@@ -586,10 +600,113 @@ export function RemitoFormComplete({
                   />
                 </td>
                 <td style={{ fontSize: '14px', padding: '12px 8px', verticalAlign: 'middle' }}>
-                  {(Number(item.unit_price) || 0).toLocaleString('es-AR', { 
-                    style: 'currency', 
-                    currency: 'ARS' 
-                  })}
+                  <div 
+                    style={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      gap: '0.5rem',
+                      position: 'relative'
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!isMobile && editingPriceIndex !== index) {
+                        e.currentTarget.style.backgroundColor = '#f9fafb';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (editingPriceIndex !== index) {
+                        e.currentTarget.style.backgroundColor = 'transparent';
+                      }
+                    }}
+                  >
+                    {editingPriceIndex === index ? (
+                      <input
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        value={item.unit_price}
+                        onChange={(e) => {
+                          const newPrice = parseFloat(e.target.value) || 0;
+                          handleUpdateUnitPrice(index, newPrice);
+                        }}
+                        onBlur={() => setEditingPriceIndex(null)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            setEditingPriceIndex(null);
+                          } else if (e.key === 'Escape') {
+                            setEditingPriceIndex(null);
+                          }
+                        }}
+                        autoFocus
+                        style={{ 
+                          width: '100px', 
+                          fontSize: '14px', 
+                          padding: '4px 8px',
+                          border: '1px solid #3b82f6',
+                          borderRadius: '4px',
+                          textAlign: 'right'
+                        }}
+                      />
+                    ) : (
+                      <>
+                        <span>
+                          {(Number(item.unit_price) || 0).toLocaleString('es-AR', { 
+                            style: 'currency', 
+                            currency: 'ARS' 
+                          })}
+                        </span>
+                        {!isMobile && (
+                          <button
+                            type="button"
+                            onClick={() => setEditingPriceIndex(index)}
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              padding: '4px',
+                              backgroundColor: 'transparent',
+                              border: 'none',
+                              borderRadius: '4px',
+                              cursor: 'pointer',
+                              opacity: 0.6,
+                              transition: 'opacity 0.2s',
+                              flexShrink: 0
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.opacity = '1';
+                              e.currentTarget.style.backgroundColor = '#e5e7eb';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.opacity = '0.6';
+                              e.currentTarget.style.backgroundColor = 'transparent';
+                            }}
+                            title="Editar precio unitario"
+                          >
+                            <Pencil className="h-3.5 w-3.5" style={{ color: '#6b7280' }} />
+                          </button>
+                        )}
+                        {isMobile && (
+                          <button
+                            type="button"
+                            onClick={() => setEditingPriceIndex(index)}
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              padding: '4px',
+                              backgroundColor: 'transparent',
+                              border: 'none',
+                              borderRadius: '4px',
+                              cursor: 'pointer',
+                              flexShrink: 0
+                            }}
+                            title="Editar precio unitario"
+                          >
+                            <Pencil className="h-3.5 w-3.5" style={{ color: '#6b7280' }} />
+                          </button>
+                        )}
+                      </>
+                    )}
+                  </div>
                 </td>
                 <td style={{ 
                   fontSize: '14px', 
