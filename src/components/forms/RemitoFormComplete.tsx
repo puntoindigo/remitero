@@ -732,7 +732,7 @@ export function RemitoFormComplete({
                       </div>
                     ) : (
                       // Solo mostrar el lápiz si el producto tiene presentación (x6, x12, etc.) o si es unidad
-                      {(extractPresentationNumber(item.product_name) !== null || item.isUnit) && (
+                      (extractPresentationNumber(item.product_name) !== null || item.isUnit) ? (
                         <button
                           type="button"
                           onClick={() => setEditingPresentationIndex(index)}
@@ -765,7 +765,7 @@ export function RemitoFormComplete({
                         >
                           <Pencil className="h-3.5 w-3.5" style={{ color: '#6b7280' }} />
                         </button>
-                      )}
+                      ) : null
                     )}
                   </div>
                 </td>
