@@ -89,10 +89,12 @@ export function transformRemito(remito: any) {
   // El accountPayment se RESTA del total
   const total = productsTotal + previousBalance + shippingCost - accountPayment;
   
-  // Asegurar que los items tengan product_id
+  // Asegurar que los items tengan product_id y preservar is_unit
   const remitoItems = (remito.remito_items || []).map((item: any) => ({
     ...item,
-    product_id: item.product_id || item.products?.id || null
+    product_id: item.product_id || item.products?.id || null,
+    is_unit: item.is_unit !== undefined ? item.is_unit : false,
+    isUnit: item.is_unit !== undefined ? item.is_unit : false
   }));
 
   return {
