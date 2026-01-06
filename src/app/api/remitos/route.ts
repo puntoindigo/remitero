@@ -365,7 +365,8 @@ export async function POST(request: NextRequest) {
       product_name: item.product_name || '',
       product_desc: item.product_desc || null,
       unit_price: parseFloat(item.unit_price) || 0,
-      line_total: parseFloat(item.line_total) || 0
+      line_total: parseFloat(item.line_total) || 0,
+      is_unit: Boolean(item.is_unit || item.isUnit || false)
     }));
 
     console.log('Mapped remito items:', remitoItems);
@@ -467,7 +468,7 @@ export async function POST(request: NextRequest) {
     try {
       const { data: itemsData } = await supabaseAdmin
         .from('remito_items')
-        .select('id, quantity, product_name, product_desc, unit_price, line_total, product_id')
+        .select('id, quantity, product_name, product_desc, unit_price, line_total, product_id, is_unit')
         .eq('remito_id', remitoData.id);
       
       if (itemsData) {

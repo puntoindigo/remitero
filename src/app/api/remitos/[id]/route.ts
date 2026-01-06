@@ -341,7 +341,8 @@ export async function PUT(
       unit_price: Number(item.unit_price || item.unitPrice) || 0,
       product_name: item.product_name || item.productName || '',
       product_desc: item.product_desc || item.productDesc || '',
-      line_total: (Number(item.quantity) || 0) * (Number(item.unit_price || item.unitPrice) || 0)
+      line_total: (Number(item.quantity) || 0) * (Number(item.unit_price || item.unitPrice) || 0),
+      is_unit: Boolean(item.is_unit || item.isUnit || false)
     }));
 
     console.log('Items to insert:', JSON.stringify(itemsToInsert, null, 2));
@@ -450,7 +451,7 @@ export async function PUT(
     try {
       const { data: itemsData } = await supabaseAdmin
         .from('remito_items')
-        .select('id, quantity, product_name, product_desc, unit_price, line_total, product_id')
+        .select('id, quantity, product_name, product_desc, unit_price, line_total, product_id, is_unit')
         .eq('remito_id', remitoData.id);
       
       if (itemsData) {

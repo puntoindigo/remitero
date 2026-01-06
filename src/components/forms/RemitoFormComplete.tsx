@@ -19,6 +19,7 @@ interface RemitoItem {
   quantity: number;
   unit_price: number;
   line_total: number;
+  isUnit?: boolean; // Indica si el producto se vende por unidad en lugar de por presentación
 }
 
 interface RemitoFormCompleteProps {
@@ -62,6 +63,7 @@ export function RemitoFormComplete({
   const [isShippingEnabled, setIsShippingEnabled] = useState<boolean>(false); // Solo para controlar el checkbox, no se envía a la API
   const [editingPriceIndex, setEditingPriceIndex] = useState<number | null>(null); // Índice del item cuyo precio se está editando
   const [editingPriceValue, setEditingPriceValue] = useState<string>(''); // Valor temporal mientras se edita
+  const [editingPresentationIndex, setEditingPresentationIndex] = useState<number | null>(null); // Índice del item cuya presentación se está editando
 
   const {
     register,
@@ -147,7 +149,8 @@ export function RemitoFormComplete({
                 product_imageUrl: String(item.product?.imageUrl || item.product?.image_url || item.products?.imageUrl || item.products?.image_url || ""),
                 quantity: Number(item.quantity) || 1,
                 unit_price: Number(item.unit_price || item.unitPrice || item.product?.price || item.products?.price) || 0,
-                line_total: Number(item.line_total || item.lineTotal || (item.quantity * (item.unit_price || item.unitPrice))) || 0
+                line_total: Number(item.line_total || item.lineTotal || (item.quantity * (item.unit_price || item.unitPrice))) || 0,
+                isUnit: Boolean(item.is_unit || item.isUnit || false)
               }));
               console.log('✅ Items cargados desde fetch:', loadedItems);
               setItems(loadedItems);
@@ -172,7 +175,8 @@ export function RemitoFormComplete({
                 product_imageUrl: String(item.product?.imageUrl || item.product?.image_url || item.products?.imageUrl || item.products?.image_url || ""),
                 quantity: Number(item.quantity) || 1,
                 unit_price: Number(item.unit_price || item.unitPrice || item.product?.price || item.products?.price) || 0,
-                line_total: Number(item.line_total || item.lineTotal || (item.quantity * (item.unit_price || item.unitPrice))) || 0
+                line_total: Number(item.line_total || item.lineTotal || (item.quantity * (item.unit_price || item.unitPrice))) || 0,
+                isUnit: Boolean(item.is_unit || item.isUnit || false)
               }));
               setItems(loadedItems);
             } else {
@@ -300,6 +304,57 @@ export function RemitoFormComplete({
     }
   };
 
+  // Extraer el número de la presentación del nombre del producto (ej: "Power x6" -> 6)
+  const extractPresentationNumber = (productName: string): number | null => {
+    const match = productName.match(/x(\d+)$/i);
+    return match ? parseInt(match[1], 10) : null;
+  };
+
+  // Extraer el nombre base del producto sin la presentación (ej: "Power x6" -> "Power")
+  const extractBaseProductName = (productName: string): string => {
+    return productName.replace(/\s*x\d+$/i, '').trim();
+  };
+
+  const handleToggleUnitPresentation = (index: number, isUnit: boolean) => {
+    setItems(prev => prev.map((item, i) => {
+      if (i === index) {
+        if (isUnit) {
+          // Convertir a unidad: extraer número de presentación y dividir precio
+          const presentationNumber = extractPresentationNumber(item.product_name);
+          const baseName = extractBaseProductName(item.product_name);
+          let newPrice = item.unit_price;
+          
+          if (presentationNumber && presentationNumber > 0) {
+            // Dividir el precio por la cantidad de la presentación
+            newPrice = item.unit_price / presentationNumber;
+          } else {
+            // Si no se puede calcular, dejar en 0 para forzar ingreso manual
+            newPrice = 0;
+          }
+          
+          const lineTotal = newPrice * item.quantity;
+          
+          return {
+            ...item,
+            product_name: baseName,
+            unit_price: newPrice,
+            line_total: lineTotal,
+            isUnit: true
+          };
+        } else {
+          // Volver a presentación: restaurar nombre original (esto requeriría guardar el nombre original)
+          // Por ahora, solo quitamos el flag
+          return {
+            ...item,
+            isUnit: false
+          };
+        }
+      }
+      return item;
+    }));
+    setEditingPresentationIndex(null);
+  };
+
   const handleRemoveItem = (index: number) => {
     setItems(prev => prev.filter((_, i) => i !== index));
   };
@@ -322,7 +377,8 @@ export function RemitoFormComplete({
         product_desc: String(item.product_desc || ''),
         quantity: Number(item.quantity || 0),
         unit_price: Number(item.unit_price || 0),
-        line_total: Number(item.line_total || 0)
+        line_total: Number(item.line_total || 0),
+        is_unit: Boolean(item.isUnit || false)
       })),
       shippingCost: shippingCost || 0, // Si el checkbox no está marcado, shippingCost ya es 0
       previousBalance,
@@ -605,12 +661,76 @@ export function RemitoFormComplete({
                         />
                       )
                     )}
-                    <div>
+                    <div style={{ flex: 1 }}>
                       <div style={{ fontSize: '14px', fontWeight: 500 }}>{item.product_name}</div>
-                      {item.product_desc && (
+                      {item.isUnit && (
+                        <div style={{ fontSize: '12px', color: '#6b7280', fontStyle: 'italic' }}>por unidad</div>
+                      )}
+                      {item.product_desc && !item.isUnit && (
                         <div style={{ fontSize: '12px', color: '#6b7280' }}>{item.product_desc}</div>
                       )}
                     </div>
+                    {editingPresentationIndex === index ? (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', alignItems: 'flex-end' }}>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '12px', cursor: 'pointer' }}>
+                          <input
+                            type="checkbox"
+                            checked={item.isUnit || false}
+                            onChange={(e) => handleToggleUnitPresentation(index, e.target.checked)}
+                            style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+                          />
+                          <span>Unidad</span>
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() => setEditingPresentationIndex(null)}
+                          style={{
+                            padding: '2px 6px',
+                            fontSize: '11px',
+                            backgroundColor: '#ef4444',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '4px',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => setEditingPresentationIndex(index)}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          padding: '4px',
+                          backgroundColor: 'transparent',
+                          border: 'none',
+                          borderRadius: '4px',
+                          cursor: 'pointer',
+                          opacity: 0.6,
+                          transition: 'opacity 0.2s',
+                          flexShrink: 0
+                        }}
+                        onMouseEnter={(e) => {
+                          if (!isMobile) {
+                            e.currentTarget.style.opacity = '1';
+                            e.currentTarget.style.backgroundColor = '#e5e7eb';
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (!isMobile) {
+                            e.currentTarget.style.opacity = '0.6';
+                            e.currentTarget.style.backgroundColor = 'transparent';
+                          }
+                        }}
+                        title="Editar presentación"
+                      >
+                        <Pencil className="h-3.5 w-3.5" style={{ color: '#6b7280' }} />
+                      </button>
+                    )}
                   </div>
                 </td>
                 <td style={{ padding: '12px 8px', verticalAlign: 'middle' }}>
