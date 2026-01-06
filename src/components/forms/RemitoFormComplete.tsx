@@ -264,7 +264,7 @@ export function RemitoFormComplete({
     setItems(prev => prev.map((item, i) => {
       if (i === index) {
         const lineTotal = item.unit_price * newQuantity;
-        return { ...item, quantity: newQuantity, line_total: lineTotal };
+        return { ...item, quantity: newQuantity, line_total: lineTotal, isUnit: item.isUnit };
       }
       return item;
     }));
@@ -276,7 +276,7 @@ export function RemitoFormComplete({
     setItems(prev => prev.map((item, i) => {
       if (i === index) {
         const lineTotal = newPrice * item.quantity;
-        return { ...item, unit_price: newPrice, line_total: lineTotal };
+        return { ...item, unit_price: newPrice, line_total: lineTotal, isUnit: item.isUnit };
       }
       return item;
     }));
