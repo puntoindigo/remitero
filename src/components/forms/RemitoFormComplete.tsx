@@ -61,6 +61,7 @@ export function RemitoFormComplete({
   const [accountPayment, setAccountPayment] = useState<number>(0);
   const [isShippingEnabled, setIsShippingEnabled] = useState<boolean>(false); // Solo para controlar el checkbox, no se envía a la API
   const [editingPriceIndex, setEditingPriceIndex] = useState<number | null>(null); // Índice del item cuyo precio se está editando
+  const [editingPriceValue, setEditingPriceValue] = useState<string>(''); // Valor temporal mientras se edita
 
   const {
     register,
@@ -275,6 +276,28 @@ export function RemitoFormComplete({
       return item;
     }));
     setEditingPriceIndex(null);
+    setEditingPriceValue('');
+  };
+
+  const handleStartEditingPrice = (index: number) => {
+    const item = items[index];
+    setEditingPriceIndex(index);
+    setEditingPriceValue(item.unit_price.toString());
+  };
+
+  const handleCancelEditingPrice = () => {
+    setEditingPriceIndex(null);
+    setEditingPriceValue('');
+  };
+
+  const handleConfirmEditingPrice = () => {
+    if (editingPriceIndex === null) return;
+    const newPrice = parseFloat(editingPriceValue) || 0;
+    if (newPrice >= 0) {
+      handleUpdateUnitPrice(editingPriceIndex, newPrice);
+    } else {
+      handleCancelEditingPrice();
+    }
   };
 
   const handleRemoveItem = (index: number) => {
@@ -619,33 +642,76 @@ export function RemitoFormComplete({
                     }}
                   >
                     {editingPriceIndex === index ? (
-                      <input
-                        type="number"
-                        min="0"
-                        step="0.01"
-                        value={item.unit_price}
-                        onChange={(e) => {
-                          const newPrice = parseFloat(e.target.value) || 0;
-                          handleUpdateUnitPrice(index, newPrice);
-                        }}
-                        onBlur={() => setEditingPriceIndex(null)}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
-                            setEditingPriceIndex(null);
-                          } else if (e.key === 'Escape') {
-                            setEditingPriceIndex(null);
-                          }
-                        }}
-                        autoFocus
-                        style={{ 
-                          width: '100px', 
-                          fontSize: '14px', 
-                          padding: '4px 8px',
-                          border: '1px solid #3b82f6',
-                          borderRadius: '4px',
-                          textAlign: 'right'
-                        }}
-                      />
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                        <input
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          value={editingPriceValue}
+                          onChange={(e) => {
+                            setEditingPriceValue(e.target.value);
+                          }}
+                          onBlur={handleConfirmEditingPrice}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault();
+                              handleConfirmEditingPrice();
+                            } else if (e.key === 'Escape') {
+                              e.preventDefault();
+                              handleCancelEditingPrice();
+                            }
+                          }}
+                          autoFocus
+                          style={{ 
+                            width: '100px', 
+                            fontSize: '14px', 
+                            padding: '4px 8px',
+                            border: '1px solid #3b82f6',
+                            borderRadius: '4px',
+                            textAlign: 'right'
+                          }}
+                        />
+                        <button
+                          type="button"
+                          onClick={handleConfirmEditingPrice}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            padding: '4px 6px',
+                            backgroundColor: '#3b82f6',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '4px',
+                            cursor: 'pointer',
+                            fontSize: '12px',
+                            flexShrink: 0
+                          }}
+                          title="Confirmar"
+                        >
+                          ✓
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleCancelEditingPrice}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            padding: '4px 6px',
+                            backgroundColor: '#ef4444',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '4px',
+                            cursor: 'pointer',
+                            fontSize: '12px',
+                            flexShrink: 0
+                          }}
+                          title="Cancelar"
+                        >
+                          ✕
+                        </button>
+                      </div>
                     ) : (
                       <>
                         <span>
@@ -657,7 +723,7 @@ export function RemitoFormComplete({
                         {!isMobile && (
                           <button
                             type="button"
-                            onClick={() => setEditingPriceIndex(index)}
+                            onClick={() => handleStartEditingPrice(index)}
                             style={{
                               display: 'flex',
                               alignItems: 'center',
@@ -687,7 +753,7 @@ export function RemitoFormComplete({
                         {isMobile && (
                           <button
                             type="button"
-                            onClick={() => setEditingPriceIndex(index)}
+                            onClick={() => handleStartEditingPrice(index)}
                             style={{
                               display: 'flex',
                               alignItems: 'center',
