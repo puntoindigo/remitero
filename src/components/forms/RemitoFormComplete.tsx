@@ -384,15 +384,25 @@ export function RemitoFormComplete({
 
     const formData = {
       ...data,
-      items: items.map(item => ({
-        product_id: String(item.product_id || ''),
-        product_name: String(item.product_name || ''),
-        product_desc: String(item.product_desc || ''),
-        quantity: Number(item.quantity || 0),
-        unit_price: Number(item.unit_price || 0),
-        line_total: Number(item.line_total || 0),
-        is_unit: Boolean(item.isUnit || false)
-      })),
+      items: items.map(item => {
+        const isUnitValue = item.isUnit === true;
+        console.log('💾 Item a guardar:', {
+          product_name: item.product_name,
+          isUnit: item.isUnit,
+          isUnitValue: isUnitValue,
+          'typeof isUnit': typeof item.isUnit
+        });
+        return {
+          product_id: String(item.product_id || ''),
+          product_name: String(item.product_name || ''),
+          product_desc: String(item.product_desc || ''),
+          quantity: Number(item.quantity || 0),
+          unit_price: Number(item.unit_price || 0),
+          line_total: Number(item.line_total || 0),
+          is_unit: isUnitValue,
+          isUnit: isUnitValue // Enviar ambos por si acaso
+        };
+      }),
       shippingCost: shippingCost || 0, // Si el checkbox no está marcado, shippingCost ya es 0
       previousBalance,
       accountPayment,
