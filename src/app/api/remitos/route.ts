@@ -370,6 +370,14 @@ export async function POST(request: NextRequest) {
     }));
 
     console.log('Mapped remito items:', remitoItems);
+    // Log detallado de is_unit
+    remitoItems.forEach((item: any, index: number) => {
+      console.log(`💾 [API] Item ${index} a insertar (POST):`, {
+        product_name: item.product_name,
+        is_unit: item.is_unit,
+        'typeof is_unit': typeof item.is_unit
+      });
+    });
 
     const { error: itemsError } = await supabaseAdmin
       .from('remito_items')

@@ -346,6 +346,14 @@ export async function PUT(
     }));
 
     console.log('Items to insert:', JSON.stringify(itemsToInsert, null, 2));
+    // Log detallado de is_unit
+    itemsToInsert.forEach((item: any, index: number) => {
+      console.log(`💾 [API] Item ${index} a insertar:`, {
+        product_name: item.product_name,
+        is_unit: item.is_unit,
+        'typeof is_unit': typeof item.is_unit
+      });
+    });
 
     const { error: insertItemsError } = await supabaseAdmin
       .from('remito_items')
