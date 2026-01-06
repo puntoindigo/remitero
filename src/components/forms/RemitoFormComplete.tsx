@@ -20,6 +20,7 @@ interface RemitoItem {
   unit_price: number;
   line_total: number;
   isUnit?: boolean; // Indica si el producto se vende por unidad en lugar de por presentación
+  parentIndex?: number; // Índice del item padre si este es una versión "unidad" de otro item
 }
 
 interface RemitoFormCompleteProps {
@@ -316,42 +317,41 @@ export function RemitoFormComplete({
   };
 
   const handleToggleUnitPresentation = (index: number, isUnit: boolean) => {
-    setItems(prev => prev.map((item, i) => {
-      if (i === index) {
-        if (isUnit) {
-          // Convertir a unidad: extraer número de presentación y dividir precio
-          const presentationNumber = extractPresentationNumber(item.product_name);
-          const baseName = extractBaseProductName(item.product_name);
-          let newPrice = item.unit_price;
-          
-          if (presentationNumber && presentationNumber > 0) {
-            // Dividir el precio por la cantidad de la presentación
-            newPrice = item.unit_price / presentationNumber;
-          } else {
-            // Si no se puede calcular, dejar en 0 para forzar ingreso manual
-            newPrice = 0;
-          }
-          
-          const lineTotal = newPrice * item.quantity;
-          
-          return {
-            ...item,
-            product_name: baseName,
-            unit_price: newPrice,
-            line_total: lineTotal,
-            isUnit: true
-          };
-        } else {
-          // Volver a presentación: restaurar nombre original (esto requeriría guardar el nombre original)
-          // Por ahora, solo quitamos el flag
-          return {
-            ...item,
-            isUnit: false
-          };
-        }
+    if (isUnit) {
+      // Crear una nueva línea con el producto por unidad
+      const parentItem = items[index];
+      const presentationNumber = extractPresentationNumber(parentItem.product_name);
+      const baseName = extractBaseProductName(parentItem.product_name);
+      let newPrice = 0;
+      
+      if (presentationNumber && presentationNumber > 0) {
+        // Dividir el precio por la cantidad de la presentación
+        newPrice = parentItem.unit_price / presentationNumber;
       }
-      return item;
-    }));
+      
+      // Crear nuevo item para unidad
+      const unitItem: RemitoItem = {
+        product_id: parentItem.product_id,
+        product_name: baseName,
+        product_desc: parentItem.product_desc,
+        product_imageUrl: parentItem.product_imageUrl,
+        quantity: 1, // Cantidad inicial por defecto
+        unit_price: newPrice,
+        line_total: newPrice,
+        isUnit: true,
+        parentIndex: index
+      };
+      
+      // Insertar el nuevo item después del item padre
+      setItems(prev => {
+        const newItems = [...prev];
+        newItems.splice(index + 1, 0, unitItem);
+        return newItems;
+      });
+    } else {
+      // Si se desmarca en un item que es unidad, eliminar esa línea
+      setItems(prev => prev.filter((_, i) => i !== index));
+    }
     setEditingPresentationIndex(null);
   };
 
@@ -672,64 +672,100 @@ export function RemitoFormComplete({
                     </div>
                     {editingPresentationIndex === index ? (
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', alignItems: 'flex-end' }}>
-                        <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '12px', cursor: 'pointer' }}>
-                          <input
-                            type="checkbox"
-                            checked={item.isUnit || false}
-                            onChange={(e) => handleToggleUnitPresentation(index, e.target.checked)}
-                            style={{ width: '16px', height: '16px', cursor: 'pointer' }}
-                          />
-                          <span>Unidad</span>
-                        </label>
-                        <button
-                          type="button"
-                          onClick={() => setEditingPresentationIndex(null)}
-                          style={{
-                            padding: '2px 6px',
-                            fontSize: '11px',
-                            backgroundColor: '#ef4444',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '4px',
-                            cursor: 'pointer'
-                          }}
-                        >
-                          ✕
-                        </button>
+                        {item.isUnit ? (
+                          // Si ya es unidad, mostrar checkbox desmarcado para eliminar
+                          <>
+                            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '12px', cursor: 'pointer' }}>
+                              <input
+                                type="checkbox"
+                                checked={true}
+                                onChange={(e) => handleToggleUnitPresentation(index, !e.target.checked)}
+                                style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+                              />
+                              <span>Unidad (desmarcar para eliminar)</span>
+                            </label>
+                            <button
+                              type="button"
+                              onClick={() => setEditingPresentationIndex(null)}
+                              style={{
+                                padding: '2px 6px',
+                                fontSize: '11px',
+                                backgroundColor: '#ef4444',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '4px',
+                                cursor: 'pointer'
+                              }}
+                            >
+                              ✕
+                            </button>
+                          </>
+                        ) : (
+                          // Si no es unidad, mostrar checkbox para crear línea de unidad
+                          <>
+                            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '12px', cursor: 'pointer' }}>
+                              <input
+                                type="checkbox"
+                                checked={false}
+                                onChange={(e) => handleToggleUnitPresentation(index, e.target.checked)}
+                                style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+                              />
+                              <span>Agregar por unidad</span>
+                            </label>
+                            <button
+                              type="button"
+                              onClick={() => setEditingPresentationIndex(null)}
+                              style={{
+                                padding: '2px 6px',
+                                fontSize: '11px',
+                                backgroundColor: '#ef4444',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '4px',
+                                cursor: 'pointer'
+                              }}
+                            >
+                              ✕
+                            </button>
+                          </>
+                        )}
                       </div>
                     ) : (
-                      <button
-                        type="button"
-                        onClick={() => setEditingPresentationIndex(index)}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          padding: '4px',
-                          backgroundColor: 'transparent',
-                          border: 'none',
-                          borderRadius: '4px',
-                          cursor: 'pointer',
-                          opacity: 0.6,
-                          transition: 'opacity 0.2s',
-                          flexShrink: 0
-                        }}
-                        onMouseEnter={(e) => {
-                          if (!isMobile) {
-                            e.currentTarget.style.opacity = '1';
-                            e.currentTarget.style.backgroundColor = '#e5e7eb';
-                          }
-                        }}
-                        onMouseLeave={(e) => {
-                          if (!isMobile) {
-                            e.currentTarget.style.opacity = '0.6';
-                            e.currentTarget.style.backgroundColor = 'transparent';
-                          }
-                        }}
-                        title="Editar presentación"
-                      >
-                        <Pencil className="h-3.5 w-3.5" style={{ color: '#6b7280' }} />
-                      </button>
+                      // Solo mostrar el lápiz si el producto tiene presentación (x6, x12, etc.) o si es unidad
+                      {(extractPresentationNumber(item.product_name) !== null || item.isUnit) && (
+                        <button
+                          type="button"
+                          onClick={() => setEditingPresentationIndex(index)}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            padding: '4px',
+                            backgroundColor: 'transparent',
+                            border: 'none',
+                            borderRadius: '4px',
+                            cursor: 'pointer',
+                            opacity: 0.6,
+                            transition: 'opacity 0.2s',
+                            flexShrink: 0
+                          }}
+                          onMouseEnter={(e) => {
+                            if (!isMobile) {
+                              e.currentTarget.style.opacity = '1';
+                              e.currentTarget.style.backgroundColor = '#e5e7eb';
+                            }
+                          }}
+                          onMouseLeave={(e) => {
+                            if (!isMobile) {
+                              e.currentTarget.style.opacity = '0.6';
+                              e.currentTarget.style.backgroundColor = 'transparent';
+                            }
+                          }}
+                          title={item.isUnit ? "Eliminar línea de unidad" : "Agregar versión por unidad"}
+                        >
+                          <Pencil className="h-3.5 w-3.5" style={{ color: '#6b7280' }} />
+                        </button>
+                      )}
                     )}
                   </div>
                 </td>
