@@ -194,8 +194,8 @@ export default function PrintRemito() {
         {isFirstPage && (
           <div className="print-info-section" style={{ marginBottom: '20px' }}>
             <div className="print-client-info">
-              <p><strong>{remito.client.name}</strong></p>
-              {remito.client.address && <p>{remito.client.address}</p>}
+              <p><strong>{remito.client.name.toUpperCase()}</strong></p>
+              {remito.client.address && <p>{remito.client.address.toUpperCase()}</p>}
               {remito.client.phone && <p>Tel: {remito.client.phone}</p>}
             </div>
           </div>

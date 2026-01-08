@@ -224,7 +224,7 @@ hr *,
 
 .print-date-inline p {
   margin: 0 !important;
-  font-size: 9pt !important;
+  font-size: 10pt !important;
   line-height: 1.2 !important;
   display: block !important;
   visibility: visible !important;
@@ -292,7 +292,9 @@ hr *,
 
 .print-client-info p {
   margin: 0 0 2px 0 !important;
-  font-size: 9pt !important;
+  font-size: 14pt !important;
+  font-weight: bold !important;
+  text-transform: uppercase !important;
 }
 
 /* Items area - ocupa espacio disponible, permite que el total quede abajo */
@@ -316,7 +318,7 @@ hr *,
   max-width: 100% !important;
   table-layout: fixed !important; /* Forzar distribución fija de columnas */
   border-collapse: collapse;
-  font-size: 9pt;
+  font-size: 10pt;
 }
 
 .print-table thead {
@@ -328,7 +330,7 @@ hr *,
   border: 1px solid #000;
   padding: 2mm 3mm; /* Mismo padding que las celdas */
   font-weight: bold;
-  font-size: 9pt;
+  font-size: 10pt;
   box-sizing: border-box; /* Incluir border y padding en el cálculo del ancho */
 }
 
@@ -354,7 +356,7 @@ hr *,
 .print-table td {
   border: 1px solid #ddd;
   padding: 1mm 3mm; /* Padding vertical reducido a 1mm */
-  font-size: 9pt;
+  font-size: 10pt;
   line-height: 1.4; /* Mejorar line-height */
   word-spacing: 0.1em; /* Espaciado entre palabras */
   letter-spacing: 0.02em; /* Espaciado entre letras */
@@ -397,7 +399,7 @@ hr *,
 
 .print-total-inline p {
   margin: 0;
-  font-size: 12pt;
+  font-size: 13pt;
   font-weight: bold;
   text-align: right;
   padding: 0;
@@ -408,7 +410,7 @@ hr *,
   margin-top: 2mm;
   padding-top: 2mm;
   border-top: 1px solid #ccc;
-  font-size: 8pt;
+  font-size: 9pt;
   flex-shrink: 0;
   max-height: 15mm;
   overflow: hidden;
@@ -568,7 +570,7 @@ body > div:not(.print-container):not([data-print-content]) {
   .print-copy .print-date-inline p {
     margin: 0 !important;
     padding: 0 !important;
-    font-size: 9pt !important;
+    font-size: 10pt !important;
     display: block !important;
     visibility: visible !important;
     opacity: 1 !important;
@@ -622,7 +624,9 @@ body > div:not(.print-container):not([data-print-content]) {
   
   .print-client-info p {
     margin: 0 0 2px 0 !important;
-    font-size: 9pt !important;
+    font-size: 14pt !important;
+    font-weight: bold !important;
+    text-transform: uppercase !important;
   }
 
   /* Asegurar que la tabla ocupe todo el ancho en impresión */
@@ -830,7 +834,7 @@ body > div:not(.print-container):not([data-print-content]) {
   
   .print-total-inline p {
     margin: 0 !important;
-    font-size: 12pt !important;
+    font-size: 13pt !important;
     font-weight: bold !important;
     text-align: right !important;
     padding: 0 !important;
